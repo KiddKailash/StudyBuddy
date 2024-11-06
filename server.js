@@ -5,15 +5,17 @@ const { YoutubeTranscript } = require('youtube-transcript');
 const app = express();
 const PORT = process.env.PORT || 5002;
 
+// Configure CORS to allow requests from your frontend domain
 app.use(
   cors({
-    origin: '*', // Replace with your frontend URL in production for security
+    origin: '*', // Replace '*' with your frontend URL in production for security
   }),
 );
 
+// Middleware to parse JSON requests
 app.use(express.json());
 
-// Test route to check YouTube connectivity (optional)
+// Optional: Test route to verify server and network connectivity
 app.get('/test-connection', (req, res) => {
   const https = require('https');
   https
@@ -64,13 +66,16 @@ app.get('/transcript', async (req, res) => {
   }
 });
 
-// Improved function to extract video ID from YouTube URLs
+// Improved function to extract video ID from various YouTube URL formats
 function extractVideoId(url) {
   try {
     const urlObj = new URL(url);
     if (urlObj.hostname === 'youtu.be') {
       return urlObj.pathname.slice(1);
-    } else if (urlObj.hostname === 'www.youtube.com' || urlObj.hostname === 'youtube.com') {
+    } else if (
+      urlObj.hostname === 'www.youtube.com' ||
+      urlObj.hostname === 'youtube.com'
+    ) {
       return urlObj.searchParams.get('v');
     } else {
       return null;
