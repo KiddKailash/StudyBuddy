@@ -1,76 +1,87 @@
-import { Link } from "react-router-dom";
-// import StoryPathImg from "../assets/icon.png";
-import PageTitle from "../components/PageTitle";
-import PopAlert from "../components/PopAlert";
+import { useState } from 'react';
+import PageTitle from '../components/PageTitle';
+import PopAlert from '../components/PopAlert';
+import { fetchTranscript } from '../utils/fetchTranscript';
 
 // ================================
-// MUI Component Imports
-// ================================
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import Grid from "@mui/material/Grid2";
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid2';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 /**
- * LandingPage component for displaying the welcome message and navigation options.
- *
- * @return {JSX.Element} The landing page section with a welcome message, tour types, and navigation button.
+ * LandingPage component for displaying the YouTube URL input and transcript.
  */
 const LandingPage = () => {
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [transcript, setTranscript] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleUrlChange = (event) => {
+    setYoutubeUrl(event.target.value);
+  };
+
+  const handleFetchTranscript = async () => {
+    setIsLoading(true);
+    try {
+      PopAlert('Fetching transcript...');
+      const transcriptData = await fetchTranscript(youtubeUrl);
+      if (transcriptData.length === 0) {
+        PopAlert('No transcript available for this video.');
+      } else {
+        setTranscript(transcriptData);
+      }
+    } catch (error) {
+      PopAlert(`Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <Grid container columnSpacing={24} alignContent="center">
-      {/* Left Section: Welcome text and navigation button */}
+    <Grid container spacing={3} alignContent="center">
       <Grid
-        size={{ xs: 12, md: 6 }}
         sx={{
-          textAlign: "left",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
+          textAlign: 'left',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
         }}
       >
-        <PageTitle
-          title="Welcome to StoryPath"
-          subtitle="Create engaging tours, hunts, and adventures!"
+        <PageTitle title="Enter URL" />
+
+        {/* YouTube URL Input Field */}
+        <TextField
+          label="Enter YouTube URL"
+          variant="outlined"
+          value={youtubeUrl}
+          onChange={handleUrlChange}
+          fullWidth
+          sx={{ mt: 2 }}
+          placeholder="https://www.youtube.com/watch?v=example"
         />
-        {/* <Typography variant="h2" gutterBottom>
-          Welcome to StoryPath
-        </Typography>
 
-        <Typography variant="h5" gutterBottom>
-          Create engaging tours, hunts, and adventures!
-        </Typography>
-        <Divider sx={{ my: 2 }} /> */}
-        <List>
-          <ListItem>• Museum Tours</ListItem>
-          <ListItem>• Campus Tours</ListItem>
-          <ListItem>• Treasure Hunts</ListItem>
-          <ListItem>• And more!</ListItem>
-        </List>
-          <Button
-            variant="contained"
-            sx={{ mt: 4 }}
-            component={Link}
-            to="/Projects"
-            onClick={PopAlert("Manage projects from this page")}
-          >
-            Manage Projects
-          </Button>
-      </Grid>
+        <Button
+          variant="contained"
+          sx={{ mt: 4 }}
+          onClick={handleFetchTranscript}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Loading...' : 'Fetch Transcript'}
+        </Button>
 
-      {/* Right Section: Image */}
-      <Grid size={{ xs: 0, md: 6 }}>
-        {/* <Box
-          component="img"
-          sx={{
-            width: "100%",
-            height: "auto",
-            borderRadius: 2,
-          }}
-          alt="Tours, Hunts, and Adventures"
-          src={StoryPathImg}
-        /> */}
+        {/* Display Transcript */}
+        {transcript.length > 0 && (
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="h6">Transcript:</Typography>
+            <ul>
+              {transcript.map((item, index) => (
+                <li key={index}>{item.text}</li>
+              ))}
+            </ul>
+          </Box>
+        )}
       </Grid>
     </Grid>
   );

@@ -19,7 +19,7 @@ function App() {
 
   return (
     <Router>
-      <MenuBar />
+      {/* <MenuBar /> */}
 
       <Box sx={{ padding: 2 }}>
         <Routes>
@@ -31,9 +31,9 @@ function App() {
 
       <GPTchat />
 
-      <Box sx={{ width: "100%", position: "relative", left: 0 }}>
+      {/* <Box sx={{ width: "100%", position: "relative", left: 0 }}>
         <Footer />
-      </Box>
+      </Box> */}
     </Router>
   );
 }
