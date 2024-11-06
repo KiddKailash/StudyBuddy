@@ -7,11 +7,12 @@
     "start": "node server.js"
   },
   "engines": {
-    "node": "16.x"
+    "node": "18.x"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.1",
+    "node": "^22.11.0",
     "youtube-transcript": "^1.2.1"
   }
 }
