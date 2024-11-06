@@ -1,35 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+import Box from "@mui/material/Box";
+
+import MenuBar from "./components/MenuBar";
+import Footer from "./components/Footer";
+import GPTchat from "./components/GPTchat";
+
+import PageNotFound from "./webpages/PageNotFound";
+import LandingPage from "./webpages/LandingPage";
+
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const pages = [
+    { path: "/", component: <LandingPage /> },
+    { path: "*", component: <PageNotFound /> },
+  ];
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <MenuBar />
+
+      <Box sx={{ padding: 2 }}>
+        <Routes>
+          {pages.map((page, index) => (
+            <Route key={index} path={page.path} element={page.component} />
+          ))}
+        </Routes>
+      </Box>
+
+      <GPTchat />
+
+      <Box sx={{ width: "100%", position: "relative", left: 0 }}>
+        <Footer />
+      </Box>
+    </Router>
+  );
 }
 
-export default App
+export default App;
