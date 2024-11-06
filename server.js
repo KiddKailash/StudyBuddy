@@ -5,11 +5,23 @@ const { YoutubeTranscript } = require('youtube-transcript');
 const app = express();
 const PORT = process.env.PORT || 5002;
 
-// Configure CORS to allow requests from any origin (for development)
-// **Important:** Replace '*' with your frontend URL in production for security
+// List of allowed origins
+const allowedOrigins = ['http://localhost:5173', 'https://clipcard.netlify.app'];
+
+// Configure CORS to allow requests from specified origins
 app.use(
   cors({
-    origin: 'http://localhost:5173/',
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        // Origin is allowed
+        return callback(null, true);
+      } else {
+        // Origin is not allowed
+        return callback(new Error('Not allowed by CORS'));
+      }
+    },
   }),
 );
 
@@ -58,7 +70,10 @@ app.get('/transcript', async (req, res) => {
     console.error('Error fetching transcript:', error);
 
     // Handle specific errors
-    if (error.message.includes('Could not retrieve transcript')) {
+    if (
+      error.message.includes('Transcript is disabled') ||
+      error.message.includes('Could not retrieve transcript')
+    ) {
       res.status(404).json({
         error: 'Transcript not found',
         details: error.message,
@@ -67,13 +82,13 @@ app.get('/transcript', async (req, res) => {
       res.status(500).json({
         error: 'Error fetching transcript',
         details: error.message,
-        // stack: error.stack, // Uncomment for debugging; remove in production
+        stack: error.stack, // Uncomment for debugging; remove in production
       });
     }
   }
 });
 
-// Improved function to extract video ID from various YouTube URL formats
+// Function to extract video ID from various YouTube URL formats
 function extractVideoId(url) {
   try {
     const urlObj = new URL(url);
@@ -81,7 +96,8 @@ function extractVideoId(url) {
       return urlObj.pathname.slice(1);
     } else if (
       urlObj.hostname === 'www.youtube.com' ||
-      urlObj.hostname === 'youtube.com'
+      urlObj.hostname === 'youtube.com' ||
+      urlObj.hostname === 'm.youtube.com'
     ) {
       return urlObj.searchParams.get('v');
     } else {
