@@ -5,10 +5,11 @@ const { YoutubeTranscript } = require('youtube-transcript');
 const app = express();
 const PORT = process.env.PORT || 5002;
 
-// Configure CORS to allow requests from your frontend domain
+// Configure CORS to allow requests from any origin (for development)
+// **Important:** Replace '*' with your frontend URL in production for security
 app.use(
   cors({
-    origin: '*', // Replace '*' with your frontend URL in production for security
+    origin: 'http://localhost:5173/',
   }),
 );
 
@@ -32,6 +33,8 @@ app.get('/test-connection', (req, res) => {
 app.get('/transcript', async (req, res) => {
   const videoUrl = req.query.url;
 
+  console.log(`Received request for URL: ${videoUrl}`);
+
   if (!videoUrl) {
     res.status(400).json({ error: "Missing 'url' query parameter" });
     return;
@@ -39,13 +42,17 @@ app.get('/transcript', async (req, res) => {
 
   const videoId = extractVideoId(videoUrl);
 
+  console.log(`Extracted Video ID: ${videoId}`);
+
   if (!videoId) {
     res.status(400).json({ error: 'Invalid YouTube URL' });
     return;
   }
 
   try {
+    console.log(`Fetching transcript for Video ID: ${videoId}`);
     const transcript = await YoutubeTranscript.fetchTranscript(videoId);
+    console.log(`Fetched transcript successfully for Video ID: ${videoId}`);
     res.json(transcript);
   } catch (error) {
     console.error('Error fetching transcript:', error);
