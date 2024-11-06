@@ -1,4 +1,5 @@
-// fetchTranscript.js
+// const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL= 'http://localhost:5002'
 
 /**
  * Fetches the transcript for a given YouTube URL via the backend.
@@ -9,7 +10,7 @@
 export async function fetchTranscript(URL) {
   try {
     const response = await fetch(
-      `http://localhost:5002/transcript?url=${encodeURIComponent(URL)}`,
+      `${BACKEND_URL}/transcript?url=${encodeURIComponent(URL)}`,
     );
     const data = await response.json();
     if (!response.ok) {
