@@ -42,8 +42,8 @@ function MenuBar() {
         >
           {/* Left side menu items */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <MenuItem link="/" name="StoryPath" />
-            <MenuItem link="/Projects" name="Projects" />
+            <MenuItem link="/" name="Home" />
+            <MenuItem link="/Settings" name="Settings" />
           </Box>
           {/* Theme toggle button on the right */}
           <ThemeToggleButton />

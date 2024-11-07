@@ -19,7 +19,7 @@ function App() {
 
   return (
     <Router>
-      {/* <MenuBar /> */}
+      <MenuBar />
 
       <Box sx={{ padding: 2 }}>
         <Routes>
