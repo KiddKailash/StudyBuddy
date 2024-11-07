@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
  */
 const LandingPage = () => {
   const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [transcript, setTranscript] = useState([]);
+  const [transcript, setTranscript] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUrlChange = (event) => {
@@ -27,7 +27,7 @@ const LandingPage = () => {
     try {
       PopAlert('Fetching transcript...');
       const transcriptData = await fetchTranscript(youtubeUrl);
-      if (transcriptData.length === 0) {
+      if (!transcriptData || transcriptData.trim().length === 0) {
         PopAlert('No transcript available for this video.');
       } else {
         setTranscript(transcriptData);
@@ -72,14 +72,12 @@ const LandingPage = () => {
         </Button>
 
         {/* Display Transcript */}
-        {transcript.length > 0 && (
+        {transcript && (
           <Box sx={{ mt: 4 }}>
             <Typography variant="h6">Transcript:</Typography>
-            <ul>
-              {transcript.map((item, index) => (
-                <li key={index}>{item.text}</li>
-              ))}
-            </ul>
+            <Typography variant="body1" style={{ whiteSpace: 'pre-wrap' }}>
+              {transcript}
+            </Typography>
           </Box>
         )}
       </Grid>
