@@ -1,26 +1,44 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { useState } from "react";
 import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 
 import MenuBar from "./components/MenuBar";
 import Footer from "./components/Footer";
 import GPTchat from "./components/GPTchat";
-import Sidebar from "./components/Sidebar"; // Ensure you have the Sidebar component
+import Sidebar from "./components/Sidebar";
 
 import PageNotFound from "./webpages/PageNotFound";
-import LandingPage from "./webpages/LandingPage";
+import StudySession from "./webpages/StudySession";
 
 import "./App.css";
 
 function App() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpand = () => {
+    setIsExpanded((prev) => !prev);
+  };
+
   const pages = [
-    { path: "/", component: <LandingPage /> },
+    { path: "/", component: <StudySession /> },
     { path: "*", component: <PageNotFound /> },
   ];
 
   return (
     <Router>
       {/* Header */}
-      <Box sx={{ position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000 }}>
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          zIndex: 1000,
+        }}
+      >
         <MenuBar />
       </Box>
 
@@ -36,7 +54,8 @@ function App() {
           bgcolor: 'background.default',
           borderRight: '1px solid #ccc',
           overflowY: 'auto',
-          zIndex: 900,
+          zIndex: 1, // Lower z-index
+
         }}
       >
         <Sidebar />
@@ -45,12 +64,45 @@ function App() {
       {/* Main Content */}
       <Box
         sx={{
-          marginTop: '64px', // Height of the header
-          marginLeft: '240px', // Width of the sidebar
+          position: 'fixed',
+          top: isExpanded ? 0 : '64px', // Cover header when expanded
+          left: isExpanded ? 0 : '240px', // Align with sidebar or expand fully
+          width: isExpanded ? '100vw' : `calc(100% - 240px)`,
+          height: isExpanded ? '100vh' : 'calc(100vh - 64px)',
           padding: 2,
-          minHeight: 'calc(100vh - 64px)', // Ensure the main content covers the viewport
+          bgcolor: 'background.paper',
+          zIndex: 50, // Higher z-index to overlay other components
+          transition: 'all 0.5s ease-in-out',
+          boxShadow: isExpanded ? 3 : 'none', // Optional: Add shadow when expanded
+          overflow: 'hidden', // Prevent content overflow during transition
         }}
       >
+        {/* Expand/Collapse Button */}
+        <IconButton
+          onClick={toggleExpand}
+          sx={{
+            position: 'absolute',
+            bottom: '40px',
+            right: '40px',
+            transform: 'rotate(45deg)', // Always rotate 45 degrees
+            transition: 'transform 0.3s ease-in-out',
+            bgcolor: 'background.default',
+            '&:hover': {
+              bgcolor: 'grey.200',
+            },
+          }}
+        >
+          {isExpanded ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
+        </IconButton>
+
+        {/* Conditionally Render MenuBar Inside MainContent When Expanded */}
+        {isExpanded && (
+          <Box sx={{ mb: 2 }}>
+            <MenuBar />
+          </Box>
+        )}
+
+        {/* Routes */}
         <Routes>
           {pages.map((page, index) => (
             <Route key={index} path={page.path} element={page.component} />
@@ -59,20 +111,30 @@ function App() {
       </Box>
 
       {/* GPT Chat */}
-      <GPTchat />
-
-      {/* Footer */}
       <Box
         sx={{
-          position: 'relative',
+          position: 'fixed',
+          bottom: '0',
+          right: '0',
+          zIndex: 100, // Lower z-index
+        }}
+      >
+        <GPTchat />
+      </Box>
+
+      {/* Footer
+      <Box
+        sx={{
+          position: 'fixed',
           bottom: 0,
           left: '240px', // Align with the sidebar
           width: `calc(100% - 240px)`, // Full width minus sidebar
           bgcolor: 'background.paper',
+          zIndex: 100, // Lower z-index
         }}
       >
         <Footer />
-      </Box>
+      </Box> */}
     </Router>
   );
 }

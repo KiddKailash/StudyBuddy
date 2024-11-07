@@ -33,6 +33,7 @@ const FlipCardFace = styled(Card)(({ theme }) => ({
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
+  overflow: 'auto', // Allows scrolling if content overflows
 }));
 
 // Front face of the card
@@ -58,21 +59,15 @@ const Flashcard = ({ question, answer }) => {
       <FlipCardInner flipped={flipped}>
         <FlipCardFront>
           <CardContent>
-            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              Question
-            </Typography>
             <Typography variant="body1" color="text.primary">
-              {question}
+              Q: {question}
             </Typography>
           </CardContent>
         </FlipCardFront>
         <FlipCardBack>
           <CardContent>
-            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              Answer
-            </Typography>
             <Typography variant="body1" color="text.primary">
-              {answer}
+              A: {answer}
             </Typography>
           </CardContent>
         </FlipCardBack>

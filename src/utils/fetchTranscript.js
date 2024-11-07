@@ -1,4 +1,3 @@
-// const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const BACKEND_URL = import.meta.env.VITE_LOCAL_BACKEND_URL;
 
 /**
@@ -27,7 +26,7 @@ export async function fetchTranscript(URL) {
  * Generates flashcards from the transcript using OpenAI API.
  *
  * @param {string} transcript - The transcript text.
- * @return {Promise<Array>} - Promise resolving to an array of flashcard objects.
+ * @return {Promise<Array<{question: string, answer: string}>>} - Array of flashcards.
  */
 export async function generateFlashcards(transcript) {
   const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
@@ -36,7 +35,12 @@ export async function generateFlashcards(transcript) {
     throw new Error('OpenAI API key is not set in the environment variables.');
   }
 
-  const prompt = `
+  const systemMessage = {
+    role: 'system',
+    content: 'You are an assistant that generates study flashcards from a given transcript. Provide only the JSON array of flashcards without any additional text or markdown.',
+  };
+
+  const userPrompt = `
 Convert the following transcript into a series of study flashcards in JSON format.
 Each flashcard should be an object with "question" and "answer" fields.
 Ensure that the flashcards cover the important information in the transcript.
@@ -44,7 +48,7 @@ Ensure that the flashcards cover the important information in the transcript.
 Transcript:
 ${transcript}
 
-Output format:
+Please provide the flashcards in the following JSON format without any additional text or markdown:
 [
   {
     "question": "Question 1",
@@ -53,10 +57,14 @@ Output format:
   {
     "question": "Question 2",
     "answer": "Answer 2"
-  },
-  ...
+  }
 ]
-`;
+  `;
+
+  const userMessage = {
+    role: 'user',
+    content: userPrompt.trim(),
+  };
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -66,11 +74,9 @@ Output format:
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 1500,
+        model: 'gpt-3.5-turbo', // or 'gpt-3.5-turbo'
+        messages: [systemMessage, userMessage],
+        max_tokens: 3000,
         temperature: 0.7,
         n: 1,
       }),
@@ -84,12 +90,22 @@ Output format:
 
     const flashcardsText = data.choices[0].message.content.trim();
 
-    // Attempt to parse the response as JSON
+    // Sanitize the response by removing any markdown code blocks
+    const codeBlockRegex = /```json\s*([\s\S]*?)\s*```/;
+    const match = flashcardsText.match(codeBlockRegex);
+    let jsonString = flashcardsText;
+
+    if (match && match[1]) {
+      jsonString = match[1].trim();
+    }
+
+    // Attempt to parse the JSON
     let flashcards;
     try {
-      flashcards = JSON.parse(flashcardsText);
+      flashcards = JSON.parse(jsonString);
     } catch (parseError) {
       console.error('Error parsing flashcards JSON:', parseError);
+      console.error('Flashcards Text:', flashcardsText);
       throw new Error('Failed to parse flashcards JSON.');
     }
 
@@ -106,6 +122,7 @@ Output format:
       throw new Error('Invalid flashcards format received from OpenAI.');
     }
 
+    console.log('Flashcards:', flashcards);
     return flashcards;
   } catch (error) {
     console.error('Error generating flashcards:', error);
