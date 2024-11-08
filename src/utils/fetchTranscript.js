@@ -1,3 +1,9 @@
+// src/utils/fetchTranscript.jsx
+import axios from 'axios';
+
+/**
+ * Backend URL from environment variables.
+ */
 const BACKEND_URL = import.meta.env.VITE_LOCAL_BACKEND_URL;
 
 /**
@@ -7,18 +13,24 @@ const BACKEND_URL = import.meta.env.VITE_LOCAL_BACKEND_URL;
  * @return {Promise<string>} - Promise resolving to the transcript string.
  */
 export async function fetchTranscript(URL) {
+  const token = localStorage.getItem('token'); // Retrieve token from localStorage
+
+  if (!token) {
+    throw new Error('User is not authenticated.');
+  }
+
   try {
-    const response = await fetch(
-      `${BACKEND_URL}/transcript?url=${encodeURIComponent(URL)}`
-    );
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to fetch transcript from backend');
-    }
-    return data.transcript;
+    const response = await axios.get(`${BACKEND_URL}/api/transcript`, {
+      params: { url: URL },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data.transcript;
   } catch (error) {
-    console.error('Error fetching transcript:', error);
-    throw error; // Rethrow the error to be handled in the frontend
+    console.error('Error fetching transcript:', error.response?.data || error.message);
+    throw error.response?.data || error;
   }
 }
 
@@ -74,7 +86,7 @@ Please provide the flashcards in the following JSON format without any additiona
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo', // or 'gpt-3.5-turbo'
+        model: 'gpt-3.5-turbo', // or 'gpt-4' if available
         messages: [systemMessage, userMessage],
         max_tokens: 3000,
         temperature: 0.7,

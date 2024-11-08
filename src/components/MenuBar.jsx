@@ -1,3 +1,4 @@
+// src/components/MenuBar.jsx
 import React from "react";
 import PropTypes from "prop-types";
 import { ThemeToggleButton } from "./ColourTheme";
@@ -11,14 +12,37 @@ import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
 /**
  * MenuBar component renders the top navigation bar of the application.
  *
+ * @param {Object} props - Component props.
+ * @param {Function} props.setIsLoggedIn - Function to update the login state.
+ * @param {Object} props.user - User information object.
  * @return {JSX.Element} - The rendered MenuBar component.
  */
-function MenuBar() {
+function MenuBar({ setIsLoggedIn, user }) {
   const theme = useTheme(); // Access the current theme settings
+
+  /**
+   * Handles the logout process.
+   * - Removes the JWT token and user data from localStorage.
+   * - Updates the login state.
+   * - Optionally, notifies the user.
+   */
+  const handleLogout = () => {
+    // Remove the token and user from localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // Update the login state
+    setIsLoggedIn(false);
+
+    // Optionally, you can show a confirmation message
+    alert("You have been logged out successfully.");
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -45,18 +69,45 @@ function MenuBar() {
             <MenuItem link="/" name="Home" />
             <MenuItem link="/Settings" name="Settings" />
           </Box>
-          {/* Theme toggle button on the right */}
-          <ThemeToggleButton />
+          {/* Right side: Subscription status, Theme toggle, and Logout button */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {user && (
+              <Typography variant="body1" sx={{ mr: 2 }}>
+                {user.accountType === "free"
+                  ? "Free User"
+                  : `${user.accountType.charAt(0).toUpperCase() + user.accountType.slice(1)} User`}
+              </Typography>
+            )}
+            <ThemeToggleButton />
+            <Button
+              color="inherit"
+              onClick={handleLogout}
+              sx={{ ml: 2 }}
+            >
+              Logout
+            </Button>
+          </Box>
         </Toolbar>
       </AppBar>
       {/* Main content area */}
-      <Box component="main" sx={{ padding: 3 }}></Box>
+      <Box component="main" sx={{ padding: 3, mt: "64px" }}>
+        {/* Your main content will go here */}
+      </Box>
     </Box>
   );
 }
 
 MenuBar.propTypes = {
-  window: PropTypes.func,
+  setIsLoggedIn: PropTypes.func.isRequired,
+  user: PropTypes.shape({
+    id: PropTypes.string,
+    email: PropTypes.string,
+    accountType: PropTypes.string,
+  }),
+};
+
+MenuBar.defaultProps = {
+  user: null,
 };
 
 export default MenuBar;
