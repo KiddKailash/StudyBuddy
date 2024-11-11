@@ -1,4 +1,3 @@
-// controllers/authController.js
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { getDB } = require('../utils/db');
@@ -26,11 +25,11 @@ const generateToken = (user) => {
  * @param {Object} res - Express response object
  */
 exports.register = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, firstName, lastName, company } = req.body;
 
   // Basic validation
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required.' });
+  if (!email || !password || !firstName || !lastName || !company) {
+    return res.status(400).json({ error: 'Email, password, first name, last name, and company are required.' });
   }
 
   try {
@@ -47,10 +46,13 @@ exports.register = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create new user with accountType "free"
+    // Create new user with accountType "free" and additional fields
     const result = await usersCollection.insertOne({
       email,
       password: hashedPassword,
+      firstName,    // New field
+      lastName,     // New field
+      company,      // New field
       accountType: 'free', // Set default account type
       createdAt: new Date(),
     });
@@ -59,6 +61,9 @@ exports.register = async (req, res) => {
     const user = {
       _id: result.insertedId,
       email,
+      firstName,    // Include in response
+      lastName,     // Include in response
+      company,      // Include in response
       accountType: 'free',
       createdAt: new Date(),
     };
@@ -72,6 +77,9 @@ exports.register = async (req, res) => {
       user: {
         id: user._id,
         email: user.email,
+        firstName: user.firstName, // Include in response
+        lastName: user.lastName,   // Include in response
+        company: user.company,     // Include in response
         accountType: user.accountType,
       },
     });
@@ -114,14 +122,20 @@ exports.login = async (req, res) => {
     // Generate token
     const token = generateToken(user);
 
+    // Construct user object to include additional fields
+    const userResponse = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName, // Include in response
+      lastName: user.lastName,   // Include in response
+      company: user.company,     // Include in response
+      accountType: user.accountType,
+    };
+
     res.status(200).json({
       message: 'Login successful.',
       token,
-      user: {
-        id: user._id,
-        email: user.email,
-        accountType: user.accountType,
-      },
+      user: userResponse,
     });
   } catch (error) {
     console.error('Login error:', error);
