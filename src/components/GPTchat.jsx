@@ -1,5 +1,3 @@
-// src/components/AskGPT.jsx
-
 import { useState, useEffect, useRef, useCallback } from "react";
 
 // MUI Component Imports

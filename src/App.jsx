@@ -1,5 +1,3 @@
-// src/App.jsx
-
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";

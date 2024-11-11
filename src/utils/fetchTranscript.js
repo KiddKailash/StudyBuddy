@@ -1,4 +1,3 @@
-// src/utils/fetchTranscript.jsx
 import axios from 'axios';
 
 /**
