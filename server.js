@@ -8,6 +8,8 @@ const { connectDB } = require('./utils/db');
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
 const transcriptRoutes = require('./routes/transcriptRoutes');
+const openaiRoutes = require('./routes/openaiRoutes');
+const flashcardsRoutes = require('./routes/flashcardsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -47,6 +49,8 @@ connectDB().then(() => {
   // Routes
   app.use('/api/auth', authRoutes);
   app.use('/api/transcript', transcriptRoutes);
+  app.use('/api/openai', openaiRoutes);
+  app.use('/api/flashcards', flashcardsRoutes);
 
   // Optional: Test route
   app.get('/api/test-connection', (req, res) => {

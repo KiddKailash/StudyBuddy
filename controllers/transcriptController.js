@@ -5,6 +5,7 @@ const he = require('he');
 
 /**
  * Extracts the video ID from various YouTube URL formats.
+ *
  * @param {string} url - The YouTube video URL.
  * @returns {string|null} - The extracted video ID or null if invalid.
  */
@@ -30,6 +31,7 @@ const extractVideoId = (url) => {
 
 /**
  * Fetches the transcript for a given YouTube URL via the backend.
+ *
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
@@ -72,7 +74,6 @@ exports.fetchTranscript = async (req, res) => {
     const cleanedTranscript = transcriptString.replace(/\s{2,}/g, ' ');
 
     console.log(`Processed transcript for Video ID: ${videoId}`);
-    console.log(`Transcript: ${cleanedTranscript}`);
 
     res.json({ transcript: cleanedTranscript });
   } catch (error) {

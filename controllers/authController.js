@@ -1,11 +1,13 @@
 // controllers/authController.js
-const { getDB } = require('../utils/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { getDB } = require('../utils/db');
 const { ObjectId } = require('mongodb');
+require('dotenv').config();
 
 /**
- * Generate JWT Token
+ * Generates a JWT token for authenticated users.
+ *
  * @param {Object} user - User object
  * @returns {string} - JWT token
  */
@@ -19,6 +21,7 @@ const generateToken = (user) => {
 
 /**
  * Register a new user
+ *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
@@ -80,6 +83,7 @@ exports.register = async (req, res) => {
 
 /**
  * Login existing user
+ *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
@@ -127,11 +131,12 @@ exports.login = async (req, res) => {
 
 /**
  * Upgrade user subscription
+ *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
 exports.upgradeSubscription = async (req, res) => {
-  const userId = req.user._id; // Retrieved from authMiddleware
+  const userId = req.user.id; // Retrieved from authMiddleware
   const { accountType } = req.body; // Expected: "paid", "premium", etc.
 
   // Validate accountType
