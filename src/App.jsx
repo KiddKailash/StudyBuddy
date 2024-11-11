@@ -1,4 +1,5 @@
 // src/App.jsx
+
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
@@ -10,11 +11,12 @@ import MenuBar from "./components/MenuBar";
 import Footer from "./components/Footer";
 import GPTchat from "./components/GPTchat";
 import Sidebar from "./components/Sidebar";
-import UpgradeSubscription from "./webpages/UpgradeSubscription";
 
-import PageNotFound from "./webpages/PageNotFound";
+import UpgradeSubscription from "./webpages/UpgradeSubscription";
+import FlashcardSession from "./webpages/FlashcardSession";
 import StudySession from "./webpages/StudySession";
 import LoginPage from "./webpages/Login";
+import PageNotFound from "./webpages/PageNotFound";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -40,9 +42,11 @@ function App() {
   }, []);
 
   const pages = [
-    { path: "/", component: <StudySession /> },
+    { path: "/", component: <StudySession /> }, // Default route
     { path: "/upgrade", component: <UpgradeSubscription /> },
-    { path: "*", component: <PageNotFound /> },
+    { path: "/flashcards/:id", component: <FlashcardSession /> }, // Specific Flashcard Session
+    { path: "/login", component: <LoginPage /> }, // Login Page
+    { path: "*", component: <PageNotFound /> }, // 404 Page
   ];
 
   return (
@@ -97,7 +101,7 @@ function App() {
               zIndex: 50, // Higher z-index to overlay other components
               transition: "all 0.5s ease-in-out",
               boxShadow: isExpanded ? 3 : "none", // Optional: Add shadow when expanded
-              overflow: "hidden", // Prevent content overflow during transition
+              overflow: "auto", // Prevent content overflow during transition
             }}
           >
             {/* Expand/Collapse Button */}
@@ -132,7 +136,7 @@ function App() {
                   key={index}
                   path={page.path}
                   element={
-                    page.path === "/upgrade" ? (
+                    page.path.startsWith("/flashcards") ? (
                       <ProtectedRoute isLoggedIn={isLoggedIn}>
                         {page.component}
                       </ProtectedRoute>

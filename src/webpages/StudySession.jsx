@@ -1,170 +1,205 @@
-import { useState } from "react";
-import PopAlert from "../components/PopAlert";
-import { fetchTranscript, generateFlashcards } from "../utils/fetchTranscript";
-import Flashcard from "../components/Flashcard";
-
-// MUI Components
-import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid2"; // Ensure you're using Grid2 as per your setup
-import TextField from "@mui/material/TextField";
-import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+import React, { useState } from "react";
+import axios from 'axios';
+import {
+  Box,
+  Container,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+  List,
+  ListItem,
+  Alert,
+} from "@mui/material";
+import Flashcard from "../components/FlashCard";
+import { useNavigate } from 'react-router-dom';
 
 const StudySession = () => {
   const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [transcript, setTranscript] = useState("");
   const [flashcards, setFlashcards] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null); // New state to track errors
+  const [loadingTranscript, setLoadingTranscript] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const handleUrlChange = (event) => {
     setYoutubeUrl(event.target.value);
   };
 
+  const generateSessionName = () => {
+    const now = new Date();
+    return `Session ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+  };
+
   const handleFetchAndGenerate = async () => {
     if (!youtubeUrl.trim()) {
-      PopAlert("Please enter a valid YouTube URL.");
+      alert("Please enter a YouTube URL.");
       return;
     }
 
-    setIsLoading(true);
+    setLoadingTranscript(true);
+    setError("");
+    setSuccessMessage("");
+    setTranscript("");
     setFlashcards([]);
-    setSubmitted(true); // Set submitted to true when the form is submitted
-    setError(null); // Reset previous errors
 
     try {
-      PopAlert("Fetching transcript...");
-      const fetchedTranscript = await fetchTranscript(youtubeUrl);
+      // Fetch Transcript
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("User is not authenticated.");
+      }
 
-      PopAlert("Generating flashcards...");
-      const generatedFlashcards = await generateFlashcards(fetchedTranscript);
+      const transcriptResponse = await axios.get(`${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/transcript`, {
+        params: { url: youtubeUrl },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setTranscript(transcriptResponse.data.transcript);
+
+      // Generate Flashcards via OpenAI
+      const generatedFlashcards = await generateFlashcards(transcriptResponse.data.transcript);
       setFlashcards(generatedFlashcards);
+      setSuccessMessage("Flashcards generated successfully!");
 
-      console.log('Generated Flashcards:', generatedFlashcards); // Improved logging
-
-      PopAlert("Flashcards generated successfully!");
-    } catch (error) {
-      PopAlert(`Error: ${error.message}`);
-      console.error("Error:", error);
-      setError(error.message || "An unexpected error occurred.");
+      // Automatically Save Flashcards
+      const sessionName = generateSessionName();
+      await saveFlashcards(sessionName, generatedFlashcards);
+    } catch (err) {
+      console.error("Error:", err);
+      setError(
+        err.response?.data?.error ||
+          err.message ||
+          "An error occurred while fetching transcript or generating flashcards."
+      );
     } finally {
-      setIsLoading(false);
+      setLoadingTranscript(false);
     }
   };
 
-  const handleReset = () => {
-    setYoutubeUrl("");
-    setFlashcards([]);
-    setSubmitted(false);
-    setError(null);
+  const saveFlashcards = async (sessionName, flashcardsToSave) => {
+    setSaving(true);
+    setError("");
+    setSuccessMessage("");
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("User is not authenticated.");
+      }
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
+        {
+          sessionName, // This will be mapped to StudySession in backend
+          studyCards: flashcardsToSave, // This will be mapped to FlashcardsJSON in backend
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setSuccessMessage("Flashcards saved successfully!");
+
+      // Redirect to the newly created flashcard session
+      navigate(`/flashcards/${response.data.flashcard.id}`);
+    } catch (err) {
+      console.error("Error saving flashcards:", err);
+      setError(
+        err.response?.data?.error ||
+          err.message ||
+          "An error occurred while saving flashcards."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /**
+   * Generates flashcards using OpenAI API.
+   * Assumes you have a backend endpoint to handle OpenAI requests securely.
+   */
+  const generateFlashcards = async (transcriptText) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("User is not authenticated.");
+      }
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/openai/generate-flashcards`,
+        { transcript: transcriptText },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data.flashcards; // Assumes backend returns { flashcards: [...] }
+    } catch (err) {
+      console.error("Error generating flashcards via OpenAI:", err);
+      throw err;
+    }
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "stretch", // Allows children to stretch horizontally
-        justifyContent: "center", // Centers vertically if needed
-        padding: 2,
-        width: "100%", // Ensures the Box takes up the full width
-        minHeight: "60vh", // Ensures the Box takes up full viewport height
-        overflowY: "auto", // Added to enable vertical scrolling
-      }}
-    >
-      {isLoading ? (
-        // Loading State: Show only CircularProgress centered
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexGrow: 1, // Allows the loader to take up available space
-          }}
-        >
-          <CircularProgress size={60} />
-        </Box>
-      ) : !submitted ? (
-        // Initial State: Show input field and button
-        <Box
-          sx={{
-            width: "100%",
-            maxWidth: 600, // Optional: Limit the maximum width for better aesthetics
-            margin: "0 auto", // Center the box horizontally
-            textAlign: "center",
-          }}
-        >
+    <Container maxWidth="md" sx={{ mt: 'auto', mb: 'auto' }}>
 
-          <TextField
-            label="YouTube URL"
-            variant="outlined"
-            value={youtubeUrl}
-            onChange={handleUrlChange}
-            placeholder="https://www.youtube.com/watch?v=example"
-            fullWidth
-            sx={{ mb: 2 }}
-          />
-          <Button
-            variant="contained"
-            onClick={handleFetchAndGenerate}
-            disabled={isLoading}
-            fullWidth
-            sx={{ height: 56 }}
-          >
-            Create Flashcards
-          </Button>
-        </Box>
-      ) : (
-        // After Submission: Show flashcards or error message
-        <Box
-          sx={{
-            width: "100%",
-            mt: 4,
-            maxWidth: 20000, // Optional: Limit the maximum width for better aesthetics
-            margin: "0 auto",
-            textAlign: "center",
-          }}
+      <Box sx={{ display: "flex", mt: 10, mb: 2 }}>
+        <TextField
+          fullWidth
+          label="YouTube Video URL"
+          variant="outlined"
+          value={youtubeUrl}
+          onChange={handleUrlChange}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleFetchAndGenerate}
+          disabled={loadingTranscript || saving}
+          sx={{ ml: 2 }}
         >
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            <Button variant="outlined" onClick={handleReset}>
-              New Flashcards
-            </Button>
-          </Box>
-          {error ? (
-            <Typography variant="body1" color="error">
-              {error}
-            </Typography>
-          ) : flashcards.length === 0 ? (
-            <Typography variant="body1">
-              No flashcards generated. Please try again.
-            </Typography>
-          ) : (
-            <Grid
-              container
-              spacing={2}
-              sx={{
-                width: "100%",
-              }}
-            >
-              {flashcards.map((card, index) => (
-                <Grid
-                  key={index}
-                  size={{xs:12, sm:6, md:4, lg:3 }}
-                  // Adjust breakpoints as needed
-                >
-                  <Flashcard
-                    question={card.question}
-                    answer={card.answer}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          )}
+          {loadingTranscript || saving ? <CircularProgress size={24} /> : "Create Flashcards"}
+        </Button>
+      </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {successMessage && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {successMessage}
+        </Alert>
+      )}
+
+      {flashcards.length > 0 && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h6">Generated Flashcards:</Typography>
+          <List>
+            {flashcards.map((card, index) => (
+              <ListItem key={index} sx={{ mb: 1, bgcolor: "#f9f9f9", borderRadius: 1 }}>
+                <Flashcard question={card.question} answer={card.answer} />
+              </ListItem>
+            ))}
+          </List>
         </Box>
       )}
-    </Box>
+    </Container>
   );
 };
+
+StudySession.propTypes = {};
 
 export default StudySession;

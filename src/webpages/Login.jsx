@@ -1,6 +1,6 @@
 // src/webpages/Login.jsx
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
 import {
   Box,
   Container,
@@ -10,30 +10,28 @@ import {
   Checkbox,
   FormControlLabel,
   Switch,
-} from '@mui/material';
-import Grid from '@mui/material/Grid2';
-import axios from 'axios';
+} from "@mui/material";
+import Grid from "@mui/material/Grid2";
+import axios from "axios";
 
 const LoginPage = ({ setIsLoggedIn, setUser }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isCreateAccount, setIsCreateAccount] = useState(true); // Toggle between login and create account
   const [loading, setLoading] = useState(false); // Loading state
-  const [error, setError] = useState(''); // Error message
+  const [error, setError] = useState(""); // Error message
 
   const handleToggleChange = (event) => {
     setIsCreateAccount(event.target.checked);
-    setError('');
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
-    const endpoint = isCreateAccount
-      ? '/api/auth/register'
-      : '/api/auth/login';
+    const endpoint = isCreateAccount ? "/api/auth/register" : "/api/auth/login";
 
     try {
       const response = await axios.post(
@@ -44,22 +42,16 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
       const { token, user } = response.data;
 
       // Store token and user in localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
       // Update user state
       setUser(user);
       setIsLoggedIn(true);
-      alert(
-        isCreateAccount
-          ? 'Registration successful!'
-          : 'Login successful!'
-      );
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.error ||
-          'An error occurred. Please try again.'
+        err.response?.data?.error || "An error occurred. Please try again."
       );
     } finally {
       setLoading(false);
@@ -71,18 +63,13 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
       maxWidth="sm"
       sx={{
         mt: 5,
-        border: '1px solid #e0e0e0',
+        border: "1px solid #e0e0e0",
         borderRadius: 2,
         p: 4,
       }}
     >
       <Box textAlign="center" mb={2}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          mb={2}
-        >
+        <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
           <Typography variant="body1" sx={{ mr: 1 }}>
             Login
           </Typography>
@@ -91,7 +78,7 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
             onChange={handleToggleChange}
             color="primary"
             inputProps={{
-              'aria-label': 'toggle login or create account',
+              "aria-label": "toggle login or create account",
             }}
           />
           <Typography variant="body1" sx={{ ml: 1 }}>
@@ -105,16 +92,16 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
         <Typography
           variant="h5"
           color="textPrimary"
-          sx={{ mt: 1, fontWeight: 'bold' }}
+          sx={{ mt: 1, fontWeight: "bold" }}
         >
           {isCreateAccount
-            ? 'Create study cards from any video.'
-            : 'Login to your account.'}
+            ? "Create study cards from any video."
+            : "Login to your account."}
         </Typography>
         <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
           {isCreateAccount
-            ? 'Get ready for higher performance, reduced costs, and greater ease of use.'
-            : 'Access your study cards and continue learning.'}
+            ? "Get ready for higher performance, reduced costs, and greater ease of use."
+            : "Access your study cards and continue learning."}
         </Typography>
       </Box>
 
@@ -128,18 +115,18 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
         {isCreateAccount && (
           <>
             <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
-                  label="First Name*"
+                  label="First Name"
                   variant="outlined"
                   required
                 />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
-                  label="Last Name*"
+                  label="Last Name"
                   variant="outlined"
                   required
                 />
@@ -155,7 +142,7 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
         )}
         <TextField
           fullWidth
-          label="Email*"
+          label="Email"
           type="email"
           variant="outlined"
           sx={{ mb: 2 }}
@@ -165,7 +152,7 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
         />
         <TextField
           fullWidth
-          label="Password*"
+          label="Password"
           type="password"
           variant="outlined"
           sx={{ mb: 2 }}
@@ -191,11 +178,11 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
         >
           {loading
             ? isCreateAccount
-              ? 'Creating Account...'
-              : 'Logging In...'
+              ? "Creating Account..."
+              : "Logging In..."
             : isCreateAccount
-            ? 'Create your ClipCard account'
-            : 'Login'}
+            ? "Create your ClipCard account"
+            : "Login"}
         </Button>
       </Box>
     </Container>

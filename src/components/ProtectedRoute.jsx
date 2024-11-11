@@ -1,26 +1,27 @@
 // src/components/ProtectedRoute.jsx
-import React from "react";
-import { Navigate } from "react-router-dom";
-import PropTypes from "prop-types";
+
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 /**
- * ProtectedRoute component restricts access to authenticated users.
+ * ProtectedRoute component to guard routes that require authentication.
  *
- * @param {Object} props - Component props.
- * @param {boolean} props.isLoggedIn - Current login state.
- * @param {React.ReactNode} props.children - Child components.
- * @return {JSX.Element} - The rendered component or a redirect.
+ * @param {Object} props - Props passed to the component.
+ * @param {React.ReactNode} props.children - Child components to render.
+ * @param {boolean} props.isLoggedIn - Authentication status.
+ * @returns {React.ReactNode} - Either the child components or a redirect.
  */
-const ProtectedRoute = ({ isLoggedIn, children }) => {
+const ProtectedRoute = ({ children, isLoggedIn }) => {
   if (!isLoggedIn) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
   return children;
 };
 
 ProtectedRoute.propTypes = {
-  isLoggedIn: PropTypes.bool.isRequired,
   children: PropTypes.node.isRequired,
+  isLoggedIn: PropTypes.bool.isRequired,
 };
 
 export default ProtectedRoute;

@@ -40,8 +40,6 @@ function MenuBar({ setIsLoggedIn, user }) {
     // Update the login state
     setIsLoggedIn(false);
 
-    // Optionally, you can show a confirmation message
-    alert("You have been logged out successfully.");
   };
 
   return (
@@ -67,7 +65,8 @@ function MenuBar({ setIsLoggedIn, user }) {
           {/* Left side menu items */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <MenuItem link="/" name="Home" />
-            <MenuItem link="/Settings" name="Settings" />
+            <MenuItem link="/upgrade" name="Upgrade" />
+            {/* Add more menu items as needed */}
           </Box>
           {/* Right side: Subscription status, Theme toggle, and Logout button */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
