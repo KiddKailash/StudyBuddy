@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import axios from 'axios';
+import React, { useState, useContext } from "react";
+import axios from "axios";
 import {
   Box,
   Container,
@@ -12,7 +12,8 @@ import {
   Alert,
 } from "@mui/material";
 import Flashcard from "../components/FlashCard";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { FlashcardContext } from "../contexts/FlashcardContext";
 
 const StudySession = () => {
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -24,6 +25,8 @@ const StudySession = () => {
   const [successMessage, setSuccessMessage] = useState("");
 
   const navigate = useNavigate();
+
+  const { addFlashcard } = useContext(FlashcardContext); // Consume the context
 
   const handleUrlChange = (event) => {
     setYoutubeUrl(event.target.value);
@@ -53,23 +56,31 @@ const StudySession = () => {
         throw new Error("User is not authenticated.");
       }
 
-      const transcriptResponse = await axios.get(`${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/transcript`, {
-        params: { url: youtubeUrl },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const transcriptResponse = await axios.get(
+        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/transcript`,
+        {
+          params: { url: youtubeUrl },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setTranscript(transcriptResponse.data.transcript);
 
       // Generate Flashcards via OpenAI
-      const generatedFlashcards = await generateFlashcards(transcriptResponse.data.transcript);
+      const generatedFlashcards = await generateFlashcards(
+        transcriptResponse.data.transcript
+      );
       setFlashcards(generatedFlashcards);
       setSuccessMessage("Flashcards generated successfully!");
 
       // Automatically Save Flashcards
       const sessionName = generateSessionName();
-      await saveFlashcards(sessionName, generatedFlashcards);
+      const newFlashcard = await saveFlashcards(sessionName, generatedFlashcards);
+
+      // Update the context with the new flashcard
+      addFlashcard(newFlashcard);
     } catch (err) {
       console.error("Error:", err);
       setError(
@@ -110,6 +121,9 @@ const StudySession = () => {
 
       // Redirect to the newly created flashcard session
       navigate(`/flashcards/${response.data.flashcard.id}`);
+
+      // Return the new flashcard data to add to context
+      return response.data.flashcard;
     } catch (err) {
       console.error("Error saving flashcards:", err);
       setError(
@@ -117,6 +131,7 @@ const StudySession = () => {
           err.message ||
           "An error occurred while saving flashcards."
       );
+      throw err; // Re-throw the error to handle it in handleFetchAndGenerate
     } finally {
       setSaving(false);
     }
@@ -151,8 +166,7 @@ const StudySession = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 'auto', mb: 'auto' }}>
-
+    <Container maxWidth="md" sx={{ mt: "auto", mb: "auto" }}>
       <Box sx={{ display: "flex", mt: 10, mb: 2 }}>
         <TextField
           fullWidth
@@ -168,7 +182,11 @@ const StudySession = () => {
           disabled={loadingTranscript || saving}
           sx={{ ml: 2 }}
         >
-          {loadingTranscript || saving ? <CircularProgress size={24} /> : "Create Flashcards"}
+          {loadingTranscript || saving ? (
+            <CircularProgress size={24} />
+          ) : (
+            "Create Flashcards"
+          )}
         </Button>
       </Box>
 
@@ -189,7 +207,10 @@ const StudySession = () => {
           <Typography variant="h6">Generated Flashcards:</Typography>
           <List>
             {flashcards.map((card, index) => (
-              <ListItem key={index} sx={{ mb: 1, bgcolor: "#f9f9f9", borderRadius: 1 }}>
+              <ListItem
+                key={index}
+                sx={{ mb: 1, bgcolor: "#f9f9f9", borderRadius: 1 }}
+              >
                 <Flashcard question={card.question} answer={card.answer} />
               </ListItem>
             ))}

@@ -1,6 +1,4 @@
-// src/components/Sidebar.jsx
-
-import React, { useState, useEffect } from "react";
+import React, { useContext } from "react";
 import {
   List,
   ListItem,
@@ -10,51 +8,10 @@ import {
   Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { FlashcardContext } from "../contexts/FlashcardContext";
 
 const Sidebar = () => {
-  const [flashcards, setFlashcards] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  /**
-   * Fetches the user's flashcard sessions from the backend.
-   */
-  const fetchFlashcards = async () => {
-    setLoading(true);
-    setError("");
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("User is not authenticated.");
-      }
-
-      const response = await axios.get(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setFlashcards(response.data.flashcards);
-    } catch (err) {
-      console.error("Error fetching flashcards:", err);
-      setError(
-        err.response?.data?.error ||
-          err.message ||
-          "An error occurred while fetching flashcards."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchFlashcards();
-  }, []);
+  const { flashcards, loading, error } = useContext(FlashcardContext);
 
   return (
     <List component="nav" sx={{ width: "100%", bgcolor: "background.paper" }}>
@@ -68,7 +25,7 @@ const Sidebar = () => {
         </ListItem>
       ) : flashcards.length === 0 ? (
         <ListItem>
-          <Typography variant="subtitle1">New Study Session</Typography>
+          <Typography variant="subtitle1">No Study Sessions Found</Typography>
         </ListItem>
       ) : (
         <>
