@@ -1,4 +1,3 @@
-// controllers/flashcardsController.js
 const { getDB } = require('../utils/db');
 const { ObjectId } = require('mongodb');
 
@@ -26,10 +25,10 @@ exports.createFlashcardSession = async (req, res) => {
     const flashcardsCollection = db.collection('flashcards');
 
     const newSession = {
-      _user_id: new ObjectId(userId),
-      StudySession: sessionName, // Map to StudySession
-      FlashcardsJSON: studyCards, // Map to FlashcardsJSON
-      CreatedDate: new Date(), // Map to CreatedDate
+      userId: new ObjectId(userId),
+      studySession: sessionName, // Updated to camelCase
+      flashcardsJSON: studyCards, // Updated to camelCase
+      createdDate: new Date(), // Updated to camelCase
     };
 
     const result = await flashcardsCollection.insertOne(newSession);
@@ -38,9 +37,9 @@ exports.createFlashcardSession = async (req, res) => {
       message: 'Flashcard session created successfully.',
       flashcard: {
         id: result.insertedId,
-        StudySession: newSession.StudySession,
-        FlashcardsJSON: newSession.FlashcardsJSON,
-        CreatedDate: newSession.CreatedDate,
+        studySession: newSession.studySession,
+        flashcardsJSON: newSession.flashcardsJSON,
+        createdDate: newSession.createdDate,
       },
     });
   } catch (error) {
@@ -70,7 +69,7 @@ exports.addFlashcardsToSession = async (req, res) => {
     const flashcardsCollection = db.collection('flashcards');
 
     // Verify that the session exists and belongs to the user
-    const session = await flashcardsCollection.findOne({ _id: new ObjectId(id), _user_id: new ObjectId(userId) });
+    const session = await flashcardsCollection.findOne({ _id: new ObjectId(id), userId: new ObjectId(userId) });
 
     if (!session) {
       return res.status(404).json({ error: 'Flashcard session not found.' });
@@ -79,7 +78,7 @@ exports.addFlashcardsToSession = async (req, res) => {
     // Update the session by pushing new flashcards
     await flashcardsCollection.updateOne(
       { _id: new ObjectId(id) },
-      { $push: { FlashcardsJSON: { $each: studyCards } } } // Ensure FlashcardsJSON is the correct field
+      { $push: { flashcardsJSON: { $each: studyCards } } }
     );
 
     res.status(200).json({ message: 'Flashcards added successfully to the session.' });
@@ -102,14 +101,14 @@ exports.getUserFlashcards = async (req, res) => {
     const db = getDB();
     const flashcardsCollection = db.collection('flashcards');
 
-    const sessions = await flashcardsCollection.find({ _user_id: new ObjectId(userId) }).toArray();
+    const sessions = await flashcardsCollection.find({ userId: new ObjectId(userId) }).toArray();
 
     // Map sessions to a cleaner format
     const formattedSessions = sessions.map(session => ({
       id: session._id,
-      StudySession: session.StudySession,
-      FlashcardsJSON: session.FlashcardsJSON,
-      CreatedDate: session.CreatedDate,
+      studySession: session.studySession,
+      flashcardsJSON: session.flashcardsJSON,
+      createdDate: session.createdDate,
     }));
 
     res.status(200).json({ flashcards: formattedSessions });
@@ -134,8 +133,8 @@ exports.getFlashcardSessionById = async (req, res) => {
     const flashcardsCollection = db.collection('flashcards');
 
     const session = await flashcardsCollection.findOne(
-      { _id: new ObjectId(id), _user_id: new ObjectId(userId) },
-      { projection: { FlashcardsJSON: 1, StudySession: 1, CreatedDate: 1 } }
+      { _id: new ObjectId(id), userId: new ObjectId(userId) },
+      { projection: { flashcardsJSON: 1, studySession: 1, createdDate: 1 } }
     );
 
     if (!session) {
@@ -144,12 +143,83 @@ exports.getFlashcardSessionById = async (req, res) => {
 
     res.status(200).json({
       id: session._id,
-      StudySession: session.StudySession,
-      FlashcardsJSON: session.FlashcardsJSON,
-      CreatedDate: session.CreatedDate,
+      studySession: session.studySession,
+      flashcardsJSON: session.flashcardsJSON,
+      createdDate: session.createdDate,
     });
   } catch (error) {
     console.error('Get Flashcard Session By ID Error:', error);
     res.status(500).json({ error: 'Server error while retrieving flashcard session.' });
+  }
+};
+
+/**
+ * Delete a flashcard session by ID
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.deleteFlashcardSession = async (req, res) => {
+  const { id } = req.params; // Flashcard session ID
+  const userId = req.user.id;
+
+  try {
+    const db = getDB();
+    const flashcardsCollection = db.collection('flashcards');
+
+    // Verify that the session exists and belongs to the user
+    const session = await flashcardsCollection.findOne({ _id: new ObjectId(id), userId: new ObjectId(userId) });
+
+    if (!session) {
+      return res.status(404).json({ error: 'Flashcard session not found.' });
+    }
+
+    // Delete the session
+    await flashcardsCollection.deleteOne({ _id: new ObjectId(id) });
+
+    res.status(200).json({ message: 'Flashcard session deleted successfully.' });
+  } catch (error) {
+    console.error('Delete Flashcard Session Error:', error);
+    res.status(500).json({ error: 'Server error while deleting flashcard session.' });
+  }
+};
+
+/**
+ * Update the name of a flashcard session
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.updateFlashcardSessionName = async (req, res) => {
+  const { id } = req.params; // Flashcard session ID
+  const { sessionName } = req.body;
+  const userId = req.user.id;
+
+  // Basic validation
+  if (!sessionName) {
+    return res.status(400).json({ error: 'sessionName is required.' });
+  }
+
+  try {
+    const db = getDB();
+    const flashcardsCollection = db.collection('flashcards');
+
+    // Verify that the session exists and belongs to the user
+    const session = await flashcardsCollection.findOne({ _id: new ObjectId(id), userId: new ObjectId(userId) });
+
+    if (!session) {
+      return res.status(404).json({ error: 'Flashcard session not found.' });
+    }
+
+    // Update the session name
+    await flashcardsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { studySession: sessionName, updatedDate: new Date() } }
+    );
+
+    res.status(200).json({ message: 'Flashcard session name updated successfully.' });
+  } catch (error) {
+    console.error('Update Flashcard Session Name Error:', error);
+    res.status(500).json({ error: 'Server error while updating flashcard session name.' });
   }
 };

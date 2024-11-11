@@ -24,4 +24,14 @@ router.get('/', authMiddleware, flashcardsController.getUserFlashcards);
 // @access  Private
 router.get('/:id', authMiddleware, flashcardsController.getFlashcardSessionById);
 
+// @route   DELETE /api/flashcards/:id
+// @desc    Delete a flashcard session by ID
+// @access  Private
+router.delete('/:id', authMiddleware, flashcardsController.deleteFlashcardSession);
+
+// @route   PUT /api/flashcards/:id/name
+// @desc    Update the name of a flashcard session
+// @access  Private
+router.put('/:id/name', authMiddleware, flashcardsController.updateFlashcardSessionName);
+
 module.exports = router;
