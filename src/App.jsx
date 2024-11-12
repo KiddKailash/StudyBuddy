@@ -47,17 +47,17 @@ function App() {
         <LoginPage />
       ) : (
         <>
-          {/* Header */}
+          {/* MenuBar */}
           <Box
             sx={{
               position: "fixed",
               top: 0,
               left: 0,
               width: "100%",
+              height: "64px",
               zIndex: 1000,
             }}
           >
-            {/* MenuBar now consumes context */}
             <MenuBar />
           </Box>
 
@@ -70,7 +70,7 @@ function App() {
               left: 0,
               width: "240px", // Fixed width for the sidebar
               height: "calc(100vh - 64px)", // Full height minus header
-              bgcolor: "background.default",
+              bgcolor: "background.paper",
               borderRight: "1px solid #ccc",
               overflowY: "auto",
               zIndex: 1, // Lower z-index
@@ -83,15 +83,15 @@ function App() {
           <Box
             sx={{
               position: "fixed",
-              top: isExpanded ? 0 : "64px", // Cover header when expanded
+              top: isExpanded ? "64px" : "64px", // Cover header when expanded
               left: isExpanded ? 0 : "240px", // Align with sidebar or expand fully
               width: isExpanded ? "100vw" : `calc(100% - 240px)`,
-              height: isExpanded ? "100vh" : "calc(100vh - 64px)",
+              height: isExpanded ? "calc(100vh - 64px)" : "calc(100vh - 64px)",
               padding: 2,
               bgcolor: "background.paper",
               zIndex: 50, // Higher z-index to overlay other components
               transition: "all 0.5s ease-in-out",
-              boxShadow: isExpanded ? 3 : "none", // Optional: Add shadow when expanded
+              boxShadow: isExpanded ? "none" : "none", // Optional: Add shadow when expanded
               overflow: "auto", // Prevent content overflow during transition
             }}
           >
@@ -99,7 +99,7 @@ function App() {
             <IconButton
               onClick={toggleExpand}
               sx={{
-                position: "absolute",
+                position: "fixed",
                 bottom: "40px",
                 right: "40px",
                 transform: "rotate(45deg)", // Always rotate 45 degrees

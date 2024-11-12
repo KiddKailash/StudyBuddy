@@ -5,7 +5,8 @@ import { UserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 
 // ================================
-// MUI Component Imports
+/* MUI Component Imports (Individual Imports)
+*/
 // ================================
 import { useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -21,7 +22,7 @@ import Typography from "@mui/material/Typography";
  * @return {JSX.Element} - The rendered MenuBar component.
  */
 function MenuBar() {
-  const { user, setIsLoggedIn, resetUserContext } = useContext(UserContext);
+  const { user, resetUserContext } = useContext(UserContext);
   const navigate = useNavigate();
   const theme = useTheme(); // Access the current theme settings
 
@@ -29,7 +30,7 @@ function MenuBar() {
    * Handles the logout process.
    * - Removes the JWT token and user data from localStorage.
    * - Updates the login state.
-   * - Optionally, notifies the user.
+   * - Redirects to the login page.
    */
   const handleLogout = () => {
     resetUserContext(); // Clears user data and resets login state
@@ -37,15 +38,20 @@ function MenuBar() {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",  
+      }}
+    >
       <CssBaseline />
       <AppBar
         component="nav"
+        position="fixed"               // Fix the AppBar at the top
         sx={{
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.secondary,
           zIndex: theme.zIndex.drawer + 1,
-          // Apply centralized transition from theme
           transition: theme.transitions.backgroundAndText,
         }}
       >
@@ -62,16 +68,14 @@ function MenuBar() {
             <MenuItem link="/upgrade" name="Upgrade" />
             {/* Add more menu items as needed */}
           </Box>
+
           {/* Right side: Subscription status, Theme toggle, and Logout button */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
             {user && (
               <Typography variant="body1" sx={{ mr: 2 }}>
                 {user.accountType === "free"
                   ? "Free User"
-                  : `${
-                      user.accountType.charAt(0).toUpperCase() +
-                      user.accountType.slice(1)
-                    } User`}
+                  : `${user.accountType.charAt(0).toUpperCase() + user.accountType.slice(1)} User`}
               </Typography>
             )}
             <ThemeToggleButton />
@@ -81,10 +85,7 @@ function MenuBar() {
           </Box>
         </Toolbar>
       </AppBar>
-      {/* Main content area */}
-      <Box component="main" sx={{ padding: 3, mt: "64px" }}>
-        {/* Your main content will go here */}
-      </Box>
+
     </Box>
   );
 }
