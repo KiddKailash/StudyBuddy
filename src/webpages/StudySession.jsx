@@ -16,11 +16,11 @@ import Typography from "@mui/material/Typography";
 
 // MUI Icon Imports
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import YouTubeIcon from "@mui/icons-material/YouTube";
+// import YouTubeIcon from "@mui/icons-material/YouTube"; // Commented out YouTube icon import
 import ContentCutIcon from '@mui/icons-material/ContentCut';
 
 const StudySession = () => {
-  const [youtubeUrl, setYoutubeUrl] = useState("");
+  // const [youtubeUrl, setYoutubeUrl] = useState(""); // Commented out YouTube state
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
   const [loadingTranscript, setLoadingTranscript] = useState(false);
@@ -29,14 +29,14 @@ const StudySession = () => {
   const navigate = useNavigate();
 
   // State for Tabs
-  const [tabValue, setTabValue] = useState(0); // 0: YouTube, 1: Upload, 2: Paste Text
+  const [tabValue, setTabValue] = useState(0); // 0: Upload Document, 1: Paste Text
 
   // Handle Tab Change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
     setError("");
     // Reset inputs when switching tabs
-    setYoutubeUrl("");
+    // setYoutubeUrl(""); // Commented out resetting YouTube URL
     setSelectedFile(null);
     setPastedText("");
   };
@@ -56,26 +56,8 @@ const StudySession = () => {
 
       let transcriptText = "";
 
+      // Adjusted tab indices since YouTube tab is commented out
       if (tabValue === 0) {
-        // YouTube URL Tab
-        if (!youtubeUrl.trim()) {
-          alert("Please enter a YouTube URL.");
-          setLoadingTranscript(false);
-          return;
-        }
-
-        const transcriptResponse = await axios.get(
-          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/transcript`,
-          {
-            params: { url: youtubeUrl },
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        transcriptText = transcriptResponse.data.transcript;
-      } else if (tabValue === 1) {
         // File Upload Tab
         if (!selectedFile) {
           alert("Please select a Word or PDF file.");
@@ -112,7 +94,7 @@ const StudySession = () => {
         );
 
         transcriptText = transcriptResponse.data.transcript;
-      } else if (tabValue === 2) {
+      } else if (tabValue === 1) {
         // Paste Text Tab
         if (!pastedText.trim()) {
           alert("Please paste or enter some text.");
@@ -121,6 +103,28 @@ const StudySession = () => {
         }
         transcriptText = pastedText.trim();
       }
+      /*
+      else if (tabValue === 0) {
+        // YouTube URL Tab (Commented out)
+        if (!youtubeUrl.trim()) {
+          alert("Please enter a YouTube URL.");
+          setLoadingTranscript(false);
+          return;
+        }
+
+        const transcriptResponse = await axios.get(
+          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/transcript`,
+          {
+            params: { url: youtubeUrl },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        transcriptText = transcriptResponse.data.transcript;
+      }
+      */
 
       // Generate Flashcards
       const generatedFlashcards = await generateFlashcards(transcriptText);
@@ -172,26 +176,29 @@ const StudySession = () => {
         sx={{ mb: 3 }}
       >
         <Tab
-          icon={<YouTubeIcon />}
-          label="YouTube Video"
+          icon={<UploadFileIcon />}
+          label="Upload Document"
           id="tab-0"
           aria-controls="tabpanel-0"
         />
         <Tab
-          icon={<UploadFileIcon />}
-          label="Upload Document"
+          icon={<ContentCutIcon />}
+          label="Paste Text"
           id="tab-1"
           aria-controls="tabpanel-1"
         />
+                {/* Commented out YouTube Tab
         <Tab
-          icon={<ContentCutIcon />}
-          label="Paste Text"
-          id="tab-2"
+          icon={<YouTubeIcon />}
+          label="YouTube Video"
+          id="tab-0"
           aria-controls="tabpanel-2"
         />
+        */}
       </Tabs>
 
-      {tabValue === 0 && (
+      {/* Commented out YouTube URL input
+      {tabValue === 2 && (
         <Box>
           <TextField
             fullWidth
@@ -203,8 +210,9 @@ const StudySession = () => {
           />
         </Box>
       )}
+      */}
 
-      {tabValue === 1 && (
+      {tabValue === 0 && (
         <Box sx={{ mb: 2 }}>
           <Button
             variant="outlined"
@@ -223,7 +231,7 @@ const StudySession = () => {
         </Box>
       )}
 
-      {tabValue === 2 && (
+      {tabValue === 1 && (
         <Box>
           <TextField
             fullWidth
