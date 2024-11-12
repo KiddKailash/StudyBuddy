@@ -148,6 +148,39 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Updates the name of an existing flashcard session.
+   * @param {string} sessionId - ID of the flashcard session.
+   * @param {string} newName - New name for the session.
+   * @returns {boolean} - Returns true if update was successful, false otherwise.
+   */
+  const updateFlashcardSessionName = async (sessionId, newName) => {
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${sessionId}/name`,
+        { sessionName: newName },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      // Update the local state
+      setFlashcardSessions((prev) =>
+        prev.map((session) =>
+          session.id === sessionId
+            ? { ...session, studySession: newName }
+            : session
+        )
+      );
+      return true; // Indicate success
+    } catch (error) {
+      console.error("Error updating flashcard session name:", error);
+      setFlashcardError("Failed to update flashcard session name.");
+      return false; // Indicate failure
+    }
+  };
+
   // Fetch flashcard sessions whenever the user state changes (i.e., on login)
   useEffect(() => {
     if (user) {
@@ -173,6 +206,7 @@ export const UserProvider = ({ children }) => {
         addFlashcardsToSession,
         getFlashcardSessionById,
         deleteFlashcardSession,
+        updateFlashcardSessionName,
       }}
     >
       {children}

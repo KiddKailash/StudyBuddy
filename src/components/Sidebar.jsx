@@ -1,3 +1,5 @@
+// src/components/Sidebar.jsx
+
 import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
@@ -30,6 +32,13 @@ import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlertComponent from "@mui/material/Alert";
 
+// Imports for TextField (for Rename)
+import TextField from "@mui/material/TextField";
+
+// Import Icons for Menu Items
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+
 // Create Alert component for Snackbar
 const AlertSnackbar = React.forwardRef(function Alert(props, ref) {
   return <MuiAlertComponent elevation={6} ref={ref} variant="filled" {...props} />;
@@ -49,6 +58,7 @@ const Sidebar = () => {
     loadingSessions,
     flashcardError,
     deleteFlashcardSession,
+    updateFlashcardSessionName,
   } = useContext(UserContext);
   const location = useLocation();
   const theme = useTheme();
@@ -66,8 +76,12 @@ const Sidebar = () => {
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const menuOpen = Boolean(anchorEl);
 
-  // State for Confirmation Dialog
+  // State for Confirmation Dialog (Delete)
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  // State for Rename Dialog
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [newSessionName, setNewSessionName] = useState("");
 
   // State for Snackbar Notifications
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -77,8 +91,9 @@ const Sidebar = () => {
   // State for Hover Tracking
   const [hoveredSessionId, setHoveredSessionId] = useState(null); // Track the hovered session
 
-  // New state to track the session to delete
+  // New states to track the session to delete or rename
   const [sessionToDelete, setSessionToDelete] = useState(null);
+  const [sessionToRename, setSessionToRename] = useState(null);
 
   /**
    * Opens the dropdown menu for a specific session.
@@ -102,7 +117,7 @@ const Sidebar = () => {
   /**
    * Opens the confirmation dialog for deletion.
    */
-  const handleDialogOpen = () => {
+  const handleDeleteDialogOpen = () => {
     setSessionToDelete(selectedSessionId);
     setDialogOpen(true);
     handleMenuClose(); // Close the menu after setting the session to delete
@@ -111,9 +126,27 @@ const Sidebar = () => {
   /**
    * Closes the confirmation dialog.
    */
-  const handleDialogClose = () => {
+  const handleDeleteDialogClose = () => {
     setDialogOpen(false);
     setSessionToDelete(null);
+  };
+
+  /**
+   * Opens the rename dialog.
+   */
+  const handleRenameDialogOpen = () => {
+    setSessionToRename(selectedSessionId);
+    setRenameDialogOpen(true);
+    handleMenuClose(); // Close the menu after setting the session to rename
+  };
+
+  /**
+   * Closes the rename dialog.
+   */
+  const handleRenameDialogClose = () => {
+    setRenameDialogOpen(false);
+    setSessionToRename(null);
+    setNewSessionName("");
   };
 
   /**
@@ -130,11 +163,41 @@ const Sidebar = () => {
       setSnackbarOpen(true);
     } catch (error) {
       console.error("Error deleting study session:", error);
-      setSnackbarMessage(`Error deleting study session: ${error.message}`);
+      setSnackbarMessage(
+        `Error deleting study session: ${error.response?.data?.error || error.message}`
+      );
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     } finally {
-      handleDialogClose();
+      handleDeleteDialogClose();
+    }
+  };
+
+  /**
+   * Handles the renaming of a study session.
+   */
+  const handleRenameSession = async () => {
+    if (!sessionToRename || !newSessionName.trim()) {
+      setSnackbarMessage("Please enter a valid session name.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    try {
+      await updateFlashcardSessionName(sessionToRename, newSessionName.trim());
+      setSnackbarMessage("Study session renamed successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error renaming study session:", error);
+      setSnackbarMessage(
+        `Error renaming study session: ${error.response?.data?.error || error.message}`
+      );
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      handleRenameDialogClose();
     }
   };
 
@@ -259,14 +322,20 @@ const Sidebar = () => {
           horizontal: "right",
         }}
       >
-        <MenuItem onClick={handleDialogOpen}>Delete</MenuItem>
-        {/* You can add more menu items here, such as "Edit" */}
+        <MenuItem onClick={handleDeleteDialogOpen}>
+          <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+          Delete
+        </MenuItem>
+        <MenuItem onClick={handleRenameDialogOpen}>
+          <EditIcon fontSize="small" sx={{ mr: 1 }} />
+          Rename
+        </MenuItem>
       </Menu>
 
-      {/* Confirmation Dialog */}
+      {/* Confirmation Dialog for Deletion */}
       <Dialog
         open={dialogOpen}
-        onClose={handleDialogClose}
+        onClose={handleDeleteDialogClose}
         aria-labelledby="confirm-delete-dialog"
       >
         <DialogTitle id="confirm-delete-dialog">Delete Study Session</DialogTitle>
@@ -275,8 +344,12 @@ const Sidebar = () => {
             Are you sure you want to delete this study session? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
+        <DialogActions
+          sx={{
+            justifyContent: "center", // Center the buttons horizontally
+          }}
+        >
+          <Button onClick={handleDeleteDialogClose} color="primary">
             Cancel
           </Button>
           <Button onClick={handleDeleteSession} color="error">
@@ -285,21 +358,41 @@ const Sidebar = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for Notifications */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      {/* Confirmation Dialog for Renaming */}
+      <Dialog
+        open={renameDialogOpen}
+        onClose={handleRenameDialogClose}
+        aria-labelledby="rename-dialog-title"
       >
-        <AlertSnackbar
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
+        <DialogTitle id="rename-dialog-title">Rename Study Session</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Enter a new name for this study session.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="New Session Name"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newSessionName}
+            onChange={(e) => setNewSessionName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions
+          sx={{
+            justifyContent: "center", // Center the buttons horizontally
+          }}
         >
-          {snackbarMessage}
-        </AlertSnackbar>
-      </Snackbar>
+          <Button onClick={handleRenameDialogClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleRenameSession} color="primary">
+            Rename
+          </Button>
+        </DialogActions>
+      </Dialog>
     </SidebarContainer>
   );
 };
