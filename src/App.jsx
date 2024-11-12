@@ -143,7 +143,7 @@ function App() {
                 />
               ))}
             </Routes>
-            {/* <Footer /> */}
+            <Footer />
           </Box>
 
           {/* GPT Chat */}

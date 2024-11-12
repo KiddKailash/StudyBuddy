@@ -26,7 +26,7 @@ const Footer = () => {
         transition: theme.transitions.backgroundAndText, // Centralized transition
       }}
     >
-      <Typography variant="body2">{currentYear} </Typography>
+      <Typography variant="body2">ClipCard may make typing errors. Check important information.</Typography>
     </Box>
   );
 };
