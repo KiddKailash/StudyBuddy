@@ -20,21 +20,36 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 
+// Imports for Snackbar
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlertComponent from "@mui/material/Alert";
+
+// Create Alert component for Snackbar
+const AlertSnackbar = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlertComponent elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
+// Styled Sidebar Container
 const SidebarContainer = styled(Box)(({ theme }) => ({
   bgcolor: theme.palette.background.paper,
   color: theme.palette.text.primary,
   overflowY: "auto",
-  height: "100%",
+  height: "100%", // Ensure the sidebar takes full height
 }));
 
 const Sidebar = () => {
-  const { flashcardSessions, loadingSessions, flashcardError, deleteFlashcardSession } =
-    useContext(UserContext);
+  const {
+    flashcardSessions,
+    loadingSessions,
+    flashcardError,
+    deleteFlashcardSession,
+  } = useContext(UserContext);
   const location = useLocation();
   const theme = useTheme();
 
@@ -46,45 +61,94 @@ const Sidebar = () => {
 
   const activeSessionId = getActiveSessionId();
 
-  // State for Menu and hover
+  // State for Menu
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
-  const [hoveredSessionId, setHoveredSessionId] = useState(null); // Track the hovered item
   const menuOpen = Boolean(anchorEl);
 
   // State for Confirmation Dialog
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Handle Menu Open
+  // State for Snackbar Notifications
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // 'success' or 'error'
+
+  // State for Hover Tracking
+  const [hoveredSessionId, setHoveredSessionId] = useState(null); // Track the hovered session
+
+  // New state to track the session to delete
+  const [sessionToDelete, setSessionToDelete] = useState(null);
+
+  /**
+   * Opens the dropdown menu for a specific session.
+   *
+   * @param {Event} event - The click event.
+   * @param {string} sessionId - The ID of the session.
+   */
   const handleMenuOpen = (event, sessionId) => {
     setAnchorEl(event.currentTarget);
     setSelectedSessionId(sessionId);
   };
 
-  // Handle Menu Close
+  /**
+   * Closes the dropdown menu.
+   */
   const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedSessionId(null);
   };
 
-  // Handle Dialog Open
+  /**
+   * Opens the confirmation dialog for deletion.
+   */
   const handleDialogOpen = () => {
+    setSessionToDelete(selectedSessionId);
     setDialogOpen(true);
-    handleMenuClose();
+    handleMenuClose(); // Close the menu after setting the session to delete
   };
 
-  // Handle Dialog Close
+  /**
+   * Closes the confirmation dialog.
+   */
   const handleDialogClose = () => {
     setDialogOpen(false);
-    setSelectedSessionId(null);
+    setSessionToDelete(null);
   };
 
-  // Handle Deletion of Study Session
+  /**
+   * Handles the deletion of a study session.
+   */
   const handleDeleteSession = async () => {
-    if (selectedSessionId) {
-      await deleteFlashcardSession(selectedSessionId);
+    console.log(`StudySessionID: ${sessionToDelete}`);
+    if (!sessionToDelete) return;
+
+    try {
+      await deleteFlashcardSession(sessionToDelete);
+      setSnackbarMessage("Study session deleted successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error deleting study session:", error);
+      setSnackbarMessage(`Error deleting study session: ${error.message}`);
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      handleDialogClose();
     }
-    handleDialogClose();
+  };
+
+  /**
+   * Handles the closure of the Snackbar.
+   *
+   * @param {Event} event - The close event.
+   * @param {string} reason - The reason for closing.
+   */
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   return (
@@ -110,15 +174,20 @@ const Sidebar = () => {
           <>
             {flashcardSessions.map((session) => {
               const isActive = session.id === activeSessionId;
+              const isHovered = session.id === hoveredSessionId;
+              const showOptions = isActive || isHovered;
+
               return (
                 <React.Fragment key={session.id}>
-                  <ListItem disablePadding>
+                  <ListItem
+                    disablePadding
+                    onMouseEnter={() => setHoveredSessionId(session.id)}
+                    onMouseLeave={() => setHoveredSessionId(null)}
+                  >
                     <ListItemButton
                       component={Link}
                       to={`/flashcards/${session.id}`}
                       selected={isActive}
-                      onMouseEnter={() => setHoveredSessionId(session.id)}
-                      onMouseLeave={() => setHoveredSessionId(null)}
                       sx={{
                         mr: 1,
                         ml: 1,
@@ -143,6 +212,9 @@ const Sidebar = () => {
                         "& .MuiListItemText-root": {
                           color: "inherit",
                         },
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between", // To position text and button
                       }}
                     >
                       <ListItemText
@@ -151,7 +223,8 @@ const Sidebar = () => {
                           variant: "subtitle2",
                         }}
                       />
-                      {(isActive || hoveredSessionId === session.id) && (
+                      {/* Three Dots IconButton */}
+                      {showOptions && (
                         <IconButton
                           edge="end"
                           aria-label="options"
@@ -187,6 +260,7 @@ const Sidebar = () => {
         }}
       >
         <MenuItem onClick={handleDialogOpen}>Delete</MenuItem>
+        {/* You can add more menu items here, such as "Edit" */}
       </Menu>
 
       {/* Confirmation Dialog */}
@@ -195,6 +269,7 @@ const Sidebar = () => {
         onClose={handleDialogClose}
         aria-labelledby="confirm-delete-dialog"
       >
+        <DialogTitle id="confirm-delete-dialog">Delete Study Session</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Are you sure you want to delete this study session? This action cannot be undone.
@@ -209,6 +284,22 @@ const Sidebar = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar for Notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <AlertSnackbar
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </AlertSnackbar>
+      </Snackbar>
     </SidebarContainer>
   );
 };
