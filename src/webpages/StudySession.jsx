@@ -1,6 +1,5 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
-import Flashcard from "../components/FlashCard";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext"; // Updated import
 
@@ -13,9 +12,6 @@ import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import Alert from "@mui/material/Alert";
 
 const StudySession = () => {
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -195,34 +191,6 @@ const StudySession = () => {
           )}
         </Button>
       </Box>
-
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      {successMessage && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {successMessage}
-        </Alert>
-      )}
-
-      {flashcards.length > 0 && (
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="h6">Generated Flashcards:</Typography>
-          <List>
-            {flashcards.map((card, index) => (
-              <ListItem
-                key={index}
-                sx={{ mb: 1, bgcolor: "#f9f9f9", borderRadius: 1 }}
-              >
-                <Flashcard question={card.question} answer={card.answer} />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      )}
     </Container>
   );
 };
