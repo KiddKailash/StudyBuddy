@@ -13,18 +13,28 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Grid2";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 
+// Additional Imports for RadioGroup
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+
 const LoginPage = () => {
+  // State for form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState(""); // New state
   const [lastName, setLastName] = useState(""); // New state
   const [company, setCompany] = useState(""); // New state
-  const [isCreateAccount, setIsCreateAccount] = useState(true); // Toggle between login and create account
+
+  // State to manage authentication mode: 'login' or 'create'
+  const [authMode, setAuthMode] = useState("login"); // Default to 'login'
+
+  // Loading and error states
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(""); // Error message
 
@@ -40,23 +50,41 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
 
-  const handleToggleChange = (event) => {
-    setIsCreateAccount(event.target.checked);
+  /**
+   * Handles changes in the RadioGroup (auth mode selection).
+   *
+   * @param {Object} event - The change event.
+   */
+  const handleAuthModeChange = (event) => {
+    setAuthMode(event.target.value);
     setError("");
+    // Optionally, reset form fields when switching modes
+    setEmail("");
+    setPassword("");
+    setFirstName("");
+    setLastName("");
+    setCompany("");
   };
 
+  /**
+   * Handles form submission for both login and create account.
+   *
+   * @param {Object} e - The form submission event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     // Determine the endpoint based on the mode
-    const endpoint = isCreateAccount ? "/api/auth/register" : "/api/auth/login";
+    const endpoint =
+      authMode === "create" ? "/api/auth/register" : "/api/auth/login";
 
     // Prepare the payload
-    const payload = isCreateAccount
-      ? { email, password, firstName, lastName, company }
-      : { email, password };
+    const payload =
+      authMode === "create"
+        ? { email, password, firstName, lastName, company }
+        : { email, password };
 
     try {
       const response = await axios.post(
@@ -107,23 +135,27 @@ const LoginPage = () => {
         p: 4,
       }}
     >
-      <Box textAlign="center" mb={2}>
-        <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
-          <Typography variant="body1" sx={{ mr: 1 }}>
-            Login
-          </Typography>
-          <Switch
-            checked={isCreateAccount}
-            onChange={handleToggleChange}
-            color="primary"
-            inputProps={{
-              "aria-label": "toggle login or create account",
-            }}
-          />
-          <Typography variant="body1" sx={{ ml: 1 }}>
-            Create
-          </Typography>
-        </Box>
+      <Box
+        textAlign="center"
+        sx={{ transition: "all 0.3s ease-in-out", mb:2 }}
+      >
+        {/* RadioGroup for Auth Mode Selection */}
+        <FormControl component="fieldset" sx={{ mb: 3 }}>
+          <RadioGroup
+            row
+            aria-label="auth mode"
+            name="auth-mode"
+            value={authMode}
+            onChange={handleAuthModeChange}
+          >
+            <FormControlLabel value="login" control={<Radio />} label="Login" />
+            <FormControlLabel
+              value="create"
+              control={<Radio />}
+              label="Create Account"
+            />
+          </RadioGroup>
+        </FormControl>
 
         <Typography variant="h4" color="primary">
           ClipCard
@@ -133,25 +165,28 @@ const LoginPage = () => {
           color="textPrimary"
           sx={{ mt: 1, fontWeight: "bold" }}
         >
-          {isCreateAccount
+          {authMode === "create"
             ? "Create study cards from any video."
             : "Login to your account."}
         </Typography>
         <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
-          {isCreateAccount
+          {authMode === "create"
             ? "Get ready for higher performance, reduced costs, and greater ease of use."
             : "Access your study cards and continue learning."}
         </Typography>
       </Box>
 
+      {/* Display Error Message */}
       {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           {error}
-        </Typography>
+        </Alert>
       )}
 
+      {/* Form */}
       <Box component="form" onSubmit={handleSubmit}>
-        {isCreateAccount && (
+        {/* Conditionally render fields for Create Account */}
+        {authMode === "create" && (
           <>
             <Grid container spacing={2} sx={{ mb: 2 }}>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -182,10 +217,11 @@ const LoginPage = () => {
               sx={{ mb: 2 }}
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              required
             />
           </>
         )}
+
+        {/* Common Fields */}
         <TextField
           fullWidth
           label="Email"
@@ -207,13 +243,16 @@ const LoginPage = () => {
           required
         />
 
-        {isCreateAccount && (
+        {/* Conditionally render Terms of Service checkbox for Create Account */}
+        {authMode === "create" && (
           <FormControlLabel
             control={<Checkbox color="primary" required />}
             label="I agree to the Terms of Service and Privacy Policy."
+            sx={{ mb: 2 }}
           />
         )}
 
+        {/* Submit Button */}
         <Button
           fullWidth
           variant="contained"
@@ -223,10 +262,10 @@ const LoginPage = () => {
           disabled={loading}
         >
           {loading
-            ? isCreateAccount
+            ? authMode === "create"
               ? "Creating Account..."
               : "Logging In..."
-            : isCreateAccount
+            : authMode === "create"
             ? "Create your ClipCard account"
             : "Login"}
         </Button>
