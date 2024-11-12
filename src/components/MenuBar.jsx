@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import { ThemeToggleButton } from "../contexts/ThemeProvider";
 import MenuItem from "./MenuItem";
-import { UserContext } from '../contexts/UserContext';
-import { useNavigate } from 'react-router-dom';
+import { UserContext } from "../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
 
 // ================================
 // MUI Component Imports
@@ -33,8 +33,7 @@ function MenuBar() {
    */
   const handleLogout = () => {
     resetUserContext(); // Clears user data and resets login state
-    navigate('/login'); // Redirects to login page
-
+    navigate("/login"); // Redirects to login page
   };
 
   return (
@@ -69,16 +68,14 @@ function MenuBar() {
               <Typography variant="body1" sx={{ mr: 2 }}>
                 {user.accountType === "free"
                   ? "Free User"
-                  : `${user.accountType.charAt(0).toUpperCase() + user.accountType.slice(1)} User`}
+                  : `${
+                      user.accountType.charAt(0).toUpperCase() +
+                      user.accountType.slice(1)
+                    } User`}
               </Typography>
             )}
             <ThemeToggleButton />
-            <Button
-            variant="contained"
-              sx={{ ml:2}}
-              onClick={handleLogout}
-              
-            >
+            <Button variant="contained" sx={{ ml: 2 }} onClick={handleLogout}>
               Logout
             </Button>
           </Box>
