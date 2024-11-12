@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from '../contexts/UserContext';
+import { UserContext } from "../contexts/UserContext";
 
 // ================================
 // MUI Component Imports
@@ -14,7 +14,7 @@ import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 
@@ -22,14 +22,21 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState(""); // New state
-  const [lastName, setLastName] = useState("");   // New state
-  const [company, setCompany] = useState("");     // New state
+  const [lastName, setLastName] = useState(""); // New state
+  const [company, setCompany] = useState(""); // New state
   const [isCreateAccount, setIsCreateAccount] = useState(true); // Toggle between login and create account
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(""); // Error message
 
   // Accessing UserContext to reset it and update user/authentication state
-  const { resetUserContext, setUser, setIsLoggedIn, isLoggedIn, flashcardSessions, loadingSessions } = useContext(UserContext);
+  const {
+    resetUserContext,
+    setUser,
+    setIsLoggedIn,
+    isLoggedIn,
+    flashcardSessions,
+    loadingSessions,
+  } = useContext(UserContext);
 
   const navigate = useNavigate();
 
@@ -84,16 +91,11 @@ const LoginPage = () => {
    */
   useEffect(() => {
     if (isLoggedIn && !loadingSessions) {
-      if (flashcardSessions && flashcardSessions.length > 0) {
-        // Navigate to the first flashcard session
-        navigate(`/flashcards/${flashcardSessions[0].id}`);
-      } else {
-        // Navigate to the home page if no flashcard sessions exist
-        navigate("/");
-      }
+      // Navigate to the home page
+      navigate("/");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoggedIn, loadingSessions, flashcardSessions]);
+  }, [isLoggedIn, loadingSessions]);
 
   return (
     <Container
@@ -152,7 +154,7 @@ const LoginPage = () => {
         {isCreateAccount && (
           <>
             <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   label="First Name"
@@ -162,7 +164,7 @@ const LoginPage = () => {
                   onChange={(e) => setFirstName(e.target.value)}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   label="Last Name"
