@@ -90,12 +90,12 @@ const LoginPage = () => {
    * Effect to handle navigation after successful login or account creation.
    */
   useEffect(() => {
-    if (isLoggedIn && !loadingSessions) {
+    if (isLoggedIn) {
       // Navigate to the home page
       navigate("/");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoggedIn, loadingSessions]);
+  }, [isLoggedIn]);
 
   return (
     <Container
