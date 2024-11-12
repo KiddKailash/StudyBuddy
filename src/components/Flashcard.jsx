@@ -15,6 +15,7 @@ const FlipCard = styled('div')(({ theme }) => ({
   width: '100%',
   height: '200px',
   cursor: 'pointer',
+
 }));
 
 // Inner container that handles the flip animation

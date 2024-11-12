@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { ThemeToggleButton } from "./ColourTheme";
+import { ThemeToggleButton } from "../contexts/ThemeProvider";
 import MenuItem from "./MenuItem";
 import { UserContext } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';

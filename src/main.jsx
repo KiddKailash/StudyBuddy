@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import SetTheme from "./components/ColourTheme";
+import SetTheme from "./contexts/ThemeProvider";
 import { UserProvider } from "./contexts/UserContext";
 
 import App from "./App.jsx";
