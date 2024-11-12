@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Flashcard from "../components/Flashcard" ;
+import Flashcard from "../components/Flashcard";
 import { useParams } from "react-router-dom";
+import Footer from "../components/Footer";
 
 // ================================
 // MUI Component Imports
@@ -90,6 +91,7 @@ const FlashcardSession = () => {
       ) : (
         <Typography>No session data available.</Typography>
       )}
+      <Footer />
     </Container>
   );
 };

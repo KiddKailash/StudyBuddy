@@ -8,7 +8,6 @@ import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 
 import MenuBar from "./components/MenuBar";
-import Footer from "./components/Footer";
 import GPTchat from "./components/GPTchat";
 import Sidebar from "./components/Sidebar";
 
@@ -143,7 +142,6 @@ function App() {
                 />
               ))}
             </Routes>
-            <Footer />
           </Box>
 
           {/* GPT Chat */}
