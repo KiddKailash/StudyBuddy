@@ -52,8 +52,8 @@ exports.generateFlashcards = async (req, res) => {
           { role: "system", content: "You are a helpful assistant." },
           { role: "user", content: prompt.trim() },
         ],
-        max_tokens: 1500,
-        temperature: 0.7,
+        max_tokens: 4095,
+        temperature: 0.2,
       },
       {
         headers: {
