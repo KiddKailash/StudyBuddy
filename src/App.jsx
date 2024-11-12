@@ -27,6 +27,9 @@ import "./App.css";
 function App() {
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const sidebarWidth = "260px";
+  const menubarHeight = "64px";
+
   const { isLoggedIn } = useContext(UserContext);
   const toggleExpand = () => {
     setIsExpanded((prev) => !prev);
@@ -54,7 +57,7 @@ function App() {
               top: 0,
               left: 0,
               width: "100%",
-              height: "64px",
+              height: menubarHeight,
               zIndex: 1000,
             }}
           >
@@ -66,10 +69,10 @@ function App() {
             component="nav"
             sx={{
               position: "fixed",
-              top: "64px", // Adjust based on the height of your MenuBar
+              top: menubarHeight, // Adjust based on the height of your MenuBar
               left: 0,
-              width: "240px", // Fixed width for the sidebar
-              height: "calc(100vh - 64px)", // Full height minus header
+              width: sidebarWidth, // Fixed width for the sidebar
+              height: `calc(100vh - ${menubarHeight})`, // Full height minus header
               bgcolor: "background.paper",
               borderRight: "1px solid #ccc",
               overflowY: "auto",
@@ -83,14 +86,14 @@ function App() {
           <Box
             sx={{
               position: "fixed",
-              top: isExpanded ? "64px" : "64px", // Cover header when expanded
-              left: isExpanded ? 0 : "240px", // Align with sidebar or expand fully
-              width: isExpanded ? "100vw" : `calc(100% - 240px)`,
-              height: isExpanded ? "calc(100vh - 64px)" : "calc(100vh - 64px)",
+              top: isExpanded ? menubarHeight : menubarHeight, // Cover header when expanded
+              left: isExpanded ? 0 : sidebarWidth, // Align with sidebar or expand fully
+              width: isExpanded ? "100vw" : `calc(100% - ${sidebarWidth})`,
+              height: isExpanded ? `calc(100vh - ${menubarHeight})` : `calc(100vh - ${menubarHeight})`,
               padding: 2,
               bgcolor: "background.paper",
               zIndex: 50, // Higher z-index to overlay other components
-              transition: "all 0.5s ease-in-out",
+              transition: "all 0.3s ease-in-out",
               boxShadow: isExpanded ? "none" : "none", // Optional: Add shadow when expanded
               overflow: "auto", // Prevent content overflow during transition
             }}
@@ -104,6 +107,8 @@ function App() {
                 right: "40px",
                 transform: "rotate(45deg)", // Always rotate 45 degrees
                 transition: "transform 0.3s ease-in-out",
+                zIndex: "5000",
+                border: "1px solid grey",
                 bgcolor: "background.default",
                 "&:hover": {
                   bgcolor: "grey.200",
@@ -138,6 +143,7 @@ function App() {
                 />
               ))}
             </Routes>
+            {/* <Footer /> */}
           </Box>
 
           {/* GPT Chat */}
@@ -151,20 +157,6 @@ function App() {
           >
             <GPTchat />
           </Box>
-
-          {/* Footer */}
-          {/* <Box
-            sx={{
-              position: "fixed",
-              bottom: 0,
-              left: "240px", // Align with the sidebar
-              width: `calc(100% - 240px)`, // Full width minus sidebar
-              bgcolor: "background.paper",
-              zIndex: 100, // Lower z-index
-            }}
-          >
-            <Footer />
-          </Box> */}
         </>
       )}
     </Router>

@@ -60,7 +60,7 @@ const FlashcardSession = () => {
   }, [id]);
 
   return (
-    <Container maxWidth="md" sx={{ mt: 5, mb: 5 }}>
+    <Container sx={{ mt: 2, mb: 2 }}>
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <CircularProgress />

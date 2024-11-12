@@ -58,7 +58,6 @@ function MenuBar() {
         <Toolbar
           sx={{
             justifyContent: "space-between",
-            minHeight: "64px",
             padding: "0 24px",
           }}
         >
@@ -78,9 +77,9 @@ function MenuBar() {
                   : `${user.accountType.charAt(0).toUpperCase() + user.accountType.slice(1)} User`}
               </Typography>
             )}
-            <ThemeToggleButton />
+            {/* <ThemeToggleButton /> */}
             <Button variant="contained" sx={{ ml: 2 }} onClick={handleLogout}>
-              Logout
+              Log Out
             </Button>
           </Box>
         </Toolbar>
