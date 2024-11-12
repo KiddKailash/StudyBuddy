@@ -64,15 +64,17 @@ const Flashcard = ({ question, answer }) => {
       <FlipCardInner flipped={flipped}>
         <FlipCardFront>
           <CardContent>
+            <Typography variant="subtitle1" sx={{color: 'grey'}}>Question</Typography>
             <Typography variant="body1" color="text.primary">
-              Q: {question}
+              {question}
             </Typography>
           </CardContent>
         </FlipCardFront>
         <FlipCardBack>
           <CardContent>
+          <Typography variant="subtitle1" sx={{color: 'grey'}}>Answer</Typography>
             <Typography variant="body1" color="text.primary">
-              A: {answer}
+              {answer}
             </Typography>
           </CardContent>
         </FlipCardBack>
