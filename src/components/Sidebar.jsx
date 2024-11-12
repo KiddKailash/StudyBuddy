@@ -14,10 +14,7 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
-
-// Additional Imports for Menu and Icons
 import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Dialog from "@mui/material/Dialog";
@@ -26,21 +23,21 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
-
-// Imports for Snackbar
+import TextField from "@mui/material/TextField";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlertComponent from "@mui/material/Alert";
 
-// Imports for TextField (for Rename)
-import TextField from "@mui/material/TextField";
-
-// Import Icons for Menu Items
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
+// MUI Icon Imports
+import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
 
 // Create Alert component for Snackbar
 const AlertSnackbar = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlertComponent elevation={6} ref={ref} variant="filled" {...props} />;
+  return (
+    <MuiAlertComponent elevation={6} ref={ref} variant="filled" {...props} />
+  );
 });
 
 // Styled Sidebar Container
@@ -49,6 +46,7 @@ const SidebarContainer = styled(Box)(({ theme }) => ({
   color: theme.palette.text.primary,
   overflowY: "auto",
   height: "100%", // Ensure the sidebar takes full height
+  padding: theme.spacing(2), // Add some padding
 }));
 
 const Sidebar = () => {
@@ -70,6 +68,9 @@ const Sidebar = () => {
   };
 
   const activeSessionId = getActiveSessionId();
+
+  // Determine if the current path is '/'
+  const isCreateSessionActive = location.pathname === "/";
 
   // State for Menu
   const [anchorEl, setAnchorEl] = useState(null);
@@ -94,6 +95,35 @@ const Sidebar = () => {
   // New states to track the session to delete or rename
   const [sessionToDelete, setSessionToDelete] = useState(null);
   const [sessionToRename, setSessionToRename] = useState(null);
+
+  /**
+   * Reusable styles object for buttons
+   * @param {object} theme - MUI theme object
+   * @param {boolean} isActive - Indicates if the button is active
+   * @returns {object} - Styles object
+   */
+  const commonButtonStyles = (theme, isActive = false) => ({
+    mr: 0.5,
+    ml: 0.5,
+    borderRadius: 3,
+    backgroundColor: isActive ? theme.palette.action.selected : "transparent",
+    "&.Mui-selected": {
+      backgroundColor: theme.palette.action.selected,
+    },
+    "&:hover": {
+      backgroundColor: theme.palette.action.selected,
+    },
+    transition: theme.transitions.create(["background-color"], {
+      duration: theme.transitions.duration.standard,
+    }),
+    color: "inherit",
+    "& .MuiListItemText-root": {
+      color: "inherit",
+    },
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  });
 
   /**
    * Opens the dropdown menu for a specific session.
@@ -129,7 +159,6 @@ const Sidebar = () => {
   const handleDeleteDialogClose = () => {
     setDialogOpen(false);
     setSessionToDelete(null);
-    navigate("/");
   };
 
   /**
@@ -165,11 +194,14 @@ const Sidebar = () => {
     } catch (error) {
       console.error("Error deleting study session:", error);
       setSnackbarMessage(
-        `Error deleting study session: ${error.response?.data?.error || error.message}`
+        `Error deleting study session: ${
+          error.response?.data?.error || error.message
+        }`
       );
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     } finally {
+      navigate("/"); // Navigate to '/' after deletion
       handleDeleteDialogClose();
     }
   };
@@ -193,7 +225,9 @@ const Sidebar = () => {
     } catch (error) {
       console.error("Error renaming study session:", error);
       setSnackbarMessage(
-        `Error renaming study session: ${error.response?.data?.error || error.message}`
+        `Error renaming study session: ${
+          error.response?.data?.error || error.message
+        }`
       );
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
@@ -228,83 +262,78 @@ const Sidebar = () => {
               {flashcardError}
             </Alert>
           </ListItem>
-        ) : flashcardSessions.length === 0 ? (
-          <ListItem>
-            <Typography variant="subtitle1" color="text.secondary">
-              No Study Sessions Found
-            </Typography>
-          </ListItem>
         ) : (
           <>
-            {flashcardSessions.map((session) => {
-              const isActive = session.id === activeSessionId;
-              const isHovered = session.id === hoveredSessionId;
-              const showOptions = isActive || isHovered;
+            {/* Create A Study Session Button */}
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                to={`/`}
+                selected={isCreateSessionActive} // Set selected based on current path
+                sx={(theme) => commonButtonStyles(theme, isCreateSessionActive)} // Pass isActive to styles
+              >
+                <ListItemText
+                  primary="Create study session"
+                  primaryTypographyProps={{
+                    variant: "subtitle2",
+                  }}
+                />
+                <AddRoundedIcon
+                  sx={{ ml: 1, color: theme.palette.text.secondary }}
+                />
+              </ListItemButton>
+            </ListItem>
 
-              return (
-                <React.Fragment key={session.id}>
-                  <ListItem
-                    disablePadding
-                    onMouseEnter={() => setHoveredSessionId(session.id)}
-                    onMouseLeave={() => setHoveredSessionId(null)}
-                  >
-                    <ListItemButton
-                      component={Link}
-                      to={`/flashcards/${session.id}`}
-                      selected={isActive}
-                      sx={{
-                        mr: 1,
-                        ml: 1,
-                        borderRadius: 3,
-                        backgroundColor: isActive
-                          ? theme.palette.action.selected
-                          : "transparent",
-                        "&.Mui-selected": {
-                          backgroundColor: theme.palette.action.selected,
-                        },
-                        "&:hover": {
-                          backgroundColor: theme.palette.action.selected,
-                        },
-                        transition: theme.transitions.create(
-                          ["background-color"],
-                          {
-                            duration: theme.transitions.duration.standard,
-                          }
-                        ),
-                        // Remove text color change on hover
-                        color: "inherit",
-                        "& .MuiListItemText-root": {
-                          color: "inherit",
-                        },
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between", // To position text and button
-                      }}
+            {/* Render Study Sessions */}
+            {flashcardSessions.length === 0 ? (
+              <ListItem>
+                <Typography variant="subtitle1" color="text.secondary">
+                </Typography>
+              </ListItem>
+            ) : (
+              flashcardSessions.map((session) => {
+                const isActive = session.id === activeSessionId;
+                const isHovered = session.id === hoveredSessionId;
+                const showOptions = isActive || isHovered;
+
+                return (
+                  <React.Fragment key={session.id}>
+                    <ListItem
+                      disablePadding
+                      onMouseEnter={() => setHoveredSessionId(session.id)}
+                      onMouseLeave={() => setHoveredSessionId(null)}
                     >
-                      <ListItemText
-                        primary={session.studySession}
-                        primaryTypographyProps={{
-                          variant: "subtitle2",
-                        }}
-                      />
-                      {/* Three Dots IconButton */}
-                      {showOptions && (
-                        <IconButton
-                          edge="end"
-                          aria-label="options"
-                          onClick={(e) => handleMenuOpen(e, session.id)}
-                          sx={{
-                            color: theme.palette.text.secondary,
+                      <ListItemButton
+                        component={Link}
+                        to={`/flashcards/${session.id}`}
+                        selected={isActive}
+                        sx={(theme) => commonButtonStyles(theme, isActive)}
+                      >
+                        <ListItemText
+                          primary={session.studySession}
+                          primaryTypographyProps={{
+                            variant: "subtitle2",
                           }}
-                        >
-                          <MoreVertIcon />
-                        </IconButton>
-                      )}
-                    </ListItemButton>
-                  </ListItem>
-                </React.Fragment>
-              );
-            })}
+                        />
+                        {/* Three Dots IconButton */}
+                        {showOptions && (
+                          <IconButton
+                            edge="end"
+                            aria-label="options"
+                            onClick={(e) => handleMenuOpen(e, session.id)}
+                            sx={{
+                              color: theme.palette.text.secondary,
+                            }}
+                          >
+                            <MoreVertRoundedIcon />
+                          </IconButton>
+                        )}
+                      </ListItemButton>
+                    </ListItem>
+                  </React.Fragment>
+                );
+              })
+            )}
           </>
         )}
       </List>
@@ -324,11 +353,11 @@ const Sidebar = () => {
         }}
       >
         <MenuItem onClick={handleDeleteDialogOpen}>
-          <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+          <DeleteRoundedIcon fontSize="small" sx={{ mr: 1 }} />
           Delete
         </MenuItem>
         <MenuItem onClick={handleRenameDialogOpen}>
-          <EditIcon fontSize="small" sx={{ mr: 1 }} />
+          <EditRoundedIcon fontSize="small" sx={{ mr: 1 }} />
           Rename
         </MenuItem>
       </Menu>
@@ -338,12 +367,14 @@ const Sidebar = () => {
         open={dialogOpen}
         onClose={handleDeleteDialogClose}
         aria-labelledby="confirm-delete-dialog"
+        sx={{ textAlign: "center" }}
       >
-        <DialogTitle id="confirm-delete-dialog">Delete Study Session</DialogTitle>
         <DialogContent>
+          <DialogTitle>Delete study session</DialogTitle>
           <DialogContentText>
-            Are you sure you want to delete this study session? This action cannot be undone.
+            Are you sure you want to delete this study session?
           </DialogContentText>
+          <DialogContentText>This cannot be undone.</DialogContentText>
         </DialogContent>
         <DialogActions
           sx={{
@@ -364,19 +395,17 @@ const Sidebar = () => {
         open={renameDialogOpen}
         onClose={handleRenameDialogClose}
         aria-labelledby="rename-dialog-title"
+        sx={{ textAlign: "center" }}
       >
         <DialogTitle id="rename-dialog-title">Rename Study Session</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Enter a new name for this study session.
-          </DialogContentText>
           <TextField
             autoFocus
             margin="dense"
             label="New Session Name"
             type="text"
             fullWidth
-            variant="standard"
+            variant="outlined"
             value={newSessionName}
             onChange={(e) => setNewSessionName(e.target.value)}
           />
@@ -394,6 +423,22 @@ const Sidebar = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar for Notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <AlertSnackbar
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </AlertSnackbar>
+      </Snackbar>
     </SidebarContainer>
   );
 };

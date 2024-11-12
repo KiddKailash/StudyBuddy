@@ -63,7 +63,6 @@ function MenuBar() {
         >
           {/* Left side menu items */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <MenuItem link="/" name="Create Flashcards" />
             <MenuItem link="/upgrade" name="Upgrade" />
             {/* <MenuItem link="/settings" name="Settings" /> */}
             {/* Add more menu items as needed */}
