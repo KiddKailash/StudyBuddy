@@ -1,5 +1,11 @@
-// src/webpages/Login.jsx
 import React, { useState, useContext, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from '../contexts/UserContext';
+
+// ================================
+// MUI Component Imports
+// ================================
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -11,11 +17,6 @@ import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Grid";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
-
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
-import { UserContext } from '../contexts/UserContext';
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");

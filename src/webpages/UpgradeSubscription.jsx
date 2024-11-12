@@ -1,17 +1,18 @@
-// src/webpages/UpgradeSubscription.jsx
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { UserContext } from "../contexts/UserContext";
-import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from '@mui/material';
+
+// ================================
+// MUI Component Imports
+// ================================
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
 
 /**
  * UpgradeSubscription component allows users to upgrade their subscription.

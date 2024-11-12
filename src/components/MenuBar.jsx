@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import PropTypes from "prop-types";
 import { ThemeToggleButton } from "./ColourTheme";
 import MenuItem from "./MenuItem";
 import { UserContext } from '../contexts/UserContext';

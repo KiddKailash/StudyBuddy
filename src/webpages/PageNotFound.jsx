@@ -1,6 +1,12 @@
 import React from "react";
-import { Box, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+
+// ================================
+// MUI Component Imports
+// ================================
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 const PageNotFound = () => {
   const navigate = useNavigate();

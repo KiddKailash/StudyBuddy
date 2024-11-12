@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import axios from 'axios';
-import {
-  Box,
-  Container,
-  Typography,
-  CircularProgress,
-  Alert,
-} from '@mui/material';
 import { useParams } from 'react-router-dom';
 import FlashCard from '../components/FlashCard';
+
+// ================================
+// MUI Component Imports
+// ================================
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 
 const FlashcardSession = () => {
   const { id } = useParams(); // Study session ID from URL

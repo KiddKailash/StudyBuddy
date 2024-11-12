@@ -1,5 +1,9 @@
 import * as React from 'react';
-import PropTypes from 'prop-types'; // Import PropTypes
+import PropTypes from 'prop-types';
+
+// ================================
+// MUI Component Imports
+// ================================
 import Alert from '@mui/material/Alert';
 import CheckIcon from '@mui/icons-material/Check';
 

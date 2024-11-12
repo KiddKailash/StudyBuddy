@@ -1,19 +1,21 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
-import {
-  Box,
-  Container,
-  Typography,
-  TextField,
-  Button,
-  CircularProgress,
-  List,
-  ListItem,
-  Alert,
-} from "@mui/material";
 import Flashcard from "../components/FlashCard";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext"; // Updated import
+
+// ================================
+// MUI Component Imports
+// ================================
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import Alert from "@mui/material/Alert";
 
 const StudySession = () => {
   const [youtubeUrl, setYoutubeUrl] = useState("");

@@ -1,4 +1,10 @@
 import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
+
+// ================================
+// MUI Component Imports
+// ================================
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -7,9 +13,7 @@ import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
-import Box from "@mui/material/Box"; // If you plan to use Box for additional styling
-import { Link } from "react-router-dom";
-import { UserContext } from "../contexts/UserContext"; // Updated import
+import Box from "@mui/material/Box";
 
 const Sidebar = () => {
   const { flashcardSessions, loadingSessions, flashcardError } = useContext(UserContext);
