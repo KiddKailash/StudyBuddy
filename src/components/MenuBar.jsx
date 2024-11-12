@@ -74,9 +74,10 @@ function MenuBar() {
             )}
             <ThemeToggleButton />
             <Button
-              color="inherit"
+            variant="contained"
+              sx={{ ml:2}}
               onClick={handleLogout}
-              sx={{ ml: 2 }}
+              
             >
               Logout
             </Button>
