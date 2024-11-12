@@ -2,9 +2,7 @@ import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 
-// ================================
 // MUI Component Imports
-// ================================
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -15,7 +13,6 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
-import DeleteIcon from '@mui/icons-material/Delete';
 
 // Additional Imports for Menu and Icons
 import IconButton from "@mui/material/IconButton";
@@ -23,7 +20,6 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
@@ -37,7 +33,7 @@ const SidebarContainer = styled(Box)(({ theme }) => ({
 }));
 
 const Sidebar = () => {
-  const { flashcardSessions, loadingSessions, flashcardError, setFlashcardSessions } =
+  const { flashcardSessions, loadingSessions, flashcardError, deleteFlashcardSession } =
     useContext(UserContext);
   const location = useLocation();
   const theme = useTheme();
@@ -85,40 +81,10 @@ const Sidebar = () => {
 
   // Handle Deletion of Study Session
   const handleDeleteSession = async () => {
-    if (!selectedSessionId) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("User is not authenticated.");
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${selectedSessionId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete the study session.");
-      }
-
-      // Update the frontend state by removing the deleted session
-      setFlashcardSessions((prevSessions) =>
-        prevSessions.filter((session) => session.id !== selectedSessionId)
-      );
-    } catch (error) {
-      console.error("Error deleting study session:", error);
-      alert(`Error deleting study session: ${error.message}`);
-    } finally {
-      handleDialogClose();
+    if (selectedSessionId) {
+      await deleteFlashcardSession(selectedSessionId);
     }
+    handleDialogClose();
   };
 
   return (
@@ -146,25 +112,13 @@ const Sidebar = () => {
               const isActive = session.id === activeSessionId;
               return (
                 <React.Fragment key={session.id}>
-                  <ListItem
-                    onMouseEnter={() => setHoveredSessionId(session.id)}
-                    onMouseLeave={() => setHoveredSessionId(null)}
-                    secondaryAction={
-                      (isActive || hoveredSessionId === session.id) && (
-                        <IconButton
-                          edge="end"
-                          aria-label="options"
-                          onClick={(e) => handleMenuOpen(e, session.id)}
-                        >
-                          <MoreVertIcon />
-                        </IconButton>
-                      )
-                    }
-                  >
+                  <ListItem disablePadding>
                     <ListItemButton
                       component={Link}
                       to={`/flashcards/${session.id}`}
                       selected={isActive}
+                      onMouseEnter={() => setHoveredSessionId(session.id)}
+                      onMouseLeave={() => setHoveredSessionId(null)}
                       sx={{
                         mr: 1,
                         ml: 1,
@@ -174,9 +128,6 @@ const Sidebar = () => {
                           : "transparent",
                         "&.Mui-selected": {
                           backgroundColor: theme.palette.action.selected,
-                          "&:hover": {
-                            backgroundColor: theme.palette.action.selected,
-                          },
                         },
                         "&:hover": {
                           backgroundColor: theme.palette.action.selected,
@@ -187,6 +138,11 @@ const Sidebar = () => {
                             duration: theme.transitions.duration.standard,
                           }
                         ),
+                        // Remove text color change on hover
+                        color: "inherit",
+                        "& .MuiListItemText-root": {
+                          color: "inherit",
+                        },
                       }}
                     >
                       <ListItemText
@@ -195,6 +151,18 @@ const Sidebar = () => {
                           variant: "subtitle2",
                         }}
                       />
+                      {(isActive || hoveredSessionId === session.id) && (
+                        <IconButton
+                          edge="end"
+                          aria-label="options"
+                          onClick={(e) => handleMenuOpen(e, session.id)}
+                          sx={{
+                            color: theme.palette.text.secondary,
+                          }}
+                        >
+                          <MoreVertIcon />
+                        </IconButton>
+                      )}
                     </ListItemButton>
                   </ListItem>
                 </React.Fragment>
@@ -229,10 +197,9 @@ const Sidebar = () => {
       >
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this study session? This cannot be undone.
+            Are you sure you want to delete this study session? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
-
         <DialogActions>
           <Button onClick={handleDialogClose} color="primary">
             Cancel
