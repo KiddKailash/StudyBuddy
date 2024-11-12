@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import FlashCard from "../components/FlashCard";
+import Flashcard from "../components/FlashCard";
 
 // ================================
 // MUI Component Imports
@@ -76,7 +76,7 @@ const FlashcardSession = () => {
               {session.flashcardsJSON.map((card, index) => (
                 <>
                   <Grid key={index} size={{ xs: 12, sm: 6, md: 4, xl: 3 }}>
-                    <FlashCard
+                    <Flashcard
                       key={index}
                       question={card.question}
                       answer={card.answer}
