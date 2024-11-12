@@ -27,7 +27,7 @@ const FlashcardSession = () => {
     setError("");
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
       if (!token) {
         throw new Error("User is not authenticated.");
       }
