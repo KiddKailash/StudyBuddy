@@ -1,25 +1,27 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { UserContext } from '../contexts/UserContext';
 
 /**
- * ProtectedRoute component to guard routes that require authentication.
+ * A wrapper for protected routes that redirects to the login page if not authenticated.
  *
- * @param {Object} props - Props passed to the component.
- * @param {React.ReactNode} props.children - Child components to render.
- * @param {boolean} props.isLoggedIn - Authentication status.
- * @returns {React.ReactNode} - Either the child components or a redirect.
+ * @param {Object} props - Component props.
+ * @param {React.ReactNode} props.children - The component to render if authenticated.
+ * @returns {React.ReactNode} - The rendered component or a redirect.
  */
-const ProtectedRoute = ({ children, isLoggedIn }) => {
+const ProtectedRoute = ({ children }) => {
+  const { isLoggedIn } = useContext(UserContext);
+
   if (!isLoggedIn) {
     return <Navigate to="/login" replace />;
   }
+
   return children;
 };
 
 ProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
-  isLoggedIn: PropTypes.bool.isRequired,
 };
 
 export default ProtectedRoute;

@@ -1,24 +1,36 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import {
-  Box,
-  Container,
-  Typography,
-  TextField,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Switch,
-} from "@mui/material";
-import Grid from "@mui/material/Grid2";
-import axios from "axios";
+// src/webpages/Login.jsx
+import React, { useState, useContext, useEffect } from "react";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+import Grid from "@mui/material/Grid";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
 
-const LoginPage = ({ setIsLoggedIn, setUser }) => {
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+import { UserContext } from '../contexts/UserContext';
+
+const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState(""); // New state
+  const [lastName, setLastName] = useState("");   // New state
+  const [company, setCompany] = useState("");     // New state
   const [isCreateAccount, setIsCreateAccount] = useState(true); // Toggle between login and create account
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(""); // Error message
+
+  // Accessing UserContext to reset it and update user/authentication state
+  const { resetUserContext, setUser, setIsLoggedIn, isLoggedIn, flashcardSessions, loadingSessions } = useContext(UserContext);
+
+  const navigate = useNavigate();
 
   const handleToggleChange = (event) => {
     setIsCreateAccount(event.target.checked);
@@ -30,21 +42,30 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
     setLoading(true);
     setError("");
 
+    // Determine the endpoint based on the mode
     const endpoint = isCreateAccount ? "/api/auth/register" : "/api/auth/login";
+
+    // Prepare the payload
+    const payload = isCreateAccount
+      ? { email, password, firstName, lastName, company }
+      : { email, password };
 
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}${endpoint}`,
-        { email, password }
+        payload
       );
 
       const { token, user } = response.data;
+
+      // Clear any existing user data to reset contexts
+      resetUserContext(); // Function to reset contexts
 
       // Store token and user in localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Update user state
+      // Update user state in context
       setUser(user);
       setIsLoggedIn(true);
     } catch (err) {
@@ -56,6 +77,22 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
       setLoading(false);
     }
   };
+
+  /**
+   * Effect to handle navigation after successful login or account creation.
+   */
+  useEffect(() => {
+    if (isLoggedIn && !loadingSessions) {
+      if (flashcardSessions && flashcardSessions.length > 0) {
+        // Navigate to the first flashcard session
+        navigate(`/flashcards/${flashcardSessions[0].id}`);
+      } else {
+        // Navigate to the home page if no flashcard sessions exist
+        navigate("/");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn, loadingSessions, flashcardSessions]);
 
   return (
     <Container
@@ -114,20 +151,24 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
         {isCreateAccount && (
           <>
             <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="First Name"
                   variant="outlined"
                   required
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="Last Name"
                   variant="outlined"
                   required
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                 />
               </Grid>
             </Grid>
@@ -136,6 +177,9 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
               label="Company"
               variant="outlined"
               sx={{ mb: 2 }}
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              required
             />
           </>
         )}
@@ -188,10 +232,7 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
   );
 };
 
-// Prop validation
-LoginPage.propTypes = {
-  setIsLoggedIn: PropTypes.func.isRequired,
-  setUser: PropTypes.func.isRequired,
-};
+// Removed propTypes since we are not passing props
+LoginPage.propTypes = {};
 
 export default LoginPage;

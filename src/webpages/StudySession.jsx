@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import Flashcard from "../components/FlashCard";
 import { useNavigate } from "react-router-dom";
-import { FlashcardContext } from "../contexts/FlashcardContext";
+import { UserContext } from "../contexts/UserContext"; // Updated import
 
 const StudySession = () => {
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -26,7 +26,7 @@ const StudySession = () => {
 
   const navigate = useNavigate();
 
-  const { addFlashcard } = useContext(FlashcardContext); // Consume the context
+  const { createFlashcardSession } = useContext(UserContext);
 
   const handleUrlChange = (event) => {
     setYoutubeUrl(event.target.value);
@@ -75,12 +75,16 @@ const StudySession = () => {
       setFlashcards(generatedFlashcards);
       setSuccessMessage("Flashcards generated successfully!");
 
-      // Automatically Save Flashcards
+      // Automatically Save Flashcards as a new session
       const sessionName = generateSessionName();
-      const newFlashcard = await saveFlashcards(sessionName, generatedFlashcards);
+      const newSession = await createFlashcardSession(sessionName, generatedFlashcards);
 
-      // Update the context with the new flashcard
-      addFlashcard(newFlashcard);
+      if (newSession) {
+        // Navigate to the newly created flashcard session
+        navigate(`/flashcards/${newSession.id}`);
+      } else {
+        throw new Error("Failed to create flashcard session.");
+      }
     } catch (err) {
       console.error("Error:", err);
       setError(
@@ -107,8 +111,8 @@ const StudySession = () => {
       const response = await axios.post(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
         {
-          sessionName, // This will be mapped to StudySession in backend
-          studyCards: flashcardsToSave, // This will be mapped to FlashcardsJSON in backend
+          sessionName, // This will be mapped to studySession in backend
+          studyCards: flashcardsToSave, // This will be mapped to flashcardsJSON in backend
         },
         {
           headers: {
@@ -221,6 +225,6 @@ const StudySession = () => {
   );
 };
 
-StudySession.propTypes = {};
+StudySession.propTypes = {}; // Optional: Add prop-types if needed
 
 export default StudySession;

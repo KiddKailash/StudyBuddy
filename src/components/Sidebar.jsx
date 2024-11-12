@@ -1,50 +1,54 @@
 import React, { useContext } from "react";
-import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Divider,
-  Typography,
-} from "@mui/material";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box"; // If you plan to use Box for additional styling
 import { Link } from "react-router-dom";
-import { FlashcardContext } from "../contexts/FlashcardContext";
+import { UserContext } from "../contexts/UserContext"; // Updated import
 
 const Sidebar = () => {
-  const { flashcards, loading, error } = useContext(FlashcardContext);
+  const { flashcardSessions, loadingSessions, flashcardError } = useContext(UserContext);
+
+  console.log("Sidebar - flashcardSessions:", flashcardSessions);
+  console.log("Sidebar - loadingSessions:", loadingSessions);
+  console.log("Sidebar - flashcardError:", flashcardError);
 
   return (
-    <List component="nav" sx={{ width: "100%", bgcolor: "background.paper" }}>
-      {loading ? (
-        <ListItem>
-          <ListItemText primary="Loading..." />
-        </ListItem>
-      ) : error ? (
-        <ListItem>
-          <ListItemText primary={error} />
-        </ListItem>
-      ) : flashcards.length === 0 ? (
-        <ListItem>
-          <Typography variant="subtitle1">No Study Sessions Found</Typography>
-        </ListItem>
-      ) : (
-        <>
-          {flashcards.map((session) => (
-            <React.Fragment key={session.id}>
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to={`/flashcards/${session.id}`}
-                >
-                  <ListItemText primary={session.StudySession} />
-                </ListItemButton>
-              </ListItem>
-              <Divider />
-            </React.Fragment>
-          ))}
-        </>
-      )}
-    </List>
+    <Box sx={{ width: "240px", bgcolor: "background.paper", height: "100vh", overflowY: "auto" }}>
+      <List component="nav">
+        {loadingSessions ? (
+          <ListItem>
+            <CircularProgress />
+          </ListItem>
+        ) : flashcardError ? (
+          <ListItem>
+            <Alert severity="error">{flashcardError}</Alert>
+          </ListItem>
+        ) : flashcardSessions.length === 0 ? (
+          <ListItem>
+            <Typography variant="subtitle1">No Study Sessions Found</Typography>
+          </ListItem>
+        ) : (
+          <>
+            {flashcardSessions.map((session) => (
+              <React.Fragment key={session.id}>
+                <ListItem disablePadding>
+                  <ListItemButton component={Link} to={`/flashcards/${session.id}`}>
+                    <ListItemText primary={session.studySession} />
+                  </ListItemButton>
+                </ListItem>
+                <Divider />
+              </React.Fragment>
+            ))}
+          </>
+        )}
+      </List>
+    </Box>
   );
 };
 

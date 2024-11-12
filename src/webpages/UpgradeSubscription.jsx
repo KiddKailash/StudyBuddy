@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+// src/webpages/UpgradeSubscription.jsx
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
+import { UserContext } from "../contexts/UserContext";
 import {
   Box,
   Container,
@@ -15,12 +16,10 @@ import {
 /**
  * UpgradeSubscription component allows users to upgrade their subscription.
  *
- * @param {Object} props - Component props.
- * @param {Object} props.user - Current user information.
- * @param {Function} props.setUser - Function to update user state.
  * @return {JSX.Element} - The rendered UpgradeSubscription component.
  */
-const UpgradeSubscription = ({ user, setUser }) => {
+const UpgradeSubscription = () => {
+  const { user, setUser } = useContext(UserContext); // Consume context
   const [accountType, setAccountType] = useState(user.accountType);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -101,13 +100,7 @@ const UpgradeSubscription = ({ user, setUser }) => {
   );
 };
 
-UpgradeSubscription.propTypes = {
-  user: PropTypes.shape({
-    id: PropTypes.string,
-    email: PropTypes.string,
-    accountType: PropTypes.string,
-  }).isRequired,
-  setUser: PropTypes.func.isRequired,
-};
+// Removed propTypes since we are not passing props
+UpgradeSubscription.propTypes = {};
 
 export default UpgradeSubscription;

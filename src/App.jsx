@@ -1,5 +1,6 @@
+// src/App.jsx
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useContext } from "react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
@@ -18,26 +19,17 @@ import PageNotFound from "./webpages/PageNotFound";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import { UserContext } from "./contexts/UserContext";
+
 import "./App.css";
 
 function App() {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
-  const [user, setUser] = useState(null); // State to hold user information
 
+  const { isLoggedIn } = useContext(UserContext);
   const toggleExpand = () => {
     setIsExpanded((prev) => !prev);
   };
-
-  // Check for token and user info on mount
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
-    if (token && userData) {
-      setIsLoggedIn(true);
-      setUser(JSON.parse(userData));
-    }
-  }, []);
 
   const pages = [
     { path: "/", component: <StudySession /> }, // Default route
@@ -51,7 +43,7 @@ function App() {
     <Router>
       {/* Conditionally render login page or main content */}
       {!isLoggedIn ? (
-        <LoginPage setIsLoggedIn={setIsLoggedIn} setUser={setUser} />
+        <LoginPage />
       ) : (
         <>
           {/* Header */}
@@ -64,8 +56,8 @@ function App() {
               zIndex: 1000,
             }}
           >
-            {/* Pass setIsLoggedIn and user to MenuBar */}
-            <MenuBar setIsLoggedIn={setIsLoggedIn} user={user} />
+            {/* MenuBar now consumes context */}
+            <MenuBar />
           </Box>
 
           {/* Sidebar */}
@@ -123,7 +115,7 @@ function App() {
             {/* Conditionally Render MenuBar Inside MainContent When Expanded */}
             {isExpanded && (
               <Box sx={{ mb: 2 }}>
-                <MenuBar setIsLoggedIn={setIsLoggedIn} user={user} />
+                <MenuBar />
               </Box>
             )}
 
@@ -135,7 +127,7 @@ function App() {
                   path={page.path}
                   element={
                     page.path.startsWith("/flashcards") ? (
-                      <ProtectedRoute isLoggedIn={isLoggedIn}>
+                      <ProtectedRoute>
                         {page.component}
                       </ProtectedRoute>
                     ) : (

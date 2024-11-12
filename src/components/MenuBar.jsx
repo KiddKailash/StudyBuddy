@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { ThemeToggleButton } from "./ColourTheme";
 import MenuItem from "./MenuItem";
+import { UserContext } from '../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 // ================================
 // MUI Component Imports
@@ -17,12 +19,11 @@ import Typography from "@mui/material/Typography";
 /**
  * MenuBar component renders the top navigation bar of the application.
  *
- * @param {Object} props - Component props.
- * @param {Function} props.setIsLoggedIn - Function to update the login state.
- * @param {Object} props.user - User information object.
  * @return {JSX.Element} - The rendered MenuBar component.
  */
-function MenuBar({ setIsLoggedIn, user }) {
+function MenuBar() {
+  const { user, setIsLoggedIn, resetUserContext } = useContext(UserContext);
+  const navigate = useNavigate();
   const theme = useTheme(); // Access the current theme settings
 
   /**
@@ -32,12 +33,8 @@ function MenuBar({ setIsLoggedIn, user }) {
    * - Optionally, notifies the user.
    */
   const handleLogout = () => {
-    // Remove the token and user from localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    // Update the login state
-    setIsLoggedIn(false);
+    resetUserContext(); // Clears user data and resets login state
+    navigate('/login'); // Redirects to login page
 
   };
 
@@ -94,18 +91,5 @@ function MenuBar({ setIsLoggedIn, user }) {
     </Box>
   );
 }
-
-MenuBar.propTypes = {
-  setIsLoggedIn: PropTypes.func.isRequired,
-  user: PropTypes.shape({
-    id: PropTypes.string,
-    email: PropTypes.string,
-    accountType: PropTypes.string,
-  }),
-};
-
-MenuBar.defaultProps = {
-  user: null,
-};
 
 export default MenuBar;

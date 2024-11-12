@@ -68,19 +68,19 @@ const FlashcardSession = () => {
       ) : session ? (
         <>
           <Typography variant="h4" gutterBottom>
-            {session.StudySession}
+            {session.studySession}
           </Typography>
           <Typography variant="subtitle1" gutterBottom>
-            Created At: {new Date(session.CreatedDate).toLocaleString()}
+            Created At: {new Date(session.createdDate).toLocaleString()}
           </Typography>
 
           <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
             Flashcards
           </Typography>
-          {session.FlashcardsJSON.length === 0 ? (
+          {session.flashcardsJSON.length === 0 ? (
             <Typography>No flashcards in this session.</Typography>
           ) : (
-            session.FlashcardsJSON.map((card, index) => (
+            session.flashcardsJSON.map((card, index) => (
               <FlashCard
                 key={index}
                 question={card.question}
