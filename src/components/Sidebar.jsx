@@ -1,8 +1,7 @@
-// src/components/Sidebar.jsx
-
 import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
 
 // MUI Component Imports
 import List from "@mui/material/List";
@@ -62,6 +61,7 @@ const Sidebar = () => {
   } = useContext(UserContext);
   const location = useLocation();
   const theme = useTheme();
+  const navigate = useNavigate();
 
   // Function to extract session ID from the current path
   const getActiveSessionId = () => {
@@ -129,6 +129,7 @@ const Sidebar = () => {
   const handleDeleteDialogClose = () => {
     setDialogOpen(false);
     setSessionToDelete(null);
+    navigate("/");
   };
 
   /**
