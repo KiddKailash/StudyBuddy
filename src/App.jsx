@@ -16,6 +16,7 @@ import FlashcardSession from "./webpages/FlashcardSession";
 import StudySession from "./webpages/StudySession";
 import LoginPage from "./webpages/Login";
 import PageNotFound from "./webpages/PageNotFound";
+import SettingsPage from "./webpages/Settings";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -39,6 +40,7 @@ function App() {
     { path: "/upgrade", component: <UpgradeSubscription /> },
     { path: "/flashcards/:id", component: <FlashcardSession /> }, // Specific Flashcard Session
     { path: "/login", component: <LoginPage /> }, // Login Page
+    { path: "/settings", component: <SettingsPage /> }, // Settings Page
     { path: "*", component: <PageNotFound /> }, // 404 Page
   ];
 
