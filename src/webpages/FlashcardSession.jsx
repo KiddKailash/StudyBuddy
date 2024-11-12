@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Flashcard from "../components/Flashcard" ;
 import { useParams } from "react-router-dom";
-import Flashcard from "../components/Flashcard";
 
 // ================================
 // MUI Component Imports
