@@ -75,7 +75,7 @@ const FlashcardSession = () => {
             <Grid container spacing={2}>
               {session.flashcardsJSON.map((card, index) => (
                 <>
-                  <Grid key={index} size={{ xs: 12, sm: 6, md: 4, xl: 3 }}>
+                  <Grid key={index} size={{ xs: 12, sm: 6, md: 6, xl: 4 }}>
                     <Flashcard
                       key={index}
                       question={card.question}
