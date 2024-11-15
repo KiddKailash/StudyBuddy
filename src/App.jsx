@@ -26,14 +26,14 @@ import { UserContext } from "./contexts/UserContext";
 import "./App.css";
 
 function App() {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const sidebarWidth = '260px';
-  const menubarHeight = '64px';
+  const sidebarWidth = "260px";
+  const menubarHeight = "64px";
 
   const { isLoggedIn } = useContext(UserContext);
 
@@ -93,40 +93,42 @@ function App() {
           <Box
             sx={{
               position: "fixed",
-              top: isExpanded ? menubarHeight : menubarHeight, // Cover header when expanded
-              left: isExpanded ? 0 : sidebarWidth, // Align with sidebar or expand fully
-              width: isExpanded ? "100vw" : `calc(100% - ${sidebarWidth})`,
-              height: isExpanded
-                ? `calc(100vh - ${menubarHeight})`
-                : `calc(100vh - ${menubarHeight})`,
+              top: menubarHeight, // Always below the MenuBar
+              left: isMobile || !isExpanded ? 0 : sidebarWidth, // Full width on mobile or when sidebar is hidden
+              width:
+                isMobile || !isExpanded
+                  ? "100vw"
+                  : `calc(100% - ${sidebarWidth})`, // Adjust width
+              height: `calc(100vh - ${menubarHeight})`, // Always the full height below the MenuBar
               padding: 2,
-              borderLeft: "1px solid #ccc",
+              borderLeft: "1px solid #ccc", // Remove border when sidebar is hidden
               bgcolor: "background.paper",
               zIndex: 50, // Higher z-index to overlay other components
               transition: "all 0.3s ease-in-out",
-              boxShadow: isExpanded ? "none" : "none", // Optional: Add shadow when expanded
-              overflow: "auto", // Prevent content overflow during transition
+              overflow: "auto", // Prevent content overflow
             }}
           >
             {/* Expand/Collapse Button */}
-            <IconButton
-              onClick={toggleExpand}
-              sx={{
-                position: "fixed",
-                bottom: "40px",
-                right: "40px",
-                transform: "rotate(45deg)", // Always rotate 45 degrees
-                transition: "transform 0.3s ease-in-out",
-                zIndex: "5000",
-                border: "1px solid grey",
-                bgcolor: "background.default",
-                "&:hover": {
-                  bgcolor: "grey.200",
-                },
-              }}
-            >
-              {isExpanded ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
-            </IconButton>
+            {!isMobile && (
+              <IconButton
+                onClick={toggleExpand}
+                sx={{
+                  position: "fixed",
+                  bottom: "40px",
+                  right: "40px",
+                  transform: "rotate(45deg)", // Always rotate 45 degrees
+                  transition: "transform 0.3s ease-in-out",
+                  zIndex: "5000",
+                  border: "1px solid grey",
+                  bgcolor: "background.default",
+                  "&:hover": {
+                    bgcolor: "grey.200",
+                  },
+                }}
+              >
+                {isExpanded ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
+              </IconButton>
+            )}
 
             {/* Routes */}
             <Routes>
