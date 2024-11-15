@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import PropTypes from 'prop-types';
 
 // MUI Component Imports
@@ -51,6 +52,7 @@ const Sidebar = ({
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const {
     flashcardSessions,
@@ -209,7 +211,10 @@ const Sidebar = ({
     }
 
     try {
-      await updateFlashcardSessionName(sessionToRename, newSessionName.trim());
+      await updateFlashcardSessionName(
+        sessionToRename,
+        newSessionName.trim()
+      );
       setSnackbarMessage("Study session renamed successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
@@ -258,12 +263,15 @@ const Sidebar = ({
         ) : (
           <>
             {/* Create A Study Session Button */}
-            <ListItem disablePadding>
+            <ListItem disablePadding key="create-session">
               <ListItemButton
                 component={Link}
                 to={`/`}
                 selected={isCreateSessionActive}
-                sx={(theme) => commonButtonStyles(theme, isCreateSessionActive)}
+                sx={(theme) =>
+                  commonButtonStyles(theme, isCreateSessionActive)
+                }
+                onClick={isMobile ? handleDrawerToggle : undefined} // Close drawer on mobile
               >
                 <ListItemText
                   primary="Create study session"
@@ -279,7 +287,7 @@ const Sidebar = ({
 
             {/* Render Study Sessions */}
             {flashcardSessions.length === 0 ? (
-              <ListItem>
+              <ListItem key="no-sessions">
                 <Typography variant="subtitle1" color="text.secondary">
                   No study sessions available.
                 </Typography>
@@ -291,40 +299,40 @@ const Sidebar = ({
                 const showOptions = isActive || isHovered;
 
                 return (
-                  <React.Fragment key={session.id}>
-                    <ListItem
-                      disablePadding
-                      onMouseEnter={() => setHoveredSessionId(session.id)}
-                      onMouseLeave={() => setHoveredSessionId(null)}
+                  <ListItem
+                    disablePadding
+                    key={session.id}
+                    onMouseEnter={() => setHoveredSessionId(session.id)}
+                    onMouseLeave={() => setHoveredSessionId(null)}
+                  >
+                    <ListItemButton
+                      component={Link}
+                      to={`/flashcards/${session.id}`}
+                      selected={isActive}
+                      sx={(theme) => commonButtonStyles(theme, isActive)}
+                      onClick={isMobile ? handleDrawerToggle : undefined} // Close drawer on mobile
                     >
-                      <ListItemButton
-                        component={Link}
-                        to={`/flashcards/${session.id}`}
-                        selected={isActive}
-                        sx={(theme) => commonButtonStyles(theme, isActive)}
-                      >
-                        <ListItemText
-                          primary={session.studySession}
-                          primaryTypographyProps={{
-                            variant: "subtitle2",
+                      <ListItemText
+                        primary={session.studySession}
+                        primaryTypographyProps={{
+                          variant: "subtitle2",
+                        }}
+                      />
+                      {/* Three Dots IconButton */}
+                      {showOptions && (
+                        <IconButton
+                          edge="end"
+                          aria-label="options"
+                          onClick={(e) => handleMenuOpen(e, session.id)}
+                          sx={{
+                            color: theme.palette.text.secondary,
                           }}
-                        />
-                        {/* Three Dots IconButton */}
-                        {showOptions && (
-                          <IconButton
-                            edge="end"
-                            aria-label="options"
-                            onClick={(e) => handleMenuOpen(e, session.id)}
-                            sx={{
-                              color: theme.palette.text.secondary,
-                            }}
-                          >
-                            <MoreVertRoundedIcon />
-                          </IconButton>
-                        )}
-                      </ListItemButton>
-                    </ListItem>
-                  </React.Fragment>
+                        >
+                          <MoreVertRoundedIcon />
+                        </IconButton>
+                      )}
+                    </ListItemButton>
+                  </ListItem>
                 );
               })
             )}
@@ -444,7 +452,7 @@ const Sidebar = ({
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true,
+          keepMounted: true, // Better open performance on mobile.
         }}
         sx={{
           display: { xs: "block", sm: "none" },
