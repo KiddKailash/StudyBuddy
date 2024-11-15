@@ -1,11 +1,13 @@
 import React, { useState, useContext } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+import PropTypes from 'prop-types';
 
 // MUI Component Imports
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
+import Toolbar from "@mui/material/Toolbar"; // Import Toolbar for spacing
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -40,9 +42,12 @@ const AlertSnackbar = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const drawerWidth = 260;
-
-const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
+const Sidebar = ({
+  mobileOpen,
+  handleDrawerToggle,
+  drawerWidth,
+  menubarHeight,
+}) => {
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
@@ -236,7 +241,9 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
   };
 
   const drawerContent = (
-    <Box sx={{ width: drawerWidth, p: 2 }}>
+    <Box sx={{ width: drawerWidth }}>
+      {/* Add Toolbar to offset content below AppBar */}
+      <Toolbar />
       <List component="nav">
         {loadingSessions ? (
           <ListItem sx={{ justifyContent: "center" }}>
@@ -458,6 +465,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
             width: drawerWidth,
+            height: `calc(100% - ${menubarHeight}px)`, // Adjust height
           },
         }}
         open
@@ -466,6 +474,13 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
       </Drawer>
     </Box>
   );
+};
+
+Sidebar.propTypes = {
+  mobileOpen: PropTypes.bool.isRequired, // Indicates if the mobile drawer is open
+  handleDrawerToggle: PropTypes.func.isRequired, // Function to toggle the drawer
+  drawerWidth: PropTypes.number.isRequired, // Width of the drawer in pixels
+  menubarHeight: PropTypes.number.isRequired, // Height of the menu bar in pixels
 };
 
 export default Sidebar;

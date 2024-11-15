@@ -1,8 +1,7 @@
-// src/components/MenuBar.jsx
-
 import React, { useContext } from "react";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+import PropTypes from 'prop-types';
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -93,5 +92,9 @@ function MenuBar({ handleDrawerToggle }) {
     </AppBar>
   );
 }
+
+MenuBar.propTypes = {
+  handleDrawerToggle: PropTypes.func.isRequired, // Function to toggle the drawer
+};
 
 export default MenuBar;

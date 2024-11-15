@@ -67,14 +67,18 @@ function App() {
           <Sidebar
             mobileOpen={mobileOpen}
             handleDrawerToggle={handleDrawerToggle}
+            drawerWidth={sidebarWidth}
+            menubarHeight={menubarHeight}
           />
 
           {/* Main Content */}
           <Box
+            component="main"
             sx={{
-              position: "fixed",
-              top: menubarHeight,
-              left: isMobile
+              flexGrow: 1,
+              position: "relative",
+              marginTop: `${menubarHeight}px`,
+              marginLeft: isMobile
                 ? 0
                 : isExpanded
                 ? 0
