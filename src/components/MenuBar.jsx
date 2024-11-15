@@ -1,27 +1,29 @@
+// src/components/MenuBar.jsx
+
 import React, { useContext } from "react";
-import { ThemeToggleButton } from "../contexts/ThemeProvider";
-import MenuItem from "./MenuItem";
-import { UserContext } from "../contexts/UserContext";
+import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 
-// ================================
-/* MUI Component Imports (Individual Imports)
-*/
-// ================================
-import { useTheme } from "@mui/material/styles";
+// MUI Component Imports
 import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+
+// Context
+import { UserContext } from "../contexts/UserContext";
+import MenuItem from "./MenuItem";
 
 /**
  * MenuBar component renders the top navigation bar of the application.
  *
+ * @param {function} handleDrawerToggle - Function to toggle the sidebar drawer.
  * @return {JSX.Element} - The rendered MenuBar component.
  */
-function MenuBar() {
+function MenuBar({ handleDrawerToggle }) {
   const { user, resetUserContext } = useContext(UserContext);
   const navigate = useNavigate();
   const theme = useTheme(); // Access the current theme settings
@@ -38,54 +40,57 @@ function MenuBar() {
   };
 
   return (
-    <Box
+    <AppBar
+      component="nav"
+      position="fixed"
       sx={{
-        display: "flex",
-        flexDirection: "column",  
+        backgroundColor: theme.palette.background.paper,
+        color: theme.palette.text.secondary,
+        zIndex: theme.zIndex.drawer + 1,
+        transition: theme.transitions.backgroundAndText,
       }}
     >
-      <CssBaseline />
-      <AppBar
-        component="nav"
-        position="fixed"               // Fix the AppBar at the top
+      <Toolbar
         sx={{
-          backgroundColor: theme.palette.background.paper,
-          color: theme.palette.text.secondary,
-          zIndex: theme.zIndex.drawer + 1,
-          transition: theme.transitions.backgroundAndText,
+          justifyContent: "space-between",
+          padding: "0 24px",
         }}
       >
-        <Toolbar
-          sx={{
-            justifyContent: "space-between",
-            padding: "0 24px",
-          }}
+        {/* Menu Icon for Mobile */}
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={handleDrawerToggle}
+          sx={{ mr: 2, display: { sm: "none" } }}
         >
-          {/* Left side menu items */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <MenuItem link="/upgrade" name="Upgrade" />
-            {/* <MenuItem link="/settings" name="Settings" /> */}
-            {/* Add more menu items as needed */}
-          </Box>
+          <MenuIcon />
+        </IconButton>
 
-          {/* Right side: Subscription status, Theme toggle, and Logout button */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            {user && (
-              <Typography variant="body1" sx={{ mr: 2 }}>
-                {user.accountType === "free"
-                  ? "Free User"
-                  : `${user.accountType.charAt(0).toUpperCase() + user.accountType.slice(1)} User`}
-              </Typography>
-            )}
-            {/* <ThemeToggleButton /> */}
-            <Button variant="contained" sx={{ ml: 2 }} onClick={handleLogout}>
-              Log Out
-            </Button>
-          </Box>
-        </Toolbar>
-      </AppBar>
+        {/* Left side menu items */}
+        <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
+          <MenuItem link="/upgrade" name="Upgrade" />
+          {/* Add more menu items as needed */}
+        </Box>
 
-    </Box>
+        {/* Right side: Subscription status and Logout button */}
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          {user && (
+            <Typography variant="body1" sx={{ mr: 2 }}>
+              {user.accountType === "free"
+                ? "Free User"
+                : `${
+                    user.accountType.charAt(0).toUpperCase() +
+                    user.accountType.slice(1)
+                  } User`}
+            </Typography>
+          )}
+          <Button variant="contained" sx={{ ml: 2 }} onClick={handleLogout}>
+            Log Out
+          </Button>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }
 

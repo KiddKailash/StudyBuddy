@@ -1,6 +1,7 @@
-// src/App.jsx
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { useState, useContext } from "react";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -8,8 +9,8 @@ import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 
 import MenuBar from "./components/MenuBar";
-import GPTchat from "./components/GPTchat";
 import Sidebar from "./components/Sidebar";
+import GPTchat from "./components/GPTchat";
 
 import UpgradeSubscription from "./webpages/UpgradeSubscription";
 import FlashcardSession from "./webpages/FlashcardSession";
@@ -26,13 +27,22 @@ import "./App.css";
 
 function App() {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const sidebarWidth = "260px";
-  const menubarHeight = "64px";
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const sidebarWidth = 260;
+  const menubarHeight = 64;
 
   const { isLoggedIn } = useContext(UserContext);
+
   const toggleExpand = () => {
     setIsExpanded((prev) => !prev);
+  };
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
 
   const pages = [
@@ -46,85 +56,57 @@ function App() {
 
   return (
     <Router>
-      {/* Conditionally render login page or main content */}
       {!isLoggedIn ? (
         <LoginPage />
       ) : (
         <>
           {/* MenuBar */}
-          <Box
-            sx={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: menubarHeight,
-              zIndex: 1000,
-            }}
-          >
-            <MenuBar />
-          </Box>
+          <MenuBar handleDrawerToggle={handleDrawerToggle} />
 
           {/* Sidebar */}
-          <Box
-            component="nav"
-            sx={{
-              position: "fixed",
-              top: menubarHeight, // Adjust based on the height of your MenuBar
-              left: 0,
-              width: sidebarWidth, // Fixed width for the sidebar
-              height: `calc(100vh - ${menubarHeight})`, // Full height minus header
-              bgcolor: "background.paper",
-              borderRight: "1px solid #ccc",
-              overflowY: "auto",
-              zIndex: 1, // Lower z-index
-            }}
-          >
-            <Sidebar />
-          </Box>
+          <Sidebar
+            mobileOpen={mobileOpen}
+            handleDrawerToggle={handleDrawerToggle}
+          />
 
           {/* Main Content */}
           <Box
             sx={{
               position: "fixed",
-              top: isExpanded ? menubarHeight : menubarHeight, // Cover header when expanded
-              left: isExpanded ? 0 : sidebarWidth, // Align with sidebar or expand fully
-              width: isExpanded ? "100vw" : `calc(100% - ${sidebarWidth})`,
-              height: isExpanded ? `calc(100vh - ${menubarHeight})` : `calc(100vh - ${menubarHeight})`,
+              top: menubarHeight,
+              left: isMobile
+                ? 0
+                : isExpanded
+                ? 0
+                : `${sidebarWidth}px`,
+              width: isMobile
+                ? "100%"
+                : isExpanded
+                ? "100%"
+                : `calc(100% - ${sidebarWidth}px)`,
+              height: `calc(100vh - ${menubarHeight}px)`,
               padding: 2,
-              borderLeft: "1px solid #ccc",
-              bgcolor: "background.paper",
-              zIndex: 50, // Higher z-index to overlay other components
-              transition: "all 0.3s ease-in-out",
-              boxShadow: isExpanded ? "none" : "none", // Optional: Add shadow when expanded
-              overflow: "auto", // Prevent content overflow during transition
+              overflow: "auto",
             }}
           >
             {/* Expand/Collapse Button */}
-            <IconButton
-              onClick={toggleExpand}
-              sx={{
-                position: "fixed",
-                bottom: "40px",
-                right: "40px",
-                transform: "rotate(45deg)", // Always rotate 45 degrees
-                transition: "transform 0.3s ease-in-out",
-                zIndex: "5000",
-                border: "1px solid grey",
-                bgcolor: "background.default",
-                "&:hover": {
-                  bgcolor: "grey.200",
-                },
-              }}
-            >
-              {isExpanded ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
-            </IconButton>
-
-            {/* Conditionally Render MenuBar Inside MainContent When Expanded */}
-            {isExpanded && (
-              <Box sx={{ mb: 2 }}>
-                <MenuBar />
-              </Box>
+            {!isMobile && (
+              <IconButton
+                onClick={toggleExpand}
+                sx={{
+                  position: "fixed",
+                  bottom: "40px",
+                  right: "40px",
+                  zIndex: "5000",
+                  border: "1px solid grey",
+                  bgcolor: "background.default",
+                  "&:hover": {
+                    bgcolor: "grey.200",
+                  },
+                }}
+              >
+                {isExpanded ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
+              </IconButton>
             )}
 
             {/* Routes */}
@@ -135,9 +117,7 @@ function App() {
                   path={page.path}
                   element={
                     page.path.startsWith("/flashcards") ? (
-                      <ProtectedRoute>
-                        {page.component}
-                      </ProtectedRoute>
+                      <ProtectedRoute>{page.component}</ProtectedRoute>
                     ) : (
                       page.component
                     )
@@ -148,16 +128,18 @@ function App() {
           </Box>
 
           {/* GPT Chat */}
-          <Box
-            sx={{
-              position: "fixed",
-              bottom: "0",
-              right: "0",
-              zIndex: 100, // Lower z-index
-            }}
-          >
-            <GPTchat />
-          </Box>
+          {!isMobile && (
+            <Box
+              sx={{
+                position: "fixed",
+                bottom: "0",
+                right: "0",
+                zIndex: 100,
+              }}
+            >
+              <GPTchat />
+            </Box>
+          )}
         </>
       )}
     </Router>

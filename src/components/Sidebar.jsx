@@ -1,31 +1,29 @@
 import React, { useState, useContext } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { UserContext } from "../contexts/UserContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
 
 // MUI Component Imports
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
-import Box from "@mui/material/Box";
-import { styled } from "@mui/material/styles";
-import { useTheme } from "@mui/material/styles";
 import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import Menu from "@mui/material/Menu";
 import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
+import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
-import DialogActions from "@mui/material/DialogActions";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
+import DialogTitle from "@mui/material/DialogTitle";
 import Snackbar from "@mui/material/Snackbar";
-import MuiAlertComponent from "@mui/material/Alert";
+import MuiAlert from "@mui/material/Alert";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 
 // MUI Icon Imports
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
@@ -33,23 +31,22 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 
+// Context
+import { UserContext } from "../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
+
 // Create Alert component for Snackbar
 const AlertSnackbar = React.forwardRef(function Alert(props, ref) {
-  return (
-    <MuiAlertComponent elevation={6} ref={ref} variant="filled" {...props} />
-  );
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-// Styled Sidebar Container
-const SidebarContainer = styled(Box)(({ theme }) => ({
-  bgcolor: theme.palette.background.paper,
-  color: theme.palette.text.primary,
-  overflowY: "auto",
-  height: "100%", // Ensure the sidebar takes full height
-  padding: theme.spacing(2), // Add some padding
-}));
+const drawerWidth = 260;
 
-const Sidebar = () => {
+const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
+  const theme = useTheme();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const {
     flashcardSessions,
     loadingSessions,
@@ -57,9 +54,23 @@ const Sidebar = () => {
     deleteFlashcardSession,
     updateFlashcardSessionName,
   } = useContext(UserContext);
-  const location = useLocation();
-  const theme = useTheme();
-  const navigate = useNavigate();
+
+  // State Variables
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedSessionId, setSelectedSessionId] = useState(null);
+  const menuOpen = Boolean(anchorEl);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [newSessionName, setNewSessionName] = useState("");
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+  const [hoveredSessionId, setHoveredSessionId] = useState(null);
+  const [sessionToDelete, setSessionToDelete] = useState(null);
+  const [sessionToRename, setSessionToRename] = useState(null);
 
   // Function to extract session ID from the current path
   const getActiveSessionId = () => {
@@ -68,33 +79,7 @@ const Sidebar = () => {
   };
 
   const activeSessionId = getActiveSessionId();
-
-  // Determine if the current path is '/'
   const isCreateSessionActive = location.pathname === "/";
-
-  // State for Menu
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedSessionId, setSelectedSessionId] = useState(null);
-  const menuOpen = Boolean(anchorEl);
-
-  // State for Confirmation Dialog (Delete)
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  // State for Rename Dialog
-  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
-  const [newSessionName, setNewSessionName] = useState("");
-
-  // State for Snackbar Notifications
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // 'success' or 'error'
-
-  // State for Hover Tracking
-  const [hoveredSessionId, setHoveredSessionId] = useState(null); // Track the hovered session
-
-  // New states to track the session to delete or rename
-  const [sessionToDelete, setSessionToDelete] = useState(null);
-  const [sessionToRename, setSessionToRename] = useState(null);
 
   /**
    * Reusable styles object for buttons
@@ -132,6 +117,8 @@ const Sidebar = () => {
    * @param {string} sessionId - The ID of the session.
    */
   const handleMenuOpen = (event, sessionId) => {
+    event.stopPropagation();
+    event.preventDefault();
     setAnchorEl(event.currentTarget);
     setSelectedSessionId(sessionId);
   };
@@ -150,7 +137,7 @@ const Sidebar = () => {
   const handleDeleteDialogOpen = () => {
     setSessionToDelete(selectedSessionId);
     setDialogOpen(true);
-    handleMenuClose(); // Close the menu after setting the session to delete
+    handleMenuClose();
   };
 
   /**
@@ -167,7 +154,7 @@ const Sidebar = () => {
   const handleRenameDialogOpen = () => {
     setSessionToRename(selectedSessionId);
     setRenameDialogOpen(true);
-    handleMenuClose(); // Close the menu after setting the session to rename
+    handleMenuClose();
   };
 
   /**
@@ -183,7 +170,6 @@ const Sidebar = () => {
    * Handles the deletion of a study session.
    */
   const handleDeleteSession = async () => {
-    console.log(`StudySessionID: ${sessionToDelete}`);
     if (!sessionToDelete) return;
 
     try {
@@ -201,7 +187,7 @@ const Sidebar = () => {
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     } finally {
-      navigate("/"); // Navigate to '/' after deletion
+      navigate("/");
       handleDeleteDialogClose();
     }
   };
@@ -249,8 +235,8 @@ const Sidebar = () => {
     setSnackbarOpen(false);
   };
 
-  return (
-    <SidebarContainer>
+  const drawerContent = (
+    <Box sx={{ width: drawerWidth, p: 2 }}>
       <List component="nav">
         {loadingSessions ? (
           <ListItem sx={{ justifyContent: "center" }}>
@@ -269,8 +255,8 @@ const Sidebar = () => {
               <ListItemButton
                 component={Link}
                 to={`/`}
-                selected={isCreateSessionActive} // Set selected based on current path
-                sx={(theme) => commonButtonStyles(theme, isCreateSessionActive)} // Pass isActive to styles
+                selected={isCreateSessionActive}
+                sx={(theme) => commonButtonStyles(theme, isCreateSessionActive)}
               >
                 <ListItemText
                   primary="Create study session"
@@ -288,6 +274,7 @@ const Sidebar = () => {
             {flashcardSessions.length === 0 ? (
               <ListItem>
                 <Typography variant="subtitle1" color="text.secondary">
+                  No study sessions available.
                 </Typography>
               </ListItem>
             ) : (
@@ -378,7 +365,7 @@ const Sidebar = () => {
         </DialogContent>
         <DialogActions
           sx={{
-            justifyContent: "center", // Center the buttons horizontally
+            justifyContent: "center",
           }}
         >
           <Button onClick={handleDeleteDialogClose} color="primary">
@@ -412,7 +399,7 @@ const Sidebar = () => {
         </DialogContent>
         <DialogActions
           sx={{
-            justifyContent: "center", // Center the buttons horizontally
+            justifyContent: "center",
           }}
         >
           <Button onClick={handleRenameDialogClose} color="primary">
@@ -439,7 +426,45 @@ const Sidebar = () => {
           {snackbarMessage}
         </AlertSnackbar>
       </Snackbar>
-    </SidebarContainer>
+    </Box>
+  );
+
+  return (
+    <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
+      {/* Mobile Drawer */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          display: { xs: "block", sm: "none" },
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width: drawerWidth,
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      {/* Desktop Permanent Drawer */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: "none", sm: "block" },
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width: drawerWidth,
+          },
+        }}
+        open
+      >
+        {drawerContent}
+      </Drawer>
+    </Box>
   );
 };
 
