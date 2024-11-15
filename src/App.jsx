@@ -92,6 +92,7 @@ function App() {
               width: isExpanded ? "100vw" : `calc(100% - ${sidebarWidth})`,
               height: isExpanded ? `calc(100vh - ${menubarHeight})` : `calc(100vh - ${menubarHeight})`,
               padding: 2,
+              borderLeft: "1px solid #ccc",
               bgcolor: "background.paper",
               zIndex: 50, // Higher z-index to overlay other components
               transition: "all 0.3s ease-in-out",
