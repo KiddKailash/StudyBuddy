@@ -32,8 +32,8 @@ function App() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const sidebarWidth = 260;
-  const menubarHeight = 64;
+  const sidebarWidth = '260px';
+  const menubarHeight = '64px';
 
   const { isLoggedIn } = useContext(UserContext);
 
@@ -64,54 +64,69 @@ function App() {
           <MenuBar handleDrawerToggle={handleDrawerToggle} />
 
           {/* Sidebar */}
-          <Sidebar
-            mobileOpen={mobileOpen}
-            handleDrawerToggle={handleDrawerToggle}
-            drawerWidth={sidebarWidth}
-            menubarHeight={menubarHeight}
-          />
+          <Box
+            component="nav"
+            sx={{
+              position: "fixed",
+              top: menubarHeight,
+              left: 0,
+              width: sidebarWidth,
+              height: `calc(100vh - ${menubarHeight})`,
+              bgcolor: "background.paper",
+              overflowY: "auto",
+              zIndex: 1,
+              display: {
+                xs: "none",
+                sm: "block",
+              },
+            }}
+          >
+            <Sidebar
+              mobileOpen={mobileOpen}
+              handleDrawerToggle={handleDrawerToggle}
+              drawerWidth={sidebarWidth}
+              menubarHeight={menubarHeight}
+            />
+          </Box>
 
           {/* Main Content */}
           <Box
-            component="main"
             sx={{
-              flexGrow: 1,
-              position: "relative",
-              marginTop: `${menubarHeight}px`,
-              marginLeft: isMobile
-                ? 0
-                : isExpanded
-                ? 0
-                : `${sidebarWidth}px`,
-              width: isMobile
-                ? "100%"
-                : isExpanded
-                ? "100%"
-                : `calc(100% - ${sidebarWidth}px)`,
-              height: `calc(100vh - ${menubarHeight}px)`,
+              position: "fixed",
+              top: isExpanded ? menubarHeight : menubarHeight, // Cover header when expanded
+              left: isExpanded ? 0 : sidebarWidth, // Align with sidebar or expand fully
+              width: isExpanded ? "100vw" : `calc(100% - ${sidebarWidth})`,
+              height: isExpanded
+                ? `calc(100vh - ${menubarHeight})`
+                : `calc(100vh - ${menubarHeight})`,
               padding: 2,
-              overflow: "auto",
+              borderLeft: "1px solid #ccc",
+              bgcolor: "background.paper",
+              zIndex: 50, // Higher z-index to overlay other components
+              transition: "all 0.3s ease-in-out",
+              boxShadow: isExpanded ? "none" : "none", // Optional: Add shadow when expanded
+              overflow: "auto", // Prevent content overflow during transition
             }}
           >
             {/* Expand/Collapse Button */}
-            {!isMobile && (
-              <IconButton
-                onClick={toggleExpand}
-                sx={{
-                  position: "fixed",
-                  bottom: "40px",
-                  right: "40px",
-                  zIndex: "5000",
-                  border: "1px solid grey",
-                  bgcolor: "background.default",
-                  "&:hover": {
-                    bgcolor: "grey.200",
-                  },
-                }}
-              >
-                {isExpanded ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
-              </IconButton>
-            )}
+            <IconButton
+              onClick={toggleExpand}
+              sx={{
+                position: "fixed",
+                bottom: "40px",
+                right: "40px",
+                transform: "rotate(45deg)", // Always rotate 45 degrees
+                transition: "transform 0.3s ease-in-out",
+                zIndex: "5000",
+                border: "1px solid grey",
+                bgcolor: "background.default",
+                "&:hover": {
+                  bgcolor: "grey.200",
+                },
+              }}
+            >
+              {isExpanded ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
+            </IconButton>
 
             {/* Routes */}
             <Routes>
@@ -132,18 +147,16 @@ function App() {
           </Box>
 
           {/* GPT Chat */}
-          {!isMobile && (
-            <Box
-              sx={{
-                position: "fixed",
-                bottom: "0",
-                right: "0",
-                zIndex: 100,
-              }}
-            >
-              <GPTchat />
-            </Box>
-          )}
+          <Box
+            sx={{
+              position: "fixed",
+              bottom: "0",
+              right: "0",
+              zIndex: 100, // Lower z-index
+            }}
+          >
+            <GPTchat />
+          </Box>
         </>
       )}
     </Router>
