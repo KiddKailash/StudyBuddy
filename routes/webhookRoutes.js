@@ -1,6 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { getDB } = require('../utils/db');
-const { ObjectId } = require('mongodb'); // Import ObjectId
+const { ObjectId } = require('mongodb');
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -30,14 +30,50 @@ const webhookHandler = async (req, res) => {
         `Checkout session completed for user ${userId} with customer ID ${customerId}`
       );
 
-      // Update your database to store the stripeCustomerId
+      // Update your database to store the stripeCustomerId and set accountType to 'paid'
       try {
         await db.collection('users').updateOne(
           { _id: new ObjectId(userId) },
-          { $set: { stripeCustomerId: customerId } }
+          {
+            $set: {
+              stripeCustomerId: customerId,
+              accountType: 'paid', // Update accountType to 'paid'
+              subscriptionStatus: 'active', // Set initial subscription status
+              subscriptionId: session.subscription, // Store the subscription ID
+            },
+          }
         );
       } catch (error) {
-        console.error(`Failed to update user with stripeCustomerId:`, error);
+        console.error(`Failed to update user after checkout session:`, error);
+        return res.status(500).send('Database error');
+      }
+
+      break;
+    }
+
+    case 'customer.subscription.created':
+    case 'customer.subscription.updated': {
+      const subscription = event.data.object;
+      const customerId = subscription.customer;
+
+      console.log(`Subscription ${event.type} for customer ${customerId}`);
+
+      // Update your database with the new subscription status and accountType
+      try {
+        const accountType = subscription.status === 'active' ? 'paid' : 'free';
+
+        await db.collection('users').updateOne(
+          { stripeCustomerId: customerId },
+          {
+            $set: {
+              subscriptionStatus: subscription.status,
+              subscriptionId: subscription.id,
+              accountType: accountType, // Update accountType based on subscription status
+            },
+          }
+        );
+      } catch (error) {
+        console.error(`Failed to update subscription status:`, error);
         return res.status(500).send('Database error');
       }
 
@@ -94,31 +130,6 @@ const webhookHandler = async (req, res) => {
       break;
     }
 
-    case 'customer.subscription.updated': {
-      const subscription = event.data.object;
-      const customerId = subscription.customer;
-
-      console.log(`Subscription updated for customer ${customerId}`);
-
-      // Update your database with the new subscription status
-      try {
-        await db.collection('users').updateOne(
-          { stripeCustomerId: customerId },
-          {
-            $set: {
-              subscriptionStatus: subscription.status,
-              subscriptionId: subscription.id,
-            },
-          }
-        );
-      } catch (error) {
-        console.error(`Failed to update subscription status:`, error);
-        return res.status(500).send('Database error');
-      }
-
-      break;
-    }
-
     case 'customer.subscription.deleted': {
       const subscription = event.data.object;
       const customerId = subscription.customer;
@@ -133,6 +144,7 @@ const webhookHandler = async (req, res) => {
             $set: {
               subscriptionStatus: 'canceled',
               subscriptionId: null,
+              accountType: 'free', // Downgrade accountType to 'free'
             },
           }
         );

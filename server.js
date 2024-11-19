@@ -3,15 +3,16 @@ const express = require("express");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const { connectDB } = require("./utils/db");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
 const transcriptRoutes = require("./routes/transcriptRoutes");
 const openaiRoutes = require("./routes/openaiRoutes");
-const webhookRoutes = require("./routes/webhookRoutes");
 const flashcardsRoutes = require("./routes/flashcardsRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes"); // New Checkout Route
+
+// Import the webhook handler
+const webhookHandler = require("./routes/webhookRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -46,14 +47,15 @@ connectDB()
     });
     app.use(limiter);
 
-    // Middleware to parse JSON for all routes except /api/webhook
-    app.use((req, res, next) => {
-      if (req.originalUrl === "/api/webhook") {
-        next();
-      } else {
-        express.json()(req, res, next);
-      }
-    });
+    // Parse JSON bodies globally
+    app.use(express.json());
+
+    // Apply express.raw() middleware and define webhook route
+    app.post(
+      "/api/webhook",
+      express.raw({ type: "application/json" }),
+      webhookHandler
+    );
 
     // Routes
     app.use("/api/auth", authRoutes);
@@ -61,13 +63,6 @@ connectDB()
     app.use("/api/openai", openaiRoutes);
     app.use("/api/flashcards", flashcardsRoutes);
     app.use("/api/checkout", checkoutRoutes); // Mount Checkout Routes
-
-    // Apply express.raw middleware to /api/webhook
-    app.use(
-      "/api/webhook",
-      express.raw({ type: "application/json" }),
-      webhookRoutes
-    );
 
     // Optional: Test route
     app.get("/api/test-connection", (req, res) => {

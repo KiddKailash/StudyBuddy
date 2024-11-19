@@ -46,41 +46,43 @@ exports.register = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create new user with accountType "free" and additional fields
-    const result = await usersCollection.insertOne({
+    // Create new user with accountType "free" and initialize additional fields
+    const newUser = {
       email,
       password: hashedPassword,
-      firstName,    // New field
-      lastName,     // New field
-      company,      // New field
+      firstName,
+      lastName,
+      company,
       accountType: 'free', // Set default account type
       createdAt: new Date(),
-    });
-
-    // Construct the user object manually
-    const user = {
-      _id: result.insertedId,
-      email,
-      firstName,    // Include in response
-      lastName,     // Include in response
-      company,      // Include in response
-      accountType: 'free',
-      createdAt: new Date(),
+      // Initialize subscription-related fields
+      stripeCustomerId: null,
+      subscriptionId: null,
+      subscriptionStatus: null,
+      lastInvoice: null,
+      paymentStatus: null,
     };
 
+    // Insert the new user into the database
+    const result = await usersCollection.insertOne(newUser);
+
+    // Assign the insertedId to the user object
+    newUser._id = result.insertedId;
+
     // Generate token
-    const token = generateToken(user);
+    const token = generateToken(newUser);
 
     res.status(201).json({
       message: 'User registered successfully.',
       token,
       user: {
-        id: user._id,
-        email: user.email,
-        firstName: user.firstName, // Include in response
-        lastName: user.lastName,   // Include in response
-        company: user.company,     // Include in response
-        accountType: user.accountType,
+        id: newUser._id,
+        email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        company: newUser.company,
+        accountType: newUser.accountType,
+        // Include any other necessary fields
       },
     });
   } catch (error) {
@@ -126,10 +128,16 @@ exports.login = async (req, res) => {
     const userResponse = {
       id: user._id,
       email: user.email,
-      firstName: user.firstName, // Include in response
-      lastName: user.lastName,   // Include in response
-      company: user.company,     // Include in response
+      firstName: user.firstName,
+      lastName: user.lastName,
+      company: user.company,
       accountType: user.accountType,
+      // Include subscription-related fields if needed
+      stripeCustomerId: user.stripeCustomerId,
+      subscriptionId: user.subscriptionId,
+      subscriptionStatus: user.subscriptionStatus,
+      lastInvoice: user.lastInvoice,
+      paymentStatus: user.paymentStatus,
     };
 
     res.status(200).json({
@@ -150,47 +158,8 @@ exports.login = async (req, res) => {
  * @param {Object} res - Express response object
  */
 exports.upgradeSubscription = async (req, res) => {
-  const userId = req.user.id; // Retrieved from authMiddleware
-  const { accountType } = req.body; // Expected: "paid", "premium", etc.
-
-  // Validate accountType
-  const validAccountTypes = ['free', 'paid', 'premium'];
-  if (!validAccountTypes.includes(accountType)) {
-    return res.status(400).json({ error: 'Invalid account type.' });
-  }
-
-  try {
-    const db = getDB();
-    const usersCollection = db.collection('users');
-
-    // Update the user's accountType
-    await usersCollection.updateOne(
-      { _id: new ObjectId(userId) },
-      { $set: { accountType } }
-    );
-
-    // Retrieve the updated user
-    const updatedUser = await usersCollection.findOne(
-      { _id: new ObjectId(userId) },
-      { projection: { password: 0 } }
-    );
-
-    // Generate a new token with updated accountType
-    const token = generateToken(updatedUser);
-
-    res.status(200).json({
-      message: 'Subscription upgraded successfully.',
-      token,
-      user: {
-        id: updatedUser._id,
-        email: updatedUser.email,
-        accountType: updatedUser.accountType,
-      },
-    });
-  } catch (error) {
-    console.error('Upgrade Subscription Error:', error);
-    res.status(500).json({ error: 'Server error during subscription upgrade.' });
-  }
+  // This function may not be necessary if subscription handling is done via Stripe webhooks
+  res.status(501).json({ error: 'Subscription upgrade is handled via Stripe checkout.' });
 };
 
 /**
@@ -224,6 +193,12 @@ exports.getCurrentUser = async (req, res) => {
         lastName: user.lastName,
         company: user.company,
         accountType: user.accountType,
+        // Include subscription-related fields if needed
+        stripeCustomerId: user.stripeCustomerId,
+        subscriptionId: user.subscriptionId,
+        subscriptionStatus: user.subscriptionStatus,
+        lastInvoice: user.lastInvoice,
+        paymentStatus: user.paymentStatus,
         // Include any other necessary fields
       },
     });
