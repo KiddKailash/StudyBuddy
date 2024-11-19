@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
+import { SnackbarContext } from "../contexts/SnackbarContext"; // Import SnackbarContext
 
 // ================================
 // MUI Component Imports
@@ -14,14 +15,11 @@ import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Grid2";
-import CircularProgress from "@mui/material/CircularProgress";
-import Alert from "@mui/material/Alert";
 
 // Additional Imports for RadioGroup
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
 
 const LoginPage = () => {
   // State for form fields
@@ -34,9 +32,8 @@ const LoginPage = () => {
   // State to manage authentication mode: 'login' or 'create'
   const [authMode, setAuthMode] = useState("login"); // Default to 'login'
 
-  // Loading and error states
-  const [loading, setLoading] = useState(false); // Loading state
-  const [error, setError] = useState(""); // Error message
+  // Loading state
+  const [loading, setLoading] = useState(false);
 
   // Accessing UserContext to reset it and update user/authentication state
   const {
@@ -44,9 +41,10 @@ const LoginPage = () => {
     setUser,
     setIsLoggedIn,
     isLoggedIn,
-    flashcardSessions,
-    loadingSessions,
   } = useContext(UserContext);
+
+  // Access Snackbar Context
+  const { showSnackbar } = useContext(SnackbarContext);
 
   const navigate = useNavigate();
 
@@ -57,8 +55,7 @@ const LoginPage = () => {
    */
   const handleAuthModeChange = (event) => {
     setAuthMode(event.target.value);
-    setError("");
-    // Optionally, reset form fields when switching modes
+    // Reset form fields when switching modes
     setEmail("");
     setPassword("");
     setFirstName("");
@@ -74,7 +71,6 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     // Determine the endpoint based on the mode
     const endpoint =
@@ -95,7 +91,7 @@ const LoginPage = () => {
       const { token, user } = response.data;
 
       // Clear any existing user data to reset contexts
-      resetUserContext(); // Function to reset contexts
+      resetUserContext();
 
       // Store token and user in localStorage
       localStorage.setItem("token", token);
@@ -104,10 +100,21 @@ const LoginPage = () => {
       // Update user state in context
       setUser(user);
       setIsLoggedIn(true);
+
+      // Show success Snackbar
+      showSnackbar(
+        authMode === "create"
+          ? "Account created successfully!"
+          : "Login successful!",
+        "success"
+      );
     } catch (err) {
       console.error(err);
-      setError(
-        err.response?.data?.error || "An error occurred. Please try again."
+
+      // Show error Snackbar
+      showSnackbar(
+        err.response?.data?.error || "An error occurred. Please try again.",
+        "error"
       );
     } finally {
       setLoading(false);
@@ -119,7 +126,6 @@ const LoginPage = () => {
    */
   useEffect(() => {
     if (isLoggedIn) {
-      // Navigate to the home page
       navigate("/");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,10 +141,7 @@ const LoginPage = () => {
         p: 4,
       }}
     >
-      <Box
-        textAlign="center"
-        sx={{ transition: "all 0.3s ease-in-out", mb:2 }}
-      >
+      <Box textAlign="center" sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}>
         {/* RadioGroup for Auth Mode Selection */}
         <FormControl component="fieldset" sx={{ mb: 3 }}>
           <RadioGroup
@@ -175,13 +178,6 @@ const LoginPage = () => {
             : "Access your study cards and continue learning."}
         </Typography>
       </Box>
-
-      {/* Display Error Message */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
 
       {/* Form */}
       <Box component="form" onSubmit={handleSubmit}>

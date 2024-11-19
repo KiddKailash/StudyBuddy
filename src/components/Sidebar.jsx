@@ -1,21 +1,18 @@
-// src/components/Sidebar.jsx
-import React, { useState, useContext } from "react";
-import { useLocation, Link } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import PropTypes from "prop-types";
 
-// MUI Component Imports
-import Button from "@mui/material/Button";
+// MUI Component Imports (Imported Separately)
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
-import Toolbar from "@mui/material/Toolbar"; // Import Toolbar for spacing
+import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import CircularProgress from "@mui/material/CircularProgress";
-import Alert from "@mui/material/Alert";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
@@ -24,18 +21,20 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 
-// MUI Icon Imports
-import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
+// MUI Icon Imports (Imported Separately)
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 
 // Context Imports
 import { UserContext } from "../contexts/UserContext";
-import { SnackbarContext } from "../contexts/SnackbarContext"; // Import SnackbarContext
-import { useNavigate } from "react-router-dom";
+import { SnackbarContext } from "../contexts/SnackbarContext";
+
+// Optional: Reusable SessionItem Component (Ensure it also uses separate imports)
+import SessionItem from "./SessionItem";
 
 /**
  * Sidebar component that displays study sessions and handles session operations.
@@ -70,17 +69,17 @@ const Sidebar = ({
   const { showSnackbar } = useContext(SnackbarContext);
 
   // State Variables for Menu and Dialogs
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
-  const menuOpen = Boolean(anchorEl);
+  const isMenuOpen = Boolean(menuAnchorEl);
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [dialogState, setDialogState] = useState({
+    type: null, // 'delete' or 'rename'
+    open: false,
+    sessionId: null,
+  });
+
   const [newSessionName, setNewSessionName] = useState("");
-
-  const [hoveredSessionId, setHoveredSessionId] = useState(null);
-  const [sessionToDelete, setSessionToDelete] = useState(null);
-  const [sessionToRename, setSessionToRename] = useState(null);
 
   // Function to extract session ID from the current path
   const getActiveSessionId = () => {
@@ -101,7 +100,9 @@ const Sidebar = ({
     mr: 0.5,
     ml: 0.5,
     borderRadius: 3,
-    backgroundColor: isActive ? theme.palette.action.selected : "transparent",
+    backgroundColor: isActive
+      ? theme.palette.action.selected
+      : "transparent",
     "&.Mui-selected": {
       backgroundColor: theme.palette.action.selected,
     },
@@ -129,7 +130,7 @@ const Sidebar = ({
   const handleMenuOpen = (event, sessionId) => {
     event.stopPropagation();
     event.preventDefault();
-    setAnchorEl(event.currentTarget);
+    setMenuAnchorEl(event.currentTarget);
     setSelectedSessionId(sessionId);
   };
 
@@ -137,42 +138,33 @@ const Sidebar = ({
    * Closes the dropdown menu.
    */
   const handleMenuClose = () => {
-    setAnchorEl(null);
+    setMenuAnchorEl(null);
     setSelectedSessionId(null);
   };
 
   /**
-   * Opens the confirmation dialog for deletion.
+   * Opens a dialog based on the action type ('delete' or 'rename').
+   *
+   * @param {string} type - The type of dialog to open.
    */
-  const handleDeleteDialogOpen = () => {
-    setSessionToDelete(selectedSessionId);
-    setDialogOpen(true);
+  const handleDialogOpen = (type) => {
+    setDialogState({
+      type,
+      open: true,
+      sessionId: selectedSessionId,
+    });
     handleMenuClose();
   };
 
   /**
-   * Closes the confirmation dialog.
+   * Closes the dialog.
    */
-  const handleDeleteDialogClose = () => {
-    setDialogOpen(false);
-    setSessionToDelete(null);
-  };
-
-  /**
-   * Opens the rename dialog.
-   */
-  const handleRenameDialogOpen = () => {
-    setSessionToRename(selectedSessionId);
-    setRenameDialogOpen(true);
-    handleMenuClose();
-  };
-
-  /**
-   * Closes the rename dialog.
-   */
-  const handleRenameDialogClose = () => {
-    setRenameDialogOpen(false);
-    setSessionToRename(null);
+  const handleDialogClose = () => {
+    setDialogState({
+      type: null,
+      open: false,
+      sessionId: null,
+    });
     setNewSessionName("");
   };
 
@@ -180,11 +172,12 @@ const Sidebar = ({
    * Handles the deletion of a study session.
    */
   const handleDeleteSession = async () => {
-    if (!sessionToDelete) return;
+    const { sessionId } = dialogState;
+    if (!sessionId) return;
 
     try {
-      await deleteFlashcardSession(sessionToDelete);
-      showSnackbar("Study session deleted successfully.", "success"); // Use context
+      await deleteFlashcardSession(sessionId);
+      showSnackbar("Study session deleted successfully.", "success");
       navigate("/");
     } catch (error) {
       console.error("Error deleting study session:", error);
@@ -193,9 +186,9 @@ const Sidebar = ({
           error.response?.data?.error || error.message
         }`,
         "error"
-      ); // Use context
+      );
     } finally {
-      handleDeleteDialogClose();
+      handleDialogClose();
     }
   };
 
@@ -203,14 +196,15 @@ const Sidebar = ({
    * Handles the renaming of a study session.
    */
   const handleRenameSession = async () => {
-    if (!sessionToRename || !newSessionName.trim()) {
-      showSnackbar("Please enter a valid session name.", "error"); // Use context
+    const { sessionId } = dialogState;
+    if (!sessionId || !newSessionName.trim()) {
+      showSnackbar("Please enter a valid session name.", "error");
       return;
     }
 
     try {
-      await updateFlashcardSessionName(sessionToRename, newSessionName.trim());
-      showSnackbar("Study session renamed successfully.", "success"); // Use context
+      await updateFlashcardSessionName(sessionId, newSessionName.trim());
+      showSnackbar("Study session renamed successfully.", "success");
     } catch (error) {
       console.error("Error renaming study session:", error);
       showSnackbar(
@@ -218,29 +212,20 @@ const Sidebar = ({
           error.response?.data?.error || error.message
         }`,
         "error"
-      ); // Use context
+      );
     } finally {
-      handleRenameDialogClose();
+      handleDialogClose();
     }
   };
 
-  // Remove local Snackbar state and handlers
-  // const [snackbarOpen, setSnackbarOpen] = useState(false);
-  // const [snackbarMessage, setSnackbarMessage] = useState("");
-  // const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-
   /**
-   * Handles the closure of the Snackbar.
-   *
-   * @param {Event} event - The close event.
-   * @param {string} reason - The reason for closing.
+   * useEffect hook to handle flashcardError by showing a Snackbar.
    */
-  // const handleSnackbarClose = (event, reason) => {
-  //   if (reason === "clickaway") {
-  //     return;
-  //   }
-  //   setSnackbarOpen(false);
-  // };
+  useEffect(() => {
+    if (flashcardError) {
+      showSnackbar(`Error loading study sessions: ${flashcardError}`, "error");
+    }
+  }, [flashcardError, showSnackbar]);
 
   const drawerContent = (
     <Box sx={{ width: drawerWidth }}>
@@ -250,12 +235,6 @@ const Sidebar = ({
         {loadingSessions ? (
           <ListItem sx={{ justifyContent: "center" }}>
             <CircularProgress color="inherit" />
-          </ListItem>
-        ) : flashcardError ? (
-          <ListItem>
-            <Alert severity="error" sx={{ width: "100%" }}>
-              {flashcardError}
-            </Alert>
           </ListItem>
         ) : (
           <>
@@ -281,58 +260,27 @@ const Sidebar = ({
             </ListItem>
 
             {/* Render Study Sessions */}
-            {flashcardSessions.length === 0
-              ? null
-              : flashcardSessions.map((session) => {
-                  const isActive = session.id === activeSessionId;
-                  const isHovered = session.id === hoveredSessionId;
-                  const showOptions = isActive || isHovered;
-
-                  return (
-                    <ListItem
-                      disablePadding
-                      key={session.id}
-                      onMouseEnter={() => setHoveredSessionId(session.id)}
-                      onMouseLeave={() => setHoveredSessionId(null)}
-                    >
-                      <ListItemButton
-                        component={Link}
-                        to={`/flashcards/${session.id}`}
-                        selected={isActive}
-                        sx={(theme) => commonButtonStyles(theme, isActive)}
-                        onClick={isMobile ? handleDrawerToggle : undefined} // Close drawer on mobile
-                      >
-                        <ListItemText
-                          primary={session.studySession}
-                          primaryTypographyProps={{
-                            variant: "subtitle2",
-                          }}
-                        />
-                        {/* Three Dots IconButton */}
-                        {showOptions && (
-                          <IconButton
-                            edge="end"
-                            aria-label="options"
-                            onClick={(e) => handleMenuOpen(e, session.id)}
-                            sx={{
-                              color: theme.palette.text.secondary,
-                            }}
-                          >
-                            <MoreVertRoundedIcon />
-                          </IconButton>
-                        )}
-                      </ListItemButton>
-                    </ListItem>
-                  );
-                })}
+            {flashcardSessions.length > 0 &&
+              flashcardSessions.map((session) => {
+                const isActive = session.id === activeSessionId;
+                return (
+                  <SessionItem
+                    key={session.id}
+                    session={session}
+                    isActive={isActive}
+                    handleMenuOpen={handleMenuOpen}
+                    commonButtonStyles={commonButtonStyles}
+                  />
+                );
+              })}
           </>
         )}
       </List>
 
       {/* Dropdown Menu */}
       <Menu
-        anchorEl={anchorEl}
-        open={menuOpen}
+        anchorEl={menuAnchorEl}
+        open={isMenuOpen}
         onClose={handleMenuClose}
         anchorOrigin={{
           vertical: "top",
@@ -343,74 +291,64 @@ const Sidebar = ({
           horizontal: "right",
         }}
       >
-        <MenuItem onClick={handleDeleteDialogOpen}>
+        <MenuItem onClick={() => handleDialogOpen("delete")}>
           <DeleteRoundedIcon fontSize="small" sx={{ mr: 1 }} />
           Delete
         </MenuItem>
-        <MenuItem onClick={handleRenameDialogOpen}>
+        <MenuItem onClick={() => handleDialogOpen("rename")}>
           <EditRoundedIcon fontSize="small" sx={{ mr: 1 }} />
           Rename
         </MenuItem>
       </Menu>
 
-      {/* Confirmation Dialog for Deletion */}
+      {/* Confirmation Dialog */}
       <Dialog
-        open={dialogOpen}
-        onClose={handleDeleteDialogClose}
-        aria-labelledby="confirm-delete-dialog"
+        open={dialogState.open}
+        onClose={handleDialogClose}
+        aria-labelledby="confirm-dialog-title"
         sx={{ textAlign: "center" }}
       >
+        <DialogTitle id="confirm-dialog-title">
+          {dialogState.type === "delete"
+            ? "Delete Study Session"
+            : "Rename Study Session"}
+        </DialogTitle>
         <DialogContent>
-          <DialogTitle>Delete study session</DialogTitle>
           <DialogContentText>
-            Are you sure you want to delete this study session?
+            {dialogState.type === "delete"
+              ? "Are you sure you want to delete this study session? This action cannot be undone."
+              : "Enter the new name for the study session."}
           </DialogContentText>
-          <DialogContentText>This cannot be undone.</DialogContentText>
+          {dialogState.type === "rename" && (
+            <TextField
+              autoFocus
+              margin="dense"
+              label="New Session Name"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={newSessionName}
+              onChange={(e) => setNewSessionName(e.target.value)}
+            />
+          )}
         </DialogContent>
         <DialogActions
           sx={{
             justifyContent: "center",
           }}
         >
-          <Button onClick={handleDeleteDialogClose} color="primary">
+          <Button onClick={handleDialogClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleDeleteSession} color="error">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Confirmation Dialog for Renaming */}
-      <Dialog
-        open={renameDialogOpen}
-        onClose={handleRenameDialogClose}
-        aria-labelledby="rename-dialog-title"
-        sx={{ textAlign: "center" }}
-      >
-        <DialogTitle id="rename-dialog-title">Rename Study Session</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="New Session Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newSessionName}
-            onChange={(e) => setNewSessionName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions
-          sx={{
-            justifyContent: "center",
-          }}
-        >
-          <Button onClick={handleRenameDialogClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleRenameSession} color="primary">
-            Rename
+          <Button
+            onClick={
+              dialogState.type === "delete"
+                ? handleDeleteSession
+                : handleRenameSession
+            }
+            color={dialogState.type === "delete" ? "error" : "primary"}
+          >
+            {dialogState.type === "delete" ? "Delete" : "Rename"}
           </Button>
         </DialogActions>
       </Dialog>

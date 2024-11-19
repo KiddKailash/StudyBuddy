@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import Flashcard from "../components/Flashcard";
 import { useParams } from "react-router-dom";
@@ -11,24 +11,27 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import Alert from "@mui/material/Alert";
 import Grid from "@mui/material/Grid2";
+
+// Context Import
+import { SnackbarContext } from "../contexts/SnackbarContext";
 
 const FlashcardSession = () => {
   const { id } = useParams(); // Study session ID from URL
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+
+  // Access the Snackbar context
+  const { showSnackbar } = useContext(SnackbarContext);
 
   /**
    * Fetches the flashcard session details from the backend.
    */
   const fetchSession = async () => {
     setLoading(true);
-    setError("");
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("User is not authenticated.");
       }
@@ -45,10 +48,11 @@ const FlashcardSession = () => {
       setSession(response.data);
     } catch (err) {
       console.error("Error fetching session:", err);
-      setError(
+      showSnackbar(
         err.response?.data?.error ||
           err.message ||
-          "An error occurred while fetching the session."
+          "An error occurred while fetching the session.",
+        "error"
       );
     } finally {
       setLoading(false);
@@ -66,8 +70,6 @@ const FlashcardSession = () => {
         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <CircularProgress />
         </Box>
-      ) : error ? (
-        <Alert severity="error">{error}</Alert>
       ) : session ? (
         <>
           {session.flashcardsJSON.length === 0 ? (
@@ -75,15 +77,13 @@ const FlashcardSession = () => {
           ) : (
             <Grid container spacing={2}>
               {session.flashcardsJSON.map((card, index) => (
-                <>
-                  <Grid key={index} size={{ xs: 12, sm: 6, md: 6, xl: 4 }}>
-                    <Flashcard
-                      key={index}
-                      question={card.question}
-                      answer={card.answer}
-                    />
-                  </Grid>
-                </>
+                <Grid key={index} size={{ xs: 12, sm: 6, md: 6, xl: 4 }}>
+                  <Flashcard
+                    key={index}
+                    question={card.question}
+                    answer={card.answer}
+                  />
+                </Grid>
               ))}
             </Grid>
           )}

@@ -1,27 +1,27 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { UserContext } from '../contexts/UserContext';
-import axios from 'axios';
+import React, { useState, useContext } from "react";
+import { UserContext } from "../contexts/UserContext";
+import { SnackbarContext } from "../contexts/SnackbarContext";
+import axios from "axios";
 
 // MUI Component Imports
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Alert from '@mui/material/Alert';
-import Snackbar from '@mui/material/Snackbar';
-import CircularProgress from '@mui/material/CircularProgress';
+import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const SettingsPage = () => {
   const { user, setUser } = useContext(UserContext);
+  const { showSnackbar } = useContext(SnackbarContext);
 
   // State for Account Information
-  const [firstName, setFirstName] = useState(user?.firstName || '');
-  const [lastName, setLastName] = useState(user?.lastName || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [company, setCompany] = useState(user?.company || '');
+  const [firstName, setFirstName] = useState(user?.firstName || "");
+  const [lastName, setLastName] = useState(user?.lastName || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [company, setCompany] = useState(user?.company || "");
 
   // State for Preferences
   const [darkMode, setDarkMode] = useState(user?.preferences?.darkMode || false);
@@ -30,16 +30,12 @@ const SettingsPage = () => {
   );
 
   // State for Password Change
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Loading and Error States
+  // Loading State
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   /**
    * Handles account information submission.
@@ -47,39 +43,26 @@ const SettingsPage = () => {
   const handleAccountInfoSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
-    // Prepare the payload
-    const payload = {
-      firstName,
-      lastName,
-      email,
-      company,
-    };
+    const payload = { firstName, lastName, email, company };
 
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/users/update`,
         payload,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
 
-      // Update user context
       setUser(response.data.user);
-
-      setSnackbarMessage('Account information updated successfully.');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
+      showSnackbar("Account information updated successfully.", "success");
     } catch (err) {
-      console.error('Error updating account information:', err);
-      setError(err.response?.data?.error || 'Failed to update account information.');
-      setSnackbarMessage(error);
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      console.error("Error updating account information:", err);
+      showSnackbar(
+        err.response?.data?.error || "Failed to update account information.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -91,48 +74,34 @@ const SettingsPage = () => {
   const handlePasswordChangeSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     if (newPassword !== confirmPassword) {
-      setError('New password and confirm password do not match.');
-      setSnackbarMessage(error);
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      showSnackbar("New password and confirm password do not match.", "error");
       setLoading(false);
       return;
     }
 
-    // Prepare the payload
-    const payload = {
-      currentPassword,
-      newPassword,
-    };
+    const payload = { currentPassword, newPassword };
 
     try {
       await axios.put(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/users/change-password`,
         payload,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
 
-      setSnackbarMessage('Password changed successfully.');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-
-      // Reset password fields
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      showSnackbar("Password changed successfully.", "success");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
     } catch (err) {
-      console.error('Error changing password:', err);
-      setError(err.response?.data?.error || 'Failed to change password.');
-      setSnackbarMessage(error);
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      console.error("Error changing password:", err);
+      showSnackbar(
+        err.response?.data?.error || "Failed to change password.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -143,9 +112,7 @@ const SettingsPage = () => {
    */
   const handlePreferencesChange = async () => {
     setLoading(true);
-    setError('');
 
-    // Prepare the payload
     const payload = {
       preferences: {
         darkMode,
@@ -158,37 +125,21 @@ const SettingsPage = () => {
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/users/preferences`,
         payload,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
 
-      // Update user context
       setUser(response.data.user);
-
-      setSnackbarMessage('Preferences updated successfully.');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
+      showSnackbar("Preferences updated successfully.", "success");
     } catch (err) {
-      console.error('Error updating preferences:', err);
-      setError(err.response?.data?.error || 'Failed to update preferences.');
-      setSnackbarMessage(error);
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      console.error("Error updating preferences:", err);
+      showSnackbar(
+        err.response?.data?.error || "Failed to update preferences.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
-  };
-
-  /**
-   * Handles closing of the Snackbar.
-   */
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbarOpen(false);
   };
 
   return (
@@ -239,7 +190,7 @@ const SettingsPage = () => {
           onChange={(e) => setCompany(e.target.value)}
         />
         <Button variant="contained" color="primary" type="submit" disabled={loading}>
-          {loading ? 'Updating...' : 'Update Account Information'}
+          {loading ? "Updating..." : "Update Account Information"}
         </Button>
       </Box>
 
@@ -279,7 +230,7 @@ const SettingsPage = () => {
           required
         />
         <Button variant="contained" color="primary" type="submit" disabled={loading}>
-          {loading ? 'Changing Password...' : 'Change Password'}
+          {loading ? "Changing Password..." : "Change Password"}
         </Button>
       </Box>
 
@@ -317,34 +268,10 @@ const SettingsPage = () => {
             onClick={handlePreferencesChange}
             disabled={loading}
           >
-            {loading ? 'Updating Preferences...' : 'Update Preferences'}
+            {loading ? "Updating Preferences..." : "Update Preferences"}
           </Button>
         </Box>
       </Box>
-
-      {/* Error and Success Messages */}
-      {error && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      {/* Snackbar for Notifications */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: '100%' }}
-          variant="filled"
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 };

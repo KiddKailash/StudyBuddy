@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import PropTypes from 'prop-types';
-import ThemeToggleButton from '../contexts/ThemeProvider';
+import PropTypes from "prop-types";
+import ThemeToggleButton from "../contexts/ThemeProvider";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -47,7 +47,9 @@ function MenuBar({ handleDrawerToggle }) {
   const getAccountTypeDisplay = () => {
     if (!user || !user.accountType) return "";
     // Capitalize the first letter and append 'User'
-    return `${user.accountType.charAt(0).toUpperCase() + user.accountType.slice(1)} User`;
+    return `${
+      user.accountType.charAt(0).toUpperCase() + user.accountType.slice(1)
+    } User`;
   };
 
   return (

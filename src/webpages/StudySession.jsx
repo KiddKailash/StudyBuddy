@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
+import { SnackbarContext } from "../contexts/SnackbarContext"; // Import SnackbarContext
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -11,21 +12,19 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import Alert from "@mui/material/Alert";
-import Typography from "@mui/material/Typography";
 
 // MUI Icon Imports
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-// import YouTubeIcon from "@mui/icons-material/YouTube"; // Commented out YouTube icon import
-import ContentCutIcon from '@mui/icons-material/ContentCut';
+import ContentCutIcon from "@mui/icons-material/ContentCut";
 
 const StudySession = () => {
   // const [youtubeUrl, setYoutubeUrl] = useState(""); // Commented out YouTube state
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
   const [loadingTranscript, setLoadingTranscript] = useState(false);
-  const [error, setError] = useState("");
+
   const { createFlashcardSession } = useContext(UserContext);
+  const { showSnackbar } = useContext(SnackbarContext); // Access Snackbar context
   const navigate = useNavigate();
 
   // State for Tabs
@@ -34,7 +33,6 @@ const StudySession = () => {
   // Handle Tab Change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-    setError("");
     // Reset inputs when switching tabs
     // setYoutubeUrl(""); // Commented out resetting YouTube URL
     setSelectedFile(null);
@@ -48,7 +46,6 @@ const StudySession = () => {
 
   const handleFetchAndGenerate = async () => {
     setLoadingTranscript(true);
-    setError("");
 
     try {
       const token = localStorage.getItem("token");
@@ -60,7 +57,7 @@ const StudySession = () => {
       if (tabValue === 0) {
         // File Upload Tab
         if (!selectedFile) {
-          alert("Please select a Word or PDF file.");
+          showSnackbar("Please select a Word or PDF file.", "error");
           setLoadingTranscript(false);
           return;
         }
@@ -73,7 +70,7 @@ const StudySession = () => {
           "text/plain",
         ];
         if (!allowedTypes.includes(selectedFile.type)) {
-          alert("Please upload a valid Word, PDF, or TXT file.");
+          showSnackbar("Please upload a valid Word, PDF, or TXT file.", "error");
           setLoadingTranscript(false);
           return;
         }
@@ -97,34 +94,12 @@ const StudySession = () => {
       } else if (tabValue === 1) {
         // Paste Text Tab
         if (!pastedText.trim()) {
-          alert("Please paste or enter some text.");
+          showSnackbar("Please paste or enter some text.", "error");
           setLoadingTranscript(false);
           return;
         }
         transcriptText = pastedText.trim();
       }
-      /*
-      else if (tabValue === 0) {
-        // YouTube URL Tab (Commented out)
-        if (!youtubeUrl.trim()) {
-          alert("Please enter a YouTube URL.");
-          setLoadingTranscript(false);
-          return;
-        }
-
-        const transcriptResponse = await axios.get(
-          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/transcript`,
-          {
-            params: { url: youtubeUrl },
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        transcriptText = transcriptResponse.data.transcript;
-      }
-      */
 
       // Generate Flashcards
       const generatedFlashcards = await generateFlashcards(transcriptText);
@@ -136,14 +111,19 @@ const StudySession = () => {
         generatedFlashcards
       );
 
-      if (newSession) navigate(`/flashcards/${newSession.id}`);
-      else throw new Error("Failed to create flashcard session.");
+      if (newSession) {
+        navigate(`/flashcards/${newSession.id}`);
+        showSnackbar("Flashcards created successfully.", "success");
+      } else {
+        throw new Error("Failed to create flashcard session.");
+      }
     } catch (err) {
       console.error("Error:", err);
-      setError(
+      showSnackbar(
         err.response?.data?.error ||
           err.message ||
-          "An error occurred while processing your request."
+          "An error occurred while processing your request.",
+        "error"
       );
     } finally {
       setLoadingTranscript(false);
@@ -187,30 +167,7 @@ const StudySession = () => {
           id="tab-1"
           aria-controls="tabpanel-1"
         />
-                {/* Commented out YouTube Tab
-        <Tab
-          icon={<YouTubeIcon />}
-          label="YouTube Video"
-          id="tab-0"
-          aria-controls="tabpanel-2"
-        />
-        */}
       </Tabs>
-
-      {/* Commented out YouTube URL input
-      {tabValue === 2 && (
-        <Box>
-          <TextField
-            fullWidth
-            label="YouTube Video URL"
-            variant="outlined"
-            value={youtubeUrl}
-            onChange={(e) => setYoutubeUrl(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-        </Box>
-      )}
-      */}
 
       {tabValue === 0 && (
         <Box sx={{ mb: 2 }}>
@@ -260,12 +217,6 @@ const StudySession = () => {
           "Create Flashcards"
         )}
       </Button>
-
-      {error && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {error}
-        </Alert>
-      )}
     </Container>
   );
 };
