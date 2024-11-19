@@ -3,19 +3,17 @@ const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { connectDB } = require('./utils/db');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
 const transcriptRoutes = require('./routes/transcriptRoutes');
 const openaiRoutes = require('./routes/openaiRoutes');
 const flashcardsRoutes = require('./routes/flashcardsRoutes');
-const uploadRoutes = require("./routes/uploadRoutes");
+const checkoutRoutes = require('./routes/checkoutRoutes'); // New Checkout Route
 
 const app = express();
 const PORT = process.env.PORT || 5002;
-
-// **Enable trust proxy**
-app.set('trust proxy', 1); // Trust the first proxy
 
 // Connect to Database
 connectDB().then(() => {
@@ -54,7 +52,7 @@ connectDB().then(() => {
   app.use('/api/transcript', transcriptRoutes);
   app.use('/api/openai', openaiRoutes);
   app.use('/api/flashcards', flashcardsRoutes);
-  app.use("/api/upload", uploadRoutes);
+  app.use('/api/checkout', checkoutRoutes); // Mount Checkout Routes
 
   // Optional: Test route
   app.get('/api/test-connection', (req, res) => {
