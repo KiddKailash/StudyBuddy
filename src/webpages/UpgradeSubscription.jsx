@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-import { UserContext } from "../contexts/UserContext";
+import { UserContext } from '../contexts/UserContext';
 
 // MUI Component Imports
 import Box from '@mui/material/Box';
@@ -17,13 +17,22 @@ import Alert from '@mui/material/Alert';
 import { loadStripe } from '@stripe/stripe-js';
 
 // Initialize Stripe with your publishable key
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+);
 
 const UpgradeSubscription = () => {
-  const { user, setUser } = useContext(UserContext);
-  const [accountType, setAccountType] = useState(user.accountType);
+  const { user } = useContext(UserContext);
+  const [accountType, setAccountType] = useState('paid');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Ensure user is loaded before rendering
+  useEffect(() => {
+    if (user && user.accountType) {
+      setAccountType(user.accountType);
+    }
+  }, [user]);
 
   const handleUpgrade = async () => {
     setLoading(true);
@@ -35,7 +44,9 @@ const UpgradeSubscription = () => {
 
       // Make a request to create a Checkout session
       const response = await axios.post(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/checkout/create-checkout-session`,
+        `${
+          import.meta.env.VITE_LOCAL_BACKEND_URL
+        }/api/checkout/create-checkout-session`,
         { accountType },
         {
           headers: {
@@ -48,7 +59,9 @@ const UpgradeSubscription = () => {
 
       // Redirect to Stripe Checkout
       const stripe = await stripePromise;
-      const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
+      const { error: stripeError } = await stripe.redirectToCheckout({
+        sessionId,
+      });
 
       if (stripeError) {
         console.error('Stripe Checkout error:', stripeError);
@@ -65,6 +78,9 @@ const UpgradeSubscription = () => {
       setLoading(false);
     }
   };
+
+  // Disable the upgrade button if the selected account type is the same as the user's current type
+  const isSameAccountType = user && accountType === user.accountType;
 
   return (
     <Container maxWidth="sm" sx={{ mt: 5 }}>
@@ -93,7 +109,7 @@ const UpgradeSubscription = () => {
           variant="contained"
           color="primary"
           onClick={handleUpgrade}
-          disabled={loading || accountType === 'free'}
+          disabled={loading || isSameAccountType}
         >
           {loading ? 'Processing...' : 'Upgrade'}
         </Button>
