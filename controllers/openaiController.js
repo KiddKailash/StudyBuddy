@@ -1,4 +1,3 @@
-// controllers/openaiController.js
 const axios = require("axios");
 require("dotenv").config();
 
@@ -24,7 +23,7 @@ exports.generateFlashcards = async (req, res) => {
     }
 
     const prompt = `
-    Convert the following transcript into a series of study flashcards in JSON format (return this as text, do NOT return this in markdown).
+    Convert the following transcript into 10 study flashcards in JSON format (return this as text, do NOT return this in markdown).
     Each flashcard should be an object with "question" and "answer" fields.
     Ensure that the flashcards cover the important information in the transcript.
     
@@ -47,12 +46,12 @@ exports.generateFlashcards = async (req, res) => {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: "gpt-3.5-turbo", // Use 'gpt-4' if available
+        model: "gpt-4o-mini", // or 'gpt-4' (8,192 tokens) or 'gpt-4o-mini' (16,384 tokens)
         messages: [
-          { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: prompt.trim() },
+          { role: "system", content: prompt.trim() },
+          { role: "user", content: "You are a helpful assistant." },
         ],
-        max_tokens: 4095,
+        max_tokens: 10000,
         temperature: 0.2,
       },
       {
@@ -63,7 +62,11 @@ exports.generateFlashcards = async (req, res) => {
       }
     );
 
-    const flashcardsText = response.data.choices[0].message.content.trim();
+    // Remove triple backticks from the response if present
+    let flashcardsText = response.data.choices[0].message.content.trim();
+    if (flashcardsText.startsWith("```") && flashcardsText.endsWith("```")) {
+      flashcardsText = flashcardsText.slice(3, -3).trim();
+    }
 
     // Attempt to parse the JSON
     let flashcards;
