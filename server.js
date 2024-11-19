@@ -10,6 +10,7 @@ const transcriptRoutes = require("./routes/transcriptRoutes");
 const openaiRoutes = require("./routes/openaiRoutes");
 const flashcardsRoutes = require("./routes/flashcardsRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 // Import the webhook handler
 const webhookHandler = require("./routes/webhookRoutes");
@@ -63,6 +64,7 @@ connectDB()
     app.use("/api/openai", openaiRoutes);
     app.use("/api/flashcards", flashcardsRoutes);
     app.use("/api/checkout", checkoutRoutes);
+    app.use("/api/upload", uploadRoutes);
 
     // Optional: Test route
     app.get("/api/test-connection", (req, res) => {
