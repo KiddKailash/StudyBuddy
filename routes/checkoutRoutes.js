@@ -1,4 +1,3 @@
-// routes/checkoutRoutes.js
 const express = require('express');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -20,7 +19,7 @@ router.post('/create-checkout-session', authMiddleware, async (req, res) => {
 
   // Define price IDs for different account types
   const priceIds = {
-    paid: 'price_1MaAMfHF9XSKpzYgd1j3UGgFEPaYvit41dhGsqLJchCTVJxl0weH5wYkjOR7NihTSu3IsQrZBGWH5l47NeJhUePW005BW3bXsr', // Replace with your actual Price ID
+    paid: process.env.STRIPE_PRICE_ID_PAID, // Ensure this is set in your environment variables
     // Add more tiers if necessary
   };
 
@@ -29,20 +28,17 @@ router.post('/create-checkout-session', authMiddleware, async (req, res) => {
   if (!selectedPriceId) {
     return res.status(400).json({ error: 'Invalid account type.' });
   }
-  const prices = await stripe.prices.list({
-    lookup_keys: [req.body.lookup_key],
-    expand: ['data.product'],
-  });
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: prices.data[0].id,
+          price: selectedPriceId,
           quantity: 1,
         },
       ],
-      mode: 'subscription', // or 'payment' or 'setup'
+      mode: 'subscription', // or 'payment' based on your use case
       success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CLIENT_URL}/cancel`,
       automatic_tax: { enabled: true },

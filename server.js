@@ -21,8 +21,6 @@ connectDB().then(() => {
   const allowedOrigins = [
     'http://localhost:5173',
     'https://clipcard.netlify.app',
-    'https://js.stripe.com',
-    'https://m.stripe.network',
   ];
   app.use(
     cors({
@@ -37,6 +35,13 @@ connectDB().then(() => {
       },
     })
   );
+  app.use((req, res, next) => {
+    res.setHeader(
+      "Content-Security-Policy",
+      "script-src 'self' https://js.stripe.com https://m.stripe.network; object-src 'none';"
+    );
+    next();
+  });
 
   // Rate Limiting
   const limiter = rateLimit({
