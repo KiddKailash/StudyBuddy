@@ -18,6 +18,8 @@ import StudySession from "./webpages/StudySession";
 import LoginPage from "./webpages/Login";
 import PageNotFound from "./webpages/PageNotFound";
 import SettingsPage from "./webpages/Settings";
+import Success from './webpages/Success';
+import Cancel from './webpages/Cancel';
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -51,6 +53,8 @@ function App() {
     { path: "/flashcards/:id", component: <FlashcardSession /> }, // Specific Flashcard Session
     { path: "/login", component: <LoginPage /> }, // Login Page
     { path: "/settings", component: <SettingsPage /> }, // Settings Page
+    { path: "/success", component: <Success /> }, // Payment Success Page
+    { path: "/cancel", component: <Cancel /> }, // Payment Cancelled Page
     { path: "*", component: <PageNotFound /> }, // 404 Page
   ];
 

@@ -2,9 +2,7 @@ import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { UserContext } from "../contexts/UserContext";
 
-// ================================
 // MUI Component Imports
-// ================================
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -13,51 +11,55 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
+import Alert from '@mui/material/Alert';
 
-/**
- * UpgradeSubscription component allows users to upgrade their subscription.
- *
- * @return {JSX.Element} - The rendered UpgradeSubscription component.
- */
+// Stripe Imports
+import { loadStripe } from '@stripe/stripe-js';
+
+// Initialize Stripe with your publishable key
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
 const UpgradeSubscription = () => {
-  const { user, setUser } = useContext(UserContext); // Consume context
+  const { user, setUser } = useContext(UserContext);
   const [accountType, setAccountType] = useState(user.accountType);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  /**
-   * Handles the subscription upgrade process.
-   */
   const handleUpgrade = async () => {
     setLoading(true);
     setError('');
 
     try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('User is not authenticated.');
+
+      // Make a request to create a Checkout session
       const response = await axios.post(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/auth/upgrade`,
+        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/checkout/create-checkout-session`,
         { accountType },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      const { token, user: updatedUser } = response.data;
+      const { sessionId } = response.data;
 
-      // Update token and user in localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      // Redirect to Stripe Checkout
+      const stripe = await stripePromise;
+      const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
 
-      // Update user state
-      setUser(updatedUser);
-
-      alert('Subscription upgraded successfully!');
+      if (stripeError) {
+        console.error('Stripe Checkout error:', stripeError);
+        setError(stripeError.message);
+      }
     } catch (err) {
       console.error(err);
       setError(
         err.response?.data?.error ||
-          'An error occurred. Please try again.'
+          err.message ||
+          'An error occurred while upgrading your subscription.'
       );
     } finally {
       setLoading(false);
@@ -70,9 +72,9 @@ const UpgradeSubscription = () => {
         Upgrade Subscription
       </Typography>
       {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           {error}
-        </Typography>
+        </Alert>
       )}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <FormControl fullWidth>
@@ -85,23 +87,19 @@ const UpgradeSubscription = () => {
           >
             <MenuItem value="free">Free</MenuItem>
             <MenuItem value="paid">Paid</MenuItem>
-            {/* Add more tiers if necessary */}
           </Select>
         </FormControl>
         <Button
           variant="contained"
           color="primary"
           onClick={handleUpgrade}
-          disabled={loading}
+          disabled={loading || accountType === 'free'}
         >
-          {loading ? 'Upgrading...' : 'Upgrade'}
+          {loading ? 'Processing...' : 'Upgrade'}
         </Button>
       </Box>
     </Container>
   );
 };
-
-// Removed propTypes since we are not passing props
-UpgradeSubscription.propTypes = {};
 
 export default UpgradeSubscription;

@@ -1,6 +1,6 @@
 # ClipCard
 
-ClipCard is a flashcard generation platform that allows users to create study cards from  YouTube videos, uploaded files, and pasted text. This frontend repository connects with a backend server to process files and text into structured flashcards using the OpenAI API.
+ClipCard is a flashcard generation platform that allows users to create study cards from uploaded files, and pasted text. This frontend repository connects with a backend server to process files and text into structured flashcards using the OpenAI API.
 
 ## Table of Contents
 
