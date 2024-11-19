@@ -35,13 +35,6 @@ connectDB().then(() => {
       },
     })
   );
-  app.use((req, res, next) => {
-    res.setHeader(
-      "Content-Security-Policy",
-      "script-src 'self' https://js.stripe.com https://m.stripe.network; object-src 'none';"
-    );
-    next();
-  });
 
   // Rate Limiting
   const limiter = rateLimit({

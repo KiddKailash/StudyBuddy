@@ -2,8 +2,6 @@ const express = require('express');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const authMiddleware = require('../middleware/authMiddleware');
-const { ObjectId } = require('mongodb');
-const { getDB } = require('../utils/db');
 
 /**
  * @route   POST /api/checkout/create-checkout-session
@@ -11,16 +9,14 @@ const { getDB } = require('../utils/db');
  * @access  Private
  */
 router.post('/create-checkout-session', authMiddleware, async (req, res) => {
-  const { accountType } = req.body; // e.g., 'free', 'paid'
+  const { accountType } = req.body;
 
   if (!accountType) {
     return res.status(400).json({ error: 'Account type is required.' });
   }
 
-  // Define price IDs for different account types
   const priceIds = {
-    paid: process.env.STRIPE_PRICE_ID_PAID, // Ensure this is set in your environment variables
-    // Add more tiers if necessary
+    paid: process.env.STRIPE_PRICE_ID_PAID, // Set this in your .env
   };
 
   const selectedPriceId = priceIds[accountType];
@@ -38,17 +34,18 @@ router.post('/create-checkout-session', authMiddleware, async (req, res) => {
           quantity: 1,
         },
       ],
-      mode: 'subscription', // or 'payment' based on your use case
+      mode: 'subscription',
       success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CLIENT_URL}/cancel`,
       automatic_tax: { enabled: true },
       metadata: {
-        userId: req.user.id, // Associate session with user
+        userId: req.user.id,
         accountType: accountType,
       },
     });
 
-    res.json({ url: session.url });
+    // Return session ID to the frontend
+    res.json({ sessionId: session.id });
   } catch (error) {
     console.error('Error creating Stripe Checkout session:', error);
     res.status(500).json({ error: 'Failed to create checkout session.' });
