@@ -10,6 +10,7 @@ export const UserProvider = ({ children }) => {
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [flashcardError, setFlashcardError] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
+  const [authLoading, setAuthLoading] = useState(true); // New state to track auth loading
 
   /**
    * Resets the user context, clearing all user-related data.
@@ -19,7 +20,36 @@ export const UserProvider = ({ children }) => {
     setFlashcardSessions([]);
     setFlashcardError(null);
     setIsLoggedIn(false);
-    localStorage.clear();
+    localStorage.removeItem('token'); // Remove token from localStorage
+  };
+
+  /**
+   * Fetches the current user data from the backend.
+   */
+  const fetchCurrentUser = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAuthLoading(false); // No token, stop loading
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/auth/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setUser(response.data.user);
+      setIsLoggedIn(true);
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+      resetUserContext(); // Token might be invalid or expired
+    } finally {
+      setAuthLoading(false); // Stop loading
+    }
   };
 
   /**
@@ -141,7 +171,9 @@ export const UserProvider = ({ children }) => {
           },
         }
       );
-      setFlashcardSessions((prev) => prev.filter((session) => session.id !== sessionId));
+      setFlashcardSessions((prev) =>
+        prev.filter((session) => session.id !== sessionId)
+      );
     } catch (error) {
       console.error('Error deleting flashcard session:', error);
       setFlashcardError('Failed to delete flashcard session.');
@@ -175,13 +207,23 @@ export const UserProvider = ({ children }) => {
       );
       return true; // Indicate success
     } catch (error) {
-      console.error("Error updating flashcard session name:", error);
-      setFlashcardError("Failed to update flashcard session name.");
+      console.error('Error updating flashcard session name:', error);
+      setFlashcardError('Failed to update flashcard session name.');
       return false; // Indicate failure
     }
   };
 
-  // Fetch flashcard sessions whenever the user state changes (i.e., on login)
+  /**
+   * Fetches the current user on app load.
+   */
+  useEffect(() => {
+    fetchCurrentUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * Fetch flashcard sessions whenever the user state changes (i.e., on login)
+   */
   useEffect(() => {
     if (user) {
       fetchFlashcardSessions();
@@ -207,6 +249,7 @@ export const UserProvider = ({ children }) => {
         getFlashcardSessionById,
         deleteFlashcardSession,
         updateFlashcardSessionName,
+        authLoading, // Provide authLoading state
       }}
     >
       {children}
