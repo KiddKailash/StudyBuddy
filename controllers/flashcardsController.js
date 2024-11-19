@@ -352,6 +352,12 @@ async function generateFlashcards(transcript, existingQuestions) {
         "answer": "Answer 2"
       }
     ]
+
+    Requirements:
+      - Return only the JSON array of flashcards.
+      - Do not include any extra text, explanations, or code snippets.
+      - Do not use markdown formatting or code blocks.
+      - Ensure the JSON is valid and can be parsed.
   `;
 
   const response = await axios.post(
