@@ -29,17 +29,20 @@ router.post('/create-checkout-session', authMiddleware, async (req, res) => {
   if (!selectedPriceId) {
     return res.status(400).json({ error: 'Invalid account type.' });
   }
-
+  const prices = await stripe.prices.list({
+    lookup_keys: [req.body.lookup_key],
+    expand: ['data.product'],
+  });
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: selectedPriceId,
+          price: prices.data[0].id,
           quantity: 1,
         },
       ],
-      mode: 'subscription', // Use 'payment' for one-time payments
+      mode: 'subscription', // or 'payment' or 'setup'
       success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CLIENT_URL}/cancel`,
       automatic_tax: { enabled: true },

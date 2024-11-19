@@ -21,6 +21,8 @@ connectDB().then(() => {
   const allowedOrigins = [
     'http://localhost:5173',
     'https://clipcard.netlify.app',
+    'https://js.stripe.com',
+    'https://m.stripe.network',
   ];
   app.use(
     cors({
