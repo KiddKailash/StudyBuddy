@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
-import { SnackbarContext } from "../contexts/SnackbarContext"; // Import SnackbarContext
+import { SnackbarContext } from "../contexts/SnackbarContext";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -18,13 +18,12 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 
 const StudySession = () => {
-  // const [youtubeUrl, setYoutubeUrl] = useState(""); // Commented out YouTube state
+  // State variables
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
   const [loadingTranscript, setLoadingTranscript] = useState(false);
 
-  const { createFlashcardSession } = useContext(UserContext);
-  const { showSnackbar } = useContext(SnackbarContext); // Access Snackbar context
+  const { showSnackbar } = useContext(SnackbarContext);
   const navigate = useNavigate();
 
   // State for Tabs
@@ -34,7 +33,6 @@ const StudySession = () => {
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
     // Reset inputs when switching tabs
-    // setYoutubeUrl(""); // Commented out resetting YouTube URL
     setSelectedFile(null);
     setPastedText("");
   };
@@ -53,7 +51,6 @@ const StudySession = () => {
 
       let transcriptText = "";
 
-      // Adjusted tab indices since YouTube tab is commented out
       if (tabValue === 0) {
         // File Upload Tab
         if (!selectedFile) {
@@ -104,11 +101,12 @@ const StudySession = () => {
       // Generate Flashcards
       const generatedFlashcards = await generateFlashcards(transcriptText);
 
-      // Create a new study session
+      // Create a new study session with transcript
       const sessionName = `Session ${new Date().toLocaleString()}`;
       const newSession = await createFlashcardSession(
         sessionName,
-        generatedFlashcards
+        generatedFlashcards,
+        transcriptText // Include transcript
       );
 
       if (newSession) {
@@ -145,6 +143,35 @@ const StudySession = () => {
     );
 
     return response.data.flashcards;
+  };
+
+  /**
+   * Creates a new flashcard session.
+   *
+   * @param {string} sessionName - The name of the session.
+   * @param {Array} studyCards - The generated flashcards.
+   * @param {string} transcriptText - The transcript used to generate flashcards.
+   * @returns {Object} The newly created session.
+   */
+  const createFlashcardSession = async (sessionName, studyCards, transcriptText) => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("User is not authenticated.");
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
+      {
+        sessionName,
+        studyCards,
+        transcript: transcriptText, // Include transcript
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data.flashcard;
   };
 
   return (
