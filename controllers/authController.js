@@ -176,11 +176,7 @@ exports.upgradeSubscription = async (req, res) => {
     );
 
     // Generate a new token with updated accountType
-    const token = jwt.sign(
-      { id: updatedUser._id, email: updatedUser.email, accountType: updatedUser.accountType },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+    const token = generateToken(updatedUser);
 
     res.status(200).json({
       message: 'Subscription upgraded successfully.',
@@ -194,5 +190,45 @@ exports.upgradeSubscription = async (req, res) => {
   } catch (error) {
     console.error('Upgrade Subscription Error:', error);
     res.status(500).json({ error: 'Server error during subscription upgrade.' });
+  }
+};
+
+/**
+ * Get current user's data
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.getCurrentUser = async (req, res) => {
+  const userId = req.user.id; // Retrieved from authMiddleware
+
+  try {
+    const db = getDB();
+    const usersCollection = db.collection('users');
+
+    // Retrieve the user data
+    const user = await usersCollection.findOne(
+      { _id: new ObjectId(userId) },
+      { projection: { password: 0 } } // Exclude password from response
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    res.status(200).json({
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        company: user.company,
+        accountType: user.accountType,
+        // Include any other necessary fields
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ error: 'Server error while fetching user data.' });
   }
 };
