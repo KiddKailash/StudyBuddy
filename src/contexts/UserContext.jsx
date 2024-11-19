@@ -1,6 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import PropTypes from 'prop-types';
+import React, { createContext, useState, useEffect } from "react";
+import axios from "axios";
+import PropTypes from "prop-types";
 
 export const UserContext = createContext();
 
@@ -20,14 +20,14 @@ export const UserProvider = ({ children }) => {
     setFlashcardSessions([]);
     setFlashcardError(null);
     setIsLoggedIn(false);
-    localStorage.removeItem('token'); // Remove token from localStorage
+    localStorage.removeItem("token"); // Remove token from localStorage
   };
 
   /**
    * Fetches the current user data from the backend.
    */
   const fetchCurrentUser = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       setAuthLoading(false); // No token, stop loading
       return;
@@ -45,7 +45,7 @@ export const UserProvider = ({ children }) => {
       setUser(response.data.user);
       setIsLoggedIn(true);
     } catch (error) {
-      console.error('Error fetching current user:', error);
+      console.error("Error fetching current user:", error);
       resetUserContext(); // Token might be invalid or expired
     } finally {
       setAuthLoading(false); // Stop loading
@@ -64,19 +64,19 @@ export const UserProvider = ({ children }) => {
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
       setFlashcardSessions(response.data.flashcards);
     } catch (error) {
-      console.error('Error fetching flashcard sessions:', error);
+      console.error("Error fetching flashcard sessions:", error);
       if (error.response && error.response.status === 401) {
         // Token expired or invalid
         resetUserContext();
         // Optionally, notify the user about session expiry
       } else {
-        setFlashcardError('Failed to load flashcard sessions.');
+        setFlashcardError("Failed to load flashcard sessions.");
       }
     } finally {
       setLoadingSessions(false);
@@ -96,7 +96,7 @@ export const UserProvider = ({ children }) => {
         { sessionName, studyCards },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -104,8 +104,8 @@ export const UserProvider = ({ children }) => {
       setFlashcardSessions((prev) => [...prev, newSession]);
       return newSession; // Return the new session
     } catch (error) {
-      console.error('Error creating flashcard session:', error);
-      setFlashcardError('Failed to create flashcard session.');
+      console.error("Error creating flashcard session:", error);
+      setFlashcardError("Failed to create flashcard session.");
       return null; // Return null on failure
     }
   };
@@ -122,15 +122,15 @@ export const UserProvider = ({ children }) => {
         { studyCards },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
       // Refresh flashcard sessions after adding
       await fetchFlashcardSessions();
     } catch (error) {
-      console.error('Error adding flashcards to session:', error);
-      setFlashcardError('Failed to add flashcards to session.');
+      console.error("Error adding flashcards to session:", error);
+      setFlashcardError("Failed to add flashcards to session.");
     }
   };
 
@@ -145,14 +145,14 @@ export const UserProvider = ({ children }) => {
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${sessionId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
       return response.data;
     } catch (error) {
-      console.error('Error retrieving flashcard session:', error);
-      setFlashcardError('Failed to retrieve flashcard session.');
+      console.error("Error retrieving flashcard session:", error);
+      setFlashcardError("Failed to retrieve flashcard session.");
       return null;
     }
   };
@@ -167,7 +167,7 @@ export const UserProvider = ({ children }) => {
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${sessionId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -175,8 +175,8 @@ export const UserProvider = ({ children }) => {
         prev.filter((session) => session.id !== sessionId)
       );
     } catch (error) {
-      console.error('Error deleting flashcard session:', error);
-      setFlashcardError('Failed to delete flashcard session.');
+      console.error("Error deleting flashcard session:", error);
+      setFlashcardError("Failed to delete flashcard session.");
     }
   };
 
@@ -189,11 +189,13 @@ export const UserProvider = ({ children }) => {
   const updateFlashcardSessionName = async (sessionId, newName) => {
     try {
       await axios.put(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${sessionId}/name`,
+        `${
+          import.meta.env.VITE_LOCAL_BACKEND_URL
+        }/api/flashcards/${sessionId}/name`,
         { sessionName: newName },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -207,8 +209,8 @@ export const UserProvider = ({ children }) => {
       );
       return true; // Indicate success
     } catch (error) {
-      console.error('Error updating flashcard session name:', error);
-      setFlashcardError('Failed to update flashcard session name.');
+      console.error("Error updating flashcard session name:", error);
+      setFlashcardError("Failed to update flashcard session name.");
       return false; // Indicate failure
     }
   };
@@ -249,7 +251,8 @@ export const UserProvider = ({ children }) => {
         getFlashcardSessionById,
         deleteFlashcardSession,
         updateFlashcardSessionName,
-        authLoading, // Provide authLoading state
+        authLoading,
+        fetchCurrentUser, // Expose fetchCurrentUser function
       }}
     >
       {children}

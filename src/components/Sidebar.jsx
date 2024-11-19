@@ -487,8 +487,8 @@ const Sidebar = ({
 Sidebar.propTypes = {
   mobileOpen: PropTypes.bool.isRequired, // Indicates if the mobile drawer is open
   handleDrawerToggle: PropTypes.func.isRequired, // Function to toggle the drawer
-  drawerWidth: PropTypes.number.isRequired, // Width of the drawer in pixels
-  menubarHeight: PropTypes.number.isRequired, // Height of the menu bar in pixels
+  drawerWidth: PropTypes.string.isRequired, // Width of the drawer in pixels
+  menubarHeight: PropTypes.string.isRequired, // Height of the menu bar in pixels
 };
 
 export default Sidebar;

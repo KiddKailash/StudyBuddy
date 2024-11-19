@@ -23,7 +23,7 @@ import MenuItem from "./MenuItem";
  * @return {JSX.Element} - The rendered MenuBar component.
  */
 function MenuBar({ handleDrawerToggle }) {
-  const { user, resetUserContext } = useContext(UserContext);
+  const { user, resetUserContext, setUser } = useContext(UserContext);
   const navigate = useNavigate();
   const theme = useTheme(); // Access the current theme settings
 
@@ -36,6 +36,17 @@ function MenuBar({ handleDrawerToggle }) {
   const handleLogout = () => {
     resetUserContext(); // Clears user data and resets login state
     navigate("/login"); // Redirects to login page
+  };
+
+  /**
+   * Handles account type display based on user's subscription status.
+   *
+   * @returns {string} - The formatted account type string.
+   */
+  const getAccountTypeDisplay = () => {
+    if (!user || !user.accountType) return "";
+    // Capitalize the first letter and append 'User'
+    return `${user.accountType.charAt(0).toUpperCase() + user.accountType.slice(1)} User`;
   };
 
   return (
@@ -76,12 +87,7 @@ function MenuBar({ handleDrawerToggle }) {
         <Box sx={{ display: "flex", alignItems: "center" }}>
           {user && (
             <Typography variant="body1" sx={{ mr: 2 }}>
-              {user.accountType === "free"
-                ? "Free User"
-                : `${
-                    user.accountType.charAt(0).toUpperCase() +
-                    user.accountType.slice(1)
-                  } User`}
+              {getAccountTypeDisplay()}
             </Typography>
           )}
           <Button variant="contained" sx={{ ml: 2 }} onClick={handleLogout}>
