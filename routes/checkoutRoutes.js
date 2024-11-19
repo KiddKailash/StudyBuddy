@@ -25,6 +25,25 @@ router.post('/create-checkout-session', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'Invalid account type.' });
   }
 
+  // Fetch and log existing products and prices for debugging
+  try {
+    // Fetch existing products
+    const products = await stripe.products.list({ limit: 100 });
+    console.log('Existing products:', products.data);
+
+    // Fetch existing prices
+    const prices = await stripe.prices.list({ limit: 100 });
+    console.log('Existing prices:', prices.data);
+
+    // Log the selected price ID and compare it with existing prices
+    console.log('Selected Price ID:', selectedPriceId);
+    const priceExists = prices.data.some(price => price.id === selectedPriceId);
+    console.log('Does the selected Price ID exist?', priceExists);
+  } catch (error) {
+    console.error('Error fetching products or prices:', error);
+    return res.status(500).json({ error: 'Failed to fetch products or prices from Stripe.' });
+  }
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
