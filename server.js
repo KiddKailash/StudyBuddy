@@ -9,7 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const transcriptRoutes = require("./routes/transcriptRoutes");
 const openaiRoutes = require("./routes/openaiRoutes");
 const flashcardsRoutes = require("./routes/flashcardsRoutes");
-const checkoutRoutes = require("./routes/checkoutRoutes"); // New Checkout Route
+const checkoutRoutes = require("./routes/checkoutRoutes");
 
 // Import the webhook handler
 const webhookHandler = require("./routes/webhookRoutes");
@@ -47,22 +47,22 @@ connectDB()
     });
     app.use(limiter);
 
-    // Parse JSON bodies globally
-    app.use(express.json());
-
-    // Apply express.raw() middleware and define webhook route
+    // *** Apply express.raw() middleware and define webhook route ***
     app.post(
       "/api/webhook",
       express.raw({ type: "application/json" }),
       webhookHandler
     );
 
+    // *** Now apply express.json() middleware globally ***
+    app.use(express.json());
+
     // Routes
     app.use("/api/auth", authRoutes);
     app.use("/api/transcript", transcriptRoutes);
     app.use("/api/openai", openaiRoutes);
     app.use("/api/flashcards", flashcardsRoutes);
-    app.use("/api/checkout", checkoutRoutes); // Mount Checkout Routes
+    app.use("/api/checkout", checkoutRoutes);
 
     // Optional: Test route
     app.get("/api/test-connection", (req, res) => {
