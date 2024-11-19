@@ -382,7 +382,6 @@ const Sidebar = ({
         sx={{
           display: { xs: "none", sm: "block" },
           "& .MuiDrawer-paper": {
-            boxSizing: "border-box",
             width: drawerWidth,
             height: `calc(100% - ${menubarHeight}px)`, // Adjust height
           },

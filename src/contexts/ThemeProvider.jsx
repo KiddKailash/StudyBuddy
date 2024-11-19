@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 // MUI Component Imports
 import createTheme from "@mui/material/styles/createTheme";
-import { ThemeProvider as MuiThemeProvider }from "@mui/material/styles/ThemeProvider";
+import ThemeProvider from "@mui/material/styles/ThemeProvider";
 
 import CssBaseline from "@mui/material/CssBaseline";
 import GlobalStyles from "@mui/material/GlobalStyles";
@@ -86,7 +86,7 @@ function SetTheme({ children }) {
     // Provide the theme mode and dispatch function via Context
     <ThemeContext.Provider value={{ dispatch, mode }}>
       {/* Apply the theme to child components */}
-      <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
         {/* Normalize CSS and apply baseline styles */}
         <CssBaseline />
         {/* Apply global transitions */}
@@ -104,7 +104,7 @@ function SetTheme({ children }) {
           }}
         />
         {children}
-      </MuiThemeProvider>
+      </ThemeProvider>
     </ThemeContext.Provider>
   );
 }

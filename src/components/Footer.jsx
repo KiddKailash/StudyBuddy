@@ -11,16 +11,13 @@ import { useTheme } from "@mui/material/styles"; // Import useTheme to access th
  */
 const Footer = () => {
   const theme = useTheme(); // Access theme
-  const currentYear = new Date().getFullYear();
 
   return (
     <Box
       sx={{
-        marginTop: 5,
-        backgroundColor: "background.default", // Use theme background color
+        marginTop: 3,
+        marginBottom: 3,
         color: "text.secondary", // Use theme text color
-        width: "100%", // Ensure the footer spans the entire viewport width
-        transition: theme.transitions.backgroundAndText, // Centralized transition
       }}
     >
       <Typography variant="body2">ClipCard may make typing errors. Check important information.</Typography>

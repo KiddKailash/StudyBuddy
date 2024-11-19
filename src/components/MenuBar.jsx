@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-import ThemeToggleButton from "../contexts/ThemeProvider";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -83,7 +82,6 @@ function MenuBar({ handleDrawerToggle }) {
         {/* Left side menu items */}
         <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
           <MenuItem link="/upgrade" name="Upgrade" />
-          <ThemeToggleButton />
           {/* Add more menu items as needed */}
         </Box>
 

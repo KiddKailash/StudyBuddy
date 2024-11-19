@@ -131,8 +131,7 @@ function App() {
                   : `calc(100% - ${sidebarWidth})`, // Adjust width
               height: `calc(100vh - ${menubarHeight})`, // Always the full height below the MenuBar
               padding: 2,
-              borderLeft: "1px solid #ccc", // Remove border when sidebar is hidden
-              bgcolor: "background.paper",
+              bgcolor: "background.default",
               zIndex: 50, // Higher z-index to overlay other components
               transition: "all 0.3s ease-in-out",
               overflow: "auto", // Prevent content overflow
