@@ -1,4 +1,3 @@
-// middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -12,25 +11,25 @@ require('dotenv').config();
  */
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  
+
   // Check if Authorization header is present
   if (!authHeader) {
     return res.status(401).json({ error: 'Authorization header missing.' });
   }
-  
+
   const token = authHeader.split(' ')[1]; // Expected format: Bearer <token>
-  
+
   if (!token) {
     return res.status(401).json({ error: 'Token missing from Authorization header.' });
   }
-  
+
   // Verify JWT token
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
     if (err) {
       console.error('JWT Verification Error:', err);
       return res.status(403).json({ error: 'Invalid or expired token.' });
     }
-    req.user = user; // Attach user payload to request
+    req.user = decodedToken; // Attach decoded token payload to request
     next();
   });
 };

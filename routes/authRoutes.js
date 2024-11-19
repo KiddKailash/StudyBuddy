@@ -1,4 +1,3 @@
-// routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
@@ -18,5 +17,10 @@ router.post('/login', authController.login);
 // @desc    Upgrade user subscription
 // @access  Private
 router.post('/upgrade', authMiddleware, authController.upgradeSubscription);
+
+// @route   GET /api/auth/me
+// @desc    Get current user's data
+// @access  Private
+router.get('/me', authMiddleware, authController.getCurrentUser);
 
 module.exports = router;

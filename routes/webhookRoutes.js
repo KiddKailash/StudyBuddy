@@ -12,7 +12,16 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
  * @access  Public
  */
 router.post('/', async (req, res) => {
+  console.log('Webhook received');
   let event;
+  try {
+    const signature = req.headers['stripe-signature'];
+    event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
+    console.log(`Event type: ${event.type}`);
+  } catch (err) {
+    console.error(`Webhook signature verification failed:`, err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
   try {
     // Stripe expects the raw body to construct the event
