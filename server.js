@@ -63,7 +63,7 @@ connectDB()
     app.use("/api/checkout", checkoutRoutes); // Mount Checkout Routes
 
     // Apply express.raw middleware to /api/webhook
-    app.post(
+    app.use(
       "/api/webhook",
       express.raw({ type: "application/json" }),
       webhookRoutes

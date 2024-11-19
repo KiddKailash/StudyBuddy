@@ -1,38 +1,19 @@
-const express = require('express');
-const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { getDB } = require('../utils/db');
 const { ObjectId } = require('mongodb'); // Import ObjectId
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-/**
- * @route   POST /webhook
- * @desc    Stripe webhook to handle subscription and payment events
- * @access  Public
- */
-router.post('/', async (req, res) => {
+const webhookHandler = async (req, res) => {
   console.log('Webhook received');
   let event;
   try {
     const signature = req.headers['stripe-signature'];
+    // Stripe requires the raw body, which is available because of express.raw()
     event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
     console.log(`Event type: ${event.type}`);
   } catch (err) {
     console.error(`Webhook signature verification failed:`, err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  try {
-    // Stripe expects the raw body to construct the event
-    const signature = req.headers['stripe-signature'];
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      signature,
-      endpointSecret
-    );
-  } catch (err) {
-    console.error(`⚠️ Webhook signature verification failed:`, err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -169,6 +150,6 @@ router.post('/', async (req, res) => {
 
   // Acknowledge receipt of the event
   res.status(200).send('Event received');
-});
+};
 
-module.exports = router;
+module.exports = webhookHandler;
