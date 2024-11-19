@@ -1,15 +1,18 @@
-import React, { useReducer, useMemo, createContext, useContext } from 'react';
-import PropTypes from 'prop-types';
-import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import GlobalStyles from '@mui/material/GlobalStyles';
-import Button from '@mui/material/Button';
+import React, { useReducer, useMemo, createContext, useContext } from "react";
+import PropTypes from "prop-types";
+import {
+  createTheme,
+  ThemeProvider as MuiThemeProvider,
+} from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import GlobalStyles from "@mui/material/GlobalStyles";
+import Button from "@mui/material/Button";
 
 /**
  * ThemeContext is a React context that holds the current theme mode and a dispatch function to toggle it.
  */
 const ThemeContext = createContext();
- 
+
 /**
  * Custom hook to access the ThemeContext.
  *
@@ -23,7 +26,7 @@ const useThemeContext = () => useContext(ThemeContext);
  * @param {string} state - The current theme mode.
  * @return {string} - The next theme mode.
  */
-const themeReducer = (state) => (state === 'light' ? 'dark' : 'light');
+const themeReducer = (state) => (state === "light" ? "dark" : "light");
 
 /**
  * SetTheme component provides theming context and applies the selected theme.
@@ -34,7 +37,7 @@ const themeReducer = (state) => (state === 'light' ? 'dark' : 'light');
  */
 function SetTheme({ children }) {
   // useReducer hook to manage the theme mode state
-  const [mode, dispatch] = useReducer(themeReducer, 'light');
+  const [mode, dispatch] = useReducer(themeReducer, "light");
 
   // Memoize the theme object to prevent unnecessary recalculations
   const theme = useMemo(
@@ -43,23 +46,23 @@ function SetTheme({ children }) {
         palette: {
           mode,
           // Conditional palette settings based on the current mode
-          ...(mode === 'light'
+          ...(mode === "light"
             ? {
                 background: {
-                  default: '#f5f5f5',
-                  paper: '#f5f5f5',
+                  default: "#ffffff",
+                  paper: "#f5f5f5",
                 },
                 text: {
-                  primary: '#000000',
+                  primary: "#000000",
                 },
               }
             : {
                 background: {
-                  default: '#292929',
-                  paper: '#121212',
+                  default: "#292929",
+                  paper: "#121212",
                 },
                 text: {
-                  primary: '#ffffff',
+                  primary: "#ffffff",
                 },
               }),
         },
@@ -68,10 +71,10 @@ function SetTheme({ children }) {
             standard: 300,
           },
           easing: {
-            ease: 'ease',
+            ease: "ease",
           },
           // Custom transition for background and text color
-          backgroundAndText: 'background-color 0.1s ease, color 0.1s ease',
+          backgroundAndText: "background-color 0.1s ease, color 0.1s ease",
         },
         spacing: 8,
       }),
@@ -88,14 +91,14 @@ function SetTheme({ children }) {
         {/* Apply global transitions */}
         <GlobalStyles
           styles={{
-            '*': {
-              transition: 'background-color 0.1s ease, color 0.1s ease',
+            "*": {
+              transition: "background-color 0.1s ease, color 0.1s ease",
             },
-            'html, body': {
-              height: '100%',
+            "html, body": {
+              height: "100%",
             },
-            '#root': {
-              height: '100%',
+            "#root": {
+              height: "100%",
             },
           }}
         />
@@ -121,11 +124,10 @@ function ThemeToggleButton() {
   return (
     <Button
       onClick={dispatch} // Toggle the theme mode when clicked
-
       sx={{
         color: (theme) => theme.palette.text.primary,
         backgroundColor: (theme) => theme.palette.background.default,
-        '&:hover': {
+        "&:hover": {
           backgroundColor: (theme) => theme.palette.action.hover,
         },
         transition: (theme) => theme.transitions.backgroundAndText,
@@ -133,7 +135,7 @@ function ThemeToggleButton() {
       variant="text"
     >
       {/* Display the opposite mode as the button label */}
-      {mode === 'light' ? 'Dark' : 'Light'} Mode
+      {mode === "light" ? "Dark" : "Light"} Mode
     </Button>
   );
 }

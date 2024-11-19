@@ -1,8 +1,9 @@
+// src/components/Sidebar.jsx
 import React, { useState, useContext } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 // MUI Component Imports
 import Button from "@mui/material/Button";
@@ -23,10 +24,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
 import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
 
 // MUI Icon Imports
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
@@ -34,15 +32,21 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 
-// Context
+// Context Imports
 import { UserContext } from "../contexts/UserContext";
+import { SnackbarContext } from "../contexts/SnackbarContext"; // Import SnackbarContext
 import { useNavigate } from "react-router-dom";
 
-// Create Alert component for Snackbar
-const AlertSnackbar = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
+/**
+ * Sidebar component that displays study sessions and handles session operations.
+ *
+ * @param {object} props - Component props.
+ * @param {boolean} props.mobileOpen - Indicates if the mobile drawer is open.
+ * @param {function} props.handleDrawerToggle - Function to toggle the drawer.
+ * @param {string} props.drawerWidth - Width of the drawer.
+ * @param {string} props.menubarHeight - Height of the menu bar.
+ * @returns {JSX.Element} The Sidebar component.
+ */
 const Sidebar = ({
   mobileOpen,
   handleDrawerToggle,
@@ -62,7 +66,10 @@ const Sidebar = ({
     updateFlashcardSessionName,
   } = useContext(UserContext);
 
-  // State Variables
+  // Access the Snackbar context
+  const { showSnackbar } = useContext(SnackbarContext);
+
+  // State Variables for Menu and Dialogs
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -70,10 +77,6 @@ const Sidebar = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [newSessionName, setNewSessionName] = useState("");
-
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const [hoveredSessionId, setHoveredSessionId] = useState(null);
   const [sessionToDelete, setSessionToDelete] = useState(null);
@@ -181,20 +184,17 @@ const Sidebar = ({
 
     try {
       await deleteFlashcardSession(sessionToDelete);
-      setSnackbarMessage("Study session deleted successfully.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      showSnackbar("Study session deleted successfully.", "success"); // Use context
+      navigate("/");
     } catch (error) {
       console.error("Error deleting study session:", error);
-      setSnackbarMessage(
+      showSnackbar(
         `Error deleting study session: ${
           error.response?.data?.error || error.message
-        }`
-      );
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+        }`,
+        "error"
+      ); // Use context
     } finally {
-      navigate("/");
       handleDeleteDialogClose();
     }
   };
@@ -204,33 +204,30 @@ const Sidebar = ({
    */
   const handleRenameSession = async () => {
     if (!sessionToRename || !newSessionName.trim()) {
-      setSnackbarMessage("Please enter a valid session name.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      showSnackbar("Please enter a valid session name.", "error"); // Use context
       return;
     }
 
     try {
-      await updateFlashcardSessionName(
-        sessionToRename,
-        newSessionName.trim()
-      );
-      setSnackbarMessage("Study session renamed successfully.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      await updateFlashcardSessionName(sessionToRename, newSessionName.trim());
+      showSnackbar("Study session renamed successfully.", "success"); // Use context
     } catch (error) {
       console.error("Error renaming study session:", error);
-      setSnackbarMessage(
+      showSnackbar(
         `Error renaming study session: ${
           error.response?.data?.error || error.message
-        }`
-      );
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+        }`,
+        "error"
+      ); // Use context
     } finally {
       handleRenameDialogClose();
     }
   };
+
+  // Remove local Snackbar state and handlers
+  // const [snackbarOpen, setSnackbarOpen] = useState(false);
+  // const [snackbarMessage, setSnackbarMessage] = useState("");
+  // const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   /**
    * Handles the closure of the Snackbar.
@@ -238,12 +235,12 @@ const Sidebar = ({
    * @param {Event} event - The close event.
    * @param {string} reason - The reason for closing.
    */
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbarOpen(false);
-  };
+  // const handleSnackbarClose = (event, reason) => {
+  //   if (reason === "clickaway") {
+  //     return;
+  //   }
+  //   setSnackbarOpen(false);
+  // };
 
   const drawerContent = (
     <Box sx={{ width: drawerWidth }}>
@@ -268,9 +265,7 @@ const Sidebar = ({
                 component={Link}
                 to={`/`}
                 selected={isCreateSessionActive}
-                sx={(theme) =>
-                  commonButtonStyles(theme, isCreateSessionActive)
-                }
+                sx={(theme) => commonButtonStyles(theme, isCreateSessionActive)}
                 onClick={isMobile ? handleDrawerToggle : undefined} // Close drawer on mobile
               >
                 <ListItemText
@@ -286,56 +281,50 @@ const Sidebar = ({
             </ListItem>
 
             {/* Render Study Sessions */}
-            {flashcardSessions.length === 0 ? (
-              <ListItem key="no-sessions">
-                <Typography variant="subtitle1" color="text.secondary">
-                  No study sessions available.
-                </Typography>
-              </ListItem>
-            ) : (
-              flashcardSessions.map((session) => {
-                const isActive = session.id === activeSessionId;
-                const isHovered = session.id === hoveredSessionId;
-                const showOptions = isActive || isHovered;
+            {flashcardSessions.length === 0
+              ? null
+              : flashcardSessions.map((session) => {
+                  const isActive = session.id === activeSessionId;
+                  const isHovered = session.id === hoveredSessionId;
+                  const showOptions = isActive || isHovered;
 
-                return (
-                  <ListItem
-                    disablePadding
-                    key={session.id}
-                    onMouseEnter={() => setHoveredSessionId(session.id)}
-                    onMouseLeave={() => setHoveredSessionId(null)}
-                  >
-                    <ListItemButton
-                      component={Link}
-                      to={`/flashcards/${session.id}`}
-                      selected={isActive}
-                      sx={(theme) => commonButtonStyles(theme, isActive)}
-                      onClick={isMobile ? handleDrawerToggle : undefined} // Close drawer on mobile
+                  return (
+                    <ListItem
+                      disablePadding
+                      key={session.id}
+                      onMouseEnter={() => setHoveredSessionId(session.id)}
+                      onMouseLeave={() => setHoveredSessionId(null)}
                     >
-                      <ListItemText
-                        primary={session.studySession}
-                        primaryTypographyProps={{
-                          variant: "subtitle2",
-                        }}
-                      />
-                      {/* Three Dots IconButton */}
-                      {showOptions && (
-                        <IconButton
-                          edge="end"
-                          aria-label="options"
-                          onClick={(e) => handleMenuOpen(e, session.id)}
-                          sx={{
-                            color: theme.palette.text.secondary,
+                      <ListItemButton
+                        component={Link}
+                        to={`/flashcards/${session.id}`}
+                        selected={isActive}
+                        sx={(theme) => commonButtonStyles(theme, isActive)}
+                        onClick={isMobile ? handleDrawerToggle : undefined} // Close drawer on mobile
+                      >
+                        <ListItemText
+                          primary={session.studySession}
+                          primaryTypographyProps={{
+                            variant: "subtitle2",
                           }}
-                        >
-                          <MoreVertRoundedIcon />
-                        </IconButton>
-                      )}
-                    </ListItemButton>
-                  </ListItem>
-                );
-              })
-            )}
+                        />
+                        {/* Three Dots IconButton */}
+                        {showOptions && (
+                          <IconButton
+                            edge="end"
+                            aria-label="options"
+                            onClick={(e) => handleMenuOpen(e, session.id)}
+                            sx={{
+                              color: theme.palette.text.secondary,
+                            }}
+                          >
+                            <MoreVertRoundedIcon />
+                          </IconButton>
+                        )}
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
           </>
         )}
       </List>
@@ -425,27 +414,14 @@ const Sidebar = ({
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Snackbar for Notifications */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <AlertSnackbar
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </AlertSnackbar>
-      </Snackbar>
     </Box>
   );
 
   return (
-    <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
+    <Box
+      component="nav"
+      sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+    >
       {/* Mobile Drawer */}
       <Drawer
         variant="temporary"

@@ -1,9 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import {
-  Route,
-  Routes,
-  useLocation,
-} from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
@@ -16,6 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import MenuBar from "./components/MenuBar";
 import Sidebar from "./components/Sidebar";
 import GPTchat from "./components/GPTchat";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import UpgradeSubscription from "./webpages/UpgradeSubscription";
 import FlashcardSession from "./webpages/FlashcardSession";
@@ -25,8 +22,6 @@ import PageNotFound from "./webpages/PageNotFound";
 import SettingsPage from "./webpages/Settings";
 import Success from "./webpages/Success";
 import Cancel from "./webpages/Cancel";
-
-import ProtectedRoute from "./components/ProtectedRoute";
 
 import { UserContext } from "./contexts/UserContext";
 
@@ -116,14 +111,12 @@ function App() {
               },
             }}
           >
-            {isExpanded && (
-              <Sidebar
-                mobileOpen={mobileOpen}
-                handleDrawerToggle={handleDrawerToggle}
-                drawerWidth={sidebarWidth}
-                menubarHeight={menubarHeight}
-              />
-            )}
+            <Sidebar
+              mobileOpen={mobileOpen}
+              handleDrawerToggle={handleDrawerToggle}
+              drawerWidth={sidebarWidth}
+              menubarHeight={menubarHeight}
+            />
           </Box>
 
           {/* Main Content */}
@@ -138,7 +131,7 @@ function App() {
                   : `calc(100% - ${sidebarWidth})`, // Adjust width
               height: `calc(100vh - ${menubarHeight})`, // Always the full height below the MenuBar
               padding: 2,
-              borderLeft: isExpanded ? "1px solid #ccc" : "none", // Remove border when sidebar is hidden
+              borderLeft: "1px solid #ccc", // Remove border when sidebar is hidden
               bgcolor: "background.paper",
               zIndex: 50, // Higher z-index to overlay other components
               transition: "all 0.3s ease-in-out",
@@ -163,7 +156,7 @@ function App() {
                   },
                 }}
               >
-                {isExpanded ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
+                {isExpanded ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
               </IconButton>
             )}
 

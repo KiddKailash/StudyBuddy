@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import SetTheme from "./contexts/ThemeProvider";
 import { UserProvider } from "./contexts/UserContext";
 import { BrowserRouter as Router } from "react-router-dom";
+import { SnackbarProvider } from "./contexts/SnackbarContext.jsx";
 
 import App from "./App.jsx";
 import "./index.css";
@@ -14,9 +15,11 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <SetTheme>
       <UserProvider>
-        <Router>
-          <App />
-        </Router>
+        <SnackbarProvider>
+          <Router>
+            <App />
+          </Router>
+        </SnackbarProvider>
       </UserProvider>
     </SetTheme>
   </StrictMode>

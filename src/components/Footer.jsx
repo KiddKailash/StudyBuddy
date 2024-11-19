@@ -4,7 +4,6 @@ import Box from "@mui/material/Box";
 // MUI Component Imports
 // ================================
 import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid2";
 import { useTheme } from "@mui/material/styles"; // Import useTheme to access theme transitions
 
 /**
