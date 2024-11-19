@@ -1,5 +1,3 @@
-// controllers/transcriptController.js
-const { getDB } = require('../utils/db');
 const { YoutubeTranscript } = require('youtube-transcript');
 const he = require('he');
 

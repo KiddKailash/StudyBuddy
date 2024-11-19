@@ -1,5 +1,6 @@
 const { getDB } = require('../utils/db');
 const { ObjectId } = require('mongodb');
+const axios = require('axios');
 
 /**
  * Create a new flashcard session
@@ -8,16 +9,12 @@ const { ObjectId } = require('mongodb');
  * @param {Object} res - Express response object
  */
 exports.createFlashcardSession = async (req, res) => {
-  const { sessionName, studyCards } = req.body;
+  const { sessionName, studyCards, transcript } = req.body; // Include transcript
   const userId = req.user.id;
 
-  console.log('Received createFlashcardSession request:');
-  console.log('Session Name:', sessionName);
-  console.log('Study Cards:', studyCards);
-
   // Basic validation
-  if (!sessionName || !Array.isArray(studyCards)) {
-    return res.status(400).json({ error: 'sessionName and studyCards are required.' });
+  if (!sessionName || !Array.isArray(studyCards) || !transcript) {
+    return res.status(400).json({ error: 'sessionName, studyCards, and transcript are required.' });
   }
 
   try {
@@ -26,9 +23,10 @@ exports.createFlashcardSession = async (req, res) => {
 
     const newSession = {
       userId: new ObjectId(userId),
-      studySession: sessionName, // Updated to camelCase
-      flashcardsJSON: studyCards, // Updated to camelCase
-      createdDate: new Date(), // Updated to camelCase
+      studySession: sessionName,
+      flashcardsJSON: studyCards,
+      transcript: transcript, // Save transcript
+      createdDate: new Date(),
     };
 
     const result = await flashcardsCollection.insertOne(newSession);
@@ -39,82 +37,13 @@ exports.createFlashcardSession = async (req, res) => {
         id: result.insertedId,
         studySession: newSession.studySession,
         flashcardsJSON: newSession.flashcardsJSON,
+        transcript: newSession.transcript,
         createdDate: newSession.createdDate,
       },
     });
   } catch (error) {
     console.error('Create Flashcard Session Error:', error);
     res.status(500).json({ error: 'Server error while creating flashcard session.' });
-  }
-};
-
-/**
- * Add flashcards to an existing session
- *
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-exports.addFlashcardsToSession = async (req, res) => {
-  const { id } = req.params; // Flashcard session ID
-  const { studyCards } = req.body;
-  const userId = req.user.id;
-
-  // Basic validation
-  if (!Array.isArray(studyCards) || studyCards.length === 0) {
-    return res.status(400).json({ error: 'studyCards (non-empty array) are required.' });
-  }
-
-  try {
-    const db = getDB();
-    const flashcardsCollection = db.collection('flashcards');
-
-    // Verify that the session exists and belongs to the user
-    const session = await flashcardsCollection.findOne({ _id: new ObjectId(id), userId: new ObjectId(userId) });
-
-    if (!session) {
-      return res.status(404).json({ error: 'Flashcard session not found.' });
-    }
-
-    // Update the session by pushing new flashcards
-    await flashcardsCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $push: { flashcardsJSON: { $each: studyCards } } }
-    );
-
-    res.status(200).json({ message: 'Flashcards added successfully to the session.' });
-  } catch (error) {
-    console.error('Add Flashcards Error:', error);
-    res.status(500).json({ error: 'Server error while adding flashcards.' });
-  }
-};
-
-/**
- * Retrieve all flashcard sessions for the logged-in user
- *
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-exports.getUserFlashcards = async (req, res) => {
-  const userId = req.user.id;
-
-  try {
-    const db = getDB();
-    const flashcardsCollection = db.collection('flashcards');
-
-    const sessions = await flashcardsCollection.find({ userId: new ObjectId(userId) }).toArray();
-
-    // Map sessions to a cleaner format
-    const formattedSessions = sessions.map(session => ({
-      id: session._id,
-      studySession: session.studySession,
-      flashcardsJSON: session.flashcardsJSON,
-      createdDate: session.createdDate,
-    }));
-
-    res.status(200).json({ flashcards: formattedSessions });
-  } catch (error) {
-    console.error('Get User Flashcards Error:', error);
-    res.status(500).json({ error: 'Server error while retrieving flashcards.' });
   }
 };
 
@@ -134,7 +63,7 @@ exports.getFlashcardSessionById = async (req, res) => {
 
     const session = await flashcardsCollection.findOne(
       { _id: new ObjectId(id), userId: new ObjectId(userId) },
-      { projection: { flashcardsJSON: 1, studySession: 1, createdDate: 1 } }
+      { projection: { flashcardsJSON: 1, studySession: 1, transcript: 1, createdDate: 1 } }
     );
 
     if (!session) {
@@ -145,6 +74,7 @@ exports.getFlashcardSessionById = async (req, res) => {
       id: session._id,
       studySession: session.studySession,
       flashcardsJSON: session.flashcardsJSON,
+      transcript: session.transcript, // Include transcript
       createdDate: session.createdDate,
     });
   } catch (error) {
@@ -154,12 +84,12 @@ exports.getFlashcardSessionById = async (req, res) => {
 };
 
 /**
- * Delete a flashcard session by ID
+ * Generate additional flashcards for an existing session
  *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-exports.deleteFlashcardSession = async (req, res) => {
+exports.generateAdditionalFlashcards = async (req, res) => {
   const { id } = req.params; // Flashcard session ID
   const userId = req.user.id;
 
@@ -167,59 +97,110 @@ exports.deleteFlashcardSession = async (req, res) => {
     const db = getDB();
     const flashcardsCollection = db.collection('flashcards');
 
-    // Verify that the session exists and belongs to the user
-    const session = await flashcardsCollection.findOne({ _id: new ObjectId(id), userId: new ObjectId(userId) });
+    // Fetch the session
+    const session = await flashcardsCollection.findOne(
+      { _id: new ObjectId(id), userId: new ObjectId(userId) }
+    );
 
     if (!session) {
       return res.status(404).json({ error: 'Flashcard session not found.' });
     }
 
-    // Delete the session
-    await flashcardsCollection.deleteOne({ _id: new ObjectId(id) });
+    const { transcript, flashcardsJSON } = session;
 
-    res.status(200).json({ message: 'Flashcard session deleted successfully.' });
+    // Prepare data for OpenAI API
+    const existingQuestions = flashcardsJSON.map((card) => card.question);
+
+    // Call OpenAI API to generate new flashcards
+    const newFlashcards = await generateFlashcards(transcript, existingQuestions);
+
+    // Add new flashcards to the session
+    await flashcardsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $push: { flashcardsJSON: { $each: newFlashcards } } }
+    );
+
+    res.status(200).json({ message: 'Additional flashcards generated successfully.', newFlashcards });
   } catch (error) {
-    console.error('Delete Flashcard Session Error:', error);
-    res.status(500).json({ error: 'Server error while deleting flashcard session.' });
+    console.error('Generate Additional Flashcards Error:', error);
+    res.status(500).json({ error: 'Server error while generating additional flashcards.' });
   }
 };
 
 /**
- * Update the name of a flashcard session
+ * Helper function to generate flashcards using OpenAI API
  *
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
+ * @param {string} transcript - The transcript text.
+ * @param {Array} existingQuestions - Array of existing flashcard questions.
+ * @returns {Array} - An array of new flashcards.
  */
-exports.updateFlashcardSessionName = async (req, res) => {
-  const { id } = req.params; // Flashcard session ID
-  const { sessionName } = req.body;
-  const userId = req.user.id;
-
-  // Basic validation
-  if (!sessionName) {
-    return res.status(400).json({ error: 'sessionName is required.' });
+async function generateFlashcards(transcript, existingQuestions) {
+  const openaiApiKey = process.env.OPENAI_API_KEY;
+  if (!openaiApiKey) {
+    throw new Error('OpenAI API key is not configured.');
   }
 
-  try {
-    const db = getDB();
-    const flashcardsCollection = db.collection('flashcards');
+  const prompt = `
+Given the following transcript, generate 10 new study flashcards in JSON format. Do not duplicate any of the existing questions provided.
 
-    // Verify that the session exists and belongs to the user
-    const session = await flashcardsCollection.findOne({ _id: new ObjectId(id), userId: new ObjectId(userId) });
+Transcript:
+${transcript}
 
-    if (!session) {
-      return res.status(404).json({ error: 'Flashcard session not found.' });
+Existing Questions:
+${existingQuestions.join('\n')}
+
+Please provide the flashcards in the following JSON format:
+[
+  {
+    "question": "Question 1",
+    "answer": "Answer 1"
+  },
+  ...
+]
+  `;
+
+  const response = await axios.post(
+    'https://api.openai.com/v1/chat/completions',
+    {
+      model: 'gpt-4', // Use the appropriate model
+      messages: [{ role: 'user', content: prompt.trim() }],
+      max_tokens: 1000,
+      temperature: 0.7,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${openaiApiKey}`,
+      },
     }
+  );
 
-    // Update the session name
-    await flashcardsCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { studySession: sessionName, updatedDate: new Date() } }
-    );
-
-    res.status(200).json({ message: 'Flashcard session name updated successfully.' });
-  } catch (error) {
-    console.error('Update Flashcard Session Name Error:', error);
-    res.status(500).json({ error: 'Server error while updating flashcard session name.' });
+  // Process the response
+  let flashcardsText = response.data.choices[0].message.content.trim();
+  if (flashcardsText.startsWith('```') && flashcardsText.endsWith('```')) {
+    flashcardsText = flashcardsText.slice(3, -3).trim();
   }
-};
+
+  let flashcards;
+  try {
+    flashcards = JSON.parse(flashcardsText);
+  } catch (parseError) {
+    console.error('Error parsing flashcards JSON:', parseError);
+    throw new Error('Failed to parse flashcards JSON.');
+  }
+
+  // Validate the flashcards format
+  if (
+    !Array.isArray(flashcards) ||
+    !flashcards.every(
+      (card) =>
+        typeof card === 'object' &&
+        typeof card.question === 'string' &&
+        typeof card.answer === 'string'
+    )
+  ) {
+    throw new Error('Invalid flashcards format received from OpenAI.');
+  }
+
+  return flashcards;
+}

@@ -1,4 +1,3 @@
-// routes/flashcardsRoutes.js
 const express = require('express');
 const router = express.Router();
 const flashcardsController = require('../controllers/flashcardsController');
@@ -33,5 +32,10 @@ router.delete('/:id', authMiddleware, flashcardsController.deleteFlashcardSessio
 // @desc    Update the name of a flashcard session
 // @access  Private
 router.put('/:id/name', authMiddleware, flashcardsController.updateFlashcardSessionName);
+
+// @route   POST /api/flashcards/:id/generate
+// @desc    Generate additional flashcards for a session
+// @access  Private
+router.post('/:id/generate', authMiddleware, flashcardsController.generateAdditionalFlashcards);
 
 module.exports = router;
