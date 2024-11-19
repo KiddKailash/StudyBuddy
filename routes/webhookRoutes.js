@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { getDB } = require('../utils/db');
+const { ObjectId } = require('mongodb'); // Import ObjectId
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -16,7 +17,11 @@ router.post('/', async (req, res) => {
   try {
     // Stripe expects the raw body to construct the event
     const signature = req.headers['stripe-signature'];
-    event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      endpointSecret
+    );
   } catch (err) {
     console.error(`⚠️ Webhook signature verification failed:`, err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -26,6 +31,29 @@ router.post('/', async (req, res) => {
 
   // Handle the event
   switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object;
+      const customerId = session.customer; // Stripe's customer ID
+      const userId = session.metadata.userId; // Your application's user ID
+
+      console.log(
+        `Checkout session completed for user ${userId} with customer ID ${customerId}`
+      );
+
+      // Update your database to store the stripeCustomerId
+      try {
+        await db.collection('users').updateOne(
+          { _id: new ObjectId(userId) },
+          { $set: { stripeCustomerId: customerId } }
+        );
+      } catch (error) {
+        console.error(`Failed to update user with stripeCustomerId:`, error);
+        return res.status(500).send('Database error');
+      }
+
+      break;
+    }
+
     case 'invoice.payment_succeeded': {
       const invoice = event.data.object;
       const customerId = invoice.customer;
@@ -36,7 +64,12 @@ router.post('/', async (req, res) => {
       try {
         await db.collection('users').updateOne(
           { stripeCustomerId: customerId },
-          { $set: { paymentStatus: 'succeeded', lastInvoice: invoice.id } }
+          {
+            $set: {
+              paymentStatus: 'succeeded',
+              lastInvoice: invoice.id,
+            },
+          }
         );
       } catch (error) {
         console.error(`Failed to update payment status:`, error);
@@ -56,7 +89,12 @@ router.post('/', async (req, res) => {
       try {
         await db.collection('users').updateOne(
           { stripeCustomerId: customerId },
-          { $set: { paymentStatus: 'failed', lastInvoice: invoice.id } }
+          {
+            $set: {
+              paymentStatus: 'failed',
+              lastInvoice: invoice.id,
+            },
+          }
         );
       } catch (error) {
         console.error(`Failed to update payment status:`, error);
@@ -76,7 +114,12 @@ router.post('/', async (req, res) => {
       try {
         await db.collection('users').updateOne(
           { stripeCustomerId: customerId },
-          { $set: { subscriptionStatus: subscription.status, subscriptionId: subscription.id } }
+          {
+            $set: {
+              subscriptionStatus: subscription.status,
+              subscriptionId: subscription.id,
+            },
+          }
         );
       } catch (error) {
         console.error(`Failed to update subscription status:`, error);
@@ -96,7 +139,12 @@ router.post('/', async (req, res) => {
       try {
         await db.collection('users').updateOne(
           { stripeCustomerId: customerId },
-          { $set: { subscriptionStatus: 'canceled', subscriptionId: null } }
+          {
+            $set: {
+              subscriptionStatus: 'canceled',
+              subscriptionId: null,
+            },
+          }
         );
       } catch (error) {
         console.error(`Failed to update subscription status:`, error);
