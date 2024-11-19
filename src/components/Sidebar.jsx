@@ -1,10 +1,13 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import PropTypes from "prop-types";
+import SessionItem from "./SessionItem";
 
-// MUI Component Imports (Imported Separately)
+// Context Imports
+import { UserContext } from "../contexts/UserContext";
+import { SnackbarContext } from "../contexts/SnackbarContext";
+
+// MUI Component Imports
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
@@ -13,7 +16,6 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import CircularProgress from "@mui/material/CircularProgress";
-import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import Dialog from "@mui/material/Dialog";
@@ -23,18 +25,13 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
-// MUI Icon Imports (Imported Separately)
+// MUI Icon Imports
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
-
-// Context Imports
-import { UserContext } from "../contexts/UserContext";
-import { SnackbarContext } from "../contexts/SnackbarContext";
-
-// Optional: Reusable SessionItem Component (Ensure it also uses separate imports)
-import SessionItem from "./SessionItem";
 
 /**
  * Sidebar component that displays study sessions and handles session operations.

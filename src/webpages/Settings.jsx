@@ -11,7 +11,6 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import CircularProgress from "@mui/material/CircularProgress";
 
 const SettingsPage = () => {
   const { user, setUser } = useContext(UserContext);

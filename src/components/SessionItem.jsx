@@ -1,24 +1,18 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-import {
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  IconButton,
-  Menu,
-  MenuItem,
-} from "@mui/material";
+
+// MUI Component Imports
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import IconButton from "@mui/material/IconButton";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
-import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
-import EditRoundedIcon from "@mui/icons-material/EditRounded";
 
 const SessionItem = ({
   session,
   isActive,
   handleMenuOpen,
-  handleDelete,
-  handleRename,
   commonButtonStyles,
 }) => {
   return (
@@ -54,8 +48,6 @@ SessionItem.propTypes = {
   session: PropTypes.object.isRequired,
   isActive: PropTypes.bool.isRequired,
   handleMenuOpen: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
-  handleRename: PropTypes.func.isRequired,
   commonButtonStyles: PropTypes.func.isRequired,
 };
 

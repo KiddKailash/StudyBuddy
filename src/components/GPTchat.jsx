@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// ================================
 // MUI Component Imports
-// ================================
 import Box from "@mui/material/Box";
 import Fab from "@mui/material/Fab";
 import Dialog from "@mui/material/Dialog";

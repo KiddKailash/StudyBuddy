@@ -2,7 +2,13 @@ import React, { useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { UserContext } from "../contexts/UserContext";
 import axios from 'axios';
-import { Typography, Container, Box, Button } from '@mui/material';
+
+// MUI Component Imports
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+
 
 const Success = () => {
   const location = useLocation();

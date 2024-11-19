@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 
-// ================================
 // MUI Component Imports
-// ================================
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
 import Divider from "@mui/material/Divider";

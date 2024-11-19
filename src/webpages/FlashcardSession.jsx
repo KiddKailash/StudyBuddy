@@ -4,9 +4,7 @@ import Flashcard from "../components/Flashcard";
 import { useParams } from "react-router-dom";
 import Footer from "../components/Footer";
 
-// ================================
 // MUI Component Imports
-// ================================
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";

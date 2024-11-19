@@ -2,9 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 
-// ================================
 // MUI Component Imports
-// ================================
 import { useTheme } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 

@@ -1,9 +1,10 @@
 import React, { useReducer, useMemo, createContext, useContext } from "react";
 import PropTypes from "prop-types";
-import {
-  createTheme,
-  ThemeProvider as MuiThemeProvider,
-} from "@mui/material/styles";
+
+// MUI Component Imports
+import createTheme from "@mui/material/styles/createTheme";
+import { ThemeProvider as MuiThemeProvider }from "@mui/material/styles/ThemeProvider";
+
 import CssBaseline from "@mui/material/CssBaseline";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import Button from "@mui/material/Button";

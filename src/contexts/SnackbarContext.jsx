@@ -1,9 +1,7 @@
 import React, { createContext, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 
-// ================================
 // MUI Component Imports
-// ================================
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
