@@ -32,9 +32,18 @@ const SessionItem = ({
       selected={isActive}
       sx={(theme) => ({
         ...commonButtonStyles(theme, isActive),
-        // Show IconButton on hover
+        // Show IconButton on hover or if active
         "&:hover .session-options-button": {
-          display: "flex",
+          visibility: "visible",
+          opacity: 1,
+        },
+        "&:hover": {
+          backgroundColor: theme.palette.action.hover,
+        },
+        "& .session-options-button": {
+          visibility: isActive ? "visible" : "hidden",
+          opacity: isActive ? 1 : 0,
+          transition: "opacity 0.2s, visibility 0.2s",
         },
       })}
     >
@@ -43,7 +52,7 @@ const SessionItem = ({
         primaryTypographyProps={{
           variant: "subtitle2",
         }}
-        sx={{paddingTop: .6, paddingBottom: .6}}
+        sx={{ paddingTop: 0.6, paddingBottom: 0.6 }}
       />
       <IconButton
         edge="end"
@@ -51,7 +60,6 @@ const SessionItem = ({
         onClick={(e) => handleMenuOpen(e, session.id)}
         sx={{
           color: "text.secondary",
-          display: isActive ? "flex" : "none", // Show if active
         }}
         className="session-options-button"
       >
