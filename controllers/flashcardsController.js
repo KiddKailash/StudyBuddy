@@ -11,21 +11,21 @@ const axios = require("axios");
 exports.createFlashcardSession = async (req, res) => {
   const { sessionName, studyCards, transcript } = req.body;
   const userId = req.user.id;
-  const accountType = req.user.accountType || 'free';
+  const accountType = req.user.accountType || "free";
 
   // Basic validation
   if (!sessionName || !Array.isArray(studyCards) || !transcript) {
     return res.status(400).json({
-      error: 'sessionName, studyCards, and transcript are required.',
+      error: "sessionName, studyCards, and transcript are required.",
     });
   }
 
   try {
     const db = getDB();
-    const flashcardsCollection = db.collection('flashcards');
+    const flashcardsCollection = db.collection("flashcards");
 
     // Enforce limit for free users
-    if (accountType === 'free') {
+    if (accountType === "free") {
       const sessionCount = await flashcardsCollection.countDocuments({
         userId: new ObjectId(userId),
       });
@@ -33,7 +33,7 @@ exports.createFlashcardSession = async (req, res) => {
       if (sessionCount >= 2) {
         return res.status(403).json({
           error:
-            'You have reached the maximum number of study sessions allowed for free accounts.',
+            "You have reached the maximum number of study sessions allowed for free accounts.",
         });
       }
     }
@@ -55,14 +55,14 @@ exports.createFlashcardSession = async (req, res) => {
     };
 
     res.status(201).json({
-      message: 'Flashcard session created successfully.',
+      message: "Flashcard session created successfully.",
       flashcard: createdSession,
     });
   } catch (error) {
-    console.error('Create Flashcard Session Error:', error);
+    console.error("Create Flashcard Session Error:", error);
     res
       .status(500)
-      .json({ error: 'Server error while creating flashcard session.' });
+      .json({ error: "Server error while creating flashcard session." });
   }
 };
 
@@ -119,7 +119,7 @@ exports.addFlashcardsToSession = async (req, res) => {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-exports.getUserFlashcards = async (req, res) => {
+exports.getAllFlashcards = async (req, res) => {
   const userId = req.user.id;
 
   try {
@@ -132,7 +132,7 @@ exports.getUserFlashcards = async (req, res) => {
 
     // Map sessions to a cleaner format
     const formattedSessions = sessions.map((session) => ({
-      id: session._id,
+      id: session._id.toString(), // Ensure 'id' is a string
       studySession: session.studySession,
       flashcardsJSON: session.flashcardsJSON,
       transcript: session.transcript,
@@ -141,7 +141,7 @@ exports.getUserFlashcards = async (req, res) => {
 
     res.status(200).json({ flashcards: formattedSessions });
   } catch (error) {
-    console.error("Get User Flashcards Error:", error);
+    console.error("Get All Flashcards Error:", error);
     res
       .status(500)
       .json({ error: "Server error while retrieving flashcards." });
@@ -154,32 +154,42 @@ exports.getUserFlashcards = async (req, res) => {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-exports.getFlashcardSessions = async (req, res) => {
+exports.getFlashcardSessionById = async (req, res) => {
+  const { id } = req.params; // Flashcard session ID
   const userId = req.user.id;
 
   try {
     const db = getDB();
-    const flashcardsCollection = db.collection('flashcards');
+    const flashcardsCollection = db.collection("flashcards");
 
-    const flashcards = await flashcardsCollection
-      .find({ userId: new ObjectId(userId) })
-      .toArray();
+    const session = await flashcardsCollection.findOne(
+      { _id: new ObjectId(id), userId: new ObjectId(userId) },
+      {
+        projection: {
+          flashcardsJSON: 1,
+          studySession: 1,
+          transcript: 1,
+          createdDate: 1,
+        },
+      }
+    );
 
-    // Map each flashcard to include 'id'
-    const mappedFlashcards = flashcards.map((session) => ({
+    if (!session) {
+      return res.status(404).json({ error: "Flashcard session not found." });
+    }
+
+    res.status(200).json({
       id: session._id.toString(),
       studySession: session.studySession,
       flashcardsJSON: session.flashcardsJSON,
       transcript: session.transcript,
       createdDate: session.createdDate,
-    }));
-
-    res.status(200).json({ flashcards: mappedFlashcards });
+    });
   } catch (error) {
-    console.error('Get Flashcard Sessions Error:', error);
+    console.error("Get Flashcard Session By ID Error:", error);
     res
       .status(500)
-      .json({ error: 'Server error while fetching flashcard sessions.' });
+      .json({ error: "Server error while retrieving flashcard session." });
   }
 };
 
@@ -277,22 +287,55 @@ exports.updateFlashcardSessionName = async (req, res) => {
 exports.generateAdditionalFlashcards = async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
-  const accountType = req.user.accountType || 'free';
+  const accountType = req.user.accountType || "free";
 
   // Enforce premium requirement
-  if (accountType === 'free') {
+  if (accountType === "free") {
     return res.status(403).json({
-      error: 'This feature is available for paid accounts only.',
+      error: "This feature is available for paid accounts only.",
     });
   }
 
   try {
-    // Existing code to generate additional flashcards...
+    const db = getDB();
+    const flashcardsCollection = db.collection("flashcards");
+
+    // Verify that the session exists and belongs to the user
+    const session = await flashcardsCollection.findOne({
+      _id: new ObjectId(id),
+      userId: new ObjectId(userId),
+    });
+
+    if (!session) {
+      return res.status(404).json({ error: "Flashcard session not found." });
+    }
+
+    const transcript = session.transcript;
+    const existingQuestions = session.flashcardsJSON.map(
+      (card) => card.question
+    );
+
+    // Generate new flashcards
+    const newFlashcards = await generateFlashcards(
+      transcript,
+      existingQuestions
+    );
+
+    // Update the session by adding new flashcards
+    await flashcardsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $push: { flashcardsJSON: { $each: newFlashcards } } }
+    );
+
+    res.status(200).json({
+      message: "Additional flashcards generated and added successfully.",
+      newFlashcards: newFlashcards,
+    });
   } catch (error) {
-    console.error('Generate Additional Flashcards Error:', error);
-    res
-      .status(500)
-      .json({ error: 'Server error while generating additional flashcards.' });
+    console.error("Generate Additional Flashcards Error:", error);
+    res.status(500).json({
+      error: "Server error while generating additional flashcards.",
+    });
   }
 };
 
@@ -314,13 +357,13 @@ async function generateFlashcards(transcript, existingQuestions) {
     Each flashcard should be an object with "question" and "answer" fields.
     Ensure that the flashcards cover the important information in the transcript.
     Do not duplicate already existing flashcards.
-    
+
     Transcript:
     ${transcript}
 
     Already Existing Flashcards:
     ${existingQuestions.join("\n")}
-    
+
     Please provide the flashcards in the following JSON format:
     [
       {
@@ -343,7 +386,7 @@ async function generateFlashcards(transcript, existingQuestions) {
   const response = await axios.post(
     "https://api.openai.com/v1/chat/completions",
     {
-      model: "gpt-4o-mini", // Use the appropriate model
+      model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt.trim() }],
       max_tokens: 10000,
       temperature: 0.2,
@@ -358,7 +401,10 @@ async function generateFlashcards(transcript, existingQuestions) {
 
   // Process the response
   let flashcardsText = response.data.choices[0].message.content.trim();
-  if (flashcardsText.startsWith("```") && flashcardsText.endsWith("```")) {
+  if (
+    flashcardsText.startsWith("```") &&
+    flashcardsText.endsWith("```")
+  ) {
     flashcardsText = flashcardsText.slice(3, -3).trim();
   }
 
