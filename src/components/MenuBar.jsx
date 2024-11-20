@@ -81,18 +81,20 @@ function MenuBar({ handleDrawerToggle }) {
 
         {/* Left side menu items */}
         <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
-          <MenuItem link="/upgrade" name="Upgrade" />
+          <Button variant="contained" onClick={null}>
+            Upgrade Account
+          </Button>
+          {user && (
+            <Typography variant="body1" sx={{ ml: 2 }}>
+              {getAccountTypeDisplay()}
+            </Typography>
+          )}
           {/* Add more menu items as needed */}
         </Box>
 
         {/* Right side: Subscription status and Logout button */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          {user && (
-            <Typography variant="body1" sx={{ mr: 2 }}>
-              {getAccountTypeDisplay()}
-            </Typography>
-          )}
-          <Button variant="contained" sx={{ ml: 2 }} onClick={handleLogout}>
+          <Button variant="text" sx={{ ml: 2 }} onClick={handleLogout}>
             Log Out
           </Button>
         </Box>

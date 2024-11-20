@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
-import Flashcard from '../components/Flashcard';
-import { useParams, Link } from 'react-router-dom';
-import Footer from '../components/Footer';
-import { UserContext } from '../contexts/UserContext';
+import React, { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import Flashcard from "../components/Flashcard";
+import { useParams, Link } from "react-router-dom";
+import Footer from "../components/Footer";
+import { UserContext } from "../contexts/UserContext";
 
 // MUI Component Imports
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import CircularProgress from '@mui/material/CircularProgress';
-import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
 
 // Context Import
-import { SnackbarContext } from '../contexts/SnackbarContext';
+import { SnackbarContext } from "../contexts/SnackbarContext";
 
 const FlashcardSession = () => {
   const { id } = useParams(); // Study session ID from URL
@@ -22,7 +22,7 @@ const FlashcardSession = () => {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false); // New state for generating flashcards
   const { user } = useContext(UserContext); // Access user object
-  const accountType = user?.accountType || 'free'; // Default to 'free'
+  const accountType = user?.accountType || "free"; // Default to 'free'
 
   // Access the Snackbar context
   const { showSnackbar } = useContext(SnackbarContext);
@@ -34,9 +34,9 @@ const FlashcardSession = () => {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        throw new Error('User is not authenticated.');
+        throw new Error("User is not authenticated.");
       }
 
       const response = await axios.get(
@@ -50,12 +50,12 @@ const FlashcardSession = () => {
 
       setSession(response.data);
     } catch (err) {
-      console.error('Error fetching session:', err);
+      console.error("Error fetching session:", err);
       showSnackbar(
         err.response?.data?.error ||
           err.message ||
-          'An error occurred while fetching the session.',
-        'error'
+          "An error occurred while fetching the session.",
+        "error"
       );
     } finally {
       setLoading(false);
@@ -66,10 +66,10 @@ const FlashcardSession = () => {
    * Handles generating additional flashcards.
    */
   const handleGenerateMoreFlashcards = async () => {
-    if (accountType === 'free') {
+    if (accountType === "free") {
       showSnackbar(
-        'Generating more flashcards is a premium feature. Upgrade to access this feature.',
-        'info'
+        "Generating more flashcards is a premium feature. Upgrade to access this feature.",
+        "info"
       );
       return;
     }
@@ -77,14 +77,16 @@ const FlashcardSession = () => {
     setGenerating(true);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        throw new Error('User is not authenticated.');
+        throw new Error("User is not authenticated.");
       }
 
       // Call the backend API to generate additional flashcards
       const response = await axios.post(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${id}/generate`,
+        `${
+          import.meta.env.VITE_LOCAL_BACKEND_URL
+        }/api/flashcards/${id}/generate`,
         {},
         {
           headers: {
@@ -93,17 +95,17 @@ const FlashcardSession = () => {
         }
       );
 
-      showSnackbar('Additional flashcards generated successfully.', 'success');
+      showSnackbar("Additional flashcards generated successfully.", "success");
 
       // Fetch the updated session data
       await fetchSession();
     } catch (err) {
-      console.error('Error generating additional flashcards:', err);
+      console.error("Error generating additional flashcards:", err);
       showSnackbar(
         err.response?.data?.error ||
           err.message ||
-          'An error occurred while generating additional flashcards.',
-        'error'
+          "An error occurred while generating additional flashcards.",
+        "error"
       );
     } finally {
       setGenerating(false);
@@ -118,31 +120,45 @@ const FlashcardSession = () => {
   return (
     <Container sx={{ mt: 2, mb: 2 }}>
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <CircularProgress />
         </Box>
       ) : session ? (
         <>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              mb: 2,
+              justifyContent: "left",
+              textAlign: "left",
+            }}
+          >
             <Button
-              variant="contained"
+              variant="outlined"
               onClick={handleGenerateMoreFlashcards}
               disabled={generating}
             >
               {generating
-                ? 'Generating...'
-                : accountType === 'free'
-                ? 'Generate More Flashcards'
-                : 'Generate More Flashcards'}
+                ? "Generating..."
+                : accountType === "free"
+                ? "+10 More Flashcards"
+                : "+10 More Flashcards"}
             </Button>
-          </Box>
 
-          {accountType === 'free' && (
-            <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
-              Want to generate more flashcards?{' '}
-              <Link to="/upgrade">Upgrade to premium</Link> to unlock this feature.
-            </Typography>
-          )}
+            {accountType === "free" && (
+              <>
+                <Box sx={{marginLeft: 2, marginTop: 1.3}}>
+                  <Typography variant="body1" color="textSecondary">
+                    Want to generate more flashcards?
+                  </Typography>
+                  <Typography sx={{ mb: 2 }}>
+                    <Link to="/upgrade">Upgrade to premium</Link> to unlock this
+                    feature.
+                  </Typography>
+                </Box>
+              </>
+            )}
+          </Box>
 
           {session.flashcardsJSON.length === 0 ? (
             <Typography>No flashcards in this session.</Typography>
