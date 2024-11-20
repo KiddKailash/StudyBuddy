@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-import { redirectToStripeCheckout } from '../utils/redirectToStripeCheckout';
+import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 
 // MUI Component Imports
@@ -72,19 +72,30 @@ function MenuBar({ handleDrawerToggle }) {
         }}
       >
         {/* Menu Icon for Mobile */}
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          edge="start"
-          onClick={handleDrawerToggle}
-          sx={{ mr: 2, display: { sm: "none" } }}
-        >
-          <MenuIcon />
-        </IconButton>
+        <Box sx={{ display: { sm: "none" }, alignItems: "left" }}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2}}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Button
+            variant="contained"
+            onClick={() => redirectToStripeCheckout("paid", showSnackbar)}
+          >
+            Upgrade Account
+          </Button>
+        </Box>
 
         {/* Left side menu items */}
         <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
-          <Button variant="contained" onClick={() => redirectToStripeCheckout("paid", showSnackbar)}>
+          <Button
+            variant="contained"
+            onClick={() => redirectToStripeCheckout("paid", showSnackbar)}
+          >
             Upgrade Account
           </Button>
           {user && (
