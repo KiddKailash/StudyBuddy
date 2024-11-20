@@ -181,16 +181,16 @@ function App() {
           </Box>
 
           {/* GPT Chat */}
-          <Box
+          {/* <Box
             sx={{
-              position: "fixed",
-              bottom: "0",
-              right: "0",
-              zIndex: 100, // Lower z-index
+              // position: "fixed",
+              // bottom: "0",
+              // right: "0",
+              // zIndex: 100, // Lower z-index
             }}
           >
             <GPTchat />
-          </Box>
+          </Box> */}
         </>
       )}
     </>
