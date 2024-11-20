@@ -11,7 +11,7 @@ const axios = require("axios");
 exports.createFlashcardSession = async (req, res) => {
   const { sessionName, studyCards, transcript } = req.body;
   const userId = req.user.id;
-  const accountType = req.user.accountType || 'free'; // Default to 'free' if undefined
+  const accountType = req.user.accountType || 'free';
 
   // Basic validation
   if (!sessionName || !Array.isArray(studyCards) || !transcript) {
@@ -48,15 +48,15 @@ exports.createFlashcardSession = async (req, res) => {
 
     const result = await flashcardsCollection.insertOne(newSession);
 
+    // Include 'id' alongside '_id' for frontend consistency
+    const createdSession = {
+      id: result.insertedId.toString(),
+      ...newSession,
+    };
+
     res.status(201).json({
       message: 'Flashcard session created successfully.',
-      flashcard: {
-        id: result.insertedId.toString(),
-        studySession: newSession.studySession,
-        flashcardsJSON: newSession.flashcardsJSON,
-        transcript: newSession.transcript,
-        createdDate: newSession.createdDate,
-      },
+      flashcard: createdSession,
     });
   } catch (error) {
     console.error('Create Flashcard Session Error:', error);
