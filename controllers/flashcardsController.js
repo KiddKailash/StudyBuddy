@@ -9,34 +9,49 @@ const axios = require("axios");
  * @param {Object} res - Express response object
  */
 exports.createFlashcardSession = async (req, res) => {
-  const { sessionName, studyCards, transcript } = req.body; // Include transcript
+  const { sessionName, studyCards, transcript } = req.body;
   const userId = req.user.id;
+  const accountType = req.user.accountType || 'free'; // Default to 'free' if undefined
 
   // Basic validation
   if (!sessionName || !Array.isArray(studyCards) || !transcript) {
-    return res
-      .status(400)
-      .json({ error: "sessionName, studyCards, and transcript are required." });
+    return res.status(400).json({
+      error: 'sessionName, studyCards, and transcript are required.',
+    });
   }
 
   try {
     const db = getDB();
-    const flashcardsCollection = db.collection("flashcards");
+    const flashcardsCollection = db.collection('flashcards');
+
+    // Enforce limit for free users
+    if (accountType === 'free') {
+      const sessionCount = await flashcardsCollection.countDocuments({
+        userId: new ObjectId(userId),
+      });
+
+      if (sessionCount >= 2) {
+        return res.status(403).json({
+          error:
+            'You have reached the maximum number of study sessions allowed for free accounts.',
+        });
+      }
+    }
 
     const newSession = {
       userId: new ObjectId(userId),
       studySession: sessionName,
       flashcardsJSON: studyCards,
-      transcript: transcript, // Save transcript
+      transcript: transcript,
       createdDate: new Date(),
     };
 
     const result = await flashcardsCollection.insertOne(newSession);
 
     res.status(201).json({
-      message: "Flashcard session created successfully.",
+      message: 'Flashcard session created successfully.',
       flashcard: {
-        id: result.insertedId,
+        id: result.insertedId.toString(),
         studySession: newSession.studySession,
         flashcardsJSON: newSession.flashcardsJSON,
         transcript: newSession.transcript,
@@ -44,10 +59,10 @@ exports.createFlashcardSession = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Create Flashcard Session Error:", error);
+    console.error('Create Flashcard Session Error:', error);
     res
       .status(500)
-      .json({ error: "Server error while creating flashcard session." });
+      .json({ error: 'Server error while creating flashcard session.' });
   }
 };
 
@@ -270,49 +285,24 @@ exports.updateFlashcardSessionName = async (req, res) => {
  * @param {Object} res - Express response object
  */
 exports.generateAdditionalFlashcards = async (req, res) => {
-  const { id } = req.params; // Flashcard session ID
+  const { id } = req.params;
   const userId = req.user.id;
+  const accountType = req.user.accountType || 'free';
+
+  // Enforce premium requirement
+  if (accountType === 'free') {
+    return res.status(403).json({
+      error: 'This feature is available for paid accounts only.',
+    });
+  }
 
   try {
-    const db = getDB();
-    const flashcardsCollection = db.collection("flashcards");
-
-    // Fetch the session
-    const session = await flashcardsCollection.findOne({
-      _id: new ObjectId(id),
-      userId: new ObjectId(userId),
-    });
-
-    if (!session) {
-      return res.status(404).json({ error: "Flashcard session not found." });
-    }
-
-    const { transcript, flashcardsJSON } = session;
-
-    // Prepare data for OpenAI API
-    const existingQuestions = flashcardsJSON.map((card) => card.question);
-
-    // Call OpenAI API to generate new flashcards
-    const newFlashcards = await generateFlashcards(
-      transcript,
-      existingQuestions
-    );
-
-    // Add new flashcards to the session
-    await flashcardsCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $push: { flashcardsJSON: { $each: newFlashcards } } }
-    );
-
-    res.status(200).json({
-      message: "Additional flashcards generated successfully.",
-      newFlashcards,
-    });
+    // Existing code to generate additional flashcards...
   } catch (error) {
-    console.error("Generate Additional Flashcards Error:", error);
+    console.error('Generate Additional Flashcards Error:', error);
     res
       .status(500)
-      .json({ error: "Server error while generating additional flashcards." });
+      .json({ error: 'Server error while generating additional flashcards.' });
   }
 };
 

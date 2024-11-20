@@ -9,29 +9,42 @@ require('dotenv').config();
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
  */
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
+const authMiddleware = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-  // Check if Authorization header is present
-  if (!authHeader) {
-    return res.status(401).json({ error: 'Authorization header missing.' });
-  }
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7, authHeader.length);
 
-  const token = authHeader.split(' ')[1]; // Expected format: Bearer <token>
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const db = getDB();
+      const usersCollection = db.collection('users');
 
-  if (!token) {
-    return res.status(401).json({ error: 'Token missing from Authorization header.' });
-  }
+      // Fetch user details including accountType
+      const user = await usersCollection.findOne(
+        { _id: new ObjectId(decoded.id) },
+        { projection: { password: 0 } } // Exclude password
+      );
 
-  // Verify JWT token
-  jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
-    if (err) {
-      console.error('JWT Verification Error:', err);
-      return res.status(403).json({ error: 'Invalid or expired token.' });
+      if (!user) {
+        return res.status(401).json({ error: 'User not found.' });
+      }
+
+      req.user = {
+        id: user._id,
+        email: user.email,
+        accountType: user.accountType || 'free', // Include accountType
+        // Include other necessary fields
+      };
+
+      next();
+    } catch (err) {
+      console.error('Auth Middleware Error:', err);
+      res.status(401).json({ error: 'Invalid token.' });
     }
-    req.user = decodedToken; // Attach decoded token payload to request
-    next();
-  });
+  } else {
+    res.status(401).json({ error: 'No token provided.' });
+  }
 };
 
 module.exports = authMiddleware;
