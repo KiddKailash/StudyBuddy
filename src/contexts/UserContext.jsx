@@ -68,7 +68,7 @@ export const UserProvider = ({ children }) => {
           },
         }
       );
-      setFlashcardSessions(response.data.flashcards);
+      setFlashcardSessions(response.data.flashcards); // flashcards already include 'id'
     } catch (error) {
       console.error("Error fetching flashcard sessions:", error);
       if (error.response && error.response.status === 401) {
@@ -87,13 +87,14 @@ export const UserProvider = ({ children }) => {
    * Creates a new flashcard session.
    * @param {string} sessionName - Name of the session.
    * @param {Array} studyCards - Array of study cards.
+   * @param {string} transcriptText - The transcript used to generate flashcards.
    * @returns {Object|null} - The created flashcard session or null if failed.
    */
-  const createFlashcardSession = async (sessionName, studyCards) => {
+  const createFlashcardSession = async (sessionName, studyCards, transcriptText) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
-        { sessionName, studyCards },
+        { sessionName, studyCards, transcript: transcriptText }, // Include transcript
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -189,9 +190,7 @@ export const UserProvider = ({ children }) => {
   const updateFlashcardSessionName = async (sessionId, newName) => {
     try {
       await axios.put(
-        `${
-          import.meta.env.VITE_LOCAL_BACKEND_URL
-        }/api/flashcards/${sessionId}/name`,
+        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${sessionId}/name`,
         { sessionName: newName },
         {
           headers: {
@@ -246,6 +245,7 @@ export const UserProvider = ({ children }) => {
         flashcardSessions,
         loadingSessions,
         flashcardError,
+        setFlashcardSessions,
         createFlashcardSession,
         addFlashcardsToSession,
         getFlashcardSessionById,

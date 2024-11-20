@@ -23,7 +23,7 @@ const StudySession = () => {
   const [pastedText, setPastedText] = useState('');
   const [loadingTranscript, setLoadingTranscript] = useState(false);
 
-  const { user, flashcardSessions } = useContext(UserContext); // Include flashcardSessions
+  const { user, flashcardSessions, setFlashcardSessions } = useContext(UserContext); // Include flashcardSessions
   const accountType = user?.accountType || 'free';
 
   const { showSnackbar } = useContext(SnackbarContext);
@@ -122,6 +122,7 @@ const StudySession = () => {
       );
 
       if (newSession) {
+        setFlashcardSessions((prev) => [...prev, newSession])
         navigate(`/flashcards/${newSession.id}`);
         showSnackbar('Flashcards created successfully.', 'success');
       } else {
