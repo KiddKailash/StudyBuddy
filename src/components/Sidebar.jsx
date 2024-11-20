@@ -97,9 +97,7 @@ const Sidebar = ({
     mr: 0.5,
     ml: 0.5,
     borderRadius: 3,
-    backgroundColor: isActive
-      ? theme.palette.action.selected
-      : "transparent",
+    backgroundColor: isActive ? theme.palette.action.selected : "transparent",
     "&.Mui-selected": {
       backgroundColor: theme.palette.action.selected,
     },
@@ -245,13 +243,13 @@ const Sidebar = ({
                 onClick={isMobile ? handleDrawerToggle : undefined} // Close drawer on mobile
               >
                 <ListItemText
-                  primary="Create study session"
+                  primary="Create a study session"
                   primaryTypographyProps={{
                     variant: "subtitle2",
                   }}
                 />
                 <AddRoundedIcon
-                  sx={{ ml: 1, color: theme.palette.text.secondary }}
+                  sx={{ color: theme.palette.text.secondary }}
                 />
               </ListItemButton>
             </ListItem>

@@ -50,7 +50,7 @@ function App() {
 
   const pages = [
     { path: "/", component: <StudySession /> }, // Default route
-    { path: "/upgrade", component: <UpgradeSubscription /> },
+    // { path: "/upgrade", component: <UpgradeSubscription /> },
     { path: "/flashcards/:id", component: <FlashcardSession /> }, // Specific Flashcard Session
     { path: "/login", component: <LoginPage /> }, // Login Page
     { path: "/settings", component: <SettingsPage /> }, // Settings Page

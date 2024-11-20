@@ -2,6 +2,8 @@ import React, { useContext } from "react";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
+import { redirectToStripeCheckout } from '../utils/redirectToStripeCheckout';
+import { SnackbarContext } from "../contexts/SnackbarContext";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -26,6 +28,7 @@ function MenuBar({ handleDrawerToggle }) {
   const { user, resetUserContext, setUser } = useContext(UserContext);
   const navigate = useNavigate();
   const theme = useTheme(); // Access the current theme settings
+  const { showSnackbar } = useContext(SnackbarContext);
 
   /**
    * Handles the logout process.
@@ -81,7 +84,7 @@ function MenuBar({ handleDrawerToggle }) {
 
         {/* Left side menu items */}
         <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
-          <Button variant="contained" onClick={null}>
+          <Button variant="contained" onClick={() => redirectToStripeCheckout("paid", showSnackbar)}>
             Upgrade Account
           </Button>
           {user && (
