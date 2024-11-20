@@ -4,13 +4,14 @@ import Flashcard from "../components/Flashcard";
 import { useParams, Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import { UserContext } from "../contexts/UserContext";
+import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import Button from "@mui/material/Button";
 
 // Context Import
@@ -86,7 +87,7 @@ const FlashcardSession = () => {
       const response = await axios.post(
         `${
           import.meta.env.VITE_LOCAL_BACKEND_URL
-        }/api/flashcards/${id}/generate`,
+        }/api/flashcards/${id}/generate-additional-flashcards`,
         {},
         {
           headers: {
@@ -147,13 +148,19 @@ const FlashcardSession = () => {
 
             {accountType === "free" && (
               <>
-                <Box sx={{marginLeft: 2, marginTop: 1.3}}>
+                <Box sx={{ marginLeft: 2}}>
                   <Typography variant="body1" color="textSecondary">
                     Want to generate more flashcards?
                   </Typography>
-                  <Typography sx={{ mb: 2 }}>
-                    <Link to="/upgrade">Upgrade to premium</Link> to unlock this
-                    feature.
+                  <Typography>
+                    <Link
+                      onClick={() =>
+                        redirectToStripeCheckout("paid", showSnackbar)
+                      }
+                    >
+                      Upgrade your account
+                    </Link>{" "}
+                    to unlock this feature.
                   </Typography>
                 </Box>
               </>
@@ -165,7 +172,7 @@ const FlashcardSession = () => {
           ) : (
             <Grid container spacing={2}>
               {session.flashcardsJSON.map((card, index) => (
-                <Grid item xs={12} sm={6} md={6} xl={4} key={index}>
+                <Grid size={{ xs: 12, sm: 6, md: 6, xl: 4 }} key={index}>
                   <Flashcard question={card.question} answer={card.answer} />
                 </Grid>
               ))}

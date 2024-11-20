@@ -97,7 +97,7 @@ function App() {
             component="nav"
             sx={{
               position: "fixed",
-              top: menubarHeight,
+              top: `calc(menubarHeight-5)`,
               left: 0,
               width: isExpanded ? sidebarWidth : 0,
               height: `calc(100vh - ${menubarHeight})`,

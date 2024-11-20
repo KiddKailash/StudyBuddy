@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
+import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -278,7 +279,7 @@ const StudySession = () => {
             free account.
           </Typography>
           <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
-            <Link to="/upgrade">Upgrade the account</Link> to create more
+          <Link onClick={() => redirectToStripeCheckout("paid", showSnackbar)}>Upgrade your account</Link> to create more
             sessions.
           </Typography>
         </>
