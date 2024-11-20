@@ -1,49 +1,62 @@
 const jwt = require('jsonwebtoken');
+const { getDB } = require('../utils/db'); // Adjust the path as necessary
+const { ObjectId } = require('mongodb');
 require('dotenv').config();
 
 /**
  * Authentication middleware to verify JWT tokens.
- * Adds the user payload to the request object if valid.
+ * Fetches user details from the database and adds it to req.user.
  *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
  */
 const authMiddleware = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const authHeader = req.headers['authorization'];
 
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7, authHeader.length);
+  // Check if Authorization header is present
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Authorization header missing.' });
+  }
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const db = getDB();
-      const usersCollection = db.collection('users');
+  const token = authHeader.split(' ')[1]; // Expected format: Bearer <token>
 
-      // Fetch user details including accountType
-      const user = await usersCollection.findOne(
-        { _id: new ObjectId(decoded.id) },
-        { projection: { password: 0 } } // Exclude password
-      );
+  if (!token) {
+    return res.status(401).json({ error: 'Token missing from Authorization header.' });
+  }
 
-      if (!user) {
-        return res.status(401).json({ error: 'User not found.' });
-      }
+  try {
+    // Verify JWT token
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
 
-      req.user = {
-        id: user._id,
-        email: user.email,
-        accountType: user.accountType || 'free', // Include accountType
-        // Include other necessary fields
-      };
+    // Fetch user details from the database
+    const db = getDB();
+    const usersCollection = db.collection('users');
 
-      next();
-    } catch (err) {
-      console.error('Auth Middleware Error:', err);
-      res.status(401).json({ error: 'Invalid token.' });
+    const user = await usersCollection.findOne(
+      { _id: new ObjectId(userId) },
+      { projection: { password: 0 } } // Exclude password
+    );
+
+    if (!user) {
+      return res.status(401).json({ error: 'User not found.' });
     }
-  } else {
-    res.status(401).json({ error: 'No token provided.' });
+
+    // Attach user details to req.user
+    req.user = {
+      id: user._id.toString(),
+      email: user.email,
+      accountType: user.accountType || 'free', // Include accountType
+      firstName: user.firstName,
+      lastName: user.lastName,
+      // Include any other necessary fields
+    };
+
+    next();
+  } catch (err) {
+    console.error('JWT Verification Error:', err);
+    return res.status(403).json({ error: 'Invalid or expired token.' });
   }
 };
 
