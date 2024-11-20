@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { getDB } = require('../utils/db'); // Adjust the path as necessary
+const { getDB } = require('../utils/db');
 const { ObjectId } = require('mongodb');
 require('dotenv').config();
 
@@ -47,10 +47,9 @@ const authMiddleware = async (req, res, next) => {
     req.user = {
       id: user._id.toString(),
       email: user.email,
-      accountType: user.accountType || 'free', // Include accountType
+      accountType: user.accountType || 'free',
       firstName: user.firstName,
       lastName: user.lastName,
-      // Include any other necessary fields
     };
 
     next();

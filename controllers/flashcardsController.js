@@ -4,9 +4,6 @@ const axios = require("axios");
 
 /**
  * Create a new flashcard session
- *
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
  */
 exports.createFlashcardSession = async (req, res) => {
   const { sessionName, studyCards, transcript } = req.body;
@@ -48,7 +45,7 @@ exports.createFlashcardSession = async (req, res) => {
 
     const result = await flashcardsCollection.insertOne(newSession);
 
-    // Include 'id' alongside '_id' for frontend consistency
+    // Include 'id' in the response for frontend consistency
     const createdSession = {
       id: result.insertedId.toString(),
       ...newSession,
@@ -68,12 +65,9 @@ exports.createFlashcardSession = async (req, res) => {
 
 /**
  * Add flashcards to an existing session
- *
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
  */
 exports.addFlashcardsToSession = async (req, res) => {
-  const { id } = req.params; // Flashcard session ID
+  const { id } = req.params;
   const { studyCards } = req.body;
   const userId = req.user.id;
 
@@ -115,9 +109,6 @@ exports.addFlashcardsToSession = async (req, res) => {
 
 /**
  * Retrieve all flashcard sessions for the logged-in user
- *
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
  */
 exports.getAllFlashcards = async (req, res) => {
   const userId = req.user.id;
@@ -132,7 +123,7 @@ exports.getAllFlashcards = async (req, res) => {
 
     // Map sessions to a cleaner format
     const formattedSessions = sessions.map((session) => ({
-      id: session._id.toString(), // Ensure 'id' is a string
+      id: session._id.toString(),
       studySession: session.studySession,
       flashcardsJSON: session.flashcardsJSON,
       transcript: session.transcript,
@@ -150,12 +141,9 @@ exports.getAllFlashcards = async (req, res) => {
 
 /**
  * Retrieve a single flashcard session by ID
- *
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
  */
 exports.getFlashcardSessionById = async (req, res) => {
-  const { id } = req.params; // Flashcard session ID
+  const { id } = req.params;
   const userId = req.user.id;
 
   try {
@@ -200,7 +188,7 @@ exports.getFlashcardSessionById = async (req, res) => {
  * @param {Object} res - Express response object
  */
 exports.deleteFlashcardSession = async (req, res) => {
-  const { id } = req.params; // Flashcard session ID
+  const { id } = req.params;
   const userId = req.user.id;
 
   try {
@@ -238,7 +226,7 @@ exports.deleteFlashcardSession = async (req, res) => {
  * @param {Object} res - Express response object
  */
 exports.updateFlashcardSessionName = async (req, res) => {
-  const { id } = req.params; // Flashcard session ID
+  const { id } = req.params;
   const { sessionName } = req.body;
   const userId = req.user.id;
 
