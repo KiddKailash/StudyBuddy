@@ -154,42 +154,32 @@ exports.getUserFlashcards = async (req, res) => {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-exports.getFlashcardSessionById = async (req, res) => {
-  const { id } = req.params; // Flashcard session ID
+exports.getFlashcardSessions = async (req, res) => {
   const userId = req.user.id;
 
   try {
     const db = getDB();
-    const flashcardsCollection = db.collection("flashcards");
+    const flashcardsCollection = db.collection('flashcards');
 
-    const session = await flashcardsCollection.findOne(
-      { _id: new ObjectId(id), userId: new ObjectId(userId) },
-      {
-        projection: {
-          flashcardsJSON: 1,
-          studySession: 1,
-          transcript: 1,
-          createdDate: 1,
-        },
-      }
-    );
+    const flashcards = await flashcardsCollection
+      .find({ userId: new ObjectId(userId) })
+      .toArray();
 
-    if (!session) {
-      return res.status(404).json({ error: "Flashcard session not found." });
-    }
-
-    res.status(200).json({
-      id: session._id,
+    // Map each flashcard to include 'id'
+    const mappedFlashcards = flashcards.map((session) => ({
+      id: session._id.toString(),
       studySession: session.studySession,
       flashcardsJSON: session.flashcardsJSON,
       transcript: session.transcript,
       createdDate: session.createdDate,
-    });
+    }));
+
+    res.status(200).json({ flashcards: mappedFlashcards });
   } catch (error) {
-    console.error("Get Flashcard Session By ID Error:", error);
+    console.error('Get Flashcard Sessions Error:', error);
     res
       .status(500)
-      .json({ error: "Server error while retrieving flashcard session." });
+      .json({ error: 'Server error while fetching flashcard sessions.' });
   }
 };
 
