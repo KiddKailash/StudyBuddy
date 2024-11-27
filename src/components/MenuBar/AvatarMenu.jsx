@@ -8,9 +8,11 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
-import SettingsIcon from "@mui/icons-material/Settings";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
 import { getAvatarColor, getUserInitials } from "./menubarUtils";
+
+import SettingsIcon from "@mui/icons-material/Settings";
+import ExitToAppRoundedIcon from "@mui/icons-material/ExitToAppRounded";
 
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
@@ -107,6 +109,7 @@ const AvatarMenu = ({ user, onLogout }) => {
         </MenuItem>
         <Divider />
         <MenuItem onClick={onLogout}>
+          <ExitToAppRoundedIcon fontSize="small" color='error' sx={{ mr: 1 }} />
           <Typography variant="inherit" color="error">
             {t("log_out")}
           </Typography>
