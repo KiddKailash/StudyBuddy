@@ -12,6 +12,9 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
 import { getAvatarColor, getUserInitials } from "./menubarUtils";
 
+// Import the useTranslation hook
+import { useTranslation } from "react-i18next";
+
 /**
  * AvatarMenu component handles the user avatar and dropdown menu.
  *
@@ -25,6 +28,9 @@ const AvatarMenu = ({ user, onLogout }) => {
   const { showSnackbar } = useContext(SnackbarContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   /**
    * Opens the avatar menu.
@@ -97,12 +103,12 @@ const AvatarMenu = ({ user, onLogout }) => {
       >
         <MenuItem component={Link} to="/settings">
           <SettingsIcon fontSize="small" sx={{ mr: 1 }} />
-          Settings
+          {t("settings")}
         </MenuItem>
         <Divider />
         <MenuItem onClick={onLogout}>
           <Typography variant="inherit" color="error">
-            Log Out
+            {t("log_out")}
           </Typography>
         </MenuItem>
       </Menu>

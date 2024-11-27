@@ -6,8 +6,14 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
+// Import the useTranslation hook
+import { useTranslation } from 'react-i18next';
+
 const PageNotFound = () => {
   const navigate = useNavigate();
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -17,11 +23,10 @@ const PageNotFound = () => {
       }}
     >
       <Typography variant="body1" color="error">
-        404: Page Not Found
+        {t('404_page_not_found')}
       </Typography>
       <Typography variant="body2" sx={{ marginTop: 2 }}>
-        Sorry, the page you are looking for does not exist. Please check that
-        you have the correct URL.
+        {t('page_not_found_message')}
       </Typography>
       <Button
         variant="contained"
@@ -29,7 +34,7 @@ const PageNotFound = () => {
         sx={{ marginTop: 4 }}
         onClick={() => navigate("/")}
       >
-        Go to Landing Page
+        {t('go_to_landing_page')}
       </Button>
     </Box>
   );

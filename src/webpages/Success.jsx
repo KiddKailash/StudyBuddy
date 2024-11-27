@@ -9,10 +9,16 @@ import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 
+// Import the useTranslation hook
+import { useTranslation } from 'react-i18next';
+
 const Success = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -51,14 +57,14 @@ const Success = () => {
     <Container maxWidth="sm" sx={{ mt: 10, textAlign: 'center' }}>
       <Box>
         <Typography variant="h4" gutterBottom>
-          Thank You for Your Purchase!
+          {t('thank_you_for_purchase')}
         </Typography>
         <Typography variant="body1">
-          Your subscription has been successfully upgraded.
+          {t('subscription_upgraded_successfully')}
         </Typography>
         <Box sx={{ mt: 4 }}>
           <Button variant="contained" color="primary" onClick={() => navigate('/')}>
-            Go to Dashboard
+            {t('go_to_dashboard')}
           </Button>
         </Box>
       </Box>

@@ -7,21 +7,27 @@ import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 
+// Import the useTranslation hook
+import { useTranslation } from 'react-i18next';
+
 const Cancel = () => {
   const navigate = useNavigate();
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   return (
     <Container maxWidth="sm" sx={{ mt: 10, textAlign: 'center' }}>
       <Box>
         <Typography variant="h4" gutterBottom>
-          Payment Canceled
+          {t('payment_canceled')}
         </Typography>
         <Typography variant="body1">
-          Your payment was canceled. If this was a mistake, please try again.
+          {t('payment_canceled_message')}
         </Typography>
         <Box sx={{ mt: 4 }}>
           <Button variant="contained" color="primary" onClick={() => navigate('/')}>
-            Go to Home
+            {t('go_to_home')}
           </Button>
         </Box>
       </Box>

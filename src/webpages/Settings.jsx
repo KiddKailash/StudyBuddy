@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 import axios from "axios";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 // MUI Component Imports
 import Container from "@mui/material/Container";
@@ -12,9 +13,15 @@ import Button from "@mui/material/Button";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 
+// Import the useTranslation hook
+import { useTranslation } from 'react-i18next';
+
 const SettingsPage = () => {
   const { user, setUser } = useContext(UserContext);
   const { showSnackbar } = useContext(SnackbarContext);
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   // State for Account Information
   const [firstName, setFirstName] = useState(user?.firstName || "");
@@ -23,7 +30,9 @@ const SettingsPage = () => {
   const [company, setCompany] = useState(user?.company || "");
 
   // State for Preferences
-  const [darkMode, setDarkMode] = useState(user?.preferences?.darkMode || false);
+  const [darkMode, setDarkMode] = useState(
+    user?.preferences?.darkMode || false
+  );
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     user?.preferences?.notificationsEnabled || false
   );
@@ -55,11 +64,11 @@ const SettingsPage = () => {
       );
 
       setUser(response.data.user);
-      showSnackbar("Account information updated successfully.", "success");
+      showSnackbar(t("account_info_updated_success"), "success");
     } catch (err) {
       console.error("Error updating account information:", err);
       showSnackbar(
-        err.response?.data?.error || "Failed to update account information.",
+        err.response?.data?.error || t("failed_to_update_account_info"),
         "error"
       );
     } finally {
@@ -75,7 +84,7 @@ const SettingsPage = () => {
     setLoading(true);
 
     if (newPassword !== confirmPassword) {
-      showSnackbar("New password and confirm password do not match.", "error");
+      showSnackbar(t("password_mismatch"), "error");
       setLoading(false);
       return;
     }
@@ -91,14 +100,14 @@ const SettingsPage = () => {
         }
       );
 
-      showSnackbar("Password changed successfully.", "success");
+      showSnackbar(t("password_changed_success"), "success");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
       console.error("Error changing password:", err);
       showSnackbar(
-        err.response?.data?.error || "Failed to change password.",
+        err.response?.data?.error || t("failed_to_change_password"),
         "error"
       );
     } finally {
@@ -129,11 +138,11 @@ const SettingsPage = () => {
       );
 
       setUser(response.data.user);
-      showSnackbar("Preferences updated successfully.", "success");
+      showSnackbar(t("preferences_updated_success"), "success");
     } catch (err) {
       console.error("Error updating preferences:", err);
       showSnackbar(
-        err.response?.data?.error || "Failed to update preferences.",
+        err.response?.data?.error || t("failed_to_update_preferences"),
         "error"
       );
     } finally {
@@ -142,18 +151,24 @@ const SettingsPage = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 5 }}>
-      <Typography variant="h4" gutterBottom>
-        Account Settings
-      </Typography>
+    <Container maxWidth="md" sx={{ mt: 5, alignContent: 'inherit', alignItems: 'inherit' }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          {t("change_language")}
+        </Typography>
+        <LanguageSwitcher />
+      </Box>
 
       {/* Account Information Form */}
+      <Typography variant="h4" gutterBottom>
+        {t("account_settings")}
+      </Typography>
       <Box component="form" onSubmit={handleAccountInfoSubmit} sx={{ mb: 4 }}>
         <Typography variant="h6" gutterBottom>
-          Account Information
+          {t("account_information")}
         </Typography>
         <TextField
-          label="First Name"
+          label={t("first_name")}
           variant="outlined"
           fullWidth
           sx={{ mb: 2 }}
@@ -162,7 +177,7 @@ const SettingsPage = () => {
           required
         />
         <TextField
-          label="Last Name"
+          label={t("last_name")}
           variant="outlined"
           fullWidth
           sx={{ mb: 2 }}
@@ -171,7 +186,7 @@ const SettingsPage = () => {
           required
         />
         <TextField
-          label="Email"
+          label={t("email")}
           type="email"
           variant="outlined"
           fullWidth
@@ -181,25 +196,34 @@ const SettingsPage = () => {
           required
         />
         <TextField
-          label="Company"
+          label={t("company")}
           variant="outlined"
           fullWidth
           sx={{ mb: 2 }}
           value={company}
           onChange={(e) => setCompany(e.target.value)}
         />
-        <Button variant="contained" color="primary" type="submit" disabled={loading}>
-          {loading ? "Updating..." : "Update Account Information"}
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? t("updating") : t("update_account_information")}
         </Button>
       </Box>
 
       {/* Password Change Form */}
-      <Box component="form" onSubmit={handlePasswordChangeSubmit} sx={{ mb: 4 }}>
+      <Box
+        component="form"
+        onSubmit={handlePasswordChangeSubmit}
+        sx={{ mb: 4 }}
+      >
         <Typography variant="h6" gutterBottom>
-          Change Password
+          {t("change_password")}
         </Typography>
         <TextField
-          label="Current Password"
+          label={t("current_password")}
           type="password"
           variant="outlined"
           fullWidth
@@ -209,7 +233,7 @@ const SettingsPage = () => {
           required
         />
         <TextField
-          label="New Password"
+          label={t("new_password")}
           type="password"
           variant="outlined"
           fullWidth
@@ -219,7 +243,7 @@ const SettingsPage = () => {
           required
         />
         <TextField
-          label="Confirm New Password"
+          label={t("confirm_new_password")}
           type="password"
           variant="outlined"
           fullWidth
@@ -228,15 +252,20 @@ const SettingsPage = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
-        <Button variant="contained" color="primary" type="submit" disabled={loading}>
-          {loading ? "Changing Password..." : "Change Password"}
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? t("changing_password") : t("change_password")}
         </Button>
       </Box>
 
       {/* Preferences */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h6" gutterBottom>
-          Preferences
+          {t("preferences")}
         </Typography>
         <FormControlLabel
           control={
@@ -247,7 +276,7 @@ const SettingsPage = () => {
               color="primary"
             />
           }
-          label="Enable Dark Mode"
+          label={t("enable_dark_mode")}
         />
         <FormControlLabel
           control={
@@ -258,7 +287,7 @@ const SettingsPage = () => {
               color="primary"
             />
           }
-          label="Enable Notifications"
+          label={t("enable_notifications")}
         />
         <Box sx={{ mt: 2 }}>
           <Button
@@ -267,7 +296,7 @@ const SettingsPage = () => {
             onClick={handlePreferencesChange}
             disabled={loading}
           >
-            {loading ? "Updating Preferences..." : "Update Preferences"}
+            {loading ? t("updating_preferences") : t("update_preferences")}
           </Button>
         </Box>
       </Box>

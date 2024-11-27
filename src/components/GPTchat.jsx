@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -11,6 +11,9 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import { QuestionAnswerRounded } from "@mui/icons-material";
+
+// Import the useTranslation hook
+import { useTranslation } from 'react-i18next';
 
 /**
  * Fetches a streamed response from the OpenAI API and processes it token by token.
@@ -71,9 +74,9 @@ const fetchStreamedResponse = async (apiKey, message, onResponse) => {
 };
 
 /**
- * AskGPT component provides a chat interface with an AI assistant.
+ * GPTchat component provides a chat interface with an AI assistant.
  *
- * @returns {JSX.Element} - The rendered AskGPT component.
+ * @returns {JSX.Element} - The rendered GPTchat component.
  */
 const GPTchat = () => {
   const [open, setOpen] = useState(false); // Dialog open state
@@ -83,6 +86,9 @@ const GPTchat = () => {
   const [chatHistory, setChatHistory] = useState([]); // Chat history
   const [streamedResponse, setStreamedResponse] = useState(""); // Current streamed response
   const chatBoxRef = useRef(null); // Reference to the chat box for auto-scrolling
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   // Get the OpenAI API key from environment variables using Vite's import.meta.env
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
@@ -107,14 +113,12 @@ const GPTchat = () => {
    */
   const handleSendMessage = useCallback(async () => {
     if (!message.trim()) {
-      setError("Message cannot be empty.");
+      setError(t("message_cannot_be_empty"));
       return;
     }
 
     if (!apiKey) {
-      setError(
-        "OpenAI API key is missing. Please set it in your environment variables."
-      );
+      setError(t("api_key_missing"));
       return;
     }
 
@@ -164,13 +168,13 @@ const GPTchat = () => {
         )
       );
     } catch (err) {
-      setError("Network error. Please try again.");
+      setError(t("network_error_try_again"));
       console.error("Error in sendMessage:", err);
     } finally {
       setLoading(false);
       setMessage("");
     }
-  }, [message, apiKey]);
+  }, [message, apiKey, t]);
 
   /**
    * Handles the Enter key press event to trigger sending the message.
@@ -205,12 +209,12 @@ const GPTchat = () => {
       }}
     >
       {/* Floating action button to open the chat dialog */}
-      <Fab color="primary" aria-label="Open Chat" onClick={handleDialogToggle}>
+      <Fab color="primary" aria-label={t('open_chat')} onClick={handleDialogToggle}>
         <QuestionAnswerRounded />
       </Fab>
 
       <Dialog open={open} onClose={handleDialogToggle} fullWidth maxWidth="sm">
-        <DialogTitle>AI Assistant</DialogTitle>
+        <DialogTitle>{t('ai_assistant')}</DialogTitle>
         <DialogContent>
           {/* Chat history display */}
           <Box
@@ -256,7 +260,7 @@ const GPTchat = () => {
             {/* Display error message if any */}
             {error && (
               <Box sx={{ mt: 2, color: "red" }}>
-                <strong>Error:</strong> {error}
+                <strong>{t('error')}:</strong> {error}
               </Box>
             )}
           </Box>
@@ -265,7 +269,7 @@ const GPTchat = () => {
           <TextField
             autoFocus
             margin="dense"
-            label="Your message"
+            label={t('your_message')}
             fullWidth
             variant="outlined"
             value={message}
@@ -283,14 +287,14 @@ const GPTchat = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogToggle}>Close</Button>
+          <Button onClick={handleDialogToggle}>{t('close')}</Button>
           <Button
             onClick={handleSendMessage}
             variant="contained"
             color="primary"
             disabled={loading}
           >
-            Send
+            {t('send')}
           </Button>
         </DialogActions>
       </Dialog>

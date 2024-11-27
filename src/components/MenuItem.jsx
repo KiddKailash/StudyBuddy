@@ -6,16 +6,20 @@ import { NavLink } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 
+// Import the useTranslation hook
+import { useTranslation } from 'react-i18next';
+
 /**
  * MenuItem component renders a navigation link styled as a button.
  *
  * @param {string} link - The URL path to navigate to when the item is clicked.
- * @param {string} name - The display text for the menu item.
+ * @param {string} translationKey - The translation key for the menu item name.
  *
  * @return {JSX.Element} - The rendered menu item component.
  */
-const MenuItem = ({ link, name }) => {
+const MenuItem = ({ link, translationKey }) => {
   const theme = useTheme(); // Access the current theme settings
+  const { t } = useTranslation(); // Initialize the translation function
 
   /**
    * Renders the button with styling based on the active state.
@@ -40,7 +44,7 @@ const MenuItem = ({ link, name }) => {
         transition: theme.transitions.backgroundAndText,
       }}
     >
-      {name}
+      {t(translationKey)}
     </Button>
   );
 
@@ -54,7 +58,7 @@ const MenuItem = ({ link, name }) => {
 
 MenuItem.propTypes = {
   link: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
+  translationKey: PropTypes.string.isRequired,
 };
 
 export default MenuItem;

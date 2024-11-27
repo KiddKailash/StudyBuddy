@@ -9,6 +9,9 @@ import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 
+// Import the useTranslation hook
+import { useTranslation } from "react-i18next";
+
 /**
  * SessionItem component represents an individual study session in the sidebar.
  *
@@ -24,50 +27,55 @@ const SessionItem = ({
   isActive,
   handleMenuOpen,
   commonButtonStyles,
-}) => (
-  <ListItem disablePadding>
-    <ListItemButton
-      component={Link}
-      to={`/flashcards/${session.id}`}
-      selected={isActive}
-      sx={(theme) => ({
-        ...commonButtonStyles(theme, isActive),
-        // Show IconButton on hover or if active
-        "&:hover .session-options-button": {
-          visibility: "visible",
-          opacity: 1,
-        },
-        "&:hover": {
-          backgroundColor: theme.palette.action.hover,
-        },
-        "& .session-options-button": {
-          visibility: isActive ? "visible" : "hidden",
-          opacity: isActive ? 1 : 0,
-          transition: "opacity 0.2s, visibility 0.2s",
-        },
-      })}
-    >
-      <ListItemText
-        primary={session.studySession}
-        primaryTypographyProps={{
-          variant: "subtitle2",
-        }}
-        sx={{ paddingTop: 0.6, paddingBottom: 0.6 }}
-      />
-      <IconButton
-        edge="end"
-        aria-label="options"
-        onClick={(e) => handleMenuOpen(e, session.id)}
-        sx={{
-          color: "text.secondary",
-        }}
-        className="session-options-button"
+}) => {
+  // Initialize the translation function
+  const { t } = useTranslation();
+
+  return (
+    <ListItem disablePadding>
+      <ListItemButton
+        component={Link}
+        to={`/flashcards/${session.id}`}
+        selected={isActive}
+        sx={(theme) => ({
+          ...commonButtonStyles(theme, isActive),
+          // Show IconButton on hover or if active
+          "&:hover .session-options-button": {
+            visibility: "visible",
+            opacity: 1,
+          },
+          "&:hover": {
+            backgroundColor: theme.palette.action.hover,
+          },
+          "& .session-options-button": {
+            visibility: isActive ? "visible" : "hidden",
+            opacity: isActive ? 1 : 0,
+            transition: "opacity 0.2s, visibility 0.2s",
+          },
+        })}
       >
-        <MoreVertRoundedIcon />
-      </IconButton>
-    </ListItemButton>
-  </ListItem>
-);
+        <ListItemText
+          primary={session.studySession}
+          primaryTypographyProps={{
+            variant: "subtitle2",
+          }}
+          sx={{ paddingTop: 0.6, paddingBottom: 0.6 }}
+        />
+        <IconButton
+          edge="end"
+          aria-label={t("options")}
+          onClick={(e) => handleMenuOpen(e, session.id)}
+          sx={{
+            color: "text.secondary",
+          }}
+          className="session-options-button"
+        >
+          <MoreVertRoundedIcon />
+        </IconButton>
+      </ListItemButton>
+    </ListItem>
+  );
+};
 
 SessionItem.propTypes = {
   session: PropTypes.shape({

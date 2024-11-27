@@ -1,3 +1,5 @@
+import i18next from "i18next";
+
 import {
   red,
   pink,
@@ -82,5 +84,6 @@ export const getUserInitials = (user) => {
  */
 export const formatAccountType = (accountType) => {
   if (!accountType) return "";
-  return `${accountType.charAt(0).toUpperCase() + accountType.slice(1)} User`;
+  const translatedAccountType = i18next.t(`account_type_${accountType.toLowerCase()}`);
+  return i18next.t("account_type_user", { accountType: translatedAccountType });
 };

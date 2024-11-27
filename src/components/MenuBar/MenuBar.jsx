@@ -12,6 +12,9 @@ import UpgradeButton from "./UpgradeButton";
 import AccountInfo from "./AccountInfo";
 import AvatarMenu from "./AvatarMenu";
 
+// Import the useTranslation hook
+import { useTranslation } from "react-i18next";
+
 /**
  * MenuBar component renders the top navigation bar of the application.
  *
@@ -23,6 +26,9 @@ const MenuBar = ({ handleDrawerToggle }) => {
   const { user, resetUserContext } = useContext(UserContext);
   const navigate = useNavigate();
   const theme = useTheme();
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   /**
    * Handles the logout process.
@@ -73,7 +79,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
             <AvatarMenu user={user} onLogout={handleLogout} />
           ) : (
             <Button color="inherit" component={Link} to="/login">
-              Login
+              {t("login")}
             </Button>
           )}
         </Box>

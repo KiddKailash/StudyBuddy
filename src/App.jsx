@@ -14,7 +14,6 @@ import Sidebar from "./components/Sidebar";
 import GPTchat from "./components/GPTchat";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import UpgradeSubscription from "./webpages/UpgradeSubscription";
 import FlashcardSession from "./webpages/FlashcardSession";
 import StudySession from "./webpages/StudySession";
 import LoginPage from "./webpages/Login";
@@ -182,12 +181,14 @@ function App() {
 
           {/* GPT Chat */}
           {/* <Box
-            sx={{
-              // position: "fixed",
-              // bottom: "0",
-              // right: "0",
-              // zIndex: 100, // Lower z-index
-            }}
+            sx={
+              {
+                position: "fixed",
+                bottom: "0",
+                right: "0",
+                zIndex: 100, // Lower z-index
+              }
+            }
           >
             <GPTchat />
           </Box> */}

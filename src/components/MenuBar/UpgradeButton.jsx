@@ -3,6 +3,9 @@ import Button from "@mui/material/Button";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
 import { redirectToStripeCheckout } from "../../utils/redirectToStripeCheckout";
 
+// Import the useTranslation hook
+import { useTranslation } from "react-i18next";
+
 /**
  * UpgradeButton component handles the account upgrade functionality.
  *
@@ -10,6 +13,9 @@ import { redirectToStripeCheckout } from "../../utils/redirectToStripeCheckout";
  */
 const UpgradeButton = () => {
   const { showSnackbar } = useContext(SnackbarContext);
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   /**
    * Initiates the account upgrade process.
@@ -20,7 +26,7 @@ const UpgradeButton = () => {
 
   return (
     <Button variant="contained" onClick={handleUpgrade}>
-      Upgrade Account
+      {t("upgrade_account")}
     </Button>
   );
 };

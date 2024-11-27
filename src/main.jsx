@@ -5,6 +5,8 @@ import { UserProvider } from "./contexts/UserContext";
 import { BrowserRouter as Router } from "react-router-dom";
 import { SnackbarProvider } from "./contexts/SnackbarContext.jsx";
 
+import './i18n.js';
+
 import App from "./App.jsx";
 import "./index.css";
 

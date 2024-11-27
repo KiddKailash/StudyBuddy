@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
@@ -14,22 +14,28 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
 
 // MUI Icon Imports
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
+
+// Import the useTranslation hook and Trans component
+import { useTranslation, Trans } from 'react-i18next';
 
 const StudySession = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
   const [loadingTranscript, setLoadingTranscript] = useState(false);
 
-  const { user, flashcardSessions, setFlashcardSessions } =
-    useContext(UserContext); // Include flashcardSessions
+  const { user, flashcardSessions, setFlashcardSessions } = useContext(UserContext);
   const accountType = user?.accountType || "free";
 
   const { showSnackbar } = useContext(SnackbarContext);
   const navigate = useNavigate();
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   // State for Tabs
   const [tabValue, setTabValue] = useState(0); // 0: Upload Document, 1: Paste Text
@@ -50,10 +56,7 @@ const StudySession = () => {
   const handleFetchAndGenerate = async () => {
     // Check for session limit
     if (accountType === "free" && flashcardSessions.length >= 2) {
-      showSnackbar(
-        "You have reached the maximum number of study sessions allowed for free accounts. Please upgrade to create more sessions.",
-        "info"
-      );
+      showSnackbar(t("max_sessions_reached"), "info");
       return;
     }
 
@@ -61,14 +64,14 @@ const StudySession = () => {
 
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("User is not authenticated.");
+      if (!token) throw new Error(t("user_not_authenticated"));
 
       let transcriptText = "";
 
       if (tabValue === 0) {
         // File Upload Tab
         if (!selectedFile) {
-          showSnackbar("Please select a Word or PDF file.", "error");
+          showSnackbar(t("please_select_file"), "error");
           setLoadingTranscript(false);
           return;
         }
@@ -81,10 +84,7 @@ const StudySession = () => {
           "text/plain",
         ];
         if (!allowedTypes.includes(selectedFile.type)) {
-          showSnackbar(
-            "Please upload a valid Word, PDF, or TXT file.",
-            "error"
-          );
+          showSnackbar(t("invalid_file_type"), "error");
           setLoadingTranscript(false);
           return;
         }
@@ -108,7 +108,7 @@ const StudySession = () => {
       } else if (tabValue === 1) {
         // Paste Text Tab
         if (!pastedText.trim()) {
-          showSnackbar("Please paste or enter some text.", "error");
+          showSnackbar(t("please_paste_text"), "error");
           setLoadingTranscript(false);
           return;
         }
@@ -119,7 +119,7 @@ const StudySession = () => {
       const generatedFlashcards = await generateFlashcards(transcriptText);
 
       // Create a new study session with transcript
-      const sessionName = `Session ${new Date().toLocaleString()}`;
+      const sessionName = `${t("session")} ${new Date().toLocaleString()}`;
       const newSession = await createFlashcardSession(
         sessionName,
         generatedFlashcards,
@@ -129,16 +129,14 @@ const StudySession = () => {
       if (newSession) {
         setFlashcardSessions((prev) => [...prev, newSession]);
         navigate(`/flashcards/${newSession.id}`);
-        showSnackbar("Flashcards created successfully.", "success");
+        showSnackbar(t("flashcards_created_success"), "success");
       } else {
-        throw new Error("Failed to create flashcard session.");
+        throw new Error(t("failed_to_create_session"));
       }
     } catch (err) {
       console.error("Error:", err);
       showSnackbar(
-        err.response?.data?.error ||
-          err.message ||
-          "An error occurred while processing your request.",
+        err.response?.data?.error || err.message || t("error_processing_request"),
         "error"
       );
     } finally {
@@ -148,12 +146,10 @@ const StudySession = () => {
 
   const generateFlashcards = async (transcriptText) => {
     const token = localStorage.getItem("token");
-    if (!token) throw new Error("User is not authenticated.");
+    if (!token) throw new Error(t("user_not_authenticated"));
 
     const response = await axios.post(
-      `${
-        import.meta.env.VITE_LOCAL_BACKEND_URL
-      }/api/openai/generate-flashcards`,
+      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/openai/generate-flashcards`,
       { transcript: transcriptText },
       {
         headers: {
@@ -179,7 +175,7 @@ const StudySession = () => {
     transcriptText
   ) => {
     const token = localStorage.getItem("token");
-    if (!token) throw new Error("User is not authenticated.");
+    if (!token) throw new Error(t("user_not_authenticated"));
 
     const response = await axios.post(
       `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
@@ -208,13 +204,13 @@ const StudySession = () => {
       >
         <Tab
           icon={<UploadFileIcon />}
-          label="Upload Document"
+          label={t("upload_document")}
           id="tab-0"
           aria-controls="tabpanel-0"
         />
         <Tab
           icon={<ContentCutIcon />}
-          label="Paste Text"
+          label={t("paste_text")}
           id="tab-1"
           aria-controls="tabpanel-1"
         />
@@ -228,7 +224,7 @@ const StudySession = () => {
             fullWidth
             color="primary"
           >
-            {selectedFile ? selectedFile.name : "Choose a Word or PDF Document"}
+            {selectedFile ? selectedFile.name : t("choose_document")}
             <input
               type="file"
               hidden
@@ -243,7 +239,7 @@ const StudySession = () => {
         <Box>
           <TextField
             fullWidth
-            label="Paste Your Text Here"
+            label={t("paste_your_text_here")}
             variant="outlined"
             value={pastedText}
             onChange={(e) => setPastedText(e.target.value)}
@@ -268,19 +264,25 @@ const StudySession = () => {
         {loadingTranscript ? (
           <CircularProgress color="inherit" size={24} />
         ) : (
-          "Create Flashcards"
+          t("create_flashcards")
         )}
       </Button>
-      
+
       {accountType === "free" && flashcardSessions.length >= 2 && (
         <>
-          <Typography variant="body1" color="textSecondary" sx={{mt: 2}}>
-            You have reached the maximum number of study sessions allowed for a
-            free account.
+          <Typography variant="body1" color="textSecondary" sx={{ mt: 2 }}>
+            {t("max_sessions_reached_message")}
           </Typography>
           <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
-          <Link onClick={() => redirectToStripeCheckout("paid", showSnackbar)}>Upgrade your account</Link> to create more
-            sessions.
+            <Trans i18nKey="upgrade_to_create_more">
+              <Link
+                component="button"
+                variant="body1"
+                onClick={() => redirectToStripeCheckout("paid", showSnackbar)}
+              >
+                {t("upgrade_your_account")}
+              </Link>
+            </Trans>
           </Typography>
         </>
       )}

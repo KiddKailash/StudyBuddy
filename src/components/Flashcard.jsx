@@ -7,6 +7,9 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 
+// Import the useTranslation hook
+import { useTranslation } from "react-i18next";
+
 // Container for the flip card with perspective
 const FlipCard = styled("div")(({ theme }) => ({
   perspective: 1000,
@@ -55,6 +58,9 @@ const FlipCardBack = styled(FlipCardFace)(({ theme }) => ({
 const Flashcard = ({ question, answer }) => {
   const [flipped, setFlipped] = useState(false);
 
+  // Initialize the translation function
+  const { t } = useTranslation();
+
   const handleCardClick = () => {
     setFlipped((prev) => !prev);
   };
@@ -65,7 +71,7 @@ const Flashcard = ({ question, answer }) => {
         <FlipCardFront>
           <CardContent>
             <Typography variant="body1" sx={{ color: "grey" }}>
-              Question
+              {t("question")}
             </Typography>
             <Typography variant="body1" color="text.primary">
               {question}
@@ -75,7 +81,7 @@ const Flashcard = ({ question, answer }) => {
         <FlipCardBack>
           <CardContent>
             <Typography variant="body1" sx={{ color: "grey" }}>
-              Answer
+              {t("answer")}
             </Typography>
             <Typography variant="body1" color="text.primary">
               {answer}

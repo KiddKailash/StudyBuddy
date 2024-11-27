@@ -33,6 +33,9 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 
+// Import the useTranslation hook
+import { useTranslation } from "react-i18next";
+
 /**
  * Sidebar component that displays study sessions and handles session operations.
  *
@@ -53,6 +56,9 @@ const Sidebar = ({
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   const {
     flashcardSessions,
@@ -172,14 +178,14 @@ const Sidebar = ({
 
     try {
       await deleteFlashcardSession(sessionId);
-      showSnackbar("Study session deleted successfully.", "success");
+      showSnackbar(t("study_session_deleted_success"), "success");
       navigate("/");
     } catch (error) {
       console.error("Error deleting study session:", error);
       showSnackbar(
-        `Error deleting study session: ${
-          error.response?.data?.error || error.message
-        }`,
+        t("error_deleting_study_session", {
+          error: error.response?.data?.error || error.message,
+        }),
         "error"
       );
     } finally {
@@ -193,19 +199,19 @@ const Sidebar = ({
   const handleRenameSession = async () => {
     const { sessionId } = dialogState;
     if (!sessionId || !newSessionName.trim()) {
-      showSnackbar("Please enter a valid session name.", "error");
+      showSnackbar(t("please_enter_valid_session_name"), "error");
       return;
     }
 
     try {
       await updateFlashcardSessionName(sessionId, newSessionName.trim());
-      showSnackbar("Study session renamed successfully.", "success");
+      showSnackbar(t("study_session_renamed_success"), "success");
     } catch (error) {
       console.error("Error renaming study session:", error);
       showSnackbar(
-        `Error renaming study session: ${
-          error.response?.data?.error || error.message
-        }`,
+        t("error_renaming_study_session", {
+          error: error.response?.data?.error || error.message,
+        }),
         "error"
       );
     } finally {
@@ -218,9 +224,12 @@ const Sidebar = ({
    */
   useEffect(() => {
     if (flashcardError) {
-      showSnackbar(`Error loading study sessions: ${flashcardError}`, "error");
+      showSnackbar(
+        t("error_loading_study_sessions", { error: flashcardError }),
+        "error"
+      );
     }
-  }, [flashcardError, showSnackbar]);
+  }, [flashcardError, showSnackbar, t]);
 
   const drawerContent = (
     <Box sx={{ width: drawerWidth }}>
@@ -243,7 +252,7 @@ const Sidebar = ({
                 onClick={isMobile ? handleDrawerToggle : undefined} // Close drawer on mobile
               >
                 <ListItemText
-                  primary="Create a study session"
+                  primary={t("create_study_session")}
                   primaryTypographyProps={{
                     variant: "subtitle2",
                   }}
@@ -288,11 +297,11 @@ const Sidebar = ({
       >
         <MenuItem onClick={() => handleDialogOpen("delete")}>
           <DeleteRoundedIcon fontSize="small" sx={{ mr: 1 }} />
-          Delete
+          {t("delete")}
         </MenuItem>
         <MenuItem onClick={() => handleDialogOpen("rename")}>
           <EditRoundedIcon fontSize="small" sx={{ mr: 1 }} />
-          Rename
+          {t("rename")}
         </MenuItem>
       </Menu>
 
@@ -305,20 +314,20 @@ const Sidebar = ({
       >
         <DialogTitle id="confirm-dialog-title">
           {dialogState.type === "delete"
-            ? "Delete Study Session"
-            : "Rename Study Session"}
+            ? t("delete_study_session")
+            : t("rename_study_session")}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
             {dialogState.type === "delete"
-              ? "Are you sure you want to delete this study session? This action cannot be undone."
-              : "Enter the new name for the study session."}
+              ? t("delete_confirmation")
+              : t("rename_prompt")}
           </DialogContentText>
           {dialogState.type === "rename" && (
             <TextField
               autoFocus
               margin="dense"
-              label="New Session Name"
+              label={t("new_session_name")}
               type="text"
               fullWidth
               variant="outlined"
@@ -333,7 +342,7 @@ const Sidebar = ({
           }}
         >
           <Button onClick={handleDialogClose} color="primary">
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             onClick={
@@ -343,7 +352,7 @@ const Sidebar = ({
             }
             color={dialogState.type === "delete" ? "error" : "primary"}
           >
-            {dialogState.type === "delete" ? "Delete" : "Rename"}
+            {dialogState.type === "delete" ? t("delete") : t("rename")}
           </Button>
         </DialogActions>
       </Dialog>

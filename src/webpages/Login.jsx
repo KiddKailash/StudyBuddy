@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
-import { SnackbarContext } from "../contexts/SnackbarContext"; // Import SnackbarContext
+import { SnackbarContext } from "../contexts/SnackbarContext";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -17,32 +17,34 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControl from "@mui/material/FormControl";
 
+// Import the useTranslation hook
+import { useTranslation } from "react-i18next";
+
 const LoginPage = () => {
   // State for form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState(""); // New state
-  const [lastName, setLastName] = useState(""); // New state
-  const [company, setCompany] = useState(""); // New state
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [company, setCompany] = useState("");
 
   // State to manage authentication mode: 'login' or 'create'
-  const [authMode, setAuthMode] = useState("login"); // Default to 'login'
+  const [authMode, setAuthMode] = useState("login");
 
   // Loading state
   const [loading, setLoading] = useState(false);
 
   // Accessing UserContext to reset it and update user/authentication state
-  const {
-    resetUserContext,
-    setUser,
-    setIsLoggedIn,
-    isLoggedIn,
-  } = useContext(UserContext);
+  const { resetUserContext, setUser, setIsLoggedIn, isLoggedIn } =
+    useContext(UserContext);
 
   // Access Snackbar Context
   const { showSnackbar } = useContext(SnackbarContext);
 
   const navigate = useNavigate();
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   /**
    * Handles changes in the RadioGroup (auth mode selection).
@@ -100,8 +102,8 @@ const LoginPage = () => {
       // Show success Snackbar
       showSnackbar(
         authMode === "create"
-          ? "Account created successfully!"
-          : "Login successful!",
+          ? t("account_created_successfully")
+          : t("login_successful"),
         "success"
       );
     } catch (err) {
@@ -109,7 +111,7 @@ const LoginPage = () => {
 
       // Show error Snackbar
       showSnackbar(
-        err.response?.data?.error || "An error occurred. Please try again.",
+        err.response?.data?.error || t("error_occurred_try_again"),
         "error"
       );
     } finally {
@@ -147,11 +149,11 @@ const LoginPage = () => {
             value={authMode}
             onChange={handleAuthModeChange}
           >
-            <FormControlLabel value="login" control={<Radio />} label="Login" />
+            <FormControlLabel value="login" control={<Radio />} label={t("login")} />
             <FormControlLabel
               value="create"
               control={<Radio />}
-              label="Create Account"
+              label={t("create_account")}
             />
           </RadioGroup>
         </FormControl>
@@ -165,13 +167,13 @@ const LoginPage = () => {
           sx={{ mt: 1, fontWeight: "bold" }}
         >
           {authMode === "create"
-            ? "Create study cards from any video."
-            : "Login to your account."}
+            ? t("create_study_cards_from_video")
+            : t("login_to_your_account")}
         </Typography>
         <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
           {authMode === "create"
-            ? "Get ready for higher performance, reduced costs, and greater ease of use."
-            : "Access your study cards and continue learning."}
+            ? t("create_mode_description")
+            : t("login_mode_description")}
         </Typography>
       </Box>
 
@@ -184,7 +186,7 @@ const LoginPage = () => {
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
-                  label="First Name"
+                  label={t("first_name")}
                   variant="outlined"
                   required
                   value={firstName}
@@ -194,7 +196,7 @@ const LoginPage = () => {
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
-                  label="Last Name"
+                  label={t("last_name")}
                   variant="outlined"
                   required
                   value={lastName}
@@ -204,7 +206,7 @@ const LoginPage = () => {
             </Grid>
             <TextField
               fullWidth
-              label="Company"
+              label={t("company")}
               variant="outlined"
               sx={{ mb: 2 }}
               value={company}
@@ -216,7 +218,7 @@ const LoginPage = () => {
         {/* Common Fields */}
         <TextField
           fullWidth
-          label="Email"
+          label={t("email")}
           type="email"
           variant="outlined"
           sx={{ mb: 2 }}
@@ -226,7 +228,7 @@ const LoginPage = () => {
         />
         <TextField
           fullWidth
-          label="Password"
+          label={t("password")}
           type="password"
           variant="outlined"
           sx={{ mb: 2 }}
@@ -239,7 +241,7 @@ const LoginPage = () => {
         {authMode === "create" && (
           <FormControlLabel
             control={<Checkbox color="primary" required />}
-            label="I agree to the Terms of Service and Privacy Policy."
+            label={t("agree_to_terms")}
             sx={{ mb: 2 }}
           />
         )}
@@ -255,11 +257,11 @@ const LoginPage = () => {
         >
           {loading
             ? authMode === "create"
-              ? "Creating Account..."
-              : "Logging In..."
+              ? t("creating_account")
+              : t("logging_in")
             : authMode === "create"
-            ? "Create your ClipCard account"
-            : "Login"}
+            ? t("create_your_clipcard_account")
+            : t("login")}
         </Button>
       </Box>
     </Container>

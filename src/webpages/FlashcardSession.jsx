@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import Flashcard from "../components/Flashcard";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Footer from "../components/Footer";
 import { UserContext } from "../contexts/UserContext";
 import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
@@ -13,9 +13,13 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid2";
 import Button from "@mui/material/Button";
+import Link from "@mui/material/Link";
 
 // Context Import
 import { SnackbarContext } from "../contexts/SnackbarContext";
+
+// Import the useTranslation hook and Trans component
+import { useTranslation, Trans } from "react-i18next";
 
 const FlashcardSession = () => {
   const { id } = useParams(); // Study session ID from URL
@@ -27,6 +31,9 @@ const FlashcardSession = () => {
 
   // Access the Snackbar context
   const { showSnackbar } = useContext(SnackbarContext);
+
+  // Initialize the translation function
+  const { t } = useTranslation();
 
   /**
    * Fetches the flashcard session details from the backend.
@@ -55,7 +62,7 @@ const FlashcardSession = () => {
       showSnackbar(
         err.response?.data?.error ||
           err.message ||
-          "An error occurred while fetching the session.",
+          t("error_fetching_session"),
         "error"
       );
     } finally {
@@ -68,10 +75,7 @@ const FlashcardSession = () => {
    */
   const handleGenerateMoreFlashcards = async () => {
     if (accountType === "free") {
-      showSnackbar(
-        "Generating more flashcards is a premium feature. Upgrade to access this feature.",
-        "info"
-      );
+      showSnackbar(t("premium_feature_upgrade"), "info");
       return;
     }
 
@@ -96,7 +100,7 @@ const FlashcardSession = () => {
         }
       );
 
-      showSnackbar("Additional flashcards generated successfully.", "success");
+      showSnackbar(t("flashcards_generated_success"), "success");
 
       // Fetch the updated session data
       await fetchSession();
@@ -105,7 +109,7 @@ const FlashcardSession = () => {
       showSnackbar(
         err.response?.data?.error ||
           err.message ||
-          "An error occurred while generating additional flashcards.",
+          t("error_generating_flashcards"),
         "error"
       );
     } finally {
@@ -140,35 +144,34 @@ const FlashcardSession = () => {
               disabled={generating}
             >
               {generating
-                ? "Generating..."
-                : accountType === "free"
-                ? "+10 More Flashcards"
-                : "+10 More Flashcards"}
+                ? t("generating")
+                : t("more_flashcards")}
             </Button>
 
             {accountType === "free" && (
-              <>
-                <Box sx={{ marginLeft: 2}}>
-                  <Typography variant="body1" color="textSecondary">
-                    Want to generate more flashcards?
-                  </Typography>
-                  <Typography>
+              <Box sx={{ marginLeft: 2 }}>
+                <Typography variant="body1" color="textSecondary">
+                  {t("want_more_flashcards")}
+                </Typography>
+                <Typography>
+                  <Trans i18nKey="upgrade_to_unlock">
                     <Link
+                      component="button"
+                      variant="body1"
                       onClick={() =>
                         redirectToStripeCheckout("paid", showSnackbar)
                       }
                     >
-                      Upgrade your account
-                    </Link>{" "}
-                    to unlock this feature.
-                  </Typography>
-                </Box>
-              </>
+                      {t("upgrade_your_account")}
+                    </Link>
+                  </Trans>
+                </Typography>
+              </Box>
             )}
           </Box>
 
           {session.flashcardsJSON.length === 0 ? (
-            <Typography>No flashcards in this session.</Typography>
+            <Typography>{t("no_flashcards_in_session")}</Typography>
           ) : (
             <Grid container spacing={2}>
               {session.flashcardsJSON.map((card, index) => (
@@ -180,7 +183,7 @@ const FlashcardSession = () => {
           )}
         </>
       ) : (
-        <Typography>No session data available.</Typography>
+        <Typography>{t("no_session_data_available")}</Typography>
       )}
       <Footer />
     </Container>
