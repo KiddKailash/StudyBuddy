@@ -47,6 +47,7 @@ exports.generateFlashcards = async (req, res) => {
      - Do not include any extra text, explanations, or code snippets.
      - Do not use markdown formatting or code blocks.
      - Ensure the JSON is valid and can be parsed.
+     - Create the flashcards in the same language as the transcript.
       `;
 
     const response = await axios.post(
