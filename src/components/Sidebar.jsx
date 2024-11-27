@@ -113,9 +113,9 @@ const Sidebar = ({
     transition: theme.transitions.create(["background-color"], {
       duration: theme.transitions.duration.standard,
     }),
-    color: "inherit",
+    color: isActive ? "text.primary" : "text.primary",
     "& .MuiListItemText-root": {
-      color: "inherit",
+      color: isActive ? "text.primary" : "text.primary",
     },
     display: "flex",
     alignItems: "center",
