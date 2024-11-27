@@ -15,7 +15,7 @@ import GPTchat from "./components/GPTchat";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import FlashcardSession from "./webpages/FlashcardSession";
-import StudySession from "./webpages/StudySession";
+import StudySession from "./webpages/CreateStudySession";
 import LoginPage from "./webpages/Login";
 import PageNotFound from "./webpages/PageNotFound";
 import SettingsPage from "./webpages/Settings";
