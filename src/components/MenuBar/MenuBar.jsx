@@ -1,4 +1,3 @@
-// src/components/MenuBar/MenuBar.jsx
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { useNavigate, Link } from "react-router-dom";
