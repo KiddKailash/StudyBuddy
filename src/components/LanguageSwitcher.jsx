@@ -7,7 +7,6 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import LanguageIcon from '@mui/icons-material/Language';
 
 /**
  * LanguageSwitcher component allows users to change the application's language.
@@ -31,10 +30,8 @@ const LanguageSwitcher = () => {
   };
 
   return (
-    <Box sx={{ minWidth: 120 }}>
       <FormControl fullWidth variant="outlined" size="small">
         <InputLabel id="language-select-label">
-          <LanguageIcon sx={{ mr: 1 }} />
           Language
         </InputLabel>
         <Select
@@ -49,7 +46,6 @@ const LanguageSwitcher = () => {
           <MenuItem value="es">Español</MenuItem>
         </Select>
       </FormControl>
-    </Box>
   );
 };
 
