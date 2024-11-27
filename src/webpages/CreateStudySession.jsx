@@ -21,14 +21,15 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 
 // Import the useTranslation hook and Trans component
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation, Trans } from "react-i18next";
 
 const StudySession = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
   const [loadingTranscript, setLoadingTranscript] = useState(false);
 
-  const { user, flashcardSessions, setFlashcardSessions } = useContext(UserContext);
+  const { user, flashcardSessions, setFlashcardSessions } =
+    useContext(UserContext);
   const accountType = user?.accountType || "free";
 
   const { showSnackbar } = useContext(SnackbarContext);
@@ -136,7 +137,9 @@ const StudySession = () => {
     } catch (err) {
       console.error("Error:", err);
       showSnackbar(
-        err.response?.data?.error || err.message || t("error_processing_request"),
+        err.response?.data?.error ||
+          err.message ||
+          t("error_processing_request"),
         "error"
       );
     } finally {
@@ -149,7 +152,9 @@ const StudySession = () => {
     if (!token) throw new Error(t("user_not_authenticated"));
 
     const response = await axios.post(
-      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/openai/generate-flashcards`,
+      `${
+        import.meta.env.VITE_LOCAL_BACKEND_URL
+      }/api/openai/generate-flashcards`,
       { transcript: transcriptText },
       {
         headers: {
@@ -200,7 +205,12 @@ const StudySession = () => {
         value={tabValue}
         onChange={handleTabChange}
         variant="fullWidth"
-        sx={{ mb: 3 }}
+        sx={{
+          mb: 3,
+          "& .MuiTab-root": {
+            outline: "none", // Removes focus outline for tabs
+          },
+        }}
       >
         <Tab
           icon={<UploadFileIcon />}
