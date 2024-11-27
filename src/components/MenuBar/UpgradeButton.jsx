@@ -1,4 +1,3 @@
-// src/components/MenuBar/UpgradeButton.jsx
 import React, { useContext } from "react";
 import Button from "@mui/material/Button";
 import { SnackbarContext } from "../../contexts/SnackbarContext";

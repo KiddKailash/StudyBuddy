@@ -1,4 +1,3 @@
-// src/components/MenuBar/AvatarMenu.jsx
 import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
