@@ -60,9 +60,7 @@ const FlashcardSession = () => {
     } catch (err) {
       console.error("Error fetching session:", err);
       showSnackbar(
-        err.response?.data?.error ||
-          err.message ||
-          t("error_fetching_session"),
+        err.response?.data?.error || err.message || t("error_fetching_session"),
         "error"
       );
     } finally {
@@ -143,9 +141,7 @@ const FlashcardSession = () => {
               onClick={handleGenerateMoreFlashcards}
               disabled={generating}
             >
-              {generating
-                ? t("generating")
-                : t("more_flashcards")}
+              {generating ? t("generating") : t("more_flashcards")}
             </Button>
 
             {accountType === "free" && (
