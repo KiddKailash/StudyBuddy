@@ -114,5 +114,6 @@
   "print": "Print",
   "failed_to_retrieve_session": "Failed to retrieve session.",
   "error_printing_session": "Error printing session: {{error}}",
-   "generating_pdf": "Generating PDF..."
+   "generating_pdf": "Generating PDF...",
+   "drag_drop_or_click": "File Upload"
 }

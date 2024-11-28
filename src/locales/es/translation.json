@@ -115,5 +115,6 @@
   "print": "Imprimir",
   "failed_to_retrieve_session": "No se pudo obtener la sesión.",
   "error_printing_session": "Error al imprimir la sesión: {{error}}",
-  "generating_pdf": "Generando PDF..."
+  "generating_pdf": "Generando PDF...",
+   "drag_drop_or_click": "Carga de archivos"
 }

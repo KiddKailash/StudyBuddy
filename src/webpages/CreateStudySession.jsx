@@ -1,10 +1,10 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDropzone } from "react-dropzone";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
-import PageTitle from '../components/PageTitle';
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -16,6 +16,8 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
+import Paper from "@mui/material/Paper";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 // MUI Icon Imports
 import UploadFileIcon from "@mui/icons-material/UploadFile";
@@ -51,8 +53,8 @@ const StudySession = () => {
   };
 
   // Handle File Selection
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+  const handleFileChange = (acceptedFiles) => {
+    setSelectedFile(acceptedFiles[0]);
   };
 
   const handleFetchAndGenerate = async () => {
@@ -200,6 +202,26 @@ const StudySession = () => {
     return response.data.flashcard;
   };
 
+  // React Dropzone setup
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    acceptedFiles,
+    fileRejections,
+  } = useDropzone({
+    onDrop: handleFileChange,
+    accept: {
+      "application/pdf": [".pdf"],
+      "application/msword": [".doc"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+        ".docx",
+      ],
+      "text/plain": [".txt"],
+    },
+    maxFiles: 1,
+  });
+
   return (
     <Container maxWidth="lg" sx={{ mt: "auto", mb: "auto", pt: 10 }}>
       <Tabs
@@ -229,20 +251,32 @@ const StudySession = () => {
 
       {tabValue === 0 && (
         <Box sx={{ mb: 2 }}>
-          <Button
+          <Paper
             variant="outlined"
-            component="label"
-            fullWidth
-            color="primary"
+            {...getRootProps()}
+            sx={{
+              padding: 4,
+              textAlign: "center",
+              backgroundColor: isDragActive ? "grey.200" : "background.paper",
+              borderColor: isDragActive ? "primary.main" : "grey.400",
+              cursor: "pointer",
+            }}
           >
-            {selectedFile ? selectedFile.name : t("choose_document")}
-            <input
-              type="file"
-              hidden
-              accept=".pdf,.doc,.docx,.txt"
-              onChange={handleFileChange}
-            />
-          </Button>
+            <input {...getInputProps()} />
+            <CloudUploadIcon sx={{ fontSize: 48, mb: 2, color: "primary.main" }} />
+            {selectedFile ? (
+              <Typography variant="body1">{selectedFile.name}</Typography>
+            ) : isDragActive ? (
+              <Typography variant="body1">{t("drop_here")}</Typography>
+            ) : (
+              <Typography variant="body1">{t("drag_drop_or_click")}</Typography>
+            )}
+          </Paper>
+          {fileRejections.length > 0 && (
+            <Typography color="error" sx={{ mt: 2 }}>
+              {t("invalid_file_type")}
+            </Typography>
+          )}
         </Box>
       )}
 
