@@ -30,7 +30,7 @@ const MobileMenu = ({ handleDrawerToggle }) => {
         onClick={handleDrawerToggle}
         sx={{mt: 1.3, mb: 1.3}}
       >
-        <MenuIcon />
+        <MenuIcon fontSize="large" sx={{mr: 2}}/>
       </IconButton>
       {user && user.accountType !== "paid" && <UpgradeButton />}
     </Box>
