@@ -294,7 +294,7 @@ const StudySession = () => {
             value={pastedText}
             onChange={(e) => setPastedText(e.target.value)}
             multiline
-            rows={10}
+            rows={5}
             sx={{ mb: 2 }}
           />
         </Box>
