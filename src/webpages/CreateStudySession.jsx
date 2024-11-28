@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
+import PageTitle from '../components/PageTitle';
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -200,7 +201,7 @@ const StudySession = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: "auto", mb: "auto", pt: 10 }}>
+    <Container maxWidth="lg" sx={{ mt: "auto", mb: "auto", pt: 10 }}>
       <Tabs
         value={tabValue}
         onChange={handleTabChange}
