@@ -263,13 +263,13 @@ const StudySession = () => {
             }}
           >
             <input {...getInputProps()} />
-            <CloudUploadIcon sx={{ fontSize: 48, mb: 2, color: "primary.main" }} />
+            <CloudUploadIcon sx={{ fontSize: 48, color: "primary.main" }} />
             {selectedFile ? (
-              <Typography variant="body1">{selectedFile.name}</Typography>
+              <Typography variant="body1" color="textSecondary">{selectedFile.name}</Typography>
             ) : isDragActive ? (
-              <Typography variant="body1">{t("drop_here")}</Typography>
+              <Typography variant="body1" color="textSecondary">{t("drag_drop_or_click")}</Typography>
             ) : (
-              <Typography variant="body1">{t("drag_drop_or_click")}</Typography>
+              <Typography variant="body1" color="textSecondary">{t("drag_drop_or_click")}</Typography>
             )}
           </Paper>
           {fileRejections.length > 0 && (
