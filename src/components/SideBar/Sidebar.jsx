@@ -86,8 +86,8 @@ const Sidebar = ({
   const isCreateSessionActive = location.pathname === "/";
 
   const commonButtonStyles = (theme, isActive = false) => ({
-    mr: 0.5,
-    ml: 0.5,
+    mr: 1,
+    ml: 1,
     borderRadius: 3,
     backgroundColor: isActive ? theme.palette.action.selected : "transparent",
     "&.Mui-selected": {
@@ -312,9 +312,7 @@ const Sidebar = ({
                     variant: "subtitle2",
                   }}
                 />
-                <AddRoundedIcon
-                  sx={{ color: theme.palette.text.secondary }}
-                />
+                <AddRoundedIcon sx={{ color: theme.palette.text.secondary }} />
               </ListItemButton>
             </ListItem>
 
@@ -393,6 +391,8 @@ const Sidebar = ({
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             height: `calc(100% - ${menubarHeight}px)`,
+            boxSizing: "border-box", // Ensures padding doesn't affect dimensions
+            overflow: "hidden", // Prevent any content overflow
           },
         }}
         open
