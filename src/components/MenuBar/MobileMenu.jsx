@@ -37,7 +37,7 @@ const MobileMenu = ({ handleDrawerToggle }) => {
           },
         }}
       >
-        <MenuIcon fontSize="large" />
+        <MenuIcon />
       </IconButton>
       {user && user.accountType !== "paid" && <UpgradeButton />}
     </Box>
