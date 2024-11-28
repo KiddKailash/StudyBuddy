@@ -54,7 +54,12 @@ const AvatarMenu = ({ user, onLogout }) => {
       <IconButton
         onClick={handleMenuOpen}
         size="small"
-        sx={{ ml: 2 }}
+        sx={{
+          ml: 2,
+          "&:focus": {
+            outline: "none",
+          },
+        }}
         aria-controls={open ? "account-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
@@ -109,7 +114,7 @@ const AvatarMenu = ({ user, onLogout }) => {
         </MenuItem>
         <Divider />
         <MenuItem onClick={onLogout}>
-          <ExitToAppRoundedIcon fontSize="small" color='error' sx={{ mr: 1 }} />
+          <ExitToAppRoundedIcon fontSize="small" color="error" sx={{ mr: 1 }} />
           <Typography variant="inherit" color="error">
             {t("log_out")}
           </Typography>
