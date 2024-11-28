@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -28,9 +28,16 @@ const MobileMenu = ({ handleDrawerToggle }) => {
         aria-label={t("open_drawer")}
         edge="start"
         onClick={handleDrawerToggle}
-        sx={{mt: 1.3, mb: 1.3}}
+        sx={{
+          mt: 1.3,
+          mb: 1.3,
+          mr: 2,
+          "&:focus": {
+            outline: "none",
+          },
+        }}
       >
-        <MenuIcon fontSize="large" sx={{mr: 2}}/>
+        <MenuIcon fontSize="large" />
       </IconButton>
       {user && user.accountType !== "paid" && <UpgradeButton />}
     </Box>
