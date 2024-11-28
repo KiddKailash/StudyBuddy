@@ -214,16 +214,15 @@ const StudySession = () => {
     accept: {
       "application/pdf": [".pdf"],
       "application/msword": [".doc"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
-        ".docx",
-      ],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
       "text/plain": [".txt"],
     },
     maxFiles: 1,
   });
 
   return (
-    <Container maxWidth="lg" sx={{ mt: "auto", mb: "auto", pt: 10 }}>
+    <Container maxWidth="lg" sx={{ pt: { xs: 5, sm: 10 } }}>
       <Tabs
         value={tabValue}
         onChange={handleTabChange}
@@ -265,11 +264,17 @@ const StudySession = () => {
             <input {...getInputProps()} />
             <CloudUploadIcon sx={{ fontSize: 48, color: "primary.main" }} />
             {selectedFile ? (
-              <Typography variant="body1" color="textSecondary">{selectedFile.name}</Typography>
+              <Typography variant="body1" color="textSecondary">
+                {selectedFile.name}
+              </Typography>
             ) : isDragActive ? (
-              <Typography variant="body1" color="textSecondary">{t("drag_drop_or_click")}</Typography>
+              <Typography variant="body1" color="textSecondary">
+                {t("drag_drop_or_click")}
+              </Typography>
             ) : (
-              <Typography variant="body1" color="textSecondary">{t("drag_drop_or_click")}</Typography>
+              <Typography variant="body1" color="textSecondary">
+                {t("drag_drop_or_click")}
+              </Typography>
             )}
           </Paper>
           {fileRejections.length > 0 && (
