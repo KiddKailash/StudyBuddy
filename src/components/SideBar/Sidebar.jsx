@@ -4,8 +4,8 @@ import PropTypes from "prop-types";
 import SessionItem from "./SessionItem";
 
 // Context Imports
-import { UserContext } from "../contexts/UserContext";
-import { SnackbarContext } from "../contexts/SnackbarContext";
+import { UserContext } from "../../contexts/UserContext";
+import { SnackbarContext } from "../../contexts/SnackbarContext";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -16,29 +16,21 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import CircularProgress from "@mui/material/CircularProgress";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 // MUI Icon Imports
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
-import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
-import EditRoundedIcon from "@mui/icons-material/EditRounded";
-import PrintRoundedIcon from "@mui/icons-material/PrintRounded";
 
 // Import jsPDF
 import jsPDF from "jspdf";
 
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
+
+// Import the newly created components
+import DropdownMenu from "./DropdownMenu";
+import ConfirmationDialog from "./ConfirmationDialog";
 
 /**
  * Sidebar component that displays study sessions and handles session operations.
@@ -61,7 +53,6 @@ const Sidebar = ({
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // Initialize the translation function
   const { t } = useTranslation();
 
   const {
@@ -70,26 +61,22 @@ const Sidebar = ({
     flashcardError,
     deleteFlashcardSession,
     updateFlashcardSessionName,
-    getFlashcardSessionById, // Ensure this function is available
+    getFlashcardSessionById,
   } = useContext(UserContext);
 
-  // Access the Snackbar context
   const { showSnackbar } = useContext(SnackbarContext);
 
-  // State Variables for Menu and Dialogs
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
-  const isMenuOpen = Boolean(menuAnchorEl);
 
   const [dialogState, setDialogState] = useState({
-    type: null, // 'delete' or 'rename'
+    type: null,
     open: false,
     sessionId: null,
   });
 
   const [newSessionName, setNewSessionName] = useState("");
 
-  // Function to extract session ID from the current path
   const getActiveSessionId = () => {
     const match = location.pathname.match(/^\/flashcards\/([a-fA-F0-9]{24})$/);
     return match ? match[1] : null;
@@ -98,12 +85,6 @@ const Sidebar = ({
   const activeSessionId = getActiveSessionId();
   const isCreateSessionActive = location.pathname === "/";
 
-  /**
-   * Reusable styles object for buttons
-   * @param {object} theme - MUI theme object
-   * @param {boolean} isActive - Indicates if the button is active
-   * @returns {object} - Styles object
-   */
   const commonButtonStyles = (theme, isActive = false) => ({
     mr: 0.5,
     ml: 0.5,
@@ -118,21 +99,15 @@ const Sidebar = ({
     transition: theme.transitions.create(["background-color"], {
       duration: theme.transitions.duration.standard,
     }),
-    color: isActive ? "text.primary" : "text.primary",
+    color: "text.primary",
     "& .MuiListItemText-root": {
-      color: isActive ? "text.primary" : "text.primary",
+      color: "text.primary",
     },
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
   });
 
-  /**
-   * Opens the dropdown menu for a specific session.
-   *
-   * @param {Event} event - The click event.
-   * @param {string} sessionId - The ID of the session.
-   */
   const handleMenuOpen = (event, sessionId) => {
     event.stopPropagation();
     event.preventDefault();
@@ -140,19 +115,11 @@ const Sidebar = ({
     setSelectedSessionId(sessionId);
   };
 
-  /**
-   * Closes the dropdown menu.
-   */
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
     setSelectedSessionId(null);
   };
 
-  /**
-   * Opens a dialog based on the action type ('delete' or 'rename').
-   *
-   * @param {string} type - The type of dialog to open.
-   */
   const handleDialogOpen = (type) => {
     setDialogState({
       type,
@@ -162,9 +129,6 @@ const Sidebar = ({
     handleMenuClose();
   };
 
-  /**
-   * Closes the dialog.
-   */
   const handleDialogClose = () => {
     setDialogState({
       type: null,
@@ -174,9 +138,6 @@ const Sidebar = ({
     setNewSessionName("");
   };
 
-  /**
-   * Handles the deletion of a study session.
-   */
   const handleDeleteSession = async () => {
     const { sessionId } = dialogState;
     if (!sessionId) return;
@@ -198,9 +159,6 @@ const Sidebar = ({
     }
   };
 
-  /**
-   * Handles the renaming of a study session.
-   */
   const handleRenameSession = async () => {
     const { sessionId } = dialogState;
     if (!sessionId || !newSessionName.trim()) {
@@ -224,9 +182,6 @@ const Sidebar = ({
     }
   };
 
-  /**
-   * Handles printing the study session.
-   */
   const handlePrintSession = async () => {
     const sessionId = selectedSessionId;
     if (!sessionId) return;
@@ -240,27 +195,27 @@ const Sidebar = ({
 
       const flashcards = session.flashcardsJSON;
 
-      // Create a new PDF document
       const doc = new jsPDF();
-
-      // Define card dimensions and layout
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
 
-      const cardWidth = pageWidth / 2 - 20; // 2 cards per row with margins
-      const cardHeight = pageHeight / 4 - 20; // 4 cards per column with margins
+      const cardWidth = pageWidth / 2 - 20;
+      const cardHeight = pageHeight / 4 - 20;
 
-      const xOffset = 10; // Margin from the left
-      const yOffset = 10; // Margin from the top
-      const xSpacing = 10; // Space between cards horizontally
-      const ySpacing = 10; // Space between cards vertically
+      const xOffset = 10;
+      const yOffset = 10;
+      const xSpacing = 10;
+      const ySpacing = 10;
 
       const cardsPerRow = 2;
       const cardsPerColumn = 4;
       const cardsPerPage = cardsPerRow * cardsPerColumn;
 
-      // ** Front Side (Questions) **
-      for (let pageIndex = 0; pageIndex < Math.ceil(flashcards.length / cardsPerPage); pageIndex++) {
+      for (
+        let pageIndex = 0;
+        pageIndex < Math.ceil(flashcards.length / cardsPerPage);
+        pageIndex++
+      ) {
         if (pageIndex !== 0) {
           doc.addPage();
         }
@@ -276,24 +231,20 @@ const Sidebar = ({
           const x = xOffset + col * (cardWidth + xSpacing);
           const y = yOffset + row * (cardHeight + ySpacing);
 
-          // Draw rectangle (optional)
           doc.rect(x, y, cardWidth, cardHeight);
 
-          // Add question text
           doc.setFontSize(12);
-          doc.text(
-            card.question || "",
-            x + 5,
-            y + 10,
-            {
-              maxWidth: cardWidth - 10,
-            }
-          );
+          doc.text(card.question || "", x + 5, y + 10, {
+            maxWidth: cardWidth - 10,
+          });
         }
       }
 
-      // ** Back Side (Answers) **
-      for (let pageIndex = 0; pageIndex < Math.ceil(flashcards.length / cardsPerPage); pageIndex++) {
+      for (
+        let pageIndex = 0;
+        pageIndex < Math.ceil(flashcards.length / cardsPerPage);
+        pageIndex++
+      ) {
         doc.addPage();
 
         for (let cardIndex = 0; cardIndex < cardsPerPage; cardIndex++) {
@@ -307,23 +258,15 @@ const Sidebar = ({
           const x = xOffset + col * (cardWidth + xSpacing);
           const y = yOffset + row * (cardHeight + ySpacing);
 
-          // Draw rectangle (optional)
           doc.rect(x, y, cardWidth, cardHeight);
 
-          // Add answer text
           doc.setFontSize(12);
-          doc.text(
-            card.answer || "",
-            x + 5,
-            y + 10,
-            {
-              maxWidth: cardWidth - 10,
-            }
-          );
+          doc.text(card.answer || "", x + 5, y + 10, {
+            maxWidth: cardWidth - 10,
+          });
         }
       }
 
-      // Save the PDF
       doc.save(`${session.studySession}.pdf`);
     } catch (error) {
       console.error("Error printing session:", error);
@@ -336,9 +279,6 @@ const Sidebar = ({
     }
   };
 
-  /**
-   * useEffect hook to handle flashcardError by showing a Snackbar.
-   */
   useEffect(() => {
     if (flashcardError) {
       showSnackbar(
@@ -350,7 +290,6 @@ const Sidebar = ({
 
   const drawerContent = (
     <Box sx={{ width: drawerWidth }}>
-      {/* Add Toolbar to offset content below AppBar */}
       <Toolbar />
       <List component="nav">
         {loadingSessions ? (
@@ -359,14 +298,13 @@ const Sidebar = ({
           </ListItem>
         ) : (
           <>
-            {/* Create A Study Session Button */}
             <ListItem disablePadding key="create-session">
               <ListItemButton
                 component={Link}
-                to={`/`}
+                to="/"
                 selected={isCreateSessionActive}
                 sx={(theme) => commonButtonStyles(theme, isCreateSessionActive)}
-                onClick={isMobile ? handleDrawerToggle : undefined} // Close drawer on mobile
+                onClick={isMobile ? handleDrawerToggle : undefined}
               >
                 <ListItemText
                   primary={t("create_study_session")}
@@ -380,7 +318,6 @@ const Sidebar = ({
               </ListItemButton>
             </ListItem>
 
-            {/* Render Study Sessions */}
             {flashcardSessions.length > 0 &&
               flashcardSessions.map((session) => {
                 const isActive = session.id === activeSessionId;
@@ -398,85 +335,29 @@ const Sidebar = ({
         )}
       </List>
 
-      {/* Dropdown Menu */}
-      <Menu
+      <DropdownMenu
         anchorEl={menuAnchorEl}
-        open={isMenuOpen}
+        isOpen={Boolean(menuAnchorEl)}
         onClose={handleMenuClose}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-      >
-        <MenuItem onClick={() => handleDialogOpen("delete")}>
-          <DeleteRoundedIcon fontSize="small" sx={{ mr: 1 }} />
-          {t("delete")}
-        </MenuItem>
-        <MenuItem onClick={() => handleDialogOpen("rename")}>
-          <EditRoundedIcon fontSize="small" sx={{ mr: 1 }} />
-          {t("rename")}
-        </MenuItem>
-        <MenuItem onClick={handlePrintSession}>
-          <PrintRoundedIcon fontSize="small" sx={{ mr: 1 }} />
-          {t("print")}
-        </MenuItem>
-      </Menu>
+        onDeleteClick={() => handleDialogOpen("delete")}
+        onRenameClick={() => handleDialogOpen("rename")}
+        onPrintClick={handlePrintSession}
+        t={t}
+      />
 
-      {/* Confirmation Dialog */}
-      <Dialog
+      <ConfirmationDialog
         open={dialogState.open}
+        type={dialogState.type}
         onClose={handleDialogClose}
-        aria-labelledby="confirm-dialog-title"
-        sx={{ textAlign: "center" }}
-      >
-        <DialogTitle id="confirm-dialog-title">
-          {dialogState.type === "delete"
-            ? t("delete_study_session")
-            : t("rename_study_session")}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {dialogState.type === "delete"
-              ? t("delete_confirmation")
-              : t("rename_prompt")}
-          </DialogContentText>
-          {dialogState.type === "rename" && (
-            <TextField
-              autoFocus
-              margin="dense"
-              label={t("new_session_name")}
-              type="text"
-              fullWidth
-              variant="outlined"
-              value={newSessionName}
-              onChange={(e) => setNewSessionName(e.target.value)}
-            />
-          )}
-        </DialogContent>
-        <DialogActions
-          sx={{
-            justifyContent: "center",
-          }}
-        >
-          <Button onClick={handleDialogClose} color="primary">
-            {t("cancel")}
-          </Button>
-          <Button
-            onClick={
-              dialogState.type === "delete"
-                ? handleDeleteSession
-                : handleRenameSession
-            }
-            color={dialogState.type === "delete" ? "error" : "primary"}
-          >
-            {dialogState.type === "delete" ? t("delete") : t("rename")}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onConfirm={
+          dialogState.type === "delete"
+            ? handleDeleteSession
+            : handleRenameSession
+        }
+        newSessionName={newSessionName}
+        setNewSessionName={setNewSessionName}
+        t={t}
+      />
     </Box>
   );
 
@@ -491,7 +372,7 @@ const Sidebar = ({
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true,
         }}
         sx={{
           display: { xs: "block", sm: "none" },
@@ -511,7 +392,7 @@ const Sidebar = ({
           display: { xs: "none", sm: "block" },
           "& .MuiDrawer-paper": {
             width: drawerWidth,
-            height: `calc(100% - ${menubarHeight}px)`, // Adjust height
+            height: `calc(100% - ${menubarHeight}px)`,
           },
         }}
         open
@@ -523,10 +404,10 @@ const Sidebar = ({
 };
 
 Sidebar.propTypes = {
-  mobileOpen: PropTypes.bool.isRequired, // Indicates if the mobile drawer is open
-  handleDrawerToggle: PropTypes.func.isRequired, // Function to toggle the drawer
-  drawerWidth: PropTypes.string.isRequired, // Width of the drawer in pixels
-  menubarHeight: PropTypes.string.isRequired, // Height of the menu bar in pixels
+  mobileOpen: PropTypes.bool.isRequired,
+  handleDrawerToggle: PropTypes.func.isRequired,
+  drawerWidth: PropTypes.string.isRequired,
+  menubarHeight: PropTypes.string.isRequired,
 };
 
 export default Sidebar;

@@ -10,7 +10,7 @@ import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import MenuBar from "./components/MenuBar/MenuBar";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./components/SideBar/Sidebar";
 import GPTchat from "./components/GPTchat";
 import ProtectedRoute from "./components/ProtectedRoute";
 
