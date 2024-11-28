@@ -22,7 +22,7 @@ const Footer = () => {
     <Box
       sx={{
         marginTop: 3,
-        marginBottom: 3,
+        marginBottom: 10,
         color: "text.secondary", // Use theme text color
       }}
     >
