@@ -68,7 +68,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
             flexGrow: 1,
           }}
         >
-          <UpgradeButton />
+          {user && user.accountType !== "paid" && <UpgradeButton />}
           {user && <AccountInfo accountType={user.accountType} />}
           {/* Add more menu items as needed */}
         </Box>
