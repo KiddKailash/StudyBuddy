@@ -1,10 +1,10 @@
-// MobileMenu.jsx
-import React from "react";
+import React, {useContext} from "react";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import UpgradeButton from "./UpgradeButton";
+import { UserContext } from "../../contexts/UserContext";
 
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 const MobileMenu = ({ handleDrawerToggle }) => {
   // Initialize the translation function
   const { t } = useTranslation();
+  const { user } = useContext(UserContext);
 
   return (
     <Box sx={{ display: { sm: "none" }, alignItems: "center" }}>
@@ -27,11 +28,11 @@ const MobileMenu = ({ handleDrawerToggle }) => {
         aria-label={t("open_drawer")}
         edge="start"
         onClick={handleDrawerToggle}
-        sx={{ mr: 2 }}
+        sx={{mt: 1.3, mb: 1.3}}
       >
         <MenuIcon />
       </IconButton>
-      <UpgradeButton />
+      {user && user.accountType !== "paid" && <UpgradeButton />}
     </Box>
   );
 };
