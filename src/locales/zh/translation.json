@@ -111,5 +111,9 @@
   "error": "错误",
   "your_message": "您的消息",
   "close": "关闭",
-  "send": "发送"
+  "send": "发送",
+  "print": "打印",
+  "failed_to_retrieve_session": "获取会话失败。",
+  "error_printing_session": "打印会话时出错：{{error}}",
+   "generating_pdf": "正在生成 PDF..."
 }

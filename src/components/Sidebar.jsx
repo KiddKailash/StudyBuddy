@@ -32,6 +32,10 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import PrintRoundedIcon from "@mui/icons-material/PrintRounded";
+
+// Import jsPDF
+import jsPDF from "jspdf";
 
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
@@ -66,6 +70,7 @@ const Sidebar = ({
     flashcardError,
     deleteFlashcardSession,
     updateFlashcardSessionName,
+    getFlashcardSessionById, // Ensure this function is available
   } = useContext(UserContext);
 
   // Access the Snackbar context
@@ -220,6 +225,118 @@ const Sidebar = ({
   };
 
   /**
+   * Handles printing the study session.
+   */
+  const handlePrintSession = async () => {
+    const sessionId = selectedSessionId;
+    if (!sessionId) return;
+
+    try {
+      const session = await getFlashcardSessionById(sessionId);
+      if (!session) {
+        showSnackbar(t("failed_to_retrieve_session"), "error");
+        return;
+      }
+
+      const flashcards = session.flashcardsJSON;
+
+      // Create a new PDF document
+      const doc = new jsPDF();
+
+      // Define card dimensions and layout
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      const cardWidth = pageWidth / 2 - 20; // 2 cards per row with margins
+      const cardHeight = pageHeight / 4 - 20; // 4 cards per column with margins
+
+      const xOffset = 10; // Margin from the left
+      const yOffset = 10; // Margin from the top
+      const xSpacing = 10; // Space between cards horizontally
+      const ySpacing = 10; // Space between cards vertically
+
+      const cardsPerRow = 2;
+      const cardsPerColumn = 4;
+      const cardsPerPage = cardsPerRow * cardsPerColumn;
+
+      // ** Front Side (Questions) **
+      for (let pageIndex = 0; pageIndex < Math.ceil(flashcards.length / cardsPerPage); pageIndex++) {
+        if (pageIndex !== 0) {
+          doc.addPage();
+        }
+
+        for (let cardIndex = 0; cardIndex < cardsPerPage; cardIndex++) {
+          const index = pageIndex * cardsPerPage + cardIndex;
+          if (index >= flashcards.length) break;
+          const card = flashcards[index];
+
+          const row = Math.floor(cardIndex / cardsPerRow);
+          const col = cardIndex % cardsPerRow;
+
+          const x = xOffset + col * (cardWidth + xSpacing);
+          const y = yOffset + row * (cardHeight + ySpacing);
+
+          // Draw rectangle (optional)
+          doc.rect(x, y, cardWidth, cardHeight);
+
+          // Add question text
+          doc.setFontSize(12);
+          doc.text(
+            card.question || "",
+            x + 5,
+            y + 10,
+            {
+              maxWidth: cardWidth - 10,
+            }
+          );
+        }
+      }
+
+      // ** Back Side (Answers) **
+      for (let pageIndex = 0; pageIndex < Math.ceil(flashcards.length / cardsPerPage); pageIndex++) {
+        doc.addPage();
+
+        for (let cardIndex = 0; cardIndex < cardsPerPage; cardIndex++) {
+          const index = pageIndex * cardsPerPage + cardIndex;
+          if (index >= flashcards.length) break;
+          const card = flashcards[index];
+
+          const row = Math.floor(cardIndex / cardsPerRow);
+          const col = cardIndex % cardsPerRow;
+
+          const x = xOffset + col * (cardWidth + xSpacing);
+          const y = yOffset + row * (cardHeight + ySpacing);
+
+          // Draw rectangle (optional)
+          doc.rect(x, y, cardWidth, cardHeight);
+
+          // Add answer text
+          doc.setFontSize(12);
+          doc.text(
+            card.answer || "",
+            x + 5,
+            y + 10,
+            {
+              maxWidth: cardWidth - 10,
+            }
+          );
+        }
+      }
+
+      // Save the PDF
+      doc.save(`${session.studySession}.pdf`);
+    } catch (error) {
+      console.error("Error printing session:", error);
+      showSnackbar(
+        t("error_printing_session", {
+          error: error.response?.data?.error || error.message,
+        }),
+        "error"
+      );
+    }
+  };
+
+  /**
    * useEffect hook to handle flashcardError by showing a Snackbar.
    */
   useEffect(() => {
@@ -302,6 +419,10 @@ const Sidebar = ({
         <MenuItem onClick={() => handleDialogOpen("rename")}>
           <EditRoundedIcon fontSize="small" sx={{ mr: 1 }} />
           {t("rename")}
+        </MenuItem>
+        <MenuItem onClick={handlePrintSession}>
+          <PrintRoundedIcon fontSize="small" sx={{ mr: 1 }} />
+          {t("print")}
         </MenuItem>
       </Menu>
 

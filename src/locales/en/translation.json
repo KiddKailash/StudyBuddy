@@ -110,5 +110,9 @@
   "error": "Error",
   "your_message": "Your message",
   "close": "Close",
-  "send": "Send"
+  "send": "Send",
+  "print": "Print",
+  "failed_to_retrieve_session": "Failed to retrieve session.",
+  "error_printing_session": "Error printing session: {{error}}",
+   "generating_pdf": "Generating PDF..."
 }

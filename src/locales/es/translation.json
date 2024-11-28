@@ -111,5 +111,9 @@
   "error": "Error",
   "your_message": "Su mensaje",
   "close": "Cerrar",
-  "send": "Enviar"
+  "send": "Enviar",
+  "print": "Imprimir",
+  "failed_to_retrieve_session": "No se pudo obtener la sesión.",
+  "error_printing_session": "Error al imprimir la sesión: {{error}}",
+  "generating_pdf": "Generando PDF..."
 }
