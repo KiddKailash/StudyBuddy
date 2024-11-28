@@ -72,7 +72,7 @@ function App() {
       <Box
         sx={{
           display: "flex",
-          height: "100vh",
+          height: "80%",
           alignItems: "center",
           justifyContent: "center",
         }}
@@ -99,7 +99,7 @@ function App() {
               top: `calc(menubarHeight-5)`,
               left: 0,
               width: isExpanded ? sidebarWidth : 0,
-              height: `calc(100vh - ${menubarHeight})`,
+              height: `calc(100% - ${menubarHeight})`,
               bgcolor: "background.paper",
               overflowY: "auto",
               zIndex: 1,
@@ -128,7 +128,7 @@ function App() {
                 isMobile || !isExpanded
                   ? "100vw"
                   : `calc(100% - ${sidebarWidth})`, // Adjust width
-              height: `calc(100vh - ${menubarHeight})`, // Always the full height below the MenuBar
+              height: `calc(100% - ${menubarHeight})`, // Always the full height below the MenuBar
               padding: 2,
               bgcolor: "background.default",
               zIndex: 50, // Higher z-index to overlay other components
