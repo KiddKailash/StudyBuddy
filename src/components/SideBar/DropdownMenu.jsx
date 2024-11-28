@@ -53,10 +53,10 @@ const DropdownMenu = ({
       <EditRoundedIcon fontSize="small" sx={{ mr: 1 }} />
       {t("rename")}
     </MenuItem>
-    <MenuItem onClick={onPrintClick}>
+    {/* <MenuItem onClick={onPrintClick}>
       <PrintRoundedIcon fontSize="small" sx={{ mr: 1 }} />
       {t("print")}
-    </MenuItem>
+    </MenuItem> */}
   </Menu>
 );
 
