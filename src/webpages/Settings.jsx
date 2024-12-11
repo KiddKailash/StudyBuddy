@@ -47,6 +47,7 @@ const SettingsPage = () => {
 
   /**
    * Handles account information submission.
+   * Updates both the database and the user context.
    */
   const handleAccountInfoSubmit = async (e) => {
     e.preventDefault();
@@ -63,6 +64,7 @@ const SettingsPage = () => {
         }
       );
 
+      // Update the user in context
       setUser(response.data.user);
       showSnackbar(t("account_info_updated_success"), "success");
     } catch (err) {
@@ -78,6 +80,7 @@ const SettingsPage = () => {
 
   /**
    * Handles password change submission.
+   * Updates the database but does not alter user profile fields.
    */
   const handlePasswordChangeSubmit = async (e) => {
     e.preventDefault();
@@ -117,6 +120,7 @@ const SettingsPage = () => {
 
   /**
    * Handles preferences update.
+   * Updates both the database and the user context.
    */
   const handlePreferencesChange = async () => {
     setLoading(true);
@@ -137,6 +141,7 @@ const SettingsPage = () => {
         }
       );
 
+      // Update the user in context with new preferences
       setUser(response.data.user);
       showSnackbar(t("preferences_updated_success"), "success");
     } catch (err) {
