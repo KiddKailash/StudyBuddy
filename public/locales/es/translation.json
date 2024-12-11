@@ -55,7 +55,7 @@
   "login_mode_description": "Acceda a sus tarjetas de estudio y continúe aprendiendo.",
   "first_name": "Nombre",
   "last_name": "Apellido",
-  "company": "Empresa",
+  "company": "Organización",
   "email": "Correo electrónico",
   "password": "Contraseña",
   "agree_to_terms": "Estoy de acuerdo con los Términos de Servicio y la Política de Privacidad.",
@@ -118,5 +118,12 @@
   "generating_pdf": "Generando PDF...",
   "drag_drop_or_click": "Carga de archivos",
   "re_enter_password": "Vuelva a introducir la contraseña",
-  "passwords_do_not_match": "Las contraseñas no coinciden."
+  "passwords_do_not_match": "Las contraseñas no coinciden.",
+  "email_is_required": "Se requiere correo electrónico.",
+  "password_is_required": "Se requiere contraseña.",
+  "first_name_is_required": "Se requiere el nombre.",
+  "last_name_is_required": "Se requiere el apellido.",
+  "re_enter_password_is_required": "Debes volver a ingresar la contraseña.",
+  "must_agree_to_terms": "Debes aceptar los términos.",
+  "please_fill_in_all_required_fields": "Por favor, llene todos los campos requeridos."
 }

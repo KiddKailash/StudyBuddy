@@ -55,7 +55,7 @@
   "login_mode_description": "访问您的学习卡并继续学习。",
   "first_name": "名",
   "last_name": "姓",
-  "company": "公司",
+  "company": "组织",
   "email": "电子邮件",
   "password": "密码",
   "agree_to_terms": "我同意服务条款和隐私政策。",
@@ -118,5 +118,12 @@
   "generating_pdf": "正在生成 PDF...",
   "drag_drop_or_click": "文件上传",
   "passwords_do_not_match": "密码不匹配。",
-  "re_enter_password": "重新输入密码"
+  "re_enter_password": "重新输入密码",
+  "email_is_required": "邮箱是必填项。",
+  "password_is_required": "密码是必填项。",
+  "first_name_is_required": "名字是必填项。",
+  "last_name_is_required": "姓氏是必填项。",
+  "re_enter_password_is_required": "必须重新输入密码。",
+  "must_agree_to_terms": "您必须同意条款。",
+  "please_fill_in_all_required_fields": "请填写所有必填字段。"
 }
