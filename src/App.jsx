@@ -21,6 +21,8 @@ import PageNotFound from "./webpages/PageNotFound";
 import SettingsPage from "./webpages/Settings";
 import Success from "./webpages/Success";
 import Cancel from "./webpages/Cancel";
+import PrivacyPolicy from "./webpages/PrivacyPolicy";
+import TermsOfService from "./webpages/TermsOfService";
 
 import { UserContext } from "./contexts/UserContext";
 
@@ -48,14 +50,15 @@ function App() {
   };
 
   const pages = [
-    { path: "/", component: <StudySession /> }, // Default route
-    // { path: "/upgrade", component: <UpgradeSubscription /> },
-    { path: "/flashcards/:id", component: <FlashcardSession /> }, // Specific Flashcard Session
-    { path: "/login", component: <LoginPage /> }, // Login Page
-    { path: "/settings", component: <SettingsPage /> }, // Settings Page
-    { path: "/success", component: <Success /> }, // Payment Success Page
-    { path: "/cancel", component: <Cancel /> }, // Payment Cancelled Page
-    { path: "*", component: <PageNotFound /> }, // 404 Page
+    { path: "/", component: <StudySession /> },
+    { path: "/flashcards/:id", component: <FlashcardSession /> },
+    { path: "/login", component: <LoginPage /> },
+    { path: "/settings", component: <SettingsPage /> },
+    { path: "/success", component: <Success /> },
+    { path: "/cancel", component: <Cancel /> },
+    { path: "/terms", component: <TermsOfService /> },
+    { path: "/privacy", component: <PrivacyPolicy /> },
+    { path: "*", component: <PageNotFound /> },
   ];
 
   useEffect(() => {
@@ -63,11 +66,10 @@ function App() {
     if (location.pathname === "/success") {
       fetchCurrentUser();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]);
+  }, [location.pathname, fetchCurrentUser]);
 
   if (authLoading) {
-    // Show a loading spinner or placeholder while checking authentication
+    // Show a loading spinner while checking authentication
     return (
       <Box
         sx={{
@@ -84,9 +86,7 @@ function App() {
 
   return (
     <>
-      {!isLoggedIn ? (
-        <LoginPage />
-      ) : (
+      {isLoggedIn && (
         <>
           {/* MenuBar */}
           <MenuBar handleDrawerToggle={handleDrawerToggle} />
@@ -117,83 +117,73 @@ function App() {
               menubarHeight={menubarHeight}
             />
           </Box>
-
-          {/* Main Content */}
-          <Box
-            sx={{
-              position: "fixed",
-              top: menubarHeight, // Always below the MenuBar
-              left: isMobile || !isExpanded ? 0 : sidebarWidth, // Full width on mobile or when sidebar is hidden
-              width:
-                isMobile || !isExpanded
-                  ? "100vw"
-                  : `calc(100% - ${sidebarWidth})`, // Adjust width
-              height: `calc(100% - ${menubarHeight})`, // Always the full height below the MenuBar
-              padding: 2,
-              bgcolor: "background.default",
-              zIndex: 50, // Higher z-index to overlay other components
-              transition: "all 0.3s ease-in-out",
-              overflow: "auto", // Prevent content overflow
-            }}
-          >
-            {/* Expand/Collapse Button */}
-            {!isMobile && (
-              <IconButton
-                onClick={toggleExpand}
-                sx={{
-                  position: "fixed",
-                  bottom: "40px",
-                  right: "40px",
-                  transform: "rotate(45deg)", // Always rotate 45 degrees
-                  transition: "transform 0.3s ease-in-out",
-                  zIndex: "5000",
-                  border: "1px solid grey",
-                  bgcolor: "background.default",
-                  "&:hover": {
-                    bgcolor: "grey.200",
-                  },
-                }}
-              >
-                {isExpanded ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
-              </IconButton>
-            )}
-
-            {/* Routes */}
-            <Routes>
-              {pages.map((page, index) => (
-                <Route
-                  key={index}
-                  path={page.path}
-                  element={
-                    page.path.startsWith("/flashcards") ||
-                    page.path === "/" ||
-                    page.path === "/settings" ||
-                    page.path === "/upgrade" ? (
-                      <ProtectedRoute>{page.component}</ProtectedRoute>
-                    ) : (
-                      page.component
-                    )
-                  }
-                />
-              ))}
-            </Routes>
-          </Box>
-
-          {/* GPT Chat */}
-          {/* <Box
-            sx={
-              {
-                position: "fixed",
-                bottom: "0",
-                right: "0",
-                zIndex: 100, // Lower z-index
-              }
-            }
-          >
-            <GPTchat />
-          </Box> */}
         </>
       )}
+
+      {/* Main Content */}
+      <Box
+        sx={{
+          position: "fixed",
+          top: !isLoggedIn ? 0 : menubarHeight,
+          left: isMobile || !isExpanded || !isLoggedIn ? 0 : sidebarWidth,
+          width:
+            isMobile || !isExpanded || !isLoggedIn
+              ? "100vw"
+              : `calc(100% - ${sidebarWidth})`,
+          height: !isLoggedIn ? "100%" :`calc(100% - ${menubarHeight})`,
+          padding: 2,
+          bgcolor: "background.default",
+          zIndex: 50,
+          transition: "all 0.3s ease-in-out",
+          overflow: "auto",
+        }}
+      >
+        {/* Expand/Collapse Button only if logged in */}
+        {!isMobile && isLoggedIn && (
+          <IconButton
+            onClick={toggleExpand}
+            sx={{
+              position: "fixed",
+              bottom: "40px",
+              right: "40px",
+              transform: "rotate(45deg)",
+              transition: "transform 0.3s ease-in-out",
+              zIndex: "5000",
+              border: "1px solid grey",
+              bgcolor: "background.default",
+              "&:hover": {
+                bgcolor: "grey.200",
+              },
+            }}
+          >
+            {isExpanded ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
+          </IconButton>
+        )}
+
+        {/* Routes */}
+        <Routes>
+          {pages.map((page, index) => {
+            const isPublicPage =
+              page.path === "/login" ||
+              page.path === "/terms" ||
+              page.path === "/privacy";
+
+            return (
+              <Route
+                key={index}
+                path={page.path}
+                element={
+                  isPublicPage ? (
+                    page.component
+                  ) : (
+                    <ProtectedRoute>{page.component}</ProtectedRoute>
+                  )
+                }
+              />
+            );
+          })}
+        </Routes>
+      </Box>
     </>
   );
 }
