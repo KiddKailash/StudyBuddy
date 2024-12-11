@@ -28,8 +28,8 @@ exports.register = async (req, res) => {
   const { email, password, firstName, lastName, company } = req.body;
 
   // Basic validation
-  if (!email || !password || !firstName || !lastName || !company) {
-    return res.status(400).json({ error: 'Email, password, first name, last name, and company are required.' });
+  if (!email || !password || !firstName || !lastName) {
+    return res.status(400).json({ error: 'Email, password, first name, and last name are required.' });
   }
 
   try {
@@ -46,13 +46,16 @@ exports.register = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // Use company if provided, else set to null
+    const userCompany = company ? company : null;
+
     // Create new user with accountType "free" and initialize additional fields
     const newUser = {
       email,
       password: hashedPassword,
       firstName,
       lastName,
-      company,
+      company: userCompany,
       accountType: 'free', // Set default account type
       createdAt: new Date(),
       // Initialize subscription-related fields
@@ -82,7 +85,6 @@ exports.register = async (req, res) => {
         lastName: newUser.lastName,
         company: newUser.company,
         accountType: newUser.accountType,
-        // Include any other necessary fields
       },
     });
   } catch (error) {
@@ -132,7 +134,6 @@ exports.login = async (req, res) => {
       lastName: user.lastName,
       company: user.company,
       accountType: user.accountType,
-      // Include subscription-related fields if needed
       stripeCustomerId: user.stripeCustomerId,
       subscriptionId: user.subscriptionId,
       subscriptionStatus: user.subscriptionStatus,
@@ -193,13 +194,11 @@ exports.getCurrentUser = async (req, res) => {
         lastName: user.lastName,
         company: user.company,
         accountType: user.accountType,
-        // Include subscription-related fields if needed
         stripeCustomerId: user.stripeCustomerId,
         subscriptionId: user.subscriptionId,
         subscriptionStatus: user.subscriptionStatus,
         lastInvoice: user.lastInvoice,
         paymentStatus: user.paymentStatus,
-        // Include any other necessary fields
       },
     });
   } catch (error) {
