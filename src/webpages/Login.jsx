@@ -12,7 +12,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControl from "@mui/material/FormControl";
@@ -192,7 +192,7 @@ const LoginPage = () => {
         border: "1px solid #e0e0e0",
         borderRadius: 2,
         p: 4,
-        mt: 3
+        mt: 3,
       }}
     >
       <Box
@@ -243,7 +243,7 @@ const LoginPage = () => {
         {authMode === "create" && (
           <>
             <Grid container spacing={2} sx={{ mb: 1.5 }}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   label={t("first_name")}
@@ -255,7 +255,7 @@ const LoginPage = () => {
                   error={!!errors.firstName}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   label={t("last_name")}
@@ -341,11 +341,11 @@ const LoginPage = () => {
                 i18nKey="agree_to_terms"
                 components={[
                   <Link component={RouterLink} to="/terms" key="0" />,
-                  <Link component={RouterLink} to="/privacy" key="1" />
+                  <Link component={RouterLink} to="/privacy" key="1" />,
                 ]}
               />
             }
-            sx={{ mb: 1.5 }}
+            sx={{ mb: 1.5}}
           />
         )}
 
