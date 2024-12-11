@@ -14,13 +14,12 @@ import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 
 // Import the useTranslation hook
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 const SettingsPage = () => {
   const { user, setUser } = useContext(UserContext);
   const { showSnackbar } = useContext(SnackbarContext);
 
-  // Initialize the translation function
   const { t } = useTranslation();
 
   // State for Account Information
@@ -47,7 +46,6 @@ const SettingsPage = () => {
 
   /**
    * Handles account information submission.
-   * Updates both the database and the user context.
    */
   const handleAccountInfoSubmit = async (e) => {
     e.preventDefault();
@@ -64,7 +62,6 @@ const SettingsPage = () => {
         }
       );
 
-      // Update the user in context
       setUser(response.data.user);
       showSnackbar(t("account_info_updated_success"), "success");
     } catch (err) {
@@ -80,7 +77,6 @@ const SettingsPage = () => {
 
   /**
    * Handles password change submission.
-   * Updates the database but does not alter user profile fields.
    */
   const handlePasswordChangeSubmit = async (e) => {
     e.preventDefault();
@@ -120,7 +116,6 @@ const SettingsPage = () => {
 
   /**
    * Handles preferences update.
-   * Updates both the database and the user context.
    */
   const handlePreferencesChange = async () => {
     setLoading(true);
@@ -141,7 +136,6 @@ const SettingsPage = () => {
         }
       );
 
-      // Update the user in context with new preferences
       setUser(response.data.user);
       showSnackbar(t("preferences_updated_success"), "success");
     } catch (err) {
@@ -155,8 +149,54 @@ const SettingsPage = () => {
     }
   };
 
+  /**
+   * Handles direct subscription cancellation.
+   */
+  const handleCancelSubscription = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("User is not authenticated.");
+
+      const response = await axios.post(
+        `${
+          import.meta.env.VITE_LOCAL_BACKEND_URL
+        }/api/checkout/cancel-subscription`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update user context after cancellation
+      // Ideally, fetchCurrentUser() after cancellation, but for now:
+      const updatedUserResponse = await axios.get(
+        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/auth/me`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setUser(updatedUserResponse.data.user);
+      showSnackbar(t("subscription_canceled_successfully"), "success");
+    } catch (err) {
+      console.error("Error canceling subscription:", err);
+      showSnackbar(
+        err.response?.data?.error || t("failed_to_cancel_subscription"),
+        "error"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Container maxWidth="md" sx={{ mt: 5, alignContent: 'inherit', alignItems: 'inherit' }}>
+    <Container
+      maxWidth="md"
+      sx={{ mt: 5, alignContent: "inherit", alignItems: "inherit" }}
+    >
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" gutterBottom>
           {t("change_language")}
@@ -305,6 +345,27 @@ const SettingsPage = () => {
           </Button>
         </Box>
       </Box>
+
+      {/* Subscription Management Section */}
+      {user?.accountType === "paid" && (
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            {t("subscription_management")}
+          </Typography>
+
+          {/* Cancel Subscription Directly */}
+
+          <Button
+            variant="contained"
+            color="error"
+            sx={{ mb: 2 }}
+            onClick={handleCancelSubscription}
+            disabled={loading}
+          >
+            {loading ? t("cancelling_subscription") : t("cancel_subscription")}
+          </Button>
+        </Box>
+      )}
     </Container>
   );
 };
