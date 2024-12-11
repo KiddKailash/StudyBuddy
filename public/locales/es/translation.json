@@ -131,5 +131,113 @@
   "cancelling_subscription": "Cancelando la suscripción...",
   "cancel_subscription": "Cancelar suscripción",
   "manage_or_downgrade_subscription": "Administrar o degradar la suscripción",
-  "subscription_management": "Gestión de suscripciones"
+  "subscription_management": "Gestión de suscripciones",
+  "termsOfService": {
+    "title": "Términos de Servicio para el Acceso a Datos de Notion",
+    "effectiveDate": "Fecha de Vigencia: [Insertar Fecha]",
+    "sections": [
+      {
+        "title": "1. Aceptación de los Términos",
+        "body": "Al conectar su cuenta de Notion y otorgar a nuestra aplicación (“Servicio”) acceso al contenido de su página de Notion, usted acepta estar sujeto a estos Términos de Servicio. Si no está de acuerdo con estos términos, no autorice nuestro Servicio."
+      },
+      {
+        "title": "2. Descripción del Servicio",
+        "body": "Nuestro Servicio permite a los usuarios autorizados recuperar el contenido de sus páginas de Notion para generar tarjetas didácticas u otros materiales de estudio. La recuperación y el procesamiento de este contenido se realiza únicamente para su uso personal y no comercial (a menos que se acuerde por escrito lo contrario)."
+      },
+      {
+        "title": "3. Autorización y Acceso",
+        "body": "Al autorizar nuestro Servicio a través del proceso OAuth de Notion, usted otorga a nuestro Servicio la capacidad de leer y procesar el contenido de las páginas de Notion que especifique. Puede revocar el acceso en cualquier momento siguiendo las instrucciones proporcionadas por Notion o en la configuración del Servicio."
+      },
+      {
+        "title": "4. Responsabilidades del Usuario",
+        "body": "Usted es responsable de asegurarse de que cualquier contenido al que nos autorice acceder no viole las leyes aplicables ni infrinja los derechos de terceros. Usted declara que posee los derechos y permisos necesarios para otorgarnos acceso al contenido de la página de Notion."
+      },
+      {
+        "title": "5. Propiedad Intelectual",
+        "body": "Todo el contenido de la página de Notion sigue siendo de su propiedad o de la propiedad de sus respectivos propietarios. Nuestro Servicio no reclama la propiedad del contenido que usted proporcione o al que autorice el acceso. Las tarjetas didácticas o materiales de estudio generados a partir de su contenido siguen estando sujetos a sus derechos y a los derechos de terceros que correspondan."
+      },
+      {
+        "title": "6. Usos Prohibidos",
+        "body": "Usted se compromete a no utilizar el Servicio para cargar, almacenar, generar o compartir contenido ilegal, difamatorio, acosador, infractor o de otro modo objetable. No podrá utilizar el Servicio para violar leyes o regulaciones aplicables."
+      },
+      {
+        "title": "7. Privacidad y Uso de Datos",
+        "body": "Su privacidad es importante para nosotros. Por favor, revise nuestra Política de Privacidad para más detalles sobre cómo manejamos y protegemos sus datos."
+      },
+      {
+        "title": "8. Exención de Garantías",
+        "body": "El Servicio se proporciona \"tal cual\" y \"según disponibilidad\" sin ningún tipo de garantía. No garantizamos que el Servicio cumpla con sus requisitos, sea ininterrumpido, seguro o libre de errores, ni que cualquier información obtenida sea precisa o confiable."
+      },
+      {
+        "title": "9. Limitación de Responsabilidad",
+        "body": "En la máxima medida permitida por la ley, no seremos responsables de ningún daño directo, indirecto, incidental, especial, consecuente o ejemplar que resulte del uso o la imposibilidad de uso del Servicio, o de su confianza en cualquier contenido al que se acceda a través del Servicio."
+      },
+      {
+        "title": "10. Indemnización",
+        "body": "Usted acepta indemnizarnos y eximirnos de responsabilidad por cualquier reclamo, daño, pérdida, responsabilidad y gasto que surja o esté relacionado con su uso del Servicio, incluyendo cualquier contenido accedido desde Notion."
+      },
+      {
+        "title": "11. Terminación",
+        "body": "Nos reservamos el derecho de terminar o suspender su acceso al Servicio en cualquier momento, con o sin previo aviso, si creemos que usted ha violado estos términos o ha incurrido en mala conducta."
+      },
+      {
+        "title": "12. Cambios en los Términos",
+        "body": "Podemos modificar estos Términos de Servicio en cualquier momento. Su uso continuo del Servicio después de cualquier modificación indica su aceptación de los términos actualizados."
+      },
+      {
+        "title": "13. Ley Aplicable",
+        "body": "Estos Términos de Servicio se regirán e interpretarán de acuerdo con las leyes de [su jurisdicción], sin tener en cuenta los principios de conflicto de leyes."
+      }
+    ]
+  },
+  "privacyPolicy": {
+    "title": "Política de Privacidad para el Acceso a Datos de Notion",
+    "effectiveDate": "Fecha de Vigencia: [Insertar Fecha]",
+    "sections": [
+      {
+        "title": "1. Introducción",
+        "body": "Estamos comprometidos con la protección de su privacidad. Esta Política de Privacidad explica cómo recopilamos, utilizamos, almacenamos y divulgamos la información personal y los datos de Notion que usted proporciona a través de nuestro Servicio."
+      },
+      {
+        "title": "2. Datos que Recopilamos",
+        "body": "Información de la Cuenta: Podemos recopilar y almacenar información básica de su cuenta, como su nombre, dirección de correo electrónico e ID de usuario, proporcionados durante su registro.\nToken de Acceso a Notion: Cuando autoriza el Servicio, recibimos un token de acceso de Notion que nos permite recuperar el contenido de sus páginas en Notion.\nContenido de la Página de Notion: Accedemos y procesamos el texto y otros contenidos de las páginas de Notion que elija conectar a nuestro Servicio."
+      },
+      {
+        "title": "3. Cómo Usamos sus Datos",
+        "body": "Para Proporcionar el Servicio: Utilizamos el contenido de su página de Notion para generar tarjetas didácticas o materiales de estudio según sus solicitudes.\nPara Mantener y Mejorar el Servicio: Podemos usar datos agregados y anonimizados con fines de análisis interno y para mejorar el rendimiento y las características del Servicio."
+      },
+      {
+        "title": "4. Almacenamiento y Seguridad de los Datos",
+        "body": "Tomamos medidas razonables para proteger sus datos, incluyendo el uso de servidores seguros y cifrado cuando corresponde. Sin embargo, ningún método de almacenamiento o transmisión de datos puede garantizar un 100% de seguridad."
+      },
+      {
+        "title": "5. Compartir y Divulgar Datos",
+        "body": "Terceros: No vendemos ni alquilamos su información personal o el contenido de sus páginas de Notion a terceros. Solo compartimos datos con proveedores de servicios o contratistas según sea necesario para operar y mejorar nuestro Servicio, y están sujetos a acuerdos de confidencialidad.\nRequisitos Legales: Podemos divulgar su información si la ley lo exige o si creemos de buena fe que dicha divulgación es necesaria para cumplir con obligaciones legales o proteger los derechos, la propiedad o la seguridad de nuestros usuarios u otros."
+      },
+      {
+        "title": "6. Retención de Datos",
+        "body": "Retenemos su token de acceso a Notion y el contenido procesado mientras mantenga una cuenta con nuestro Servicio o mientras sea necesario para proporcionar la funcionalidad solicitada. Tras la revocación o terminación de su cuenta, eliminaremos o anonimizaremos sus datos de acuerdo con nuestras prácticas estándar de eliminación."
+      },
+      {
+        "title": "7. Sus Derechos y Opciones",
+        "body": "Acceso y Control: Puede revocar el acceso de nuestro Servicio a su cuenta de Notion en cualquier momento. También puede solicitar que eliminemos sus datos personales.\nActualización de su Información: Puede actualizar la información de su cuenta contactando con el soporte o a través de la configuración de su cuenta."
+      },
+      {
+        "title": "8. Transferencias Internacionales",
+        "body": "Si accede al Servicio desde fuera de [su jurisdicción], sus datos pueden transferirse y almacenarse en servidores ubicados en otros países. Tomamos medidas para garantizar la protección adecuada de su información de acuerdo con las leyes aplicables."
+      },
+      {
+        "title": "9. Privacidad de los Niños",
+        "body": "El Servicio no está dirigido a menores de 13 años (o la edad definida por la ley local). No recopilamos intencionadamente información personal de niños. Si cree que hemos recopilado dicha información, contáctenos para que podamos eliminarla."
+      },
+      {
+        "title": "10. Cambios en esta Política de Privacidad",
+        "body": "Podemos actualizar esta Política de Privacidad periódicamente. Su uso continuo del Servicio después de cualquier cambio indica su aceptación de la política actualizada."
+      },
+      {
+        "title": "11. Contáctenos",
+        "body": "Si tiene preguntas sobre esta Política de Privacidad o desea ejercer sus derechos de datos, contáctenos en [Insertar Correo Electrónico o Dirección]."
+      }
+    ]
+  }
 }
