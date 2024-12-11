@@ -125,5 +125,10 @@
   "last_name_is_required": "Last name is required.",
   "re_enter_password_is_required": "You must re-enter the password.",
   "must_agree_to_terms": "You must agree to the terms.",
-  "please_fill_in_all_required_fields": "Please fill in all required fields."
+  "please_fill_in_all_required_fields": "Please fill in all required fields.",
+  "subscription_canceled_successfully": "Subscription canceled successfully.",
+  "failed_to_cancel_subscription": "Failed to cancel subscription.",
+  "cancelling_subscription": "Cancelling subscription...",
+  "cancel_subscription": "Cancel Subscription",
+  "manage_or_downgrade_subscription": "Manage or Downgrade Subscription"
 }

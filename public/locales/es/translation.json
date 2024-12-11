@@ -125,5 +125,10 @@
   "last_name_is_required": "Se requiere el apellido.",
   "re_enter_password_is_required": "Debes volver a ingresar la contraseña.",
   "must_agree_to_terms": "Debes aceptar los términos.",
-  "please_fill_in_all_required_fields": "Por favor, llene todos los campos requeridos."
+  "please_fill_in_all_required_fields": "Por favor, llene todos los campos requeridos.",
+  "subscription_canceled_successfully": "Suscripción cancelada con éxito.",
+  "failed_to_cancel_subscription": "No se pudo cancelar la suscripción.",
+  "cancelling_subscription": "Cancelando la suscripción...",
+  "cancel_subscription": "Cancelar suscripción",
+  "manage_or_downgrade_subscription": "Administrar o degradar la suscripción"
 }
