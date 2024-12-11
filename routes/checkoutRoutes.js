@@ -101,10 +101,6 @@ router.post('/cancel-subscription', authMiddleware, async (req, res) => {
       {
         $set: {
           accountType: 'free',
-          subscriptionStatus: 'canceled',
-          subscriptionId: null,
-          lastInvoice: null,
-          paymentStatus: null,
         },
       }
     );
