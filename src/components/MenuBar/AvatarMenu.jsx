@@ -1,69 +1,34 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
-import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Divider from "@mui/material/Divider";
+import SpeedDial from "@mui/material/SpeedDial";
+import SpeedDialAction from "@mui/material/SpeedDialAction";
 import Typography from "@mui/material/Typography";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
 import { getAvatarColor, getUserInitials } from "./menubarUtils";
-
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppRoundedIcon from "@mui/icons-material/ExitToAppRounded";
-
-// Import the useTranslation hook
 import { useTranslation } from "react-i18next";
 
 /**
- * AvatarMenu component handles the user avatar and dropdown menu.
+ * AvatarMenu component refactored to use MUI SpeedDial component.
  *
  * @param {object} props - Component props.
  * @param {object} props.user - User object containing user details.
  * @param {function} props.onLogout - Function to handle user logout.
- * @returns {JSX.Element} - The rendered AvatarMenu component.
+ * @returns {JSX.Element} - The rendered AvatarMenu component as a SpeedDial.
  */
 const AvatarMenu = ({ user, onLogout }) => {
   const theme = useTheme();
-  const { showSnackbar } = useContext(SnackbarContext);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  // Initialize the translation function
   const { t } = useTranslation();
-
-  /**
-   * Opens the avatar menu.
-   * @param {object} event - The click event.
-   */
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  /**
-   * Closes the avatar menu.
-   */
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  const { showSnackbar } = useContext(SnackbarContext);
 
   return (
-    <>
-      <IconButton
-        onClick={handleMenuOpen}
-        size="small"
-        sx={{
-          ml: 2,
-          "&:focus": {
-            outline: "none",
-          },
-        }}
-        aria-controls={open ? "account-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-      >
+    <SpeedDial
+      ariaLabel="User Menu"
+      icon={
         <Avatar
           sx={{
             bgcolor: getAvatarColor(user.email, theme),
@@ -72,55 +37,28 @@ const AvatarMenu = ({ user, onLogout }) => {
         >
           {getUserInitials(user)}
         </Avatar>
-      </IconButton>
-
-      <Menu
-        anchorEl={anchorEl}
-        id="account-menu"
-        open={open}
-        onClose={handleMenuClose}
-        onClick={handleMenuClose}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            overflow: "visible",
-            mt: 1.5,
-            "& .MuiAvatar-root": {
-              width: 32,
-              height: 32,
-              ml: -0.5,
-              mr: 1,
-            },
-            "&:before": {
-              content: '""',
-              display: "block",
-              position: "absolute",
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: "background.paper",
-              transform: "translateY(-50%) rotate(45deg)",
-              zIndex: 0,
-            },
-          },
+      }
+      direction="left"
+      FabProps={{
+        size: "small",
+        sx: { "&:focus": { outline: "none" } },
+      }}
+    >
+      <SpeedDialAction
+        icon={<ExitToAppRoundedIcon color="error" />}
+        tooltipTitle={t("log_out")}
+        onClick={onLogout}
+        FabProps={{
+          sx: {},
         }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-      >
-        <MenuItem component={Link} to="/settings">
-          <SettingsIcon fontSize="small" sx={{ mr: 1 }} />
-          {t("settings")}
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={onLogout}>
-          <ExitToAppRoundedIcon fontSize="small" color="error" sx={{ mr: 1 }} />
-          <Typography variant="inherit" color="error">
-            {t("log_out")}
-          </Typography>
-        </MenuItem>
-      </Menu>
-    </>
+      />
+      <SpeedDialAction
+        icon={<SettingsIcon />}
+        tooltipTitle={t("settings")}
+        component={Link}
+        to="/settings"
+      />
+    </SpeedDial>
   );
 };
 
