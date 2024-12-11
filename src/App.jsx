@@ -134,7 +134,7 @@ function App() {
           padding: 2,
           bgcolor: "background.default",
           zIndex: 50,
-          transition: "all 0.3s ease-in-out",
+          transition: isLoggedIn ? "all 0.3s ease-in-out" : "all 0s ease-in-out",
           overflow: "auto",
         }}
       >
