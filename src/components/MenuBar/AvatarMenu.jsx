@@ -40,8 +40,7 @@ const AvatarMenu = ({ user, onLogout }) => {
       }
       direction="left"
       FabProps={{
-        size: "small",
-        sx: { "&:focus": { outline: "none" } },
+        size: "small",  
       }}
     >
       <SpeedDialAction
