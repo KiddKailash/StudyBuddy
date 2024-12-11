@@ -1,52 +1,57 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-
-// Import language detection plugin
 import LanguageDetector from 'i18next-browser-languagedetector';
-
-// Import translation files
-import translationEN from './locales/en/translation.json';
-import translationZH from './locales/zh/translation.json';
-import translationES from './locales/es/translation.json';
-
-const resources = {
-  en: { translation: translationEN },
-  zh: { translation: translationZH },
-  es: { translation: translationES },
-};
+import HttpBackend from 'i18next-http-backend';
 
 i18n
-  .use(LanguageDetector) // Detects user language
-  .use(initReactI18next) // Passes i18n instance to react-i18next
+  // Enables loading translations via HTTP
+  .use(HttpBackend)
+  // Detects user language preferences
+  .use(LanguageDetector)
+  // Passes the i18n instance to react-i18next
+  .use(initReactI18next)
   .init({
-    resources,
-    fallbackLng: 'en', // Use English if detected language is not available
+    // Fallback language in case the detected language is not available
+    fallbackLng: 'en',
+    // Supported languages in your application
     supportedLngs: ['en', 'zh', 'es'],
+    // Allows using non-exact language codes (e.g., 'en-US' falls back to 'en')
     nonExplicitSupportedLngs: true,
+    // Disables escaping since React handles it
     interpolation: {
-      escapeValue: false, // React already handles escaping
+      escapeValue: false,
     },
+    // Configuration for language detection
     detection: {
-      // Order and from where user language should be detected
+      // Order of language detection methods
       order: ['querystring', 'localStorage', 'navigator', 'htmlTag'],
-
-      // Keys or params to lookup language from
+      // Query parameter to look for language (e.g., ?lng=es)
       lookupQuerystring: 'lng',
+      // Local storage key to store the selected language
       lookupLocalStorage: 'i18nextLng',
-
-      // Cache user language on
+      // Cache the user language in local storage
       caches: ['localStorage'],
-      excludeCacheFor: ['cimode'], // Languages to not persist
-
-      // Optional htmlTag with lang attribute
+      // Languages to exclude from being cached
+      excludeCacheFor: ['cimode'],
+      // Reference to the HTML element for setting the lang attribute
       htmlTag: document.documentElement,
-
-      // Only detect languages that are in the supportedLngs
+      // Only detect languages that are in the supportedLngs list
       checkSupportedLngs: true,
+    },
+    // Backend configuration for loading translation files
+    backend: {
+      // Path to load translation files from
+      // Adjust the path based on where your locales are served
+      loadPath: '/locales/{{lng}}/translation.json',
+    },
+    // React-specific options
+    react: {
+      // Enables React Suspense for handling loading states
+      useSuspense: true,
     },
   });
 
-// Update the HTML lang attribute when language changes
+// Update the HTML lang attribute whenever the language changes
 i18n.on('languageChanged', (lng) => {
   document.documentElement.lang = lng;
 });
