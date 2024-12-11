@@ -9,8 +9,8 @@ export const UserProvider = ({ children }) => {
   const [flashcardSessions, setFlashcardSessions] = useState([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [flashcardError, setFlashcardError] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
-  const [authLoading, setAuthLoading] = useState(true); // New state to track auth loading
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [authLoading, setAuthLoading] = useState(true);
 
   /**
    * Resets the user context, clearing all user-related data.
@@ -20,11 +20,12 @@ export const UserProvider = ({ children }) => {
     setFlashcardSessions([]);
     setFlashcardError(null);
     setIsLoggedIn(false);
-    localStorage.removeItem("token"); // Remove token from localStorage
+    localStorage.removeItem("token"); 
   };
 
   /**
    * Fetches the current user data from the backend.
+   * This will also update subscription-related fields in the user object.
    */
   const fetchCurrentUser = async () => {
     const token = localStorage.getItem("token");
@@ -42,13 +43,17 @@ export const UserProvider = ({ children }) => {
           },
         }
       );
+
+      // The response includes subscription-related fields:
+      // accountType, stripeCustomerId, subscriptionId, subscriptionStatus, lastInvoice, paymentStatus
+      // These will be stored in the user object.
       setUser(response.data.user);
       setIsLoggedIn(true);
     } catch (error) {
       console.error("Error fetching current user:", error);
-      resetUserContext(); // Token might be invalid or expired
+      resetUserContext(); 
     } finally {
-      setAuthLoading(false); // Stop loading
+      setAuthLoading(false); 
     }
   };
 
@@ -68,13 +73,12 @@ export const UserProvider = ({ children }) => {
           },
         }
       );
-      setFlashcardSessions(response.data.flashcards); // flashcards already include 'id'
+      setFlashcardSessions(response.data.flashcards);
     } catch (error) {
       console.error("Error fetching flashcard sessions:", error);
       if (error.response && error.response.status === 401) {
         // Token expired or invalid
         resetUserContext();
-        // Optionally, notify the user about session expiry
       } else {
         setFlashcardError("Failed to load flashcard sessions.");
       }
@@ -85,16 +89,12 @@ export const UserProvider = ({ children }) => {
 
   /**
    * Creates a new flashcard session.
-   * @param {string} sessionName - Name of the session.
-   * @param {Array} studyCards - Array of study cards.
-   * @param {string} transcriptText - The transcript used to generate flashcards.
-   * @returns {Object|null} - The created flashcard session or null if failed.
    */
   const createFlashcardSession = async (sessionName, studyCards, transcriptText) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
-        { sessionName, studyCards, transcript: transcriptText }, // Include transcript
+        { sessionName, studyCards, transcript: transcriptText },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -103,18 +103,16 @@ export const UserProvider = ({ children }) => {
       );
       const newSession = response.data.flashcard;
       setFlashcardSessions((prev) => [...prev, newSession]);
-      return newSession; // Return the new session
+      return newSession;
     } catch (error) {
       console.error("Error creating flashcard session:", error);
       setFlashcardError("Failed to create flashcard session.");
-      return null; // Return null on failure
+      return null;
     }
   };
 
   /**
    * Adds flashcards to an existing session.
-   * @param {string} sessionId - ID of the flashcard session.
-   * @param {Array} studyCards - Array of study cards to add.
    */
   const addFlashcardsToSession = async (sessionId, studyCards) => {
     try {
@@ -137,8 +135,6 @@ export const UserProvider = ({ children }) => {
 
   /**
    * Retrieves a single flashcard session by ID.
-   * @param {string} sessionId - ID of the flashcard session.
-   * @returns {Object|null} - Flashcard session data or null if not found.
    */
   const getFlashcardSessionById = async (sessionId) => {
     try {
@@ -160,7 +156,6 @@ export const UserProvider = ({ children }) => {
 
   /**
    * Deletes a flashcard session by ID.
-   * @param {string} sessionId - ID of the flashcard session.
    */
   const deleteFlashcardSession = async (sessionId) => {
     try {
@@ -183,9 +178,6 @@ export const UserProvider = ({ children }) => {
 
   /**
    * Updates the name of an existing flashcard session.
-   * @param {string} sessionId - ID of the flashcard session.
-   * @param {string} newName - New name for the session.
-   * @returns {boolean} - Returns true if update was successful, false otherwise.
    */
   const updateFlashcardSessionName = async (sessionId, newName) => {
     try {
@@ -206,16 +198,16 @@ export const UserProvider = ({ children }) => {
             : session
         )
       );
-      return true; // Indicate success
+      return true;
     } catch (error) {
       console.error("Error updating flashcard session name:", error);
       setFlashcardError("Failed to update flashcard session name.");
-      return false; // Indicate failure
+      return false;
     }
   };
 
   /**
-   * Fetches the current user on app load.
+   * Fetch the current user on app load.
    */
   useEffect(() => {
     fetchCurrentUser();
@@ -223,7 +215,7 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   /**
-   * Fetch flashcard sessions whenever the user state changes (i.e., on login)
+   * Fetch flashcard sessions whenever the user state changes (e.g., on login or subscription changes)
    */
   useEffect(() => {
     if (user) {
@@ -252,7 +244,7 @@ export const UserProvider = ({ children }) => {
         deleteFlashcardSession,
         updateFlashcardSessionName,
         authLoading,
-        fetchCurrentUser, // Expose fetchCurrentUser function
+        fetchCurrentUser, // Expose fetchCurrentUser for manual refresh if needed
       }}
     >
       {children}
@@ -260,7 +252,6 @@ export const UserProvider = ({ children }) => {
   );
 };
 
-// PropTypes Validation
 UserProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
