@@ -30,7 +30,7 @@ const LoginPage = () => {
   const [company, setCompany] = useState("");
 
   // State to manage authentication mode: 'login' or 'create'
-  const [authMode, setAuthMode] = useState("login");
+  const [authMode, setAuthMode] = useState("create");
 
   // Loading state
   const [loading, setLoading] = useState(false);
@@ -182,7 +182,7 @@ const LoginPage = () => {
           sx={{ mt: 1, fontWeight: "bold" }}
         >
           {authMode === "create"
-            ? t("create_study_cards_from_video")
+            ? t("create_study_cards_from_resource")
             : t("login_to_your_account")}
         </Typography>
         <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
