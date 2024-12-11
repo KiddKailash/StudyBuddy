@@ -11,6 +11,7 @@ const openaiRoutes = require("./routes/openaiRoutes");
 const flashcardsRoutes = require("./routes/flashcardsRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const userRoutes = require('./routes/userRoutes');
 
 // Import the webhook handler
 const webhookHandler = require("./routes/webhookRoutes");
@@ -65,19 +66,7 @@ connectDB()
     app.use("/api/flashcards", flashcardsRoutes);
     app.use("/api/checkout", checkoutRoutes);
     app.use("/api/upload", uploadRoutes);
-
-    // Optional: Test route
-    app.get("/api/test-connection", (req, res) => {
-      const https = require("https");
-      https
-        .get("https://www.youtube.com", (response) => {
-          res.status(200).send("Able to access YouTube");
-        })
-        .on("error", (e) => {
-          console.error("Error accessing YouTube:", e);
-          res.status(500).send("Unable to access YouTube");
-        });
-    });
+    app.use("/api/users", userRoutes);
 
     // Global Error Handler for CORS and other errors
     app.use((err, req, res, next) => {
