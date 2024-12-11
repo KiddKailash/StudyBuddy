@@ -43,13 +43,19 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ error: 'User not found.' });
     }
 
-    // Attach user details to req.user
+    // Attach user details and subscription-related fields to req.user
     req.user = {
       id: user._id.toString(),
       email: user.email,
       accountType: user.accountType || 'free',
       firstName: user.firstName,
       lastName: user.lastName,
+      // Subscription-related fields
+      stripeCustomerId: user.stripeCustomerId || null,
+      subscriptionId: user.subscriptionId || null,
+      subscriptionStatus: user.subscriptionStatus || null,
+      lastInvoice: user.lastInvoice || null,
+      paymentStatus: user.paymentStatus || null,
     };
 
     next();
