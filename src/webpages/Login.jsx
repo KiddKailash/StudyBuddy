@@ -16,12 +16,12 @@ import Grid from "@mui/material/Grid";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControl from "@mui/material/FormControl";
+import Link from "@mui/material/Link";
 
-// Import the useTranslation hook
-import { useTranslation } from "react-i18next";
+import { Link as RouterLink } from "react-router-dom";
+import { useTranslation, Trans } from "react-i18next";
 
 const LoginPage = () => {
-  // State for form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,31 +29,19 @@ const LoginPage = () => {
   const [lastName, setLastName] = useState("");
   const [company, setCompany] = useState("");
   const [tosChecked, setTosChecked] = useState(false);
-
-  // Track which fields have validation errors
   const [errors, setErrors] = useState({});
-
-  // State to manage authentication mode: 'login' or 'create'
   const [authMode, setAuthMode] = useState("create");
-
-  // Loading state
   const [loading, setLoading] = useState(false);
 
-  // Accessing UserContext to reset it and update user/authentication state
   const { resetUserContext, setUser, setIsLoggedIn, isLoggedIn } =
     useContext(UserContext);
-
-  // Access Snackbar Context
   const { showSnackbar } = useContext(SnackbarContext);
 
   const navigate = useNavigate();
-
-  // Initialize the translation function
   const { t } = useTranslation();
 
   const handleAuthModeChange = (event) => {
     setAuthMode(event.target.value);
-    // Reset form fields and errors when switching modes
     setEmail("");
     setPassword("");
     setConfirmPassword("");
@@ -64,10 +52,6 @@ const LoginPage = () => {
     setErrors({});
   };
 
-  /**
-   * Validates required fields depending on auth mode.
-   * Returns true if all required fields (excluding TOS) are filled, else false.
-   */
   const validateRequiredFields = () => {
     const newErrors = {};
 
@@ -85,7 +69,6 @@ const LoginPage = () => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
-      // Show a single message if any required fields are missing
       showSnackbar(t("please_fill_in_all_required_fields"), "error");
       return false;
     }
@@ -93,9 +76,6 @@ const LoginPage = () => {
     return true;
   };
 
-  /**
-   * Checks the TOS after required fields have passed validation (in create mode).
-   */
   const validateTOS = () => {
     if (authMode === "create" && !tosChecked) {
       setErrors((prev) => ({ ...prev, tos: true }));
@@ -105,22 +85,15 @@ const LoginPage = () => {
     return true;
   };
 
-  /**
-   * Handles form submission for both login and create account.
-   *
-   * @param {Object} e - The form submission event.
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // First, validate required fields
     if (!validateRequiredFields()) {
       setLoading(false);
       return;
     }
 
-    // If creating an account, ensure passwords match
     if (authMode === "create" && password !== confirmPassword) {
       showSnackbar(t("passwords_do_not_match"), "error");
       setErrors((prev) => ({ ...prev, password: true, confirmPassword: true }));
@@ -128,17 +101,14 @@ const LoginPage = () => {
       return;
     }
 
-    // Then, validate TOS (if creating an account)
     if (!validateTOS()) {
       setLoading(false);
       return;
     }
 
-    // Determine the endpoint based on the mode
     const endpoint =
       authMode === "create" ? "/api/auth/register" : "/api/auth/login";
 
-    // Prepare the payload
     const payload =
       authMode === "create"
         ? { email, password, firstName, lastName, company: company || null }
@@ -152,18 +122,13 @@ const LoginPage = () => {
 
       const { token, user } = response.data;
 
-      // Clear any existing user data to reset contexts
       resetUserContext();
-
-      // Store token and user in localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Update user state in context
       setUser(user);
       setIsLoggedIn(true);
 
-      // Show success Snackbar
       showSnackbar(
         authMode === "create"
           ? t("account_created_successfully")
@@ -172,7 +137,6 @@ const LoginPage = () => {
       );
     } catch (err) {
       console.error(err);
-      // Show error Snackbar
       showSnackbar(
         err.response?.data?.error || t("error_occurred_try_again"),
         "error"
@@ -182,9 +146,6 @@ const LoginPage = () => {
     }
   };
 
-  /**
-   * When a field changes, remove its error state (if any).
-   */
   const handleFieldChange = (field, value) => {
     switch (field) {
       case "firstName":
@@ -231,13 +192,13 @@ const LoginPage = () => {
         border: "1px solid #e0e0e0",
         borderRadius: 2,
         p: 4,
+        mt: 3
       }}
     >
       <Box
         textAlign="center"
         sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}
       >
-        {/* RadioGroup for Auth Mode Selection */}
         <FormControl component="fieldset" sx={{ mb: 1 }}>
           <RadioGroup
             row
@@ -278,9 +239,7 @@ const LoginPage = () => {
         </Typography>
       </Box>
 
-      {/* Form */}
       <Box component="form" onSubmit={handleSubmit}>
-        {/* Conditionally render fields for Create Account */}
         {authMode === "create" && (
           <>
             <Grid container spacing={2} sx={{ mb: 1.5 }}>
@@ -320,7 +279,6 @@ const LoginPage = () => {
           </>
         )}
 
-        {/* Common Fields */}
         <TextField
           fullWidth
           label={t("email")}
@@ -375,12 +333,22 @@ const LoginPage = () => {
                 }}
               />
             }
-            label={t("agree_to_terms")}
+            label={
+              // Use the Trans component with an array of components.
+              // The first <0> placeholder is replaced by a link to /terms
+              // The second <1> placeholder is replaced by a link to /privacy
+              <Trans
+                i18nKey="agree_to_terms"
+                components={[
+                  <Link component={RouterLink} to="/terms" key="0" />,
+                  <Link component={RouterLink} to="/privacy" key="1" />
+                ]}
+              />
+            }
             sx={{ mb: 1.5 }}
           />
         )}
 
-        {/* Submit Button */}
         <Button
           fullWidth
           variant="contained"
@@ -400,7 +368,5 @@ const LoginPage = () => {
     </Container>
   );
 };
-
-LoginPage.propTypes = {};
 
 export default LoginPage;
