@@ -28,6 +28,10 @@ const LoginPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [company, setCompany] = useState("");
+  const [tosChecked, setTosChecked] = useState(false);
+
+  // Track which fields have validation errors
+  const [errors, setErrors] = useState({});
 
   // State to manage authentication mode: 'login' or 'create'
   const [authMode, setAuthMode] = useState("create");
@@ -47,20 +51,58 @@ const LoginPage = () => {
   // Initialize the translation function
   const { t } = useTranslation();
 
-  /**
-   * Handles changes in the RadioGroup (auth mode selection).
-   *
-   * @param {Object} event - The change event.
-   */
   const handleAuthModeChange = (event) => {
     setAuthMode(event.target.value);
-    // Reset form fields when switching modes
+    // Reset form fields and errors when switching modes
     setEmail("");
     setPassword("");
     setConfirmPassword("");
     setFirstName("");
     setLastName("");
     setCompany("");
+    setTosChecked(false);
+    setErrors({});
+  };
+
+  /**
+   * Validates required fields depending on auth mode.
+   * Returns true if all required fields (excluding TOS) are filled, else false.
+   */
+  const validateRequiredFields = () => {
+    const newErrors = {};
+
+    if (authMode === "login") {
+      if (!email) newErrors.email = true;
+      if (!password) newErrors.password = true;
+    } else if (authMode === "create") {
+      if (!firstName) newErrors.firstName = true;
+      if (!lastName) newErrors.lastName = true;
+      if (!email) newErrors.email = true;
+      if (!password) newErrors.password = true;
+      if (!confirmPassword) newErrors.confirmPassword = true;
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      // Show a single message if any required fields are missing
+      showSnackbar(t("please_fill_in_all_required_fields"), "error");
+      return false;
+    }
+
+    return true;
+  };
+
+  /**
+   * Checks the TOS after required fields have passed validation (in create mode).
+   */
+  const validateTOS = () => {
+    if (authMode === "create" && !tosChecked) {
+      setErrors((prev) => ({ ...prev, tos: true }));
+      showSnackbar(t("must_agree_to_terms"), "error");
+      return false;
+    }
+    return true;
   };
 
   /**
@@ -72,9 +114,22 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
 
+    // First, validate required fields
+    if (!validateRequiredFields()) {
+      setLoading(false);
+      return;
+    }
+
     // If creating an account, ensure passwords match
     if (authMode === "create" && password !== confirmPassword) {
       showSnackbar(t("passwords_do_not_match"), "error");
+      setErrors((prev) => ({ ...prev, password: true, confirmPassword: true }));
+      setLoading(false);
+      return;
+    }
+
+    // Then, validate TOS (if creating an account)
+    if (!validateTOS()) {
       setLoading(false);
       return;
     }
@@ -117,7 +172,6 @@ const LoginPage = () => {
       );
     } catch (err) {
       console.error(err);
-
       // Show error Snackbar
       showSnackbar(
         err.response?.data?.error || t("error_occurred_try_again"),
@@ -129,8 +183,41 @@ const LoginPage = () => {
   };
 
   /**
-   * Effect to handle navigation after successful login or account creation.
+   * When a field changes, remove its error state (if any).
    */
+  const handleFieldChange = (field, value) => {
+    switch (field) {
+      case "firstName":
+        setFirstName(value);
+        break;
+      case "lastName":
+        setLastName(value);
+        break;
+      case "company":
+        setCompany(value);
+        break;
+      case "email":
+        setEmail(value);
+        break;
+      case "password":
+        setPassword(value);
+        break;
+      case "confirmPassword":
+        setConfirmPassword(value);
+        break;
+      default:
+        break;
+    }
+
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       navigate("/");
@@ -141,7 +228,6 @@ const LoginPage = () => {
     <Container
       maxWidth="sm"
       sx={{
-        mt: 5,
         border: "1px solid #e0e0e0",
         borderRadius: 2,
         p: 4,
@@ -152,7 +238,7 @@ const LoginPage = () => {
         sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}
       >
         {/* RadioGroup for Auth Mode Selection */}
-        <FormControl component="fieldset" sx={{ mb: 3 }}>
+        <FormControl component="fieldset" sx={{ mb: 1 }}>
           <RadioGroup
             row
             aria-label="auth mode"
@@ -197,15 +283,17 @@ const LoginPage = () => {
         {/* Conditionally render fields for Create Account */}
         {authMode === "create" && (
           <>
-            <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid container spacing={2} sx={{ mb: 1.5 }}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label={t("first_name")}
                   variant="outlined"
-                  required
                   value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("firstName", e.target.value)
+                  }
+                  error={!!errors.firstName}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -213,9 +301,11 @@ const LoginPage = () => {
                   fullWidth
                   label={t("last_name")}
                   variant="outlined"
-                  required
                   value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("lastName", e.target.value)
+                  }
+                  error={!!errors.lastName}
                 />
               </Grid>
             </Grid>
@@ -223,9 +313,9 @@ const LoginPage = () => {
               fullWidth
               label={t("company")}
               variant="outlined"
-              sx={{ mb: 2 }}
+              sx={{ mb: 1.5 }}
               value={company}
-              onChange={(e) => setCompany(e.target.value)}
+              onChange={(e) => handleFieldChange("company", e.target.value)}
             />
           </>
         )}
@@ -236,20 +326,20 @@ const LoginPage = () => {
           label={t("email")}
           type="email"
           variant="outlined"
-          sx={{ mb: 2 }}
+          sx={{ mb: 1.5 }}
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
+          onChange={(e) => handleFieldChange("email", e.target.value)}
+          error={!!errors.email}
         />
         <TextField
           fullWidth
           label={t("password")}
           type="password"
           variant="outlined"
-          sx={{ mb: 2 }}
+          sx={{ mb: 1.5 }}
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
+          onChange={(e) => handleFieldChange("password", e.target.value)}
+          error={!!errors.password}
         />
 
         {authMode === "create" && (
@@ -258,19 +348,35 @@ const LoginPage = () => {
             label={t("re_enter_password")}
             type="password"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{ mb: 1.5 }}
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
+            onChange={(e) =>
+              handleFieldChange("confirmPassword", e.target.value)
+            }
+            error={!!errors.confirmPassword}
           />
         )}
 
-        {/* Conditionally render Terms of Service checkbox for Create Account */}
         {authMode === "create" && (
           <FormControlLabel
-            control={<Checkbox color="primary" required />}
+            control={
+              <Checkbox
+                color="primary"
+                checked={tosChecked}
+                onChange={(e) => {
+                  setTosChecked(e.target.checked);
+                  if (errors.tos) {
+                    setErrors((prev) => {
+                      const newErrors = { ...prev };
+                      delete newErrors.tos;
+                      return newErrors;
+                    });
+                  }
+                }}
+              />
+            }
             label={t("agree_to_terms")}
-            sx={{ mb: 2 }}
+            sx={{ mb: 1.5 }}
           />
         )}
 
@@ -279,7 +385,6 @@ const LoginPage = () => {
           fullWidth
           variant="contained"
           color="primary"
-          sx={{ mt: 2 }}
           type="submit"
           disabled={loading}
         >
@@ -296,7 +401,6 @@ const LoginPage = () => {
   );
 };
 
-// Removed propTypes since we are not passing props
 LoginPage.propTypes = {};
 
 export default LoginPage;
