@@ -130,5 +130,6 @@
   "failed_to_cancel_subscription": "取消订阅失败。",
   "cancelling_subscription": "正在取消订阅...",
   "cancel_subscription": "取消订阅",
-  "manage_or_downgrade_subscription": "管理或降级订阅"
+  "manage_or_downgrade_subscription": "管理或降级订阅",
+  "subscription_management": "订阅管理"
 }

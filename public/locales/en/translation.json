@@ -130,5 +130,6 @@
   "failed_to_cancel_subscription": "Failed to cancel subscription.",
   "cancelling_subscription": "Cancelling subscription...",
   "cancel_subscription": "Cancel Subscription",
-  "manage_or_downgrade_subscription": "Manage or Downgrade Subscription"
+  "manage_or_downgrade_subscription": "Manage or Downgrade Subscription",
+  "subscription_management": "Subscription Management"
 }

@@ -130,5 +130,6 @@
   "failed_to_cancel_subscription": "No se pudo cancelar la suscripción.",
   "cancelling_subscription": "Cancelando la suscripción...",
   "cancel_subscription": "Cancelar suscripción",
-  "manage_or_downgrade_subscription": "Administrar o degradar la suscripción"
+  "manage_or_downgrade_subscription": "Administrar o degradar la suscripción",
+  "subscription_management": "Gestión de suscripciones"
 }
