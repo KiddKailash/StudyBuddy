@@ -12,7 +12,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControl from "@mui/material/FormControl";
@@ -24,6 +24,7 @@ const LoginPage = () => {
   // State for form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [company, setCompany] = useState("");
@@ -56,6 +57,7 @@ const LoginPage = () => {
     // Reset form fields when switching modes
     setEmail("");
     setPassword("");
+    setConfirmPassword("");
     setFirstName("");
     setLastName("");
     setCompany("");
@@ -70,6 +72,13 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
 
+    // If creating an account, ensure passwords match
+    if (authMode === "create" && password !== confirmPassword) {
+      showSnackbar(t("passwords_do_not_match"), "error");
+      setLoading(false);
+      return;
+    }
+
     // Determine the endpoint based on the mode
     const endpoint =
       authMode === "create" ? "/api/auth/register" : "/api/auth/login";
@@ -77,7 +86,7 @@ const LoginPage = () => {
     // Prepare the payload
     const payload =
       authMode === "create"
-        ? { email, password, firstName, lastName, company }
+        ? { email, password, firstName, lastName, company: company || null }
         : { email, password };
 
     try {
@@ -126,8 +135,7 @@ const LoginPage = () => {
     if (isLoggedIn) {
       navigate("/");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoggedIn]);
+  }, [isLoggedIn, navigate]);
 
   return (
     <Container
@@ -139,7 +147,10 @@ const LoginPage = () => {
         p: 4,
       }}
     >
-      <Box textAlign="center" sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}>
+      <Box
+        textAlign="center"
+        sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}
+      >
         {/* RadioGroup for Auth Mode Selection */}
         <FormControl component="fieldset" sx={{ mb: 3 }}>
           <RadioGroup
@@ -149,7 +160,11 @@ const LoginPage = () => {
             value={authMode}
             onChange={handleAuthModeChange}
           >
-            <FormControlLabel value="login" control={<Radio />} label={t("login")} />
+            <FormControlLabel
+              value="login"
+              control={<Radio />}
+              label={t("login")}
+            />
             <FormControlLabel
               value="create"
               control={<Radio />}
@@ -159,7 +174,7 @@ const LoginPage = () => {
         </FormControl>
 
         <Typography variant="h4" color="primary">
-          ClipCard
+          Study SMART
         </Typography>
         <Typography
           variant="h5"
@@ -183,7 +198,7 @@ const LoginPage = () => {
         {authMode === "create" && (
           <>
             <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label={t("first_name")}
@@ -193,7 +208,7 @@ const LoginPage = () => {
                   onChange={(e) => setFirstName(e.target.value)}
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label={t("last_name")}
@@ -236,6 +251,19 @@ const LoginPage = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+
+        {authMode === "create" && (
+          <TextField
+            fullWidth
+            label={t("re_enter_password")}
+            type="password"
+            variant="outlined"
+            sx={{ mb: 2 }}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        )}
 
         {/* Conditionally render Terms of Service checkbox for Create Account */}
         {authMode === "create" && (
