@@ -58,7 +58,7 @@
   "company": "组织",
   "email": "电子邮件",
   "password": "密码",
-  "agree_to_terms": "我同意服务条款和隐私政策。",
+  "agree_to_terms": "我同意 <0>服务条款</0> 和 <1>隐私政策</1>。",
   "creating_account": "正在创建账户...",
   "logging_in": "正在登录...",
   "create_your_clipcard_account": "创建您的 ClipCard 账户",

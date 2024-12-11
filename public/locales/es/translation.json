@@ -58,7 +58,7 @@
   "company": "Organización",
   "email": "Correo electrónico",
   "password": "Contraseña",
-  "agree_to_terms": "Estoy de acuerdo con los Términos de Servicio y la Política de Privacidad.",
+  "agree_to_terms": "Acepto los <0>Términos de Servicio</0> y la <1>Política de Privacidad</1>.",
   "creating_account": "Creando Cuenta...",
   "logging_in": "Iniciando sesión...",
   "create_your_clipcard_account": "Cree su cuenta de ClipCard",
