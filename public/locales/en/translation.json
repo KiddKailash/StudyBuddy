@@ -15,7 +15,7 @@
   "error_renaming_study_session": "Error renaming the study session: {{error}}",
   "error_loading_study_sessions": "Error loading study sessions: {{error}}",
   "options": "Options",
-  "footer_notice": "ClipCard may make typing errors. Verify important information.",
+  "footer_notice": "StudyBuddy may make typing errors. Verify important information.",
   "question": "Question",
   "answer": "Answer",
   "login": "Log in",
