@@ -10,8 +10,6 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import Switch from "@mui/material/Switch";
-import FormControlLabel from "@mui/material/FormControlLabel";
 
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
@@ -194,8 +192,8 @@ const SettingsPage = () => {
 
   return (
     <Container
-      maxWidth="md"
-      sx={{ mt: 5, alignContent: "inherit", alignItems: "inherit" }}
+      maxWidth="xl"
+      sx={{ mt: 5, alignContent: "inherit", alignItems: "inherit", textAlign: 'left' }}
     >
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" gutterBottom>
@@ -308,7 +306,7 @@ const SettingsPage = () => {
       </Box>
 
       {/* Preferences */}
-      <Box sx={{ mb: 4 }}>
+      {/* <Box sx={{ mb: 4 }}>
         <Typography variant="h6" gutterBottom>
           {t("preferences")}
         </Typography>
@@ -344,7 +342,7 @@ const SettingsPage = () => {
             {loading ? t("updating_preferences") : t("update_preferences")}
           </Button>
         </Box>
-      </Box>
+      </Box> */}
 
       {/* Subscription Management Section */}
       {user?.accountType === "paid" && (

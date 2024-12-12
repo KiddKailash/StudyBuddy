@@ -13,7 +13,7 @@ import MenuItem from '@mui/material/MenuItem';
  * @returns {JSX.Element} The rendered LanguageSwitcher component.
  */
 const LanguageSwitcher = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
   /**
@@ -29,16 +29,18 @@ const LanguageSwitcher = () => {
   };
 
   return (
-      <FormControl fullWidth variant="outlined" size="small">
+      <FormControl fullWidth variant="outlined">
         <InputLabel id="language-select-label">
-          Language
+          {t("language")}
         </InputLabel>
         <Select
           labelId="language-select-label"
           id="language-select"
+          variant="outlined"
+          fullWidth
           value={currentLanguage}
           onChange={handleLanguageChange}
-          label="Language"
+          label={t("language")}
         >
           <MenuItem value="en">English</MenuItem>
           <MenuItem value="zh">中文</MenuItem>
