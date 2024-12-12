@@ -61,12 +61,12 @@ function App() {
     { path: "*", component: <PageNotFound /> },
   ];
 
-  useEffect(() => {
-    // Re-fetch user data when returning from the success page
-    if (location.pathname === "/success") {
-      fetchCurrentUser();
-    }
-  }, [location.pathname, fetchCurrentUser]);
+  // useEffect(() => {
+  //   // Re-fetch user data when returning from the success page
+  //   if (location.pathname === "/success") {
+  //     fetchCurrentUser();
+  //   }
+  // }, [location.pathname, fetchCurrentUser]);
 
   if (authLoading) {
     // Show a loading spinner while checking authentication

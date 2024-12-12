@@ -15,12 +15,6 @@ const Success = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // No need to re-fetch user here because App.jsx is doing it.
-
-  useEffect(() => {
-    // If you want to do something with session_id, you can, but not fetching user now.
-  }, [location.search]);
-
   return (
     <Container maxWidth="sm" sx={{ mt: 10, textAlign: 'center' }}>
       <Box>
