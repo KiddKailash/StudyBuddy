@@ -79,13 +79,13 @@ const ConfirmationDialog = ({
 );
 
 ConfirmationDialog.propTypes = {
-  open: PropTypes.bool.isRequired,
-  type: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
+  open: PropTypes.bool,
+  type: PropTypes.string,
+  onClose: PropTypes.func,
+  onConfirm: PropTypes.func,
   newSessionName: PropTypes.string,
   setNewSessionName: PropTypes.func,
-  t: PropTypes.func.isRequired,
+  t: PropTypes.func,
 };
 
 export default ConfirmationDialog;
