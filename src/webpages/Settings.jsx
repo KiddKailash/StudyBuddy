@@ -10,6 +10,11 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
@@ -17,7 +22,6 @@ import { useTranslation } from "react-i18next";
 const SettingsPage = () => {
   const { user, setUser } = useContext(UserContext);
   const { showSnackbar } = useContext(SnackbarContext);
-
   const { t } = useTranslation();
 
   // State for Account Information
@@ -26,7 +30,7 @@ const SettingsPage = () => {
   const [email, setEmail] = useState(user?.email || "");
   const [company, setCompany] = useState(user?.company || "");
 
-  // State for Preferences
+  // Preferences states (if needed)
   const [darkMode, setDarkMode] = useState(
     user?.preferences?.darkMode || false
   );
@@ -41,6 +45,9 @@ const SettingsPage = () => {
 
   // Loading State
   const [loading, setLoading] = useState(false);
+
+  // Dialog State for Cancel Subscription Confirmation
+  const [openDialog, setOpenDialog] = useState(false);
 
   /**
    * Handles account information submission.
@@ -156,7 +163,7 @@ const SettingsPage = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("User is not authenticated.");
 
-      const response = await axios.post(
+      await axios.post(
         `${
           import.meta.env.VITE_LOCAL_BACKEND_URL
         }/api/checkout/cancel-subscription`,
@@ -169,7 +176,6 @@ const SettingsPage = () => {
       );
 
       // Update user context after cancellation
-      // Ideally, fetchCurrentUser() after cancellation, but for now:
       const updatedUserResponse = await axios.get(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/auth/me`,
         {
@@ -187,15 +193,21 @@ const SettingsPage = () => {
       );
     } finally {
       setLoading(false);
+      setOpenDialog(false); // Close the dialog after operation
     }
   };
 
   return (
     <Container
       maxWidth="xl"
-      sx={{ mt: 5, alignContent: "inherit", alignItems: "inherit", textAlign: 'left' }}
+      sx={{
+        mt: 5,
+        alignContent: "inherit",
+        alignItems: "inherit",
+        textAlign: "left",
+      }}
     >
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 2 }}>
         <Typography variant="h4" gutterBottom>
           {t("change_language")}
         </Typography>
@@ -206,7 +218,7 @@ const SettingsPage = () => {
       <Typography variant="h4" gutterBottom>
         {t("account_settings")}
       </Typography>
-      <Box component="form" onSubmit={handleAccountInfoSubmit} sx={{ mb: 4 }}>
+      <Box component="form" onSubmit={handleAccountInfoSubmit} sx={{ mb: 2 }}>
         <Typography variant="h6" gutterBottom>
           {t("account_information")}
         </Typography>
@@ -260,7 +272,7 @@ const SettingsPage = () => {
       <Box
         component="form"
         onSubmit={handlePasswordChangeSubmit}
-        sx={{ mb: 4 }}
+        sx={{ mb: 2 }}
       >
         <Typography variant="h6" gutterBottom>
           {t("change_password")}
@@ -305,63 +317,42 @@ const SettingsPage = () => {
         </Button>
       </Box>
 
-      {/* Preferences */}
-      {/* <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" gutterBottom>
-          {t("preferences")}
-        </Typography>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={darkMode}
-              onChange={(e) => setDarkMode(e.target.checked)}
-              name="darkMode"
-              color="primary"
-            />
-          }
-          label={t("enable_dark_mode")}
-        />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={notificationsEnabled}
-              onChange={(e) => setNotificationsEnabled(e.target.checked)}
-              name="notificationsEnabled"
-              color="primary"
-            />
-          }
-          label={t("enable_notifications")}
-        />
-        <Box sx={{ mt: 2 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handlePreferencesChange}
-            disabled={loading}
-          >
-            {loading ? t("updating_preferences") : t("update_preferences")}
-          </Button>
-        </Box>
-      </Box> */}
-
       {/* Subscription Management Section */}
       {user?.accountType === "paid" && (
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="h6" gutterBottom>
             {t("subscription_management")}
           </Typography>
-
-          {/* Cancel Subscription Directly */}
-
-          <Button
-            variant="contained"
-            color="error"
-            sx={{ mb: 2 }}
-            onClick={handleCancelSubscription}
-            disabled={loading}
-          >
-            {loading ? t("cancelling_subscription") : t("cancel_subscription")}
+          <Button variant="contained" onClick={() => setOpenDialog(true)}>
+            {t("cancel_subscription")}
           </Button>
+
+          {/* Confirmation Dialog */}
+          <Dialog
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+            sx={{ textAlign: "center"}}
+          >
+            <DialogTitle sx={{pb: 1}}>{t("confirm_cancel_subscription")}</DialogTitle>
+            <DialogContent sx={{pb: 1}}>
+              <DialogContentText>
+                {t("cancel_subscription_warning")}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions sx={{justifyContent: "center" }}>
+              <Button onClick={() => setOpenDialog(false)} color="primary">
+                {t("cancel")}
+              </Button>
+              <Button
+                variant="text"
+                color="error"
+                onClick={handleCancelSubscription}
+                disabled={loading}
+              >
+                {loading ? t("cancelling_subscription") : t("confirm_cancel")}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       )}
     </Container>
