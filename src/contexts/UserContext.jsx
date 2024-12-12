@@ -29,6 +29,7 @@ export const UserProvider = ({ children }) => {
    */
   const fetchCurrentUser = async () => {
     const token = localStorage.getItem("token");
+    console.log(`Token loaded on mount: ${token}`)
     if (!token) {
       setAuthLoading(false); // No token, stop loading
       return;
