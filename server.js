@@ -12,7 +12,7 @@ const flashcardsRoutes = require("./routes/flashcardsRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const userRoutes = require('./routes/userRoutes');
-const notionRoutes = require("./routes/notionRoutes");
+// const notionRoutes = require("./routes/notionRoutes");
 
 // Import the webhook handler
 const webhookHandler = require("./routes/webhookRoutes");
@@ -68,7 +68,7 @@ connectDB()
     app.use("/api/checkout", checkoutRoutes);
     app.use("/api/upload", uploadRoutes);
     app.use("/api/users", userRoutes);
-    app.use("/api/notion", notionRoutes);
+    // app.use("/api/notion", notionRoutes);
 
     // Global Error Handler for CORS and other errors
     app.use((err, req, res, next) => {
