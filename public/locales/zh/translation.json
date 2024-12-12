@@ -15,7 +15,7 @@
   "error_renaming_study_session": "重命名学习会话时出错：{{error}}",
   "error_loading_study_sessions": "加载学习会话时出错：{{error}}",
   "options": "选项",
-  "footer_notice": "ClipCard 可能会出现输入错误。请检查重要信息。",
+  "footer_notice": "StudyBuddy 可能会出现输入错误。请核实重要信息。",
   "question": "问题",
   "answer": "答案",
   "login": "登录",

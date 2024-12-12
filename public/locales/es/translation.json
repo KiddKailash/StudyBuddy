@@ -15,7 +15,7 @@
   "error_renaming_study_session": "Error al renombrar la sesión de estudio: {{error}}",
   "error_loading_study_sessions": "Error al cargar las sesiones de estudio: {{error}}",
   "options": "Opciones",
-  "footer_notice": "ClipCard puede tener errores de tipeo. Verifique información importante.",
+  "footer_notice": "StudyBuddy puede cometer errores tipográficos. Verifique la información importante.",
   "question": "Pregunta",
   "answer": "Respuesta",
   "login": "Iniciar sesión",
@@ -244,5 +244,4 @@
   "confirm_cancel_subscription": "Confirmar la cancelación de la suscripción",
   "cancel_subscription_warning": "¿Está seguro de que desea cancelar su suscripción? Esta acción no se puede deshacer.",
   "confirm_cancel": "Confirmar"
-
 }
