@@ -22,7 +22,6 @@ import Paper from "@mui/material/Paper";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import NoteIcon from "@mui/icons-material/Note";
 
 // Import the useTranslation hook and Trans component
 import { useTranslation, Trans } from "react-i18next";
@@ -31,9 +30,7 @@ const StudySession = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
   const [loadingTranscript, setLoadingTranscript] = useState(false);
-  const [tabValue, setTabValue] = useState(0); // 0: Upload, 1: Paste, 2: Notion
-  const [notionAuthorized, setNotionAuthorized] = useState(false);
-  const [notionPageContent, setNotionPageContent] = useState("");
+  const [tabValue, setTabValue] = useState(0); // 0: Upload, 1: Paste
 
   const { user, flashcardSessions, setFlashcardSessions } = useContext(UserContext);
   const accountType = user?.accountType || "free";
@@ -43,85 +40,17 @@ const StudySession = () => {
   // Initialize the translation function
   const { t } = useTranslation();
 
-  // Check authorization with Notion on component mount or user change
-  useEffect(() => {
-    // Example: Check if user has already authorized Notion
-    // Your backend might provide an endpoint like `/api/notion/is-authorized`
-    const checkNotionAuthorization = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return; // user not logged in
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/is-authorized`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setNotionAuthorized(response.data.authorized);
-      } catch (err) {
-        console.error("Error checking Notion authorization:", err);
-      }
-    };
-
-    checkNotionAuthorization();
-  }, [user]);
-
   // Handle Tab Change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
     // Reset inputs when switching tabs
     setSelectedFile(null);
     setPastedText("");
-    setNotionPageContent("");
   };
 
   // Handle File Selection
   const handleFileChange = (acceptedFiles) => {
     setSelectedFile(acceptedFiles[0]);
-  };
-
-  const handleNotionAuthorization = async () => {
-    // Get the authorization URL from the backend
-    const token = localStorage.getItem("token");
-    if (!token) {
-      showSnackbar(t("user_not_authenticated"), "error");
-      return;
-    }
-
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/auth-url`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const authUrl = response.data.url;
-      // Redirect the user to the Notion OAuth URL
-      window.location.href = authUrl;
-    } catch (err) {
-      console.error("Error getting Notion auth URL:", err);
-      showSnackbar(t("error_processing_request"), "error");
-    }
-  };
-
-  const fetchNotionPageContent = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      showSnackbar(t("user_not_authenticated"), "error");
-      return;
-    }
-
-    try {
-      // For simplicity, let's say we have a single page ID stored or we prompt the user to set it somewhere else
-      const response = await axios.get(`${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/page-content`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setNotionPageContent(response.data.content);
-      showSnackbar(t("notion_content_fetched"), "success");
-    } catch (err) {
-      console.error("Error fetching Notion page content:", err);
-      showSnackbar(t("error_processing_request"), "error");
-    }
   };
 
   const handleFetchAndGenerate = async () => {
@@ -184,19 +113,6 @@ const StudySession = () => {
           return;
         }
         transcriptText = pastedText.trim();
-      } else if (tabValue === 2) {
-        // Notion Tab
-        if (!notionAuthorized) {
-          showSnackbar(t("notion_not_authorized"), "error");
-          setLoadingTranscript(false);
-          return;
-        }
-        if (!notionPageContent.trim()) {
-          showSnackbar(t("no_notion_content"), "error");
-          setLoadingTranscript(false);
-          return;
-        }
-        transcriptText = notionPageContent.trim();
       }
 
       // Generate Flashcards
@@ -323,12 +239,6 @@ const StudySession = () => {
           id="tab-1"
           aria-controls="tabpanel-1"
         />
-        <Tab
-          icon={<NoteIcon />}
-          label={t("notion_page")}
-          id="tab-2"
-          aria-controls="tabpanel-2"
-        />
       </Tabs>
 
       {tabValue === 0 && (
@@ -376,48 +286,6 @@ const StudySession = () => {
             rows={7}
             sx={{ mb: 2 }}
           />
-        </Box>
-      )}
-
-      {tabValue === 2 && (
-        <Box>
-          {!notionAuthorized ? (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleNotionAuthorization}
-              fullWidth
-              sx={{ mb: 2 }}
-            >
-              {t("authorize_notion")}
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={fetchNotionPageContent}
-                fullWidth
-                sx={{ mb: 2 }}
-              >
-                {t("fetch_notion_content")}
-              </Button>
-              {notionPageContent && (
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-                    {t("notion_content_preview")}
-                  </Typography>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="body1">
-                      {notionPageContent.length > 200
-                        ? notionPageContent.substring(0, 200) + "..."
-                        : notionPageContent}
-                    </Typography>
-                  </Paper>
-                </Box>
-              )}
-            </>
-          )}
         </Box>
       )}
 
