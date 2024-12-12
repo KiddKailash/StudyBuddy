@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
+const bodyParser = require("body-parser");
 const { connectDB } = require("./utils/db");
 
 // Import Routes
@@ -11,8 +12,7 @@ const openaiRoutes = require("./routes/openaiRoutes");
 const flashcardsRoutes = require("./routes/flashcardsRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
-const userRoutes = require('./routes/userRoutes');
-// const notionRoutes = require("./routes/notionRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 // Import the webhook handler
 const webhookHandler = require("./routes/webhookRoutes");
@@ -20,7 +20,6 @@ const webhookHandler = require("./routes/webhookRoutes");
 const app = express();
 const PORT = process.env.PORT || 5002;
 
-// Connect to Database
 connectDB()
   .then(() => {
     // CORS Configuration
@@ -31,13 +30,11 @@ connectDB()
     app.use(
       cors({
         origin: function (origin, callback) {
-          // Allow requests with no origin (like mobile apps or curl requests)
           if (!origin) return callback(null, true);
-          if (allowedOrigins.indexOf(origin) !== -1) {
+          if (allowedOrigins.includes(origin)) {
             return callback(null, true);
-          } else {
-            return callback(new Error("Not allowed by CORS"));
           }
+          return callback(new Error("Not allowed by CORS"));
         },
       })
     );
@@ -45,22 +42,33 @@ connectDB()
     // Rate Limiting
     const limiter = rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 500, // Limit each IP to 100 requests per windowMs
+      max: 500, // Adjust as needed
       message: "Too many requests from this IP, please try again later.",
     });
     app.use(limiter);
 
-    // *** Apply express.raw() middleware and define webhook route ***
+    /**
+     * Define the Stripe Webhook endpoint BEFORE applying global JSON parsing.
+     * Stripe requires the raw body to verify the signature.
+     */
     app.post(
       "/api/webhook",
-      express.raw({ type: "application/json" }),
+      bodyParser.raw({ type: "application/json" }),
       webhookHandler
     );
 
-    // *** Now apply express.json() middleware globally ***
+    // Now we apply JSON parsing for all other routes.
     app.use(express.json());
 
-    // Routes
+    /**
+     * If you have authMiddleware, apply it here if necessary:
+     * const authMiddleware = require('./middleware/authMiddleware');
+     * app.use(authMiddleware);
+     *
+     * Make sure not to apply authMiddleware to the webhook route above.
+     */
+
+    // Define all other routes that can safely use express.json()
     app.use("/api/auth", authRoutes);
     app.use("/api/transcript", transcriptRoutes);
     app.use("/api/openai", openaiRoutes);
@@ -68,16 +76,14 @@ connectDB()
     app.use("/api/checkout", checkoutRoutes);
     app.use("/api/upload", uploadRoutes);
     app.use("/api/users", userRoutes);
-    // app.use("/api/notion", notionRoutes);
 
-    // Global Error Handler for CORS and other errors
+    // Global error handler
     app.use((err, req, res, next) => {
       if (err.message === "Not allowed by CORS") {
-        res.status(403).json({ error: "CORS Error: Access denied." });
-      } else {
-        console.error("Global Error Handler:", err);
-        res.status(500).json({ error: "Internal Server Error" });
+        return res.status(403).json({ error: "CORS Error: Access denied." });
       }
+      console.error("Global Error Handler:", err);
+      res.status(500).json({ error: "Internal Server Error" });
     });
 
     // Start the server
