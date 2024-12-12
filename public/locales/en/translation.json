@@ -240,5 +240,8 @@
       }
     ]
   },
-  "language": "Language"
+  "language": "Language",
+  "confirm_cancel_subscription": "Confirm Cancel Subscription",
+  "cancel_subscription_warning": "Are you sure you want to cancel your subscription? This action cannot be undone.",
+  "confirm_cancel": "Confirm Cancel"
 }
