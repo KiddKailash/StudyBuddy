@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
+
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import Button from "@mui/material/Button";
@@ -17,6 +18,7 @@ const NotionIntegration = () => {
 
   useEffect(() => {
     checkAuthorization();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAuthorization = async () => {
@@ -126,7 +128,11 @@ const NotionIntegration = () => {
               fullWidth
               disabled={loading}
             >
-              {loading ? <CircularProgress color="inherit" sx={{m:2}}/> : t("fetch_page_content")}
+              {loading ? (
+                <CircularProgress color="inherit" sx={{ m: 2 }} />
+              ) : (
+                t("fetch_page_content")
+              )}
             </Button>
           </Box>
           {notionContent && (
@@ -154,7 +160,11 @@ const NotionIntegration = () => {
             onClick={handleAuthorization}
             disabled={loading}
           >
-            {loading ? <CircularProgress color="inherit" sx={{m:2}}/> : t("authorize_notion")}
+            {loading ? (
+              <CircularProgress color="inherit" sx={{ m: 2 }} />
+            ) : (
+              t("authorize_notion")
+            )}
           </Button>
         </Box>
       )}
