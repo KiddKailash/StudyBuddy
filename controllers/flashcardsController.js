@@ -344,7 +344,7 @@ async function generateFlashcards(transcript, existingQuestions) {
     Convert the following transcript into 10 more study flashcards in JSON format (return this as text, do NOT return this in markdown).
     Each flashcard should be an object with "question" and "answer" fields.
     Ensure that the flashcards cover the important information in the transcript.
-    Do not duplicate already existing flashcards.
+    Do not duplicate already existing flashcards, these 10 new flashcards must cover new content and topics within the transcript that are not covered by the existing flashcards.
 
     Transcript:
     ${transcript}
@@ -374,10 +374,10 @@ async function generateFlashcards(transcript, existingQuestions) {
   const response = await axios.post(
     "https://api.openai.com/v1/chat/completions",
     {
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: [{ role: "user", content: prompt.trim() }],
-      max_tokens: 10000,
-      temperature: 0.2,
+      max_tokens: 15000,
+      temperature: 0.3,
     },
     {
       headers: {
@@ -389,10 +389,7 @@ async function generateFlashcards(transcript, existingQuestions) {
 
   // Process the response
   let flashcardsText = response.data.choices[0].message.content.trim();
-  if (
-    flashcardsText.startsWith("```") &&
-    flashcardsText.endsWith("```")
-  ) {
+  if (flashcardsText.startsWith("```") && flashcardsText.endsWith("```")) {
     flashcardsText = flashcardsText.slice(3, -3).trim();
   }
 

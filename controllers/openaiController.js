@@ -25,7 +25,7 @@ exports.generateFlashcards = async (req, res) => {
     const prompt = `
     Convert the following transcript into 10 study flashcards in JSON format (return this as text, do NOT return this in markdown).
     Each flashcard should be an object with "question" and "answer" fields.
-    Ensure that the flashcards cover the important information in the transcript.
+    The flashcards must cover information within the transcript.
     
     Transcript:
     ${transcript}
@@ -53,13 +53,12 @@ exports.generateFlashcards = async (req, res) => {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: "gpt-4o-mini", // or 'gpt-4' (8,192 tokens) or 'gpt-4o-mini' (16,384 tokens)
+        model: "gpt-4o", // or 'gpt-4' (8,192 tokens) or 'gpt-4o-mini' (16,384 tokens)
         messages: [
-          { role: "system", content: prompt.trim() },
-          { role: "user", content: "You are a helpful assistant." },
+          { role: "user", content: prompt.trim() },
         ],
-        max_tokens: 10000,
-        temperature: 0.2,
+        max_tokens: 15000,
+        temperature: 0.3,
       },
       {
         headers: {
