@@ -13,6 +13,7 @@ const flashcardsRoutes = require("./routes/flashcardsRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const userRoutes = require("./routes/userRoutes");
+const notionRoutes = require("./routes/notionRoutes");
 
 // Import the webhook handler
 const webhookHandler = require("./routes/webhookRoutes");
@@ -76,6 +77,7 @@ connectDB()
     app.use("/api/checkout", checkoutRoutes);
     app.use("/api/upload", uploadRoutes);
     app.use("/api/users", userRoutes);
+    app.use("/api/notion", notionRoutes);
 
     // Global error handler
     app.use((err, req, res, next) => {

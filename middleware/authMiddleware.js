@@ -56,6 +56,8 @@ const authMiddleware = async (req, res, next) => {
       subscriptionStatus: user.subscriptionStatus || null,
       lastInvoice: user.lastInvoice || null,
       paymentStatus: user.paymentStatus || null,
+      // Add notionAccessToken if present in the user document
+      notionAccessToken: user.notionAccessToken || null
     };
 
     next();
@@ -66,3 +68,22 @@ const authMiddleware = async (req, res, next) => {
 };
 
 module.exports = authMiddleware;
+
+/**
+ * Middleware to ensure the user has authorized Notion.
+ * This should be used after authMiddleware. It checks if req.user has a Notion access token.
+ * If not authorized, returns 403 Forbidden.
+ *
+ * @param {Object} req - Express request object (must have req.user from authMiddleware)
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+const requireNotionAuth = (req, res, next) => {
+  if (!req.user || !req.user.notionAccessToken) {
+    return res.status(403).json({ error: 'User not authorized with Notion.' });
+  }
+  next();
+};
+
+// Exporting both authMiddleware and requireNotionAuth
+module.exports.requireNotionAuth = requireNotionAuth;
