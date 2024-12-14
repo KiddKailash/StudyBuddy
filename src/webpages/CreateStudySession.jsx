@@ -1,11 +1,12 @@
 import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
 import NotionIntegration from "../components/NotionIntegration";
+import queryString from "query-string";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -23,6 +24,7 @@ import Paper from "@mui/material/Paper";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import FilterDramaRoundedIcon from '@mui/icons-material/FilterDramaRounded';
 
 // Import the useTranslation hook and Trans component
 import { useTranslation, Trans } from "react-i18next";
@@ -37,17 +39,25 @@ const StudySession = () => {
     useContext(UserContext);
   const accountType = user?.accountType || "free";
   const { showSnackbar } = useContext(SnackbarContext);
+  
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Initialize the translation function
   const { t } = useTranslation();
 
+  // Update tabValue from URL query parameter
+  useEffect(() => {
+    const { tab } = queryString.parse(location.search);
+    setTabValue(Number(tab) || 0); // Default to 0 if no tab is specified
+  }, [location.search]);
+
   // Handle Tab Change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-    // Reset inputs when switching tabs
     setSelectedFile(null);
     setPastedText("");
+    navigate(`?tab=${newValue}`, { replace: true });
   };
 
   // Handle File Selection
@@ -245,7 +255,7 @@ const StudySession = () => {
           aria-controls="tabpanel-1"
         />
         <Tab
-          icon={<ContentCutIcon />}
+          icon={<FilterDramaRoundedIcon />}
           label={t("notion")}
           id="tab-2"
           aria-controls="tabpanel-2"

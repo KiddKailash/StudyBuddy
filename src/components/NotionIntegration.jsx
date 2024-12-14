@@ -103,9 +103,7 @@ const NotionIntegration = () => {
 
   return (
     <Box sx={{ mb: 2 }}>
-      {loading ? (
-        <CircularProgress />
-      ) : authorized ? (
+      {authorized ? (
         <Box>
           <Typography variant="body1" sx={{ mb: 2 }}>
             {t("notion_authorized_message")}
@@ -126,8 +124,9 @@ const NotionIntegration = () => {
               color="primary"
               onClick={fetchPageContent}
               fullWidth
+              disabled={loading}
             >
-              {t("fetch_page_content")}
+              {loading ? <CircularProgress color="inherit" sx={{m:2}}/> : t("fetch_page_content")}
             </Button>
           </Box>
           {notionContent && (
@@ -153,8 +152,9 @@ const NotionIntegration = () => {
             fullWidth
             color="primary"
             onClick={handleAuthorization}
+            disabled={loading}
           >
-            {t("authorize_notion")}
+            {loading ? <CircularProgress color="inherit" sx={{m:2}}/> : t("authorize_notion")}
           </Button>
         </Box>
       )}
