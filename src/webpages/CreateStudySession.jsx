@@ -300,9 +300,7 @@ const StudySession = () => {
         </Box>
       )}
 
-      {tabValue === 2 && <NotionIntegration 
-      fullWidth
-      />}
+      {tabValue === 2 && <NotionIntegration />}
 
       <Button
         variant="contained"
