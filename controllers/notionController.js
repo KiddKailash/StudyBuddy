@@ -59,11 +59,14 @@ exports.notionCallback = async (req, res) => {
       }
     );
 
-    const { access_token } = tokenResponse.data;
+    const {
+      access_token,
+      workspace_id,
+      workspace_name,
+      bot_id,
+      owner,
+    } = tokenResponse.data;
 
-    // In a real implementation, you'd have `state` represent the user’s ID.
-    // For this example, assume `state` is provided and corresponds to a user’s ID.
-    // If you're not using state, you need another way to identify the user.
     if (!state) {
       return res
         .status(400)
@@ -71,16 +74,28 @@ exports.notionCallback = async (req, res) => {
     }
 
     const db = getDB();
-    const usersCollection = db.collection("users");
+    const notionIntegrationsCollection = db.collection("notion_authorizations");
+
     const userId = new ObjectId(state);
 
-    const result = await usersCollection.updateOne(
-      { _id: userId },
-      { $set: { notionAccessToken: access_token } }
+    // Insert or update the Notion integration
+    const result = await notionIntegrationsCollection.updateOne(
+      { userId: userId },
+      {
+        $set: {
+          accessToken: access_token,
+          workspaceId: workspace_id,
+          workspaceName: workspace_name,
+          botId: bot_id,
+          owner: owner,
+          integrationDate: new Date(),
+        },
+      },
+      { upsert: true } // Insert a new document if no match is found
     );
 
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ error: "User not found." });
+    if (result.matchedCount === 0 && result.upsertedCount === 0) {
+      return res.status(500).json({ error: "Failed to save Notion data." });
     }
 
     // Redirect back to your frontend to show success
@@ -97,18 +112,14 @@ exports.notionCallback = async (req, res) => {
 exports.checkNotionAuthorization = async (req, res) => {
   try {
     const db = getDB();
-    const usersCollection = db.collection("users");
+    const notionIntegrationsCollection = db.collection("notion_authorizations");
 
-    const user = await usersCollection.findOne(
-      { _id: new ObjectId(req.user.id) },
-      { projection: { notionAccessToken: 1 } }
+    const integration = await notionIntegrationsCollection.findOne(
+      { userId: new ObjectId(req.user.id) },
+      { projection: { accessToken: 1 } }
     );
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    const authorized = !!user.notionAccessToken;
+    const authorized = !!integration?.accessToken;
     res.status(200).json({ authorized });
   } catch (err) {
     console.error("Error checking Notion authorization:", err);
@@ -128,14 +139,14 @@ exports.getNotionPageContent = async (req, res) => {
 
   try {
     const db = getDB();
-    const usersCollection = db.collection("users");
+    const notionIntegrationsCollection = db.collection("notion_authorizations");
 
-    const user = await usersCollection.findOne(
-      { _id: new ObjectId(req.user.id) },
-      { projection: { notionAccessToken: 1 } }
+    const integration = await notionIntegrationsCollection.findOne(
+      { userId: new ObjectId(req.user.id) },
+      { projection: { accessToken: 1 } }
     );
 
-    if (!user || !user.notionAccessToken) {
+    if (!integration || !integration.accessToken) {
       return res
         .status(403)
         .json({ error: "User not authorized with Notion." });
@@ -145,7 +156,7 @@ exports.getNotionPageContent = async (req, res) => {
       `https://api.notion.com/v1/blocks/${pageId}/children`,
       {
         headers: {
-          Authorization: `Bearer ${user.notionAccessToken}`,
+          Authorization: `Bearer ${integration.accessToken}`,
           "Notion-Version": "2022-06-28",
         },
       }
