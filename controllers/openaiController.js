@@ -48,6 +48,8 @@ exports.generateFlashcards = async (req, res) => {
      - Do not use markdown formatting or code blocks.
      - Ensure the JSON is valid and can be parsed.
      - Create the flashcards in the same language as the transcript.
+     - Ignore information within the transcript pertaining to personnel or course structure. Flashcards are for educational content.
+
       `;
 
     const response = await axios.post(
