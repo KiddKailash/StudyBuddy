@@ -243,5 +243,12 @@
   "language": "Language",
   "confirm_cancel_subscription": "Confirm Cancel Subscription",
   "cancel_subscription_warning": "Are you sure you want to cancel your subscription?",
-  "confirm_cancel": "Confirm"
+  "confirm_cancel": "Confirm",
+  "please_provide_page_id": "Please provide the page ID",
+  "notion_authorized_message": "You have successfully authorized Notion.",
+  "enter_page_id": "Enter page ID",
+  "notion_page_id_placeholder": "Enter the Notion page ID",
+  "fetch_page_content": "Fetch page content",
+  "page_content": "Page content",
+  "authorize_notion": "Authorize Notion"
 }

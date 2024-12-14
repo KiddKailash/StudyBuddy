@@ -243,5 +243,12 @@
   "language": "语言",
   "confirm_cancel_subscription": "确认取消订阅",
   "cancel_subscription_warning": "您确定要取消订阅吗？此操作无法撤销。",
-  "confirm_cancel": "确认"
+  "confirm_cancel": "确认",
+  "please_provide_page_id": "请输入页面 ID",
+  "notion_authorized_message": "您已成功授权 Notion。",
+  "enter_page_id": "输入页面 ID",
+  "notion_page_id_placeholder": "请输入 Notion 页面 ID",
+  "fetch_page_content": "获取页面内容",
+  "page_content": "页面内容",
+  "authorize_notion": "授权 Notion"
 }

@@ -243,5 +243,12 @@
   "language": "Idioma",
   "confirm_cancel_subscription": "Confirmar la cancelación de la suscripción",
   "cancel_subscription_warning": "¿Está seguro de que desea cancelar su suscripción? Esta acción no se puede deshacer.",
-  "confirm_cancel": "Confirmar"
+  "confirm_cancel": "Confirmar",
+  "please_provide_page_id": "Por favor, proporciona el ID de la página",
+  "notion_authorized_message": "Has autorizado Notion con éxito.",
+  "enter_page_id": "Introduce el ID de la página",
+  "notion_page_id_placeholder": "Introduce el ID de la página de Notion",
+  "fetch_page_content": "Obtener contenido de la página",
+  "page_content": "Contenido de la página",
+  "authorize_notion": "Autorizar Notion"
 }
