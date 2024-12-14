@@ -221,7 +221,7 @@ const LoginPage = () => {
         </FormControl>
 
         <Typography variant="h4" color="primary">
-          Study SMART
+          Study Buddy
         </Typography>
         <Typography
           variant="h5"
