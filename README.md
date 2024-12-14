@@ -1,6 +1,6 @@
-# ClipCard
+# Study Buddy
 
-ClipCard is a flashcard generation platform that allows users to create study cards from uploaded files, and pasted text. This frontend repository connects with a backend server to process files and text into structured flashcards using the OpenAI API.
+Study Buddy is a flashcard generation platform that allows users to create study cards from uploaded files, and pasted text. This frontend repository connects with a backend server to process files and text into structured flashcards using the OpenAI API.
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ ClipCard is a flashcard generation platform that allows users to create study ca
 
 ## Overview
 
-ClipCard's frontend is a React-based application that serves as an intuitive interface for creating flashcards. Users can log in, upload documents, paste text, or (in the future) provide a YouTube URL to generate a flashcard session using the OpenAI API. The app's design emphasizes accessibility, ease of use, and performance.
+Study Buddy's frontend is a React-based application that serves as an intuitive interface for creating flashcards. Users can log in, upload documents, paste text, or (in the future) provide a YouTube URL to generate a flashcard session using the OpenAI API. The app's design emphasizes accessibility, ease of use, and performance.
 
 ## Features
 
