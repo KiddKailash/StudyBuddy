@@ -9,8 +9,10 @@ export const UserProvider = ({ children }) => {
   const [flashcardSessions, setFlashcardSessions] = useState([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [flashcardError, setFlashcardError] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isNotionAuthorized, setIsNotionAuthorized] = useState(false);
+  const [notionError, setNotionError] = useState(null);
 
   /**
    * Resets the user context, clearing all user-related data.
@@ -20,7 +22,7 @@ export const UserProvider = ({ children }) => {
     setFlashcardSessions([]);
     setFlashcardError(null);
     setIsLoggedIn(false);
-    localStorage.removeItem("token"); 
+    localStorage.removeItem("token");
   };
 
   /**
@@ -29,7 +31,7 @@ export const UserProvider = ({ children }) => {
    */
   const fetchCurrentUser = async () => {
     const token = localStorage.getItem("token");
-    console.log(`Token loaded on mount: ${token}`)
+    console.log(`Token loaded on mount: ${token}`);
     if (!token) {
       setAuthLoading(false); // No token, stop loading
       return;
@@ -52,9 +54,9 @@ export const UserProvider = ({ children }) => {
       setIsLoggedIn(true);
     } catch (error) {
       console.error("Error fetching current user:", error);
-      resetUserContext(); 
+      resetUserContext();
     } finally {
-      setAuthLoading(false); 
+      setAuthLoading(false);
     }
   };
 
@@ -88,10 +90,52 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const fetchNotionAuthorization = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/is-authorized`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setIsNotionAuthorized(response.data.authorized);
+    } catch (error) {
+      console.error("Error checking Notion authorization:", error);
+      setNotionError("Failed to check Notion authorization.");
+      setIsNotionAuthorized(false);
+    }
+  };
+
+  const fetchNotionData = async () => {
+    if (!isNotionAuthorized) return;
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/data`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      // Process or store Notion data here if required
+      console.log("Notion Data:", response.data);
+    } catch (error) {
+      console.error("Error fetching Notion data:", error);
+      setNotionError("Failed to fetch Notion data.");
+    }
+  };
+
   /**
    * Creates a new flashcard session.
    */
-  const createFlashcardSession = async (sessionName, studyCards, transcriptText) => {
+  const createFlashcardSession = async (
+    sessionName,
+    studyCards,
+    transcriptText
+  ) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
@@ -183,7 +227,9 @@ export const UserProvider = ({ children }) => {
   const updateFlashcardSessionName = async (sessionId, newName) => {
     try {
       await axios.put(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${sessionId}/name`,
+        `${
+          import.meta.env.VITE_LOCAL_BACKEND_URL
+        }/api/flashcards/${sessionId}/name`,
         { sessionName: newName },
         {
           headers: {
@@ -227,6 +273,17 @@ export const UserProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  /**
+   * Fetch Notion information whenever the user state changes (e.g., on login or subscription changes)
+   */
+  useEffect(() => {
+    if (user) {
+      fetchNotionAuthorization();
+    } else {
+      setIsNotionAuthorized(false);
+    }
+  }, [user]);
+
   return (
     <UserContext.Provider
       value={{
@@ -246,6 +303,10 @@ export const UserProvider = ({ children }) => {
         updateFlashcardSessionName,
         authLoading,
         fetchCurrentUser, // Expose fetchCurrentUser for manual refresh if needed
+        isNotionAuthorized,
+        notionError,
+        fetchNotionAuthorization,
+        fetchNotionData,
       }}
     >
       {children}
