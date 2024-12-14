@@ -5,6 +5,7 @@ import { useDropzone } from "react-dropzone";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
+import NotionIntegration from "../components/NotionIntegration";
 
 // MUI Component Imports
 import Box from "@mui/material/Box";
@@ -32,7 +33,8 @@ const StudySession = () => {
   const [loadingTranscript, setLoadingTranscript] = useState(false);
   const [tabValue, setTabValue] = useState(0); // 0: Upload, 1: Paste
 
-  const { user, flashcardSessions, setFlashcardSessions } = useContext(UserContext);
+  const { user, flashcardSessions, setFlashcardSessions } =
+    useContext(UserContext);
   const accountType = user?.accountType || "free";
   const { showSnackbar } = useContext(SnackbarContext);
   const navigate = useNavigate();
@@ -151,7 +153,9 @@ const StudySession = () => {
     if (!token) throw new Error(t("user_not_authenticated"));
 
     const response = await axios.post(
-      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/openai/generate-flashcards`,
+      `${
+        import.meta.env.VITE_LOCAL_BACKEND_URL
+      }/api/openai/generate-flashcards`,
       { transcript: transcriptText },
       {
         headers: {
@@ -208,7 +212,8 @@ const StudySession = () => {
     accept: {
       "application/pdf": [".pdf"],
       "application/msword": [".doc"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
       "text/plain": [".txt"],
     },
     maxFiles: 1,
@@ -238,6 +243,12 @@ const StudySession = () => {
           label={t("paste_text")}
           id="tab-1"
           aria-controls="tabpanel-1"
+        />
+        <Tab
+          icon={<ContentCutIcon />}
+          label={t("notion")}
+          id="tab-2"
+          aria-controls="tabpanel-2"
         />
       </Tabs>
 
@@ -288,6 +299,10 @@ const StudySession = () => {
           />
         </Box>
       )}
+
+      {tabValue === 2 && <NotionIntegration 
+      fullWidth
+      />}
 
       <Button
         variant="contained"
