@@ -24,7 +24,7 @@ import Paper from "@mui/material/Paper";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import FilterDramaRoundedIcon from '@mui/icons-material/FilterDramaRounded';
+import FilterDramaRoundedIcon from "@mui/icons-material/FilterDramaRounded";
 
 // Import the useTranslation hook and Trans component
 import { useTranslation, Trans } from "react-i18next";
@@ -32,14 +32,15 @@ import { useTranslation, Trans } from "react-i18next";
 const StudySession = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
+  const [notionText, setNotionText] = useState(""); // To store fetched Notion content
   const [loadingTranscript, setLoadingTranscript] = useState(false);
-  const [tabValue, setTabValue] = useState(0); // 0: Upload, 1: Paste
+  const [tabValue, setTabValue] = useState(0); // 0: Upload, 1: Paste, 2: Notion
 
-  const { user, flashcardSessions, setFlashcardSessions } =
+  const { user, flashcardSessions, setFlashcardSessions, isNotionAuthorized } =
     useContext(UserContext);
   const accountType = user?.accountType || "free";
   const { showSnackbar } = useContext(SnackbarContext);
-  
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,6 +51,13 @@ const StudySession = () => {
   useEffect(() => {
     const { tab } = queryString.parse(location.search);
     setTabValue(Number(tab) || 0); // Default to 0 if no tab is specified
+
+    // if (isNotionAuthorized) {
+    //   console.log("User is authorized with Notion.");
+    //   showSnackbar("Notion Authorized !", "success");
+    // } else {
+    //   showSnackbar("Not Notion Authorized");
+    // }
   }, [location.search]);
 
   // Handle Tab Change
@@ -57,6 +65,7 @@ const StudySession = () => {
     setTabValue(newValue);
     setSelectedFile(null);
     setPastedText("");
+    setNotionText(""); // Reset Notion content when switching tabs
     navigate(`?tab=${newValue}`, { replace: true });
   };
 
@@ -125,7 +134,16 @@ const StudySession = () => {
           return;
         }
         transcriptText = pastedText.trim();
-      }
+      } 
+      // else if (tabValue === 2) {
+      //   // Notion Tab
+      //   if (!notionText.trim()) {
+      //     showSnackbar(t("notion_content_empty"), "error");
+      //     setLoadingTranscript(false);
+      //     return;
+      //   }
+      //   transcriptText = notionText.trim();
+      // }
 
       // Generate Flashcards
       const generatedFlashcards = await generateFlashcards(transcriptText);
@@ -254,12 +272,12 @@ const StudySession = () => {
           id="tab-1"
           aria-controls="tabpanel-1"
         />
-        <Tab
+        {/* <Tab
           icon={<FilterDramaRoundedIcon />}
           label={t("notion")}
           id="tab-2"
           aria-controls="tabpanel-2"
-        />
+        /> */}
       </Tabs>
 
       {tabValue === 0 && (
