@@ -14,7 +14,7 @@ const connectDB = async () => {
   if (db) return db;
   try {
     await client.connect();
-    db = client.db('clipcard'); // Specify the 'clipcard' database here
+    db = client.db('studybuddy'); // Specify the 'clipcard' database here
     console.log('Connected to MongoDB using database:', db.databaseName);
     return db;
   } catch (error) {
