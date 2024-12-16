@@ -8,15 +8,18 @@ const { connectDB } = require("./utils/db");
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
 const transcriptRoutes = require("./routes/transcriptRoutes");
-const openaiRoutes = require("./routes/openaiRoutes");
+const openaiRoutes = require("./routes/openaiRoutes"); // private
 const flashcardsRoutes = require("./routes/flashcardsRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const userRoutes = require("./routes/userRoutes");
 const notionRoutes = require("./routes/notionRoutes");
-
-// Import the webhook handler
 const webhookHandler = require("./routes/webhookRoutes");
+
+// **Import new PUBLIC routes** for free-tier usage
+const openaiPublicRoutes = require("./routes/openaiPublicRoutes");
+const flashcardsPublicRoutes = require("./routes/flashcardsPublicRoutes"); // from your earlier ephemeral code
+const uploadPublicRoutes = require("./routes/uploadPublicRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -58,21 +61,19 @@ connectDB()
       webhookHandler
     );
 
-    // Now we apply JSON parsing for all other routes.
+    // Now apply JSON parsing for all other routes.
     app.use(express.json());
 
-    /**
-     * If you have authMiddleware, apply it here if necessary:
-     * const authMiddleware = require('./middleware/authMiddleware');
-     * app.use(authMiddleware);
-     *
-     * Make sure not to apply authMiddleware to the webhook route above.
-     */
+    // PUBLIC routes for free-tier (no auth):
+    app.use("/api/openai", openaiPublicRoutes);   // exposes /api/openai/generate-flashcards-public
+    app.use("/api/flashcards-public", flashcardsPublicRoutes); 
+    app.use("/api/upload-public", uploadPublicRoutes);
 
-    // Define all other routes that can safely use express.json()
+    // PROTECTED routes (private) that require authMiddleware are still in the original files
+    // e.g. /api/openai/generate-flashcards
     app.use("/api/auth", authRoutes);
     app.use("/api/transcript", transcriptRoutes);
-    app.use("/api/openai", openaiRoutes);
+    app.use("/api/openai", openaiRoutes); // has authMiddleware for generate-flashcards
     app.use("/api/flashcards", flashcardsRoutes);
     app.use("/api/checkout", checkoutRoutes);
     app.use("/api/upload", uploadRoutes);
