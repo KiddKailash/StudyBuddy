@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -11,11 +11,10 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import MenuBar from "./components/MenuBar/MenuBar";
 import Sidebar from "./components/SideBar/Sidebar";
-import GPTchat from "./components/GPTchat";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import FlashcardSession from "./webpages/FlashcardSession";
-import StudySession from "./webpages/CreateStudySession";
+import CreateStudySession from "./webpages/CreateStudySession";
 import LoginPage from "./webpages/Login";
 import PageNotFound from "./webpages/PageNotFound";
 import SettingsPage from "./webpages/Settings";
@@ -25,7 +24,6 @@ import PrivacyPolicy from "./webpages/PrivacyPolicy";
 import TermsOfService from "./webpages/TermsOfService";
 
 import { UserContext } from "./contexts/UserContext";
-
 import "./App.css";
 
 function App() {
@@ -34,12 +32,12 @@ function App() {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const location = useLocation();
 
   const sidebarWidth = "260px";
   const menubarHeight = "64px";
 
-  const { isLoggedIn, authLoading, fetchCurrentUser } = useContext(UserContext);
-  const location = useLocation();
+  const { isLoggedIn, authLoading } = useContext(UserContext);
 
   const toggleExpand = () => {
     setIsExpanded((prev) => !prev);
@@ -50,8 +48,9 @@ function App() {
   };
 
   const pages = [
-    { path: "/", component: <StudySession /> },
-    { path: "/flashcards/:id", component: <FlashcardSession /> },
+    { path: "/", component: <CreateStudySession /> },
+    { path: "/flashcards-local/:id", component: <FlashcardSession isLocal={true} /> },
+    { path: "/flashcards/:id", component: <FlashcardSession isLocal={false} /> },
     { path: "/login", component: <LoginPage /> },
     { path: "/settings", component: <SettingsPage /> },
     { path: "/success", component: <Success /> },
@@ -62,7 +61,6 @@ function App() {
   ];
 
   if (authLoading) {
-    // Show a loading spinner while checking authentication
     return (
       <Box
         sx={{
@@ -77,62 +75,55 @@ function App() {
     );
   }
 
+  const isLoginPage = location.pathname === "/login";
+
   return (
     <>
-      {isLoggedIn && (
-        <>
-          {/* MenuBar */}
-          <MenuBar handleDrawerToggle={handleDrawerToggle} />
-
-          {/* Sidebar */}
-          <Box
-            component="nav"
-            sx={{
-              position: "fixed",
-              top: `calc(menubarHeight-5)`,
-              left: 0,
-              width: isExpanded ? sidebarWidth : 0,
-              height: `calc(100% - ${menubarHeight})`,
-              bgcolor: "background.paper",
-              overflowY: "auto",
-              zIndex: 1,
-              transition: "width 0.3s ease-in-out",
-              display: {
-                xs: "none",
-                sm: "block",
-              },
-            }}
-          >
-            <Sidebar
-              mobileOpen={mobileOpen}
-              handleDrawerToggle={handleDrawerToggle}
-              drawerWidth={sidebarWidth}
-              menubarHeight={menubarHeight}
-            />
-          </Box>
-        </>
+      {!isLoginPage && (
+        <Box
+          component="nav"
+          sx={{
+            position: "fixed",
+            top: `calc(${menubarHeight}-5)`,
+            left: 0,
+            width: isExpanded ? sidebarWidth : 0,
+            height: `calc(100% - ${menubarHeight})`,
+            bgcolor: "background.paper",
+            overflowY: "auto",
+            zIndex: 1,
+            transition: "width 0.3s ease-in-out",
+            display: {
+              xs: "none",
+              sm: "block",
+            },
+          }}
+        >
+          <Sidebar
+            mobileOpen={mobileOpen}
+            handleDrawerToggle={handleDrawerToggle}
+            drawerWidth={sidebarWidth}
+            menubarHeight={menubarHeight}
+          />
+        </Box>
       )}
 
-      {/* Main Content */}
       <Box
         sx={{
           position: "fixed",
-          top: !isLoggedIn ? 0 : menubarHeight,
-          left: isMobile || !isExpanded || !isLoggedIn ? 0 : sidebarWidth,
-          width:
-            isMobile || !isExpanded || !isLoggedIn
-              ? "100vw"
-              : `calc(100% - ${sidebarWidth})`,
-          height: !isLoggedIn ? "100%" :`calc(100% - ${menubarHeight})`,
+          top: 0,
+          left: isMobile || !isExpanded || isLoginPage ? 0 : sidebarWidth,
+          width: isMobile || !isExpanded || isLoginPage ? "100%" : `calc(100% - ${sidebarWidth})`,
+          height: "100%",
           padding: 2,
           bgcolor: "background.default",
           zIndex: 50,
-          transition: isLoggedIn ? "all 0.3s ease-in-out" : "all 0s ease-in-out",
+          transition: "all 0.3s ease-in-out",
           overflow: "auto",
         }}
       >
-        {/* Expand/Collapse Button only if logged in */}
-        {!isMobile && isLoggedIn && (
+        {!isLoginPage && <MenuBar handleDrawerToggle={handleDrawerToggle} />}
+
+        {!isMobile && isLoggedIn && !isLoginPage && (
           <IconButton
             onClick={toggleExpand}
             sx={{
@@ -153,13 +144,13 @@ function App() {
           </IconButton>
         )}
 
-        {/* Routes */}
         <Routes>
           {pages.map((page, index) => {
+            const publicPaths = ["/", "/login", "/terms", "/privacy", "/success", "/cancel"];
+            const isLocalFlashcardPath = page.path.startsWith("/flashcards-local");
+
             const isPublicPage =
-              page.path === "/login" ||
-              page.path === "/terms" ||
-              page.path === "/privacy";
+              publicPaths.includes(page.path) || page.path === "*" || isLocalFlashcardPath;
 
             return (
               <Route
