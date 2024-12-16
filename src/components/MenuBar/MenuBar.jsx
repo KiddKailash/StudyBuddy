@@ -35,15 +35,17 @@ const MenuBar = ({ handleDrawerToggle }) => {
    */
   const handleLogout = () => {
     resetUserContext(); // Clears user data and resets login state
-    navigate("/login"); // Redirects to login page
+    navigate("/"); // Redirects to homepage
   };
 
   return (
     <AppBar
       component="nav"
       position="fixed"
+      elevation={0}
       sx={{
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: "transparent",
+        boxShadow: "none",
         color: theme.palette.text.secondary,
         zIndex: theme.zIndex.drawer + 1,
         transition: theme.transitions.create(["background-color", "color"], {
@@ -68,9 +70,13 @@ const MenuBar = ({ handleDrawerToggle }) => {
             flexGrow: 1,
           }}
         >
-          {user && user.accountType !== "paid" && <UpgradeButton />}
-          {user && <AccountInfo accountType={user.accountType} />}
-          {/* Add more menu items as needed */}
+          {/*
+            Show UpgradeButton if user is not logged in (user === null)
+            OR if user.accountType !== "paid".
+          */}
+          {(!user || user.accountType !== "paid") && <UpgradeButton />}
+
+          {/* Add more menu items as needed, e.g. <AccountInfo /> */}
         </Box>
 
         {/* Right Side: Profile Avatar or Login Button */}
@@ -78,7 +84,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
           {user ? (
             <AvatarMenu user={user} onLogout={handleLogout} />
           ) : (
-            <Button color="inherit" component={Link} to="/login">
+            <Button component={Link} to="/login">
               {t("login")}
             </Button>
           )}
