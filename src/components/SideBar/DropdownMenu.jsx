@@ -66,7 +66,7 @@ DropdownMenu.propTypes = {
   onClose: PropTypes.func.isRequired,
   onDeleteClick: PropTypes.func.isRequired,
   onRenameClick: PropTypes.func.isRequired,
-  onPrintClick: PropTypes.func.isRequired,
+  onPrintClick: PropTypes.func,
   t: PropTypes.func.isRequired,
 };
 
