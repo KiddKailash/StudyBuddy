@@ -2,13 +2,11 @@ import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
-import { UserContext } from "../contexts/UserContext";
-import { SnackbarContext } from "../contexts/SnackbarContext";
-import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
-import NotionIntegration from "../components/NotionIntegration";
 import queryString from "query-string";
 
-// MUI Component Imports
+import { UserContext } from "../contexts/UserContext";
+import { SnackbarContext } from "../contexts/SnackbarContext";
+
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
@@ -20,84 +18,84 @@ import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 
-// MUI Icon Imports
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FilterDramaRoundedIcon from "@mui/icons-material/FilterDramaRounded";
 
-// Import the useTranslation hook and Trans component
 import { useTranslation, Trans } from "react-i18next";
+import NotionIntegration from "../components/NotionIntegration";
+import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
 
-const StudySession = () => {
+const CreateStudySession = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
-  const [notionText, setNotionText] = useState(""); // To store fetched Notion content
+  const [notionText, setNotionText] = useState("");
   const [loadingTranscript, setLoadingTranscript] = useState(false);
-  const [tabValue, setTabValue] = useState(0); // 0: Upload, 1: Paste, 2: Notion
+  const [tabValue, setTabValue] = useState(0);
 
-  const { user, flashcardSessions, setFlashcardSessions, isNotionAuthorized } =
-    useContext(UserContext);
+  const {
+    user,
+    isLoggedIn,
+    flashcardSessions,
+    setFlashcardSessions,
+    localSessions,
+    createLocalSession,
+  } = useContext(UserContext);
+
   const accountType = user?.accountType || "free";
   const { showSnackbar } = useContext(SnackbarContext);
 
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Initialize the translation function
   const { t } = useTranslation();
 
-  // Update tabValue from URL query parameter
+  // Dropzone
+  const { getRootProps, getInputProps, isDragActive, fileRejections } =
+    useDropzone({
+      onDrop: (acceptedFiles) => setSelectedFile(acceptedFiles[0]),
+      accept: {
+        "application/pdf": [".pdf"],
+        "application/msword": [".doc"],
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+          [".docx"],
+        "text/plain": [".txt"],
+      },
+      maxFiles: 1,
+    });
+
   useEffect(() => {
     const { tab } = queryString.parse(location.search);
-    setTabValue(Number(tab) || 0); // Default to 0 if no tab is specified
-
-    // if (isNotionAuthorized) {
-    //   console.log("User is authorized with Notion.");
-    //   showSnackbar("Notion Authorized !", "success");
-    // } else {
-    //   showSnackbar("Not Notion Authorized");
-    // }
+    setTabValue(Number(tab) || 0);
   }, [location.search]);
 
-  // Handle Tab Change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
     setSelectedFile(null);
     setPastedText("");
-    setNotionText(""); // Reset Notion content when switching tabs
+    setNotionText("");
     navigate(`?tab=${newValue}`, { replace: true });
   };
 
-  // Handle File Selection
-  const handleFileChange = (acceptedFiles) => {
-    setSelectedFile(acceptedFiles[0]);
-  };
-
   const handleFetchAndGenerate = async () => {
-    // Check for session limit
-    if (accountType === "free" && flashcardSessions.length >= 2) {
+    // For logged-in free users, enforce 2-sessions limit
+    if (isLoggedIn && accountType === "free" && flashcardSessions.length >= 2) {
       showSnackbar(t("max_sessions_reached"), "info");
       return;
     }
-
     setLoadingTranscript(true);
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error(t("user_not_authenticated"));
-
       let transcriptText = "";
+      const token = localStorage.getItem("token");
 
+      // Step 1: gather transcript
       if (tabValue === 0) {
-        // File Upload Tab
         if (!selectedFile) {
           showSnackbar(t("please_select_file"), "error");
           setLoadingTranscript(false);
           return;
         }
-
-        // Validate file type
         const allowedTypes = [
           "application/pdf",
           "application/msword",
@@ -110,61 +108,95 @@ const StudySession = () => {
           return;
         }
 
-        // Prepare FormData
         const formData = new FormData();
         formData.append("file", selectedFile);
 
-        const transcriptResponse = await axios.post(
-          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/upload`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        transcriptText = transcriptResponse.data.transcript;
+        if (!token) {
+          // Public route for file upload
+          const resp = await axios.post(
+            `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/upload-public`,
+            formData
+          );
+          transcriptText = resp.data.transcript;
+        } else {
+          // Logged-in route for file upload
+          const resp = await axios.post(
+            `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/upload`,
+            formData,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          transcriptText = resp.data.transcript;
+        }
       } else if (tabValue === 1) {
-        // Paste Text Tab
         if (!pastedText.trim()) {
           showSnackbar(t("please_paste_text"), "error");
           setLoadingTranscript(false);
           return;
         }
         transcriptText = pastedText.trim();
-      } 
-      // else if (tabValue === 2) {
-      //   // Notion Tab
-      //   if (!notionText.trim()) {
-      //     showSnackbar(t("notion_content_empty"), "error");
-      //     setLoadingTranscript(false);
-      //     return;
-      //   }
-      //   transcriptText = notionText.trim();
-      // }
-
-      // Generate Flashcards
-      const generatedFlashcards = await generateFlashcards(transcriptText);
-
-      // Create a new study session with transcript
-      const sessionName = `${t("session")} ${new Date().toLocaleString()}`;
-      const newSession = await createFlashcardSession(
-        sessionName,
-        generatedFlashcards,
-        transcriptText // Include transcript
-      );
-
-      if (newSession) {
-        setFlashcardSessions((prev) => [...prev, newSession]);
-        navigate(`/flashcards/${newSession.id}`);
-        showSnackbar(t("flashcards_created_success"), "success");
-      } else {
-        throw new Error(t("failed_to_create_session"));
+      } else if (tabValue === 2) {
+        if (!notionText.trim()) {
+          showSnackbar(t("notion_content_empty"), "error");
+          setLoadingTranscript(false);
+          return;
+        }
+        transcriptText = notionText.trim();
       }
+
+      // Step 2: Generate flashcards
+      let generatedFlashcards = [];
+      if (!token) {
+        const resp = await axios.post(
+          `${
+            import.meta.env.VITE_LOCAL_BACKEND_URL
+          }/api/openai/generate-flashcards-public`,
+          { transcript: transcriptText }
+        );
+        generatedFlashcards = resp.data.flashcards;
+      } else {
+        const resp = await axios.post(
+          `${
+            import.meta.env.VITE_LOCAL_BACKEND_URL
+          }/api/openai/generate-flashcards`,
+          { transcript: transcriptText },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        generatedFlashcards = resp.data.flashcards;
+      }
+
+      // Step 3: Create a session in DB if logged in, or local if not
+      const sessionName = `${t("session")} ${new Date().toLocaleString()}`;
+      if (!token) {
+        // free-tier local session
+        const sessionId = window.crypto.randomUUID();
+        const newSession = {
+          id: sessionId,
+          studySession: sessionName,
+          flashcardsJSON: generatedFlashcards,
+          transcript: transcriptText,
+          createdDate: new Date(),
+        };
+        createLocalSession(newSession);
+        navigate(`/flashcards-local/${sessionId}`);
+      } else {
+        // DB-based session
+        const dbResp = await axios.post(
+          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
+          {
+            sessionName,
+            studyCards: generatedFlashcards,
+            transcript: transcriptText,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const createdSession = dbResp.data.flashcard;
+        setFlashcardSessions((prev) => [...prev, createdSession]);
+        navigate(`/flashcards/${createdSession.id}`);
+      }
+
+      showSnackbar(t("flashcards_created_success"), "success");
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Error generating session:", err);
       showSnackbar(
         err.response?.data?.error ||
           err.message ||
@@ -176,108 +208,20 @@ const StudySession = () => {
     }
   };
 
-  const generateFlashcards = async (transcriptText) => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error(t("user_not_authenticated"));
-
-    const response = await axios.post(
-      `${
-        import.meta.env.VITE_LOCAL_BACKEND_URL
-      }/api/openai/generate-flashcards`,
-      { transcript: transcriptText },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    return response.data.flashcards;
-  };
-
-  /**
-   * Creates a new flashcard session.
-   *
-   * @param {string} sessionName - The name of the session.
-   * @param {Array} studyCards - The generated flashcards.
-   * @param {string} transcriptText - The transcript used to generate flashcards.
-   * @returns {Object} The newly created session.
-   */
-  const createFlashcardSession = async (
-    sessionName,
-    studyCards,
-    transcriptText
-  ) => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error(t("user_not_authenticated"));
-
-    const response = await axios.post(
-      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
-      {
-        sessionName,
-        studyCards,
-        transcript: transcriptText, // Include transcript
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    return response.data.flashcard;
-  };
-
-  // React Dropzone setup
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    acceptedFiles,
-    fileRejections,
-  } = useDropzone({
-    onDrop: handleFileChange,
-    accept: {
-      "application/pdf": [".pdf"],
-      "application/msword": [".doc"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        [".docx"],
-      "text/plain": [".txt"],
-    },
-    maxFiles: 1,
-  });
-
   return (
-    <Container maxWidth="lg" sx={{ pt: { xs: 6.5, sm: 10 } }}>
+    <Container maxWidth="md" sx={{ pt: { xs: 6.5, sm: 10 } }}>
       <Tabs
         value={tabValue}
         onChange={handleTabChange}
         variant="fullWidth"
         sx={{
           mb: 3,
-          "& .MuiTab-root": {
-            outline: "none", // Removes focus outline for tabs
-          },
+          "& .MuiTab-root": { outline: "none" },
         }}
       >
-        <Tab
-          icon={<UploadFileIcon />}
-          label={t("upload_document")}
-          id="tab-0"
-          aria-controls="tabpanel-0"
-        />
-        <Tab
-          icon={<ContentCutIcon />}
-          label={t("paste_text")}
-          id="tab-1"
-          aria-controls="tabpanel-1"
-        />
-        {/* <Tab
-          icon={<FilterDramaRoundedIcon />}
-          label={t("notion")}
-          id="tab-2"
-          aria-controls="tabpanel-2"
-        /> */}
+        <Tab icon={<UploadFileIcon />} label={t("upload_document")} />
+        <Tab icon={<ContentCutIcon />} label={t("paste_text")} />
+        <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} />
       </Tabs>
 
       {tabValue === 0 && (
@@ -314,18 +258,16 @@ const StudySession = () => {
       )}
 
       {tabValue === 1 && (
-        <Box>
-          <TextField
-            fullWidth
-            label={t("paste_your_text_here")}
-            variant="outlined"
-            value={pastedText}
-            onChange={(e) => setPastedText(e.target.value)}
-            multiline
-            rows={7}
-            sx={{ mb: 2 }}
-          />
-        </Box>
+        <TextField
+          fullWidth
+          label={t("paste_your_text_here")}
+          variant="outlined"
+          value={pastedText}
+          onChange={(e) => setPastedText(e.target.value)}
+          multiline
+          rows={7}
+          sx={{ mb: 2 }}
+        />
       )}
 
       {tabValue === 2 && <NotionIntegration />}
@@ -336,7 +278,9 @@ const StudySession = () => {
         onClick={handleFetchAndGenerate}
         disabled={
           loadingTranscript ||
-          (accountType === "free" && flashcardSessions.length >= 2)
+          (isLoggedIn &&
+            accountType === "free" &&
+            flashcardSessions.length >= 2)
         }
         fullWidth
         sx={{ height: 56 }}
@@ -348,26 +292,28 @@ const StudySession = () => {
         )}
       </Button>
 
-      {accountType === "free" && flashcardSessions.length >= 2 && (
-        <>
-          <Typography variant="body1" color="textSecondary" sx={{ mt: 2 }}>
-            {t("max_sessions_reached_message")}
-          </Typography>
-          <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
-            <Trans i18nKey="upgrade_to_create_more">
-              <Link
-                component="button"
-                variant="body1"
-                onClick={() => redirectToStripeCheckout("paid", showSnackbar)}
-              >
-                {t("upgrade_your_account")}
-              </Link>
-            </Trans>
-          </Typography>
-        </>
-      )}
+      {isLoggedIn &&
+        accountType === "free" &&
+        flashcardSessions.length >= 2 && (
+          <>
+            <Typography variant="body1" color="textSecondary" sx={{ mt: 2 }}>
+              {t("max_sessions_reached_message")}
+            </Typography>
+            <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
+              <Trans i18nKey="upgrade_to_create_more">
+                <Link
+                  component="button"
+                  variant="body1"
+                  onClick={() => redirectToStripeCheckout("paid", showSnackbar)}
+                >
+                  {t("upgrade_your_account")}
+                </Link>
+              </Trans>
+            </Typography>
+          </>
+        )}
     </Container>
   );
 };
 
-export default StudySession;
+export default CreateStudySession;
