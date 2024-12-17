@@ -4,240 +4,150 @@ import PropTypes from "prop-types";
 
 export const UserContext = createContext();
 
+/**
+ * UserProvider manages:
+ *  - Authenticated user & DB-based flashcard sessions
+ *  - Local ephemeral sessions (free-tier not logged in)
+ */
 export const UserProvider = ({ children }) => {
+  // Auth/user
   const [user, setUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // DB-based sessions
   const [flashcardSessions, setFlashcardSessions] = useState([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [flashcardError, setFlashcardError] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [isNotionAuthorized, setIsNotionAuthorized] = useState(false);
-  const [notionError, setNotionError] = useState(null);
 
-  /**
-   * Resets the user context, clearing all user-related data.
-   */
+  // Local ephemeral sessions
+  const [localSessions, setLocalSessions] = useState([]);
+
+  // On mount: Load ephemeral sessions from localStorage
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("localSessions") || "[]");
+      setLocalSessions(stored);
+    } catch (err) {
+      console.error("Error loading localSessions:", err);
+    }
+  }, []);
+
+  // Persist ephemeral sessions to localStorage on each update
+  useEffect(() => {
+    localStorage.setItem("localSessions", JSON.stringify(localSessions));
+  }, [localSessions]);
+
+  // Create ephemeral session
+  const createLocalSession = (sessionData) => {
+    setLocalSessions((prev) => [...prev, sessionData]);
+  };
+
+  // Delete ephemeral session
+  const deleteLocalSession = (sessionId) => {
+    setLocalSessions((prev) => prev.filter((s) => s.id !== sessionId));
+  };
+
+  // Reset context on logout
   const resetUserContext = () => {
     setUser(null);
+    setIsLoggedIn(false);
+    setAuthLoading(false);
     setFlashcardSessions([]);
     setFlashcardError(null);
-    setIsLoggedIn(false);
+    //  setLocalSessions([]);
     localStorage.removeItem("token");
   };
 
-  /**
-   * Fetches the current user data from the backend.
-   * This will also update subscription-related fields in the user object.
-   */
+  // Fetch current user if token
   const fetchCurrentUser = async () => {
     const token = localStorage.getItem("token");
-    console.log(`Token loaded on mount: ${token}`);
     if (!token) {
-      setAuthLoading(false); // No token, stop loading
+      setAuthLoading(false);
       return;
     }
-
     try {
-      const response = await axios.get(
+      const resp = await axios.get(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/auth/me`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      // The response includes subscription-related fields:
-      // accountType, stripeCustomerId, subscriptionId, subscriptionStatus, lastInvoice, paymentStatus
-      // These will be stored in the user object.
-      setUser(response.data.user);
+      setUser(resp.data.user);
       setIsLoggedIn(true);
-    } catch (error) {
-      console.error("Error fetching current user:", error);
+    } catch (err) {
+      console.error("fetchCurrentUser error:", err);
       resetUserContext();
     } finally {
       setAuthLoading(false);
     }
   };
 
-  /**
-   * Fetches all flashcard sessions for the authenticated user.
-   */
-  const fetchFlashcardSessions = async () => {
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
+
+  // If user changes, load DB-based sessions if user is logged in
+  useEffect(() => {
+    if (user) {
+      loadFlashcardSessions();
+    } else {
+      setFlashcardSessions([]);
+    }
+  }, [user]);
+
+  // Load DB-based sessions
+  const loadFlashcardSessions = async () => {
     if (!user) return;
     setLoadingSessions(true);
     setFlashcardError(null);
+
     try {
-      const response = await axios.get(
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const resp = await axios.get(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setFlashcardSessions(response.data.flashcards);
+      setFlashcardSessions(resp.data.flashcards || []);
     } catch (error) {
-      console.error("Error fetching flashcard sessions:", error);
-      if (error.response && error.response.status === 401) {
-        // Token expired or invalid
-        resetUserContext();
-      } else {
-        setFlashcardError("Failed to load flashcard sessions.");
-      }
+      console.error("loadFlashcardSessions error:", error);
+      setFlashcardError("Failed to load DB sessions.");
     } finally {
       setLoadingSessions(false);
     }
   };
 
-  const fetchNotionAuthorization = async () => {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/is-authorized`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      setIsNotionAuthorized(response.data.authorized);
-    } catch (error) {
-      console.error("Error checking Notion authorization:", error);
-      setNotionError("Failed to check Notion authorization.");
-      setIsNotionAuthorized(false);
-    }
-  };
-
-  const fetchNotionData = async () => {
-    if (!isNotionAuthorized) return;
-
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/data`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      // Process or store Notion data here if required
-      console.log("Notion Data:", response.data);
-    } catch (error) {
-      console.error("Error fetching Notion data:", error);
-      setNotionError("Failed to fetch Notion data.");
-    }
-  };
-
-  /**
-   * Creates a new flashcard session.
-   */
-  const createFlashcardSession = async (
-    sessionName,
-    studyCards,
-    transcriptText
-  ) => {
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
-        { sessionName, studyCards, transcript: transcriptText },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      const newSession = response.data.flashcard;
-      setFlashcardSessions((prev) => [...prev, newSession]);
-      return newSession;
-    } catch (error) {
-      console.error("Error creating flashcard session:", error);
-      setFlashcardError("Failed to create flashcard session.");
-      return null;
-    }
-  };
-
-  /**
-   * Adds flashcards to an existing session.
-   */
-  const addFlashcardsToSession = async (sessionId, studyCards) => {
-    try {
-      await axios.put(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${sessionId}`,
-        { studyCards },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      // Refresh flashcard sessions after adding
-      await fetchFlashcardSessions();
-    } catch (error) {
-      console.error("Error adding flashcards to session:", error);
-      setFlashcardError("Failed to add flashcards to session.");
-    }
-  };
-
-  /**
-   * Retrieves a single flashcard session by ID.
-   */
-  const getFlashcardSessionById = async (sessionId) => {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${sessionId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error retrieving flashcard session:", error);
-      setFlashcardError("Failed to retrieve flashcard session.");
-      return null;
-    }
-  };
-
-  /**
-   * Deletes a flashcard session by ID.
-   */
+  // Delete DB-based session
   const deleteFlashcardSession = async (sessionId) => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Not authenticated.");
+
       await axios.delete(
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${sessionId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setFlashcardSessions((prev) =>
-        prev.filter((session) => session.id !== sessionId)
-      );
-    } catch (error) {
-      console.error("Error deleting flashcard session:", error);
-      setFlashcardError("Failed to delete flashcard session.");
+      setFlashcardSessions((prev) => prev.filter((s) => s.id !== sessionId));
+    } catch (err) {
+      console.error("deleteFlashcardSession error:", err);
+      setFlashcardError(err.message || "Failed to delete DB session.");
     }
   };
 
-  /**
-   * Updates the name of an existing flashcard session.
-   */
+  // Rename DB-based session
   const updateFlashcardSessionName = async (sessionId, newName) => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Not authenticated.");
+
       await axios.put(
         `${
           import.meta.env.VITE_LOCAL_BACKEND_URL
         }/api/flashcards/${sessionId}/name`,
         { sessionName: newName },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Update the local state
+
       setFlashcardSessions((prev) =>
         prev.map((session) =>
           session.id === sessionId
@@ -245,68 +155,36 @@ export const UserProvider = ({ children }) => {
             : session
         )
       );
-      return true;
-    } catch (error) {
-      console.error("Error updating flashcard session name:", error);
-      setFlashcardError("Failed to update flashcard session name.");
-      return false;
+    } catch (err) {
+      console.error("updateFlashcardSessionName error:", err);
+      setFlashcardError(err.message || "Failed to rename DB session.");
     }
   };
-
-  /**
-   * Fetch the current user on app load.
-   */
-  useEffect(() => {
-    fetchCurrentUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  /**
-   * Fetch flashcard sessions whenever the user state changes (e.g., on login or subscription changes)
-   */
-  useEffect(() => {
-    if (user) {
-      fetchFlashcardSessions();
-    } else {
-      setFlashcardSessions([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  /**
-   * Fetch Notion information whenever the user state changes (e.g., on login or subscription changes)
-   */
-  useEffect(() => {
-    if (user) {
-      fetchNotionAuthorization();
-    } else {
-      setIsNotionAuthorized(false);
-    }
-  }, [user]);
 
   return (
     <UserContext.Provider
       value={{
         user,
         setUser,
-        resetUserContext,
         isLoggedIn,
         setIsLoggedIn,
+        authLoading,
+        resetUserContext,
+
+        // DB-based
         flashcardSessions,
+        setFlashcardSessions,
         loadingSessions,
         flashcardError,
-        setFlashcardSessions,
-        createFlashcardSession,
-        addFlashcardsToSession,
-        getFlashcardSessionById,
+        setFlashcardError,
         deleteFlashcardSession,
         updateFlashcardSessionName,
-        authLoading,
-        fetchCurrentUser, // Expose fetchCurrentUser for manual refresh if needed
-        isNotionAuthorized,
-        notionError,
-        fetchNotionAuthorization,
-        fetchNotionData,
+
+        // Local ephemeral
+        localSessions,
+        setLocalSessions,
+        createLocalSession,
+        deleteLocalSession,
       }}
     >
       {children}
