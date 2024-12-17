@@ -26,7 +26,7 @@ const UpgradeButton = () => {
 
   return (
     <Button variant="contained" onClick={handleUpgrade}>
-      {t("upgrade_account")}
+     ⭐️ {t("upgrade_account")}
     </Button>
   );
 };
