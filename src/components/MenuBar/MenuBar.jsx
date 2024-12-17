@@ -41,7 +41,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
   return (
     <AppBar
       component="nav"
-      position="fixed"
+      position="static"
       elevation={0}
       sx={{
         backgroundColor: "transparent",
@@ -74,7 +74,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
             Show UpgradeButton if user is not logged in (user === null)
             OR if user.accountType !== "paid".
           */}
-          {(!user || user.accountType !== "paid") && <UpgradeButton />}
+          {(user && user.accountType !== "paid") && <UpgradeButton />}
 
           {/* Add more menu items as needed, e.g. <AccountInfo /> */}
         </Box>
@@ -84,7 +84,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
           {user ? (
             <AvatarMenu user={user} onLogout={handleLogout} />
           ) : (
-            <Button component={Link} to="/login">
+            <Button variant="contained" component={Link} to="/login">
               {t("login")}
             </Button>
           )}
