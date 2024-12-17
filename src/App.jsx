@@ -75,7 +75,7 @@ function App() {
     );
   }
 
-  const isLoginPage = location.pathname === "/login";
+  const isLoginPage = location.pathname.startsWith("/login");
 
   return (
     <>
