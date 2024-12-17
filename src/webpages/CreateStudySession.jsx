@@ -143,8 +143,8 @@ const CreateStudySession = () => {
         transcriptText = notionText.trim();
       }
 
-      // Step 2: Generate flashcards
-      let generatedFlashcards = [];
+      // Step 2: Generate flashcards (both public and private routes now return the same data format: [sessionName, flashcardsArray])
+      let generatedData = [];
       if (!token) {
         const resp = await axios.post(
           `${
@@ -152,7 +152,8 @@ const CreateStudySession = () => {
           }/api/openai/generate-flashcards-public`,
           { transcript: transcriptText }
         );
-        generatedFlashcards = resp.data.flashcards;
+        // 'resp.data.flashcards' is the entire 2-element array: [sessionName, [...flashcards]]
+        generatedData = resp.data.flashcards;
       } else {
         const resp = await axios.post(
           `${
@@ -161,18 +162,20 @@ const CreateStudySession = () => {
           { transcript: transcriptText },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        generatedFlashcards = resp.data.flashcards;
+        generatedData = resp.data.flashcards;
       }
 
       // Step 3: Create a session in DB if logged in, or local if not
-      const sessionName = `${t("session")} ${new Date().toLocaleString()}`;
+      const sessionName = generatedData[0];
+      const flashcardsArray = generatedData[1];
+
       if (!token) {
         // free-tier local session
         const sessionId = window.crypto.randomUUID();
         const newSession = {
           id: sessionId,
           studySession: sessionName,
-          flashcardsJSON: generatedFlashcards,
+          flashcardsJSON: flashcardsArray,
           transcript: transcriptText,
           createdDate: new Date(),
         };
@@ -184,7 +187,7 @@ const CreateStudySession = () => {
           `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
           {
             sessionName,
-            studyCards: generatedFlashcards,
+            studyCards: flashcardsArray, // <--- Just the flashcards array
             transcript: transcriptText,
           },
           { headers: { Authorization: `Bearer ${token}` } }
@@ -221,7 +224,7 @@ const CreateStudySession = () => {
       >
         <Tab icon={<UploadFileIcon />} label={t("upload_document")} />
         <Tab icon={<ContentCutIcon />} label={t("paste_text")} />
-        <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} />
+        {/* <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} /> */}
       </Tabs>
 
       {tabValue === 0 && (
