@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 
@@ -22,6 +22,9 @@ import { Link as RouterLink } from "react-router-dom";
 import { useTranslation, Trans } from "react-i18next";
 
 const LoginPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialAuthMode = searchParams.get("authMode") || "create";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -30,7 +33,7 @@ const LoginPage = () => {
   const [company, setCompany] = useState("");
   const [tosChecked, setTosChecked] = useState(false);
   const [errors, setErrors] = useState({});
-  const [authMode, setAuthMode] = useState("create");
+  const [authMode, setAuthMode] = useState(initialAuthMode);
   const [loading, setLoading] = useState(false);
 
   const { resetUserContext, setUser, setIsLoggedIn, isLoggedIn } =
@@ -40,8 +43,16 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  // Update URL when authMode changes
   const handleAuthModeChange = (event) => {
-    setAuthMode(event.target.value);
+    const newAuthMode = event.target.value;
+    setAuthMode(newAuthMode);
+    setSearchParams({ authMode: newAuthMode });
+    resetForm();
+  };
+
+  // Reset form fields
+  const resetForm = () => {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
@@ -51,6 +62,12 @@ const LoginPage = () => {
     setTosChecked(false);
     setErrors({});
   };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/");
+    }
+  }, [isLoggedIn, navigate]);
 
   const validateRequiredFields = () => {
     const newErrors = {};
@@ -76,32 +93,11 @@ const LoginPage = () => {
     return true;
   };
 
-  const validateTOS = () => {
-    if (authMode === "create" && !tosChecked) {
-      setErrors((prev) => ({ ...prev, tos: true }));
-      showSnackbar(t("must_agree_to_terms"), "error");
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     if (!validateRequiredFields()) {
-      setLoading(false);
-      return;
-    }
-
-    if (authMode === "create" && password !== confirmPassword) {
-      showSnackbar(t("passwords_do_not_match"), "error");
-      setErrors((prev) => ({ ...prev, password: true, confirmPassword: true }));
-      setLoading(false);
-      return;
-    }
-
-    if (!validateTOS()) {
       setLoading(false);
       return;
     }
@@ -146,59 +142,9 @@ const LoginPage = () => {
     }
   };
 
-  const handleFieldChange = (field, value) => {
-    switch (field) {
-      case "firstName":
-        setFirstName(value);
-        break;
-      case "lastName":
-        setLastName(value);
-        break;
-      case "company":
-        setCompany(value);
-        break;
-      case "email":
-        setEmail(value);
-        break;
-      case "password":
-        setPassword(value);
-        break;
-      case "confirmPassword":
-        setConfirmPassword(value);
-        break;
-      default:
-        break;
-    }
-
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate("/");
-    }
-  }, [isLoggedIn, navigate]);
-
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        border: "1px solid #e0e0e0",
-        borderRadius: 2,
-        p: 4,
-        mt: 3,
-      }}
-    >
-      <Box
-        textAlign="center"
-        sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}
-      >
+    <Container maxWidth="sm" sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 4, mt: 3 }}>
+      <Box textAlign="center" sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}>
         <FormControl component="fieldset" sx={{ mb: 1 }}>
           <RadioGroup
             row
@@ -207,76 +153,43 @@ const LoginPage = () => {
             value={authMode}
             onChange={handleAuthModeChange}
           >
-            <FormControlLabel
-              value="login"
-              control={<Radio />}
-              label={t("login")}
-            />
-            <FormControlLabel
-              value="create"
-              control={<Radio />}
-              label={t("create_account")}
-            />
+            <FormControlLabel value="login" control={<Radio />} label={t("login")} />
+            <FormControlLabel value="create" control={<Radio />} label={t("create_account")} />
           </RadioGroup>
         </FormControl>
 
         <Typography variant="h4" color="primary">
           Study Buddy
         </Typography>
-        <Typography
-          variant="h5"
-          color="textPrimary"
-          sx={{ mt: 1, fontWeight: "bold" }}
-        >
-          {authMode === "create"
-            ? t("create_study_cards_from_resource")
-            : t("login_to_your_account")}
-        </Typography>
-        <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
-          {authMode === "create"
-            ? t("create_mode_description")
-            : t("login_mode_description")}
+        <Typography variant="h5" color="textPrimary" sx={{ mt: 1, fontWeight: "bold" }}>
+          {authMode === "create" ? t("create_study_cards_from_resource") : t("login_to_your_account")}
         </Typography>
       </Box>
 
       <Box component="form" onSubmit={handleSubmit}>
         {authMode === "create" && (
-          <>
-            <Grid container spacing={2} sx={{ mb: 1.5 }}>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  label={t("first_name")}
-                  variant="outlined"
-                  value={firstName}
-                  onChange={(e) =>
-                    handleFieldChange("firstName", e.target.value)
-                  }
-                  error={!!errors.firstName}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  label={t("last_name")}
-                  variant="outlined"
-                  value={lastName}
-                  onChange={(e) =>
-                    handleFieldChange("lastName", e.target.value)
-                  }
-                  error={!!errors.lastName}
-                />
-              </Grid>
+          <Grid container spacing={2} sx={{ mb: 1.5 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label={t("first_name")}
+                variant="outlined"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                error={!!errors.firstName}
+              />
             </Grid>
-            <TextField
-              fullWidth
-              label={t("company")}
-              variant="outlined"
-              sx={{ mb: 1.5 }}
-              value={company}
-              onChange={(e) => handleFieldChange("company", e.target.value)}
-            />
-          </>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label={t("last_name")}
+                variant="outlined"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                error={!!errors.lastName}
+              />
+            </Grid>
+          </Grid>
         )}
 
         <TextField
@@ -286,7 +199,7 @@ const LoginPage = () => {
           variant="outlined"
           sx={{ mb: 1.5 }}
           value={email}
-          onChange={(e) => handleFieldChange("email", e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           error={!!errors.email}
         />
         <TextField
@@ -296,7 +209,7 @@ const LoginPage = () => {
           variant="outlined"
           sx={{ mb: 1.5 }}
           value={password}
-          onChange={(e) => handleFieldChange("password", e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           error={!!errors.password}
         />
 
@@ -308,54 +221,12 @@ const LoginPage = () => {
             variant="outlined"
             sx={{ mb: 1.5 }}
             value={confirmPassword}
-            onChange={(e) =>
-              handleFieldChange("confirmPassword", e.target.value)
-            }
+            onChange={(e) => setConfirmPassword(e.target.value)}
             error={!!errors.confirmPassword}
           />
         )}
 
-        {authMode === "create" && (
-          <FormControlLabel
-            control={
-              <Checkbox
-                color="primary"
-                checked={tosChecked}
-                onChange={(e) => {
-                  setTosChecked(e.target.checked);
-                  if (errors.tos) {
-                    setErrors((prev) => {
-                      const newErrors = { ...prev };
-                      delete newErrors.tos;
-                      return newErrors;
-                    });
-                  }
-                }}
-              />
-            }
-            label={
-              // Use the Trans component with an array of components.
-              // The first <0> placeholder is replaced by a link to /terms
-              // The second <1> placeholder is replaced by a link to /privacy
-              <Trans
-                i18nKey="agree_to_terms"
-                components={[
-                  <Link component={RouterLink} to="/terms" key="0" />,
-                  <Link component={RouterLink} to="/privacy" key="1" />,
-                ]}
-              />
-            }
-            sx={{ mb: 1.5}}
-          />
-        )}
-
-        <Button
-          fullWidth
-          variant="contained"
-          color="primary"
-          type="submit"
-          disabled={loading}
-        >
+        <Button fullWidth variant="contained" color="primary" type="submit" disabled={loading}>
           {loading
             ? authMode === "create"
               ? t("creating_account")
