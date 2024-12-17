@@ -250,5 +250,7 @@
   "notion_page_id_placeholder": "Enter the Notion page ID",
   "fetch_page_content": "Fetch page content",
   "page_content": "Page content",
-  "authorize_notion": "Authorize Notion"
+  "authorize_notion": "Authorize Notion",
+  "your_db_sessions": "Study Sessions",
+  "local_sessions": "Temporary Study Sessions"
 }

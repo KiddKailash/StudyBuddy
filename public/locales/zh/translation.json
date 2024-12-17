@@ -250,5 +250,7 @@
   "notion_page_id_placeholder": "请输入 Notion 页面 ID",
   "fetch_page_content": "获取页面内容",
   "page_content": "页面内容",
-  "authorize_notion": "授权 Notion"
+  "authorize_notion": "授权 Notion",
+   "your_db_sessions": "学习会话",
+  "local_sessions": "临时学习会话"
 }
