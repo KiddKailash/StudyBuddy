@@ -224,7 +224,7 @@ const CreateStudySession = () => {
       >
         <Tab icon={<UploadFileIcon />} label={t("upload_document")} />
         <Tab icon={<ContentCutIcon />} label={t("paste_text")} />
-        {/* <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} /> */}
+        <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} />
       </Tabs>
 
       {tabValue === 0 && (
