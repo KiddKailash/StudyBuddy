@@ -33,7 +33,10 @@ const AvatarMenu = ({ user, onLogout }) => {
           sx={{
             bgcolor: getAvatarColor(user.email, theme),
             color: "#ffffff",
+            width: "50px",
+            height: "50px"
           }}
+          
         >
           {getUserInitials(user)}
         </Avatar>
