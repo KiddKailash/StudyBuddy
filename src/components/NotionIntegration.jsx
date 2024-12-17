@@ -1,12 +1,11 @@
-import React, { useState, useContext, useEffect, useCallback } from "react";
-
-import axios from "axios";
+import React, { useState, useContext, useEffect } from "react";
+import { UserContext } from "../contexts/UserContext";
+import { SnackbarContext } from "../contexts/SnackbarContext";
 import { useTranslation } from "react-i18next";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import { SnackbarContext } from "../contexts/SnackbarContext";
 
 const NotionIntegration = () => {
   const [loading, setLoading] = useState(false);
@@ -16,24 +15,26 @@ const NotionIntegration = () => {
   const { t } = useTranslation();
   const { showSnackbar } = useContext(SnackbarContext);
 
+  // Get user context to interact with the API
+  const {
+    fetchNotionAuthUrl,
+    fetchNotionPageContent,
+    isNotionAuthorized
+  } = useContext(UserContext);
+
   useEffect(() => {
     checkAuthorization();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Check if user is authorized with Notion
   const checkAuthorization = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error(t("user_not_authenticated"));
 
-      const response = await axios.get(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/is-authorized`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
+      const response = await isNotionAuthorized;
       setAuthorized(response.data.authorized);
     } catch (err) {
       console.error("Error checking Notion authorization:", err);
@@ -46,19 +47,14 @@ const NotionIntegration = () => {
     }
   };
 
+  // Handle the Notion authorization process
   const handleAuthorization = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
       if (!token) throw new Error(t("user_not_authenticated"));
 
-      const response = await axios.get(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/auth-url`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
+      const response = await fetchNotionAuthUrl(token);
       window.location.href = response.data.url;
     } catch (err) {
       console.error("Error getting Notion authorization URL:", err);
@@ -71,6 +67,7 @@ const NotionIntegration = () => {
     }
   };
 
+  // Fetch Notion page content by page ID
   const fetchPageContent = async () => {
     if (!pageId.trim()) {
       showSnackbar(t("please_provide_page_id"), "error");
@@ -82,15 +79,7 @@ const NotionIntegration = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error(t("user_not_authenticated"));
 
-      const response = await axios.get(
-        `${
-          import.meta.env.VITE_LOCAL_BACKEND_URL
-        }/api/notion/page-content?pageId=${pageId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
+      const response = await fetchNotionPageContent(token, pageId);
       setNotionContent(response.data.content);
     } catch (err) {
       console.error("Error fetching Notion page content:", err);
