@@ -276,7 +276,7 @@ const CreateStudySession = () => {
       {tabValue === 2 && <NotionIntegration />}
 
       <Button
-        variant="contained"
+        variant="outlined"
         color="primary"
         onClick={handleFetchAndGenerate}
         disabled={
