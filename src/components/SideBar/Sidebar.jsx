@@ -1,47 +1,29 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import SessionItem from "./SessionItem";
 
-// Context Imports
 import { UserContext } from "../../contexts/UserContext";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
 
-// MUI Component Imports
 import Box from "@mui/material/Box";
+import Avatar from '@mui/material/Avatar';
 import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
+import ListItemButton from "@mui/material/ListItemButton";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-
-// MUI Icon Imports
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 
-// Import jsPDF
-import jsPDF from "jspdf";
-
-// Import the useTranslation hook
 import { useTranslation } from "react-i18next";
-
-// Import the newly created components
+import SessionItem from "./SessionItem";
 import DropdownMenu from "./DropdownMenu";
 import ConfirmationDialog from "./ConfirmationDialog";
+import { ListItemIcon } from "@mui/material";
 
-/**
- * Sidebar component that displays study sessions and handles session operations.
- *
- * @param {object} props - Component props.
- * @param {boolean} props.mobileOpen - Indicates if the mobile drawer is open.
- * @param {function} props.handleDrawerToggle - Function to toggle the drawer.
- * @param {string} props.drawerWidth - Width of the drawer.
- * @param {string} props.menubarHeight - Height of the menu bar.
- * @returns {JSX.Element} The Sidebar component.
- */
 const Sidebar = ({
   mobileOpen,
   handleDrawerToggle,
@@ -50,234 +32,26 @@ const Sidebar = ({
 }) => {
   const theme = useTheme();
   const location = useLocation();
-  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
   const { t } = useTranslation();
+  const { showSnackbar } = useContext(SnackbarContext);
 
   const {
     flashcardSessions,
+    localSessions,
     loadingSessions,
     flashcardError,
+    deleteLocalSession,
     deleteFlashcardSession,
     updateFlashcardSessionName,
-    getFlashcardSessionById,
   } = useContext(UserContext);
-
-  const { showSnackbar } = useContext(SnackbarContext);
 
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
+  const [selectedSessionIsLocal, setSelectedSessionIsLocal] = useState(false);
 
-  const [dialogState, setDialogState] = useState({
-    type: null,
-    open: false,
-    sessionId: null,
-  });
-
+  const [dialogState, setDialogState] = useState({ type: null, open: false });
   const [newSessionName, setNewSessionName] = useState("");
-
-  const getActiveSessionId = () => {
-    const match = location.pathname.match(/^\/flashcards\/([a-fA-F0-9]{24})$/);
-    return match ? match[1] : null;
-  };
-
-  const activeSessionId = getActiveSessionId();
-  const isCreateSessionActive = location.pathname === "/";
-
-  const commonButtonStyles = (theme, isActive = false) => ({
-    mr: 1,
-    ml: 1,
-    borderRadius: 3,
-    backgroundColor: isActive ? theme.palette.action.selected : "transparent",
-    "&.Mui-selected": {
-      backgroundColor: theme.palette.action.selected,
-    },
-    "&:hover": {
-      backgroundColor: theme.palette.action.selected,
-    },
-    transition: theme.transitions.create(["background-color"], {
-      duration: theme.transitions.duration.standard,
-    }),
-    color: "text.primary",
-    "& .MuiListItemText-root": {
-      color: "text.primary",
-    },
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-  });
-
-  const handleMenuOpen = (event, sessionId) => {
-    event.stopPropagation();
-    event.preventDefault();
-    setMenuAnchorEl(event.currentTarget);
-    setSelectedSessionId(sessionId);
-  };
-
-  const handleMenuClose = () => {
-    setMenuAnchorEl(null);
-    setSelectedSessionId(null);
-  };
-
-  const handleDialogOpen = (type) => {
-    setDialogState({
-      type,
-      open: true,
-      sessionId: selectedSessionId,
-    });
-    handleMenuClose();
-  };
-
-  const handleDialogClose = () => {
-    setDialogState({
-      type: null,
-      open: false,
-      sessionId: null,
-    });
-    setNewSessionName("");
-  };
-
-  const handleDeleteSession = async () => {
-    const { sessionId } = dialogState;
-    if (!sessionId) return;
-
-    try {
-      await deleteFlashcardSession(sessionId);
-      showSnackbar(t("study_session_deleted_success"), "success");
-      navigate("/");
-    } catch (error) {
-      console.error("Error deleting study session:", error);
-      showSnackbar(
-        t("error_deleting_study_session", {
-          error: error.response?.data?.error || error.message,
-        }),
-        "error"
-      );
-    } finally {
-      handleDialogClose();
-    }
-  };
-
-  const handleRenameSession = async () => {
-    const { sessionId } = dialogState;
-    if (!sessionId || !newSessionName.trim()) {
-      showSnackbar(t("please_enter_valid_session_name"), "error");
-      return;
-    }
-
-    try {
-      await updateFlashcardSessionName(sessionId, newSessionName.trim());
-      showSnackbar(t("study_session_renamed_success"), "success");
-    } catch (error) {
-      console.error("Error renaming study session:", error);
-      showSnackbar(
-        t("error_renaming_study_session", {
-          error: error.response?.data?.error || error.message,
-        }),
-        "error"
-      );
-    } finally {
-      handleDialogClose();
-    }
-  };
-
-  const handlePrintSession = async () => {
-    const sessionId = selectedSessionId;
-    if (!sessionId) return;
-
-    try {
-      const session = await getFlashcardSessionById(sessionId);
-      if (!session) {
-        showSnackbar(t("failed_to_retrieve_session"), "error");
-        return;
-      }
-
-      const flashcards = session.flashcardsJSON;
-
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-
-      const cardWidth = pageWidth / 2 - 20;
-      const cardHeight = pageHeight / 4 - 20;
-
-      const xOffset = 10;
-      const yOffset = 10;
-      const xSpacing = 10;
-      const ySpacing = 10;
-
-      const cardsPerRow = 2;
-      const cardsPerColumn = 4;
-      const cardsPerPage = cardsPerRow * cardsPerColumn;
-
-      for (
-        let pageIndex = 0;
-        pageIndex < Math.ceil(flashcards.length / cardsPerPage);
-        pageIndex++
-      ) {
-        if (pageIndex !== 0) {
-          doc.addPage();
-        }
-
-        for (let cardIndex = 0; cardIndex < cardsPerPage; cardIndex++) {
-          const index = pageIndex * cardsPerPage + cardIndex;
-          if (index >= flashcards.length) break;
-          const card = flashcards[index];
-
-          const row = Math.floor(cardIndex / cardsPerRow);
-          const col = cardIndex % cardsPerRow;
-
-          const x = xOffset + col * (cardWidth + xSpacing);
-          const y = yOffset + row * (cardHeight + ySpacing);
-
-          doc.rect(x, y, cardWidth, cardHeight);
-
-          doc.setFontSize(12);
-          doc.text(card.question || "", x + 5, y + 10, {
-            maxWidth: cardWidth - 10,
-          });
-        }
-      }
-
-      for (
-        let pageIndex = 0;
-        pageIndex < Math.ceil(flashcards.length / cardsPerPage);
-        pageIndex++
-      ) {
-        doc.addPage();
-
-        for (let cardIndex = 0; cardIndex < cardsPerPage; cardIndex++) {
-          const index = pageIndex * cardsPerPage + cardIndex;
-          if (index >= flashcards.length) break;
-          const card = flashcards[index];
-
-          const row = Math.floor(cardIndex / cardsPerRow);
-          const col = cardIndex % cardsPerRow;
-
-          const x = xOffset + col * (cardWidth + xSpacing);
-          const y = yOffset + row * (cardHeight + ySpacing);
-
-          doc.rect(x, y, cardWidth, cardHeight);
-
-          doc.setFontSize(12);
-          doc.text(card.answer || "", x + 5, y + 10, {
-            maxWidth: cardWidth - 10,
-          });
-        }
-      }
-
-      doc.save(`${session.studySession}.pdf`);
-    } catch (error) {
-      console.error("Error printing session:", error);
-      showSnackbar(
-        t("error_printing_session", {
-          error: error.response?.data?.error || error.message,
-        }),
-        "error"
-      );
-    }
-  };
 
   useEffect(() => {
     if (flashcardError) {
@@ -287,6 +61,91 @@ const Sidebar = ({
       );
     }
   }, [flashcardError, showSnackbar, t]);
+
+  const isCreateSessionActive = location.pathname === "/";
+
+  // Common MUI styles
+  const commonButtonStyles = (theme, isActive = false) => ({
+    mr: 1,
+    ml: 1,
+    borderRadius: 3,
+    backgroundColor: isActive ? theme.palette.action.selected : "transparent",
+    "&.Mui-selected": { backgroundColor: theme.palette.action.selected },
+    "&:hover": { backgroundColor: theme.palette.action.selected },
+    transition: theme.transitions.create(["background-color"], {
+      duration: theme.transitions.duration.standard,
+    }),
+    color: "text.primary",
+    "& .MuiListItemText-root": { color: "text.primary" },
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  });
+
+  const handleMenuOpen = (event, sessionId, isLocal) => {
+    event.stopPropagation();
+    event.preventDefault();
+    setMenuAnchorEl(event.currentTarget);
+    setSelectedSessionId(sessionId);
+    setSelectedSessionIsLocal(isLocal);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setSelectedSessionId(null);
+    setSelectedSessionIsLocal(false);
+  };
+
+  const handleDialogOpen = (type) => {
+    setDialogState({ type, open: true });
+    handleMenuClose();
+  };
+
+  const handleDialogClose = () => {
+    setDialogState({ type: null, open: false });
+    setNewSessionName("");
+  };
+
+  /** DB-based logic */
+  const handleDeleteDbSession = () => {
+    deleteFlashcardSession(selectedSessionId);
+    handleDialogClose();
+  };
+  const handleRenameDbSession = () => {
+    if (!newSessionName.trim()) {
+      showSnackbar(t("please_enter_valid_session_name"), "error");
+      return;
+    }
+    updateFlashcardSessionName(selectedSessionId, newSessionName.trim());
+    handleDialogClose();
+  };
+
+  /** Local ephemeral logic */
+  const handleDeleteLocalSession = () => {
+    deleteLocalSession(selectedSessionId);
+    handleDialogClose();
+  };
+  const handleRenameLocalSession = () => {
+    showSnackbar("Rename ephemeral not implemented", "info");
+    handleDialogClose();
+  };
+
+  /** Called on confirm button press in the dialog */
+  const handleConfirmAction = () => {
+    if (dialogState.type === "delete") {
+      if (selectedSessionIsLocal) {
+        handleDeleteLocalSession();
+      } else {
+        handleDeleteDbSession();
+      }
+    } else if (dialogState.type === "rename") {
+      if (selectedSessionIsLocal) {
+        handleRenameLocalSession();
+      } else {
+        handleRenameDbSession();
+      }
+    }
+  };
 
   const drawerContent = (
     <Box sx={{ width: drawerWidth }}>
@@ -298,6 +157,15 @@ const Sidebar = ({
           </ListItem>
         ) : (
           <>
+            <ListItem key="StudyBuddy">
+              <ListItemIcon>
+                <Avatar src="/assets/icon.png" alt="Study Buddy Icon" />
+              </ListItemIcon>
+              <ListItemText
+                primary={"Study Buddy"}
+                primaryTypographyProps={{ variant: "body1" }}
+              />
+            </ListItem>
             <ListItem disablePadding key="create-session">
               <ListItemButton
                 component={Link}
@@ -308,27 +176,69 @@ const Sidebar = ({
               >
                 <ListItemText
                   primary={t("create_study_session")}
-                  primaryTypographyProps={{
-                    variant: "subtitle2",
-                  }}
+                  primaryTypographyProps={{ variant: "subtitle2" }}
                 />
                 <AddRoundedIcon sx={{ color: theme.palette.text.secondary }} />
               </ListItemButton>
             </ListItem>
 
-            {flashcardSessions.length > 0 &&
-              flashcardSessions.map((session) => {
-                const isActive = session.id === activeSessionId;
-                return (
-                  <SessionItem
-                    key={session.id}
-                    session={session}
-                    isActive={isActive}
-                    handleMenuOpen={handleMenuOpen}
-                    commonButtonStyles={commonButtonStyles}
+            {/* DB-based sessions */}
+            {flashcardSessions.length > 0 && (
+              <>
+                <ListItem>
+                  <ListItemText
+                    primary={t("your_db_sessions")}
+                    primaryTypographyProps={{
+                      variant: "subtitle2",
+                      sx: { fontWeight: "bold" },
+                    }}
                   />
-                );
-              })}
+                </ListItem>
+                {flashcardSessions.map((session) => {
+                  const isActive =
+                    location.pathname === `/flashcards/${session.id}`;
+                  return (
+                    <SessionItem
+                      key={session.id}
+                      session={session}
+                      isActive={isActive}
+                      handleMenuOpen={handleMenuOpen}
+                      commonButtonStyles={commonButtonStyles}
+                      isLocal={false} // DB-based
+                    />
+                  );
+                })}
+              </>
+            )}
+
+            {/* Local ephemeral sessions */}
+            {localSessions.length > 0 && (
+              <>
+                <ListItem>
+                  <ListItemText
+                    primary={t("local_sessions")}
+                    primaryTypographyProps={{
+                      variant: "subtitle2",
+                      sx: { fontWeight: "bold" },
+                    }}
+                  />
+                </ListItem>
+                {localSessions.map((session) => {
+                  const isActive =
+                    location.pathname === `/flashcards-local/${session.id}`;
+                  return (
+                    <SessionItem
+                      key={session.id}
+                      session={session}
+                      isActive={isActive}
+                      handleMenuOpen={handleMenuOpen}
+                      commonButtonStyles={commonButtonStyles}
+                      isLocal={true} // ephemeral
+                    />
+                  );
+                })}
+              </>
+            )}
           </>
         )}
       </List>
@@ -339,7 +249,6 @@ const Sidebar = ({
         onClose={handleMenuClose}
         onDeleteClick={() => handleDialogOpen("delete")}
         onRenameClick={() => handleDialogOpen("rename")}
-        onPrintClick={handlePrintSession}
         t={t}
       />
 
@@ -347,11 +256,7 @@ const Sidebar = ({
         open={dialogState.open}
         type={dialogState.type}
         onClose={handleDialogClose}
-        onConfirm={
-          dialogState.type === "delete"
-            ? handleDeleteSession
-            : handleRenameSession
-        }
+        onConfirm={handleConfirmAction}
         newSessionName={newSessionName}
         setNewSessionName={setNewSessionName}
         t={t}
@@ -364,14 +269,11 @@ const Sidebar = ({
       component="nav"
       sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
     >
-      {/* Mobile Drawer */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
         onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true,
-        }}
+        ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: "block", sm: "none" },
           "& .MuiDrawer-paper": {
@@ -383,7 +285,6 @@ const Sidebar = ({
         {drawerContent}
       </Drawer>
 
-      {/* Desktop Permanent Drawer */}
       <Drawer
         variant="permanent"
         sx={{
@@ -391,8 +292,8 @@ const Sidebar = ({
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             height: `calc(100% - ${menubarHeight}px)`,
-            boxSizing: "border-box", // Ensures padding doesn't affect dimensions
-            overflow: "hidden", // Prevent any content overflow
+            boxSizing: "border-box",
+            overflow: "hidden",
           },
         }}
         open
