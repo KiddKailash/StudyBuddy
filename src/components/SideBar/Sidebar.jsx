@@ -6,7 +6,7 @@ import { UserContext } from "../../contexts/UserContext";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
 
 import Box from "@mui/material/Box";
-import Avatar from '@mui/material/Avatar';
+import Avatar from "@mui/material/Avatar";
 import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
@@ -160,9 +160,11 @@ const Sidebar = ({
               <ListItemIcon>
                 <Avatar src="/assets/icon.png" alt="Study Buddy Icon" />
               </ListItemIcon>
-              <ListItemText
-                primary={"Study Buddy"}
-                primaryTypographyProps={{ variant: "body1" }}
+              <Box
+                component="img"
+                src="/assets/Logo.png"
+                alt="Study Buddy Logo"
+                sx={{ maxHeight: 30, marginLeft: 1 }}
               />
             </ListItem>
             <ListItem disablePadding key="create-session">
