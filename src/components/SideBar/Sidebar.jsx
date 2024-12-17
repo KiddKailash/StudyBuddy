@@ -149,7 +149,6 @@ const Sidebar = ({
 
   const drawerContent = (
     <Box sx={{ width: drawerWidth }}>
-      <Toolbar />
       <List component="nav">
         {loadingSessions ? (
           <ListItem sx={{ justifyContent: "center" }}>
