@@ -9,7 +9,7 @@ const {
   Authorization_URL,
 } = process.env;
 
-const REDIRECT_URI = "https://clipcard.netlify.app/";
+const REDIRECT_URI = "https://clipcard.netlify.app/?tab=2";
 
 /**
  * Get the Notion authorization URL for the user.
@@ -17,16 +17,17 @@ const REDIRECT_URI = "https://clipcard.netlify.app/";
  */
 exports.getNotionAuthUrl = async (req, res) => {
   try {
-    // If needed, add state parameter to identify user:
-    // const state = req.user.id; 
-    // Then append `&state=${state}` to the Authorization_URL if Notion supports it.
-    // For now, just return the URL as is.
-    res.status(200).json({ url: Authorization_URL });
+    const state = req.user.id;  // user ID from authMiddleware
+    const notionAuthUrl = `${Authorization_URL}&state=${state}`; 
+    // Example: "https://api.notion.com/v1/oauth/authorize?client_id=...&response_type=code&redirect_uri=...&state=123456789"
+
+    res.status(200).json({ url: notionAuthUrl });
   } catch (err) {
     console.error("Error generating Notion auth URL:", err);
     res.status(500).json({ error: "Failed to generate authorization URL." });
   }
 };
+
 
 /**
  * OAuth callback from Notion.

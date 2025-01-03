@@ -3,7 +3,8 @@ require("dotenv").config();
 
 /**
  * Public (unauthenticated) version of generateFlashcards,
- * called via /api/openai/generate-flashcards-public
+ * called via /api/openai/generate-flashcards-public.
+ * Returns data in the format: [ sessionName, [ ...flashcards ] ]
  */
 exports.generateFlashcardsPublic = async (req, res) => {
   const { transcript } = req.body;
@@ -21,38 +22,40 @@ exports.generateFlashcardsPublic = async (req, res) => {
     }
 
     const prompt = `
-    Convert the following transcript into 10 study flashcards in JSON format (return this as text, do NOT return this in markdown).
-    Each flashcard should be an object with "question" and "answer" fields.
-    The flashcards must cover information within the transcript.
+      Convert the following transcript into 10 study flashcards in JSON format (return this as text, do NOT return this in markdown).
+      Also generate a short session name. The final JSON format should be:
+      [
+        "sessionName",
+        [
+          {
+            "question": "Question 1",
+            "answer": "Answer 1"
+          },
+          {
+            "question": "Question 2",
+            "answer": "Answer 2"
+          }
+        ]
+      ]
 
-    Transcript:
-    ${transcript}
+      Transcript:
+      ${transcript}
 
-    Please provide the flashcards in the following JSON format:
-    [
-      {
-        "question": "Question 1",
-        "answer": "Answer 1"
-      },
-      {
-        "question": "Question 2",
-        "answer": "Answer 2"
-      }
-    ]
-
-    Requirements:
-     - Return only the JSON array of flashcards.
-     - Do not include any extra text, explanations, or code snippets.
-     - Do not use markdown formatting or code blocks.
-     - Ensure the JSON is valid and can be parsed.
-     - Create the flashcards in the same language as the transcript.
-     - Ignore information within the transcript pertaining to personnel or course structure. Flashcards are for educational content.
+      Requirements:
+        - Return only the JSON array in the exact format specified.
+        - Index 0: A short sessionName (string).
+        - Index 1: An array of flashcard objects, each with "question" and "answer" fields.
+        - No extra text, explanations, or code snippets.
+        - Do not use markdown formatting or code blocks.
+        - Ensure the JSON is valid and can be parsed.
+        - Create the flashcards in the same language as the transcript.
+        - Ignore information within the transcript pertaining to personnel or course structure. Flashcards are for educational content.
     `;
 
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: "gpt-4o", // or 'gpt-4'
+        model: "gpt-4o", // or "gpt-4"
         messages: [{ role: "user", content: prompt.trim() }],
         max_tokens: 15000,
         temperature: 0.3,
@@ -65,15 +68,15 @@ exports.generateFlashcardsPublic = async (req, res) => {
       }
     );
 
-    let flashcardsText = response.data.choices[0].message.content.trim();
     // Remove triple backticks if present
+    let flashcardsText = response.data.choices[0].message.content.trim();
     if (flashcardsText.startsWith("```") && flashcardsText.endsWith("```")) {
       flashcardsText = flashcardsText.slice(3, -3).trim();
     }
 
-    let flashcards;
+    let parsedData;
     try {
-      flashcards = JSON.parse(flashcardsText);
+      parsedData = JSON.parse(flashcardsText); // Expecting a 2-element array
     } catch (parseError) {
       console.error("Error parsing flashcards JSON:", parseError);
       console.error("Flashcards Text:", flashcardsText);
@@ -82,22 +85,40 @@ exports.generateFlashcardsPublic = async (req, res) => {
         .json({ error: "Failed to parse flashcards JSON." });
     }
 
-    // Validate the format
+    // Validate the 2-element array structure: [ sessionName, flashcardsArray ]
     if (
-      !Array.isArray(flashcards) ||
-      !flashcards.every(
+      !Array.isArray(parsedData) ||
+      parsedData.length !== 2 ||
+      typeof parsedData[0] !== "string" ||
+      !Array.isArray(parsedData[1])
+    ) {
+      return res.status(500).json({
+        error:
+          "Invalid format from OpenAI. Expected [sessionName, [{question,answer}...]].",
+      });
+    }
+
+    const sessionName = parsedData[0];
+    const flashcardsArray = parsedData[1];
+
+    // Validate each flashcard object
+    if (
+      !flashcardsArray.every(
         (card) =>
           typeof card === "object" &&
           typeof card.question === "string" &&
           typeof card.answer === "string"
       )
     ) {
-      return res
-        .status(500)
-        .json({ error: "Invalid flashcards format received from OpenAI." });
+      return res.status(500).json({
+        error: "Invalid flashcards format received from OpenAI.",
+      });
     }
 
-    res.status(200).json({ flashcards });
+    // Return the same structure to the frontend
+    // So the frontend can do: const [sessionName, flashcards] = resp.data.flashcards;
+    // We'll nest them under 'flashcards' property to match the frontend usage
+    res.status(200).json({ flashcards: parsedData });
   } catch (error) {
     console.error(
       "Error generating public flashcards via OpenAI:",
