@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
@@ -23,6 +23,7 @@ import { useTranslation, Trans } from "react-i18next";
 const FlashcardSession = () => {
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   // Determine local vs. DB-based from URL path
   const isLocalSession = location.pathname.includes("/flashcards-local/");
 
@@ -132,12 +133,7 @@ const FlashcardSession = () => {
   }
 
   if (!session) {
-    return (
-      <Container sx={{ mt: 2, mb: 2 }}>
-        <Typography>{t("no_session_data_available")}</Typography>
-        <Footer />
-      </Container>
-    );
+    navigate('/');
   }
 
   const flashcardsArray = session.flashcardsJSON || [];
