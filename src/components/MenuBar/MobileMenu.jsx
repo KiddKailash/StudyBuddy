@@ -9,20 +9,19 @@ import { UserContext } from "../../contexts/UserContext";
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
 
-/**
- * MobileMenu component handles the mobile-specific menu items.
- *
- * @param {object} props - Component props.
- * @param {function} props.handleDrawerToggle - Function to toggle the sidebar drawer.
- * @returns {JSX.Element} - The rendered MobileMenu component.
- */
 const MobileMenu = ({ handleDrawerToggle }) => {
   // Initialize the translation function
   const { t } = useTranslation();
   const { user } = useContext(UserContext);
 
   return (
-    <Box sx={{ display: { sm: "none" }, alignItems: "center" }}>
+    <Box
+      sx={{
+        display: { xs: "flex", sm: "none" }, // flex on mobile, hidden on sm & up
+        flexDirection: "row",
+        alignItems: "center",
+      }}
+    >
       <IconButton
         color="inherit"
         aria-label={t("open_drawer")}
@@ -31,15 +30,14 @@ const MobileMenu = ({ handleDrawerToggle }) => {
         sx={{
           mt: 1.3,
           mb: 1.3,
-          mr: 2,
           "&:focus": {
             outline: "none",
           },
         }}
       >
-        <MenuIcon />
+        {/* Increase hamburger (MenuIcon) size */}
+        <MenuIcon sx={{ fontSize: 28 }} />
       </IconButton>
-      {user && user.accountType !== "paid" && <UpgradeButton />}
     </Box>
   );
 };

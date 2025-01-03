@@ -9,10 +9,7 @@ import Button from "@mui/material/Button";
 import { UserContext } from "../../contexts/UserContext";
 import MobileMenu from "./MobileMenu";
 import UpgradeButton from "./UpgradeButton";
-import AccountInfo from "./AccountInfo";
 import AvatarMenu from "./AvatarMenu";
-
-// Import the useTranslation hook
 import { useTranslation } from "react-i18next";
 
 /**
@@ -26,8 +23,6 @@ const MenuBar = ({ handleDrawerToggle }) => {
   const { user, resetUserContext } = useContext(UserContext);
   const navigate = useNavigate();
   const theme = useTheme();
-
-  // Initialize the translation function
   const { t } = useTranslation();
 
   /**
@@ -35,7 +30,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
    */
   const handleLogout = () => {
     resetUserContext(); // Clears user data and resets login state
-    navigate("/"); // Redirects to homepage
+    navigate("/");      // Redirects to homepage
   };
 
   return (
@@ -55,31 +50,54 @@ const MenuBar = ({ handleDrawerToggle }) => {
     >
       <Toolbar
         sx={{
+          // Use flex layout with space-between so items don't push each other off screen
+          display: "flex",
           justifyContent: "space-between",
-          padding: "0 24px",
+          alignItems: "center",
+          // Slightly smaller padding helps on narrow screens
+          px: 1,
+          overflow: "hidden", // prevents horizontal scroll
         }}
       >
-        {/* Mobile Menu */}
-        <MobileMenu handleDrawerToggle={handleDrawerToggle} />
+        {/* 
+          MOBILE MENU (XS only): Hamburger + optional UpgradeButton 
+          We keep margins small so it doesn't push the avatar off screen.
+        */}
+        <Box 
+          sx={{ 
+            display: { xs: "flex", sm: "none" }, 
+            alignItems: "center" 
+          }}
+        >
+          <MobileMenu handleDrawerToggle={handleDrawerToggle} />
+          {user && user.accountType !== "paid" && (
+            <UpgradeButton
+              sx={{
+                ml: 1,
+                whiteSpace: "nowrap",
+                minWidth: "auto",  // Let the button shrink on very narrow screens
+                fontSize: "0.8rem" // If needed, reduce font size a bit on mobile
+              }}
+            />
+          )}
+        </Box>
 
-        {/* Desktop Menu */}
+        {/* 
+          DESKTOP MENU (SM+): Only the UpgradeButton if user not paid 
+        */}
         <Box
           sx={{
             display: { xs: "none", sm: "flex" },
             alignItems: "center",
-            flexGrow: 1,
           }}
         >
-          {/*
-            Show UpgradeButton if user is not logged in (user === null)
-            OR if user.accountType !== "paid".
-          */}
-          {(user && user.accountType !== "paid") && <UpgradeButton />}
-
-          {/* Add more menu items as needed, e.g. <AccountInfo /> */}
+          {user && user.accountType !== "paid" && <UpgradeButton />}
         </Box>
 
-        {/* Right Side: Profile Avatar or Login Button */}
+        {/* 
+          RIGHT SIDE: Avatar (if logged in) or Login button 
+          We keep this pinned to the far right with no flexGrow in front of it.
+        */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           {user ? (
             <AvatarMenu user={user} onLogout={handleLogout} />
@@ -95,7 +113,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
 };
 
 MenuBar.propTypes = {
-  handleDrawerToggle: PropTypes.func.isRequired, // Function to toggle the drawer
+  handleDrawerToggle: PropTypes.func.isRequired,
 };
 
 export default MenuBar;
