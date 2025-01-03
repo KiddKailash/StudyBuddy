@@ -15,22 +15,18 @@ import { useTranslation } from "react-i18next";
  * @param {object} props
  * @param {object} props.session - { id, studySession, ... }
  * @param {boolean} props.isActive
- * @param {function} props.handleMenuOpen - handleMenuOpen(event, sessionId, isLocal)
+ * @param {function} props.handleMenuOpen - handleMenuOpen(event, sessionId)
  * @param {function} props.commonButtonStyles
- * @param {boolean} [props.isLocal=true] - true if ephemeral, false if DB-based
+ * @param {string} props.routePath - the link URL ("/flashcards/..." or "/flashcards-local/...")
  */
 const SessionItem = ({
   session,
   isActive,
   handleMenuOpen,
   commonButtonStyles,
-  isLocal = true,
+  routePath,
 }) => {
   const { t } = useTranslation();
-
-  const routePath = isLocal
-    ? `/flashcards-local/${session.id}`
-    : `/flashcards/${session.id}`;
 
   return (
     <ListItem disablePadding>
@@ -57,8 +53,8 @@ const SessionItem = ({
           edge="end"
           aria-label={t("options")}
           onClick={(e) => {
-            e.preventDefault(); // block link
-            handleMenuOpen(e, session.id, isLocal);
+            e.preventDefault(); // prevent navigation
+            handleMenuOpen(e, session.id);
           }}
           className="session-options-button"
           sx={{ color: "text.secondary" }}
@@ -78,7 +74,7 @@ SessionItem.propTypes = {
   isActive: PropTypes.bool.isRequired,
   handleMenuOpen: PropTypes.func.isRequired,
   commonButtonStyles: PropTypes.func.isRequired,
-  isLocal: PropTypes.bool,
+  routePath: PropTypes.string.isRequired,
 };
 
 export default SessionItem;

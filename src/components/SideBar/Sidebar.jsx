@@ -24,6 +24,9 @@ import DropdownMenu from "./DropdownMenu";
 import ConfirmationDialog from "./ConfirmationDialog";
 import { ListItemIcon } from "@mui/material";
 
+/**
+ * Sidebar - displays the list of DB-based and local flashcard sessions.
+ */
 const Sidebar = ({
   mobileOpen,
   handleDrawerToggle,
@@ -42,15 +45,24 @@ const Sidebar = ({
     loadingSessions,
     flashcardError,
     deleteLocalSession,
+    updateLocalSession,
     deleteFlashcardSession,
     updateFlashcardSessionName,
   } = useContext(UserContext);
 
+  // Menu anchor for "options" (three dots)
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  // We still track which session is selected in the menu,
+  // but we won't rely on it for confirm actions.
   const [selectedSessionId, setSelectedSessionId] = useState(null);
-  const [selectedSessionIsLocal, setSelectedSessionIsLocal] = useState(false);
 
-  const [dialogState, setDialogState] = useState({ type: null, open: false });
+  // Dialog state includes type (delete/rename), open boolean, and now the sessionId
+  const [dialogState, setDialogState] = useState({
+    type: null,
+    open: false,
+    sessionId: null,
+  });
+
   const [newSessionName, setNewSessionName] = useState("");
 
   useEffect(() => {
@@ -62,9 +74,10 @@ const Sidebar = ({
     }
   }, [flashcardError, showSnackbar, t]);
 
+  // Check if we are on the "Create new session" screen
   const isCreateSessionActive = location.pathname === "/";
 
-  // Common MUI styles
+  // Common MUI styles for session list items
   const commonButtonStyles = (theme, isActive = false) => ({
     mr: 1,
     ml: 1,
@@ -82,71 +95,119 @@ const Sidebar = ({
     justifyContent: "space-between",
   });
 
-  const handleMenuOpen = (event, sessionId, isLocal) => {
+  /**
+   * Opens the menu (three dots) for a specific session
+   */
+  const handleMenuOpen = (event, sessionId) => {
     event.stopPropagation();
     event.preventDefault();
     setMenuAnchorEl(event.currentTarget);
     setSelectedSessionId(sessionId);
-    setSelectedSessionIsLocal(isLocal);
   };
 
+  /**
+   * Closes the menu
+   */
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
+    // Optionally clear the selected session ID here
     setSelectedSessionId(null);
-    setSelectedSessionIsLocal(false);
   };
 
+  /**
+   * Opens the rename/delete dialog and stores both the type of action
+   * (delete or rename) and the sessionId in the dialog state
+   */
   const handleDialogOpen = (type) => {
-    setDialogState({ type, open: true });
-    handleMenuClose();
+    setDialogState({
+      type,
+      open: true,
+      sessionId: selectedSessionId, // Store ID here before we close the menu
+    });
+    handleMenuClose(); // Clears selectedSessionId, but we have it in dialogState now
   };
 
+  /**
+   * Closes the rename/delete dialog
+   */
   const handleDialogClose = () => {
-    setDialogState({ type: null, open: false });
+    setDialogState({ type: null, open: false, sessionId: null });
     setNewSessionName("");
   };
 
-  /** DB-based logic */
-  const handleDeleteDbSession = () => {
-    deleteFlashcardSession(selectedSessionId);
+  /**
+   * DB-based logic (delete or rename)
+   */
+  const handleDeleteDbSession = (id) => {
+    deleteFlashcardSession(id);
     handleDialogClose();
   };
-  const handleRenameDbSession = () => {
+
+  const handleRenameDbSession = (id) => {
     if (!newSessionName.trim()) {
       showSnackbar(t("please_enter_valid_session_name"), "error");
       return;
     }
-    updateFlashcardSessionName(selectedSessionId, newSessionName.trim());
+    updateFlashcardSessionName(id, newSessionName.trim());
     handleDialogClose();
   };
 
-  /** Local ephemeral logic */
-  const handleDeleteLocalSession = () => {
-    deleteLocalSession(selectedSessionId);
-    handleDialogClose();
-  };
-  const handleRenameLocalSession = () => {
-    showSnackbar("Rename ephemeral not implemented", "info");
+  /**
+   * Local ephemeral logic (delete or rename)
+   */
+  const handleDeleteLocalSession = (id) => {
+    deleteLocalSession(id);
     handleDialogClose();
   };
 
-  /** Called on confirm button press in the dialog */
+  const handleRenameLocalSession = (sessionId) => {
+    if (!newSessionName.trim()) {
+      showSnackbar(t("please_enter_valid_session_name"), "error");
+      return;
+    }
+    updateLocalSession(sessionId, newSessionName.trim());
+    handleDialogClose();
+  };
+
+  /**
+   * Called when user presses "Confirm" on the rename/delete dialog
+   */
   const handleConfirmAction = () => {
-    if (dialogState.type === "delete") {
-      if (selectedSessionIsLocal) {
-        handleDeleteLocalSession();
-      } else {
-        handleDeleteDbSession();
+    const { type, sessionId } = dialogState; // get the ID from dialogState
+    if (!sessionId) {
+      console.error("Session not found: no sessionId in dialogState");
+      return;
+    }
+
+    // Combine both sets of sessions into one array
+    const combinedSessions = [...localSessions, ...flashcardSessions];
+    // Find the matching session object
+    const targetSession = combinedSessions.find((s) => s.id === sessionId);
+
+    if (!targetSession) {
+      console.error("Session not found:", sessionId);
+      return;
+    }
+   
+    // Check the session type
+    if (targetSession.sessionType === "local") {
+      if (type === "delete") {
+        handleDeleteLocalSession(sessionId);
+      } else if (type === "rename") {
+        handleRenameLocalSession(sessionId);
       }
-    } else if (dialogState.type === "rename") {
-      if (selectedSessionIsLocal) {
-        handleRenameLocalSession();
-      } else {
-        handleRenameDbSession();
+    } else {
+      if (type === "delete") {
+        handleDeleteDbSession(sessionId);
+      } else if (type === "rename") {
+        handleRenameDbSession(sessionId);
       }
     }
   };
 
+  /**
+   * The main drawer content, including the list of DB and local sessions
+   */
   const drawerContent = (
     <Box sx={{ width: drawerWidth }}>
       <List component="nav">
@@ -167,6 +228,8 @@ const Sidebar = ({
                 sx={{ maxHeight: 30, marginLeft: 1 }}
               />
             </ListItem>
+
+            {/* Create Session Button */}
             <ListItem disablePadding key="create-session">
               <ListItemButton
                 component={Link}
@@ -205,7 +268,7 @@ const Sidebar = ({
                       isActive={isActive}
                       handleMenuOpen={handleMenuOpen}
                       commonButtonStyles={commonButtonStyles}
-                      isLocal={false} // DB-based
+                      routePath={`/flashcards/${session.id}`}
                     />
                   );
                 })}
@@ -234,7 +297,7 @@ const Sidebar = ({
                       isActive={isActive}
                       handleMenuOpen={handleMenuOpen}
                       commonButtonStyles={commonButtonStyles}
-                      isLocal={true} // ephemeral
+                      routePath={`/flashcards-local/${session.id}`}
                     />
                   );
                 })}
@@ -244,6 +307,7 @@ const Sidebar = ({
         )}
       </List>
 
+      {/* The three-dot menu for each session */}
       <DropdownMenu
         anchorEl={menuAnchorEl}
         isOpen={Boolean(menuAnchorEl)}
@@ -253,6 +317,7 @@ const Sidebar = ({
         t={t}
       />
 
+      {/* Dialog for confirming delete or rename */}
       <ConfirmationDialog
         open={dialogState.open}
         type={dialogState.type}
@@ -270,6 +335,7 @@ const Sidebar = ({
       component="nav"
       sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
     >
+      {/* Mobile drawer */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -286,6 +352,7 @@ const Sidebar = ({
         {drawerContent}
       </Drawer>
 
+      {/* Permanent drawer for desktop */}
       <Drawer
         variant="permanent"
         sx={{
