@@ -19,7 +19,7 @@ const NotionIntegration = () => {
   const {
     fetchNotionAuthUrl,
     fetchNotionPageContent,
-    isNotionAuthorized
+    checkNotionAuthorization
   } = useContext(UserContext);
 
   useEffect(() => {
@@ -34,12 +34,16 @@ const NotionIntegration = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error(t("user_not_authenticated"));
 
-      const response = await isNotionAuthorized;
-      setAuthorized(response.data.authorized);
+      const response = await checkNotionAuthorization(token);
+      if (response.data && typeof response.data.authorized === 'boolean') {
+        setAuthorized(response.data.authorized);
+      } else {
+        throw new Error("Invalid response from server.");
+      }
     } catch (err) {
       console.error("Error checking Notion authorization:", err);
       showSnackbar(
-        err.response?.data?.error || t("error_processing_request"),
+        err.response?.data?.error || err.message || t("error_processing_request"),
         "error"
       );
     } finally {
@@ -59,7 +63,7 @@ const NotionIntegration = () => {
     } catch (err) {
       console.error("Error getting Notion authorization URL:", err);
       showSnackbar(
-        err.response?.data?.error || t("error_processing_request"),
+        err.response?.data?.error || err.message || t("error_processing_request"),
         "error"
       );
     } finally {
@@ -80,11 +84,15 @@ const NotionIntegration = () => {
       if (!token) throw new Error(t("user_not_authenticated"));
 
       const response = await fetchNotionPageContent(token, pageId);
-      setNotionContent(response.data.content);
+      if (response.data && response.data.content) {
+        setNotionContent(response.data.content);
+      } else {
+        throw new Error("Invalid response from server.");
+      }
     } catch (err) {
       console.error("Error fetching Notion page content:", err);
       showSnackbar(
-        err.response?.data?.error || t("error_processing_request"),
+        err.response?.data?.error || err.message || t("error_processing_request"),
         "error"
       );
     } finally {
