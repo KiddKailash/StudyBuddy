@@ -24,10 +24,10 @@ const UpgradeButton = () => {
       sx={{
         // Force the text onto a single line
         whiteSpace: "nowrap",
-        textAlign: "left",
+        textAlign: 'left'
       }}
     >
-      {t("upgrade_account")}
+      ⭐️ {t("upgrade_account")}
     </Button>
   );
 };
