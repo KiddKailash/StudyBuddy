@@ -48,13 +48,16 @@ export const UserProvider = ({ children }) => {
 
   // Create ephemeral session with limit check
   const createLocalSession = (sessionData) => {
-    // Tag the session as "local"
-    const localSessionWithTag = { ...sessionData, sessionType: "local" };
-
     if (localSessions.length >= MAX_EPHEMERAL_SESSIONS) {
       throw new Error("Maximum number of study sessions reached.");
     }
-    setLocalSessions((prev) => [...prev, localSessionWithTag]);
+  
+    const newLocalSession = { ...sessionData, sessionType: "local" };
+    const updatedSessions = [...localSessions, newLocalSession];
+
+    localStorage.setItem("localSessions", JSON.stringify(updatedSessions));
+  
+    setLocalSessions(updatedSessions);
   };
 
   // Delete ephemeral session
