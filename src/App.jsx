@@ -49,8 +49,8 @@ function App() {
 
   const pages = [
     { path: "/", component: <CreateStudySession /> },
-    { path: "/flashcards-local/:id", component: <FlashcardSession isLocal={true} /> },
-    { path: "/flashcards/:id", component: <FlashcardSession isLocal={false} /> },
+    { path: "/flashcards-local/:id", component: <FlashcardSession /> },
+    { path: "/flashcards/:id", component: <FlashcardSession /> },
     { path: "/login", component: <LoginPage /> },
     { path: "/settings", component: <SettingsPage /> },
     { path: "/success", component: <Success /> },
@@ -112,12 +112,17 @@ function App() {
           position: "fixed",
           top: 0,
           left: isMobile || !isExpanded || isLoginPage ? 0 : sidebarWidth,
-          width: isMobile || !isExpanded || isLoginPage ? "100%" : `calc(100% - ${sidebarWidth})`,
+          width:
+            isMobile || !isExpanded || isLoginPage
+              ? "100%"
+              : `calc(100% - ${sidebarWidth})`,
           height: "100%",
           padding: 2,
           bgcolor: "background.default",
           zIndex: 50,
-          transition: isLoggedIn ? "all 0.3s ease-in-out" : "all 0s ease-in-out",
+          transition: isLoggedIn
+            ? "all 0.3s ease-in-out"
+            : "all 0s ease-in-out",
           overflow: "auto",
         }}
       >
@@ -146,11 +151,21 @@ function App() {
 
         <Routes>
           {pages.map((page, index) => {
-            const publicPaths = ["/", "/login", "/terms", "/privacy", "/success", "/cancel"];
-            const isLocalFlashcardPath = page.path.startsWith("/flashcards-local");
+            const publicPaths = [
+              "/",
+              "/login",
+              "/terms",
+              "/privacy",
+              "/success",
+              "/cancel",
+            ];
+            const isLocalFlashcardPath =
+              page.path.startsWith("/flashcards-local");
 
             const isPublicPage =
-              publicPaths.includes(page.path) || page.path === "*" || isLocalFlashcardPath;
+              publicPaths.includes(page.path) ||
+              page.path === "*" ||
+              isLocalFlashcardPath;
 
             return (
               <Route
