@@ -55,7 +55,7 @@ exports.generateFlashcardsPublic = async (req, res) => {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: "gpt-4o", // or "gpt-4"
+        model: "gpt-4o-mini", // or "gpt-4"
         messages: [{ role: "user", content: prompt.trim() }],
         max_tokens: 15000,
         temperature: 0.3,
