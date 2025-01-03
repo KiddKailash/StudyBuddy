@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import PropTypes from "prop-types";
 
@@ -10,6 +11,9 @@ export const UserContext = createContext();
  *  - Local ephemeral sessions (free-tier not logged in)
  */
 export const UserProvider = ({ children }) => {
+  // Constants
+  const MAX_EPHEMERAL_SESSIONS = 1; // Set your desired limit here
+
   // Auth/user
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -22,6 +26,10 @@ export const UserProvider = ({ children }) => {
 
   // Local ephemeral sessions
   const [localSessions, setLocalSessions] = useState([]);
+
+  // Hooks from React Router
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // On mount: Load ephemeral sessions from localStorage
   useEffect(() => {
@@ -38,14 +46,31 @@ export const UserProvider = ({ children }) => {
     localStorage.setItem("localSessions", JSON.stringify(localSessions));
   }, [localSessions]);
 
-  // Create ephemeral session
+  // Create ephemeral session with limit check
   const createLocalSession = (sessionData) => {
-    setLocalSessions((prev) => [...prev, sessionData]);
+    // Tag the session as "local"
+    const localSessionWithTag = { ...sessionData, sessionType: "local" };
+
+    if (localSessions.length >= MAX_EPHEMERAL_SESSIONS) {
+      throw new Error("Maximum number of study sessions reached.");
+    }
+    setLocalSessions((prev) => [...prev, localSessionWithTag]);
   };
 
   // Delete ephemeral session
   const deleteLocalSession = (sessionId) => {
+    if (location.pathname === `/flashcards-local/${sessionId}`) {
+      navigate("/");
+    }
     setLocalSessions((prev) => prev.filter((s) => s.id !== sessionId));
+  };
+
+  const updateLocalSession = (sessionId, newName) => {
+    setLocalSessions((prev) =>
+      prev.map((s) =>
+        s.id === sessionId ? { ...s, studySession: newName } : s
+      )
+    );
   };
 
   // Reset context on logout
@@ -55,7 +80,8 @@ export const UserProvider = ({ children }) => {
     setAuthLoading(false);
     setFlashcardSessions([]);
     setFlashcardError(null);
-    //  setLocalSessions([]);
+    // Optionally clear ephemeral local sessions on logout:
+    // setLocalSessions([]);
     localStorage.removeItem("token");
   };
 
@@ -108,7 +134,12 @@ export const UserProvider = ({ children }) => {
         `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setFlashcardSessions(resp.data.flashcards || []);
+      // Tag each DB session with sessionType: "db"
+      const loadedDbSessions = (resp.data.flashcards || []).map((s) => ({
+        ...s,
+        sessionType: "db",
+      }));
+      setFlashcardSessions(loadedDbSessions);
     } catch (error) {
       console.error("loadFlashcardSessions error:", error);
       setFlashcardError("Failed to load DB sessions.");
@@ -119,6 +150,11 @@ export const UserProvider = ({ children }) => {
 
   // Delete DB-based session
   const deleteFlashcardSession = async (sessionId) => {
+    // If user is on the URL for this DB-based session, redirect to "/"
+    if (location.pathname === `/flashcards/${sessionId}`) {
+      navigate("/");
+    }
+
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated.");
@@ -161,6 +197,43 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Get the Notion authorization URL (backend returns { url })
+   */
+  const fetchNotionAuthUrl = async (token) => {
+    return axios.get(
+      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/auth-url`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+  };
+
+  /**
+   * Check if the user is authorized with Notion (backend returns { authorized: boolean })
+   */
+  const checkNotionAuthorization = async (token) => {
+    return axios.get(
+      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/is-authorized`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+  };
+
+  /**
+   * Fetch the Notion page content for a given pageId (backend returns { content: '...' })
+   */
+  const fetchNotionPageContent = async (token, pageId) => {
+    return axios.get(
+      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/page-content`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { pageId },
+      }
+    );
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -185,6 +258,8 @@ export const UserProvider = ({ children }) => {
         setLocalSessions,
         createLocalSession,
         deleteLocalSession,
+        updateLocalSession,
+        MAX_EPHEMERAL_SESSIONS, // Expose the limit
       }}
     >
       {children}
