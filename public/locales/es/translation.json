@@ -252,5 +252,7 @@
   "page_content": "Contenido de la página",
   "authorize_notion": "Autorizar Notion",
   "your_db_sessions": "Sesiones de estudio",
-  "local_sessions": "Sesiones de estudio temporales"
+  "local_sessions": "Sesiones de estudio temporales",
+"max_ephemeral_sessions_reached": "Has alcanzado el número máximo de sesiones de estudio permitidas para usuarios gratuitos.",
+  "max_ephemeral_sessions_reached_message": "No puedes crear más sesiones de estudio. Por favor, actualiza tu cuenta para crear sesiones adicionales."
 }
