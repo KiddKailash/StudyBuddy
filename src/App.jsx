@@ -76,10 +76,13 @@ function App() {
   }
 
   const isLoginPage = location.pathname.startsWith("/login");
+  const isTermsOrPrivacyPolicy =
+    location.pathname.startsWith("/terms") ||
+    location.pathname.startsWith("/privacy");
 
   return (
     <>
-      {!isLoginPage && (
+      {(!isLoginPage || isTermsOrPrivacyPolicy) && (
         <Box
           component="nav"
           sx={{
@@ -111,9 +114,12 @@ function App() {
         sx={{
           position: "fixed",
           top: 0,
-          left: isMobile || !isExpanded || isLoginPage ? 0 : sidebarWidth,
+          left:
+            isMobile || !isExpanded || isLoginPage || isTermsOrPrivacyPolicy
+              ? 0
+              : sidebarWidth,
           width:
-            isMobile || !isExpanded || isLoginPage
+            isMobile || !isExpanded || isLoginPage || isTermsOrPrivacyPolicy
               ? "100%"
               : `calc(100% - ${sidebarWidth})`,
           height: "100%",
@@ -126,7 +132,9 @@ function App() {
           overflow: "auto",
         }}
       >
-        {!isLoginPage && <MenuBar handleDrawerToggle={handleDrawerToggle} />}
+        {!(isLoginPage || isTermsOrPrivacyPolicy) && (
+          <MenuBar handleDrawerToggle={handleDrawerToggle} />
+        )}
 
         {!isMobile && isLoggedIn && !isLoginPage && (
           <IconButton
