@@ -5,7 +5,7 @@ import { UserProvider } from "./contexts/UserContext";
 import { BrowserRouter as Router } from "react-router-dom";
 import { SnackbarProvider } from "./contexts/SnackbarContext.jsx";
 
-import './i18n.js';
+import "./i18n.js";
 
 import App from "./App.jsx";
 import "./index.css";
@@ -16,13 +16,13 @@ import "./index.css";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <SetTheme>
-      <UserProvider>
-        <SnackbarProvider>
-          <Router>
+      <Router>
+        <UserProvider>
+          <SnackbarProvider>
             <App />
-          </Router>
-        </SnackbarProvider>
-      </UserProvider>
+          </SnackbarProvider>
+        </UserProvider>
+      </Router>
     </SetTheme>
   </StrictMode>
 );
