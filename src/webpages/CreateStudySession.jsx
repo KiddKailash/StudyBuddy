@@ -41,6 +41,7 @@ const CreateStudySession = () => {
     setFlashcardSessions,
     localSessions,
     createLocalSession,
+    MAX_EPHEMERAL_SESSIONS, // Access the limit
   } = useContext(UserContext);
 
   const accountType = user?.accountType || "free";
@@ -83,6 +84,16 @@ const CreateStudySession = () => {
       showSnackbar(t("max_sessions_reached"), "info");
       return;
     }
+
+    // For unauthenticated users, enforce MAX_EPHEMERAL_SESSIONS limit
+    if (!isLoggedIn && localSessions.length >= MAX_EPHEMERAL_SESSIONS) {
+      showSnackbar(
+        t("max_sessions_reached"),
+        "warning"
+      );
+      return;
+    }
+
     setLoadingTranscript(true);
 
     try {
@@ -143,22 +154,17 @@ const CreateStudySession = () => {
         transcriptText = notionText.trim();
       }
 
-      // Step 2: Generate flashcards (both public and private routes now return the same data format: [sessionName, flashcardsArray])
+      // Step 2: Generate flashcards
       let generatedData = [];
       if (!token) {
         const resp = await axios.post(
-          `${
-            import.meta.env.VITE_LOCAL_BACKEND_URL
-          }/api/openai/generate-flashcards-public`,
+          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/openai/generate-flashcards-public`,
           { transcript: transcriptText }
         );
-        // 'resp.data.flashcards' is the entire 2-element array: [sessionName, [...flashcards]]
         generatedData = resp.data.flashcards;
       } else {
         const resp = await axios.post(
-          `${
-            import.meta.env.VITE_LOCAL_BACKEND_URL
-          }/api/openai/generate-flashcards`,
+          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/openai/generate-flashcards`,
           { transcript: transcriptText },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -224,7 +230,7 @@ const CreateStudySession = () => {
       >
         <Tab icon={<UploadFileIcon />} label={t("upload_document")} />
         <Tab icon={<ContentCutIcon />} label={t("paste_text")} />
-        <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} />
+        {/* <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} /> */}
       </Tabs>
 
       {tabValue === 0 && (
@@ -283,7 +289,9 @@ const CreateStudySession = () => {
           loadingTranscript ||
           (isLoggedIn &&
             accountType === "free" &&
-            flashcardSessions.length >= 2)
+            flashcardSessions.length >= 2) ||
+          (!isLoggedIn &&
+            localSessions.length >= MAX_EPHEMERAL_SESSIONS)
         }
         fullWidth
         sx={{ height: 56 }}
@@ -295,6 +303,27 @@ const CreateStudySession = () => {
         )}
       </Button>
 
+      {/* Inform unauthenticated users when they reach the maximum ephemeral sessions */}
+      {!isLoggedIn && localSessions.length >= MAX_EPHEMERAL_SESSIONS && (
+        <>
+          <Typography variant="body1" color="textSecondary" sx={{ mt: 2 }}>
+            {t("max_ephemeral_sessions_reached_message")}
+          </Typography>
+          <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
+            <Trans i18nKey="upgrade_to_create_more">
+              <Link
+                component="button"
+                variant="body1"
+                onClick={() => redirectToStripeCheckout("paid", showSnackbar)}
+              >
+                {t("upgrade_your_account")}
+              </Link>
+            </Trans>
+          </Typography>
+        </>
+      )}
+
+      {/* Inform authenticated free users when they reach the maximum DB sessions */}
       {isLoggedIn &&
         accountType === "free" &&
         flashcardSessions.length >= 2 && (

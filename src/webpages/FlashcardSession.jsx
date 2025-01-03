@@ -10,7 +10,7 @@ import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 
@@ -20,13 +20,17 @@ import Footer from "../components/Footer";
 import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
 import { useTranslation, Trans } from "react-i18next";
 
-const FlashcardSession = ({ isLocal = false }) => {
-  const { id } = useParams(); 
+const FlashcardSession = () => {
+  const { id } = useParams();
+  const location = useLocation();
+  // Determine local vs. DB-based from URL path
+  const isLocalSession = location.pathname.includes("/flashcards-local/");
+
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
 
-  const { user } = useContext(UserContext); 
+  const { user } = useContext(UserContext);
   const { showSnackbar } = useContext(SnackbarContext);
   const accountType = user?.accountType || "free";
 
@@ -40,9 +44,11 @@ const FlashcardSession = ({ isLocal = false }) => {
   const fetchSession = async () => {
     setLoading(true);
     try {
-      if (isLocal) {
+      if (isLocalSession) {
         // Load session from local storage
-        let localSessions = JSON.parse(localStorage.getItem("localSessions") || "[]");
+        let localSessions = JSON.parse(
+          localStorage.getItem("localSessions") || "[]"
+        );
         const found = localSessions.find((s) => s.id === id);
         setSession(found || null);
       } else {
@@ -59,7 +65,12 @@ const FlashcardSession = ({ isLocal = false }) => {
       }
     } catch (error) {
       console.error("Error fetching session:", error);
-      showSnackbar(error.response?.data?.error || error.message || t("error_fetching_session"), "error");
+      showSnackbar(
+        error.response?.data?.error ||
+          error.message ||
+          t("error_fetching_session"),
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -69,10 +80,15 @@ const FlashcardSession = ({ isLocal = false }) => {
    * Generate more flashcards - only works for DB-based sessions
    */
   const handleGenerateMoreFlashcards = async () => {
-    if (isLocal) {
-      showSnackbar("This feature is only available for DB-based sessions.", "info");
+    // This feature is not supported for local sessions
+    if (isLocalSession) {
+      showSnackbar(
+        "This feature is only available for DB-based sessions.",
+        "info"
+      );
       return;
     }
+
     if (accountType === "free") {
       showSnackbar(t("premium_feature_upgrade"), "info");
       return;
@@ -81,8 +97,11 @@ const FlashcardSession = ({ isLocal = false }) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("User is not authenticated.");
-      const response = await axios.post(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${id}/generate-additional-flashcards`,
+
+      await axios.post(
+        `${
+          import.meta.env.VITE_LOCAL_BACKEND_URL
+        }/api/flashcards/${id}/generate-additional-flashcards`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -91,7 +110,12 @@ const FlashcardSession = ({ isLocal = false }) => {
       fetchSession();
     } catch (error) {
       console.error("Error generating more flashcards:", error);
-      showSnackbar(error.response?.data?.error || error.message || t("error_generating_flashcards"), "error");
+      showSnackbar(
+        error.response?.data?.error ||
+          error.message ||
+          t("error_generating_flashcards"),
+        "error"
+      );
     } finally {
       setGenerating(false);
     }
@@ -120,13 +144,17 @@ const FlashcardSession = ({ isLocal = false }) => {
 
   return (
     <Container sx={{ mt: 2, mb: 2 }}>
-      {/* DB-based session generate more flashcards */}
-      {!isLocal && (
-        <Box sx={{ display: "flex", mb: 2, textAlign: 'left' }}>
-          <Button variant="outlined" onClick={handleGenerateMoreFlashcards} disabled={generating}>
+      {/* Only show "Generate more" for DB-based sessions */}
+      {!isLocalSession && (
+        <Box sx={{ display: "flex", mb: 2, textAlign: "left" }}>
+          <Button
+            variant="outlined"
+            onClick={handleGenerateMoreFlashcards}
+            disabled={generating}
+          >
             {generating ? t("generating") : t("more_flashcards")}
           </Button>
-          {accountType === "free" && (
+          {(accountType === "free" || !user) && (
             <Box sx={{ marginLeft: 2 }}>
               <Typography variant="body1" color="textSecondary">
                 {t("want_more_flashcards")}
@@ -136,7 +164,9 @@ const FlashcardSession = ({ isLocal = false }) => {
                   <Link
                     component="button"
                     variant="body1"
-                    onClick={() => redirectToStripeCheckout("paid", showSnackbar)}
+                    onClick={() =>
+                      redirectToStripeCheckout("paid", showSnackbar)
+                    }
                   >
                     {t("upgrade_your_account")}
                   </Link>
@@ -152,7 +182,7 @@ const FlashcardSession = ({ isLocal = false }) => {
       ) : (
         <Grid container spacing={2}>
           {flashcardsArray.map((card, idx) => (
-            <Grid item xs={12} sm={6} md={6} xl={4} key={idx}>
+            <Grid size={{ xs: 12, sm: 6, md: 6, xl: 4 }} key={idx}>
               <Flashcard question={card.question} answer={card.answer} />
             </Grid>
           ))}
@@ -164,8 +194,6 @@ const FlashcardSession = ({ isLocal = false }) => {
   );
 };
 
-FlashcardSession.propTypes = {
-  isLocal: PropTypes.bool,
-};
+FlashcardSession.propTypes = {};
 
 export default FlashcardSession;
