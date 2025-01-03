@@ -249,15 +249,6 @@ const Sidebar = ({
             {/* DB-based sessions */}
             {flashcardSessions.length > 0 && (
               <>
-                <ListItem>
-                  <ListItemText
-                    primary={t("your_db_sessions")}
-                    primaryTypographyProps={{
-                      variant: "subtitle2",
-                      sx: { fontWeight: "bold" },
-                    }}
-                  />
-                </ListItem>
                 {flashcardSessions.map((session) => {
                   const isActive =
                     location.pathname === `/flashcards/${session.id}`;
@@ -278,15 +269,6 @@ const Sidebar = ({
             {/* Local ephemeral sessions */}
             {localSessions.length > 0 && (
               <>
-                <ListItem>
-                  <ListItemText
-                    primary={t("local_sessions")}
-                    primaryTypographyProps={{
-                      variant: "subtitle2",
-                      sx: { fontWeight: "bold" },
-                    }}
-                  />
-                </ListItem>
                 {localSessions.map((session) => {
                   const isActive =
                     location.pathname === `/flashcards-local/${session.id}`;
