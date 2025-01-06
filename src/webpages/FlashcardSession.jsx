@@ -160,11 +160,14 @@ const FlashcardSession = () => {
               <Typography>
                 <Trans i18nKey="upgrade_to_unlock">
                   <Link
-                    component="button"
+                    component="span"
                     variant="body1"
                     onClick={() =>
                       redirectToStripeCheckout("paid", showSnackbar)
                     }
+                    sx={{
+                      cursor: "pointer",
+                    }}
                   >
                     {t("upgrade_your_account")}
                   </Link>
