@@ -28,6 +28,8 @@ import NotionIntegration from "../components/NotionIntegration";
 import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
 
 const CreateStudySession = () => {
+  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
+
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
   const [notionText, setNotionText] = useState("");
@@ -125,14 +127,14 @@ const CreateStudySession = () => {
         if (!token) {
           // Public route for file upload
           const resp = await axios.post(
-            `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/upload-public`,
+            `${BACKEND}/api/upload-public`,
             formData
           );
           transcriptText = resp.data.transcript;
         } else {
           // Logged-in route for file upload
           const resp = await axios.post(
-            `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/upload`,
+            `${BACKEND}/api/upload`,
             formData,
             { headers: { Authorization: `Bearer ${token}` } }
           );
@@ -158,13 +160,13 @@ const CreateStudySession = () => {
       let generatedData = [];
       if (!token) {
         const resp = await axios.post(
-          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/openai/generate-flashcards-public`,
+          `${BACKEND}/api/openai/generate-flashcards-public`,
           { transcript: transcriptText }
         );
         generatedData = resp.data.flashcards;
       } else {
         const resp = await axios.post(
-          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/openai/generate-flashcards`,
+          `${BACKEND}/api/openai/generate-flashcards`,
           { transcript: transcriptText },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -190,7 +192,7 @@ const CreateStudySession = () => {
       } else {
         // DB-based session
         const dbResp = await axios.post(
-          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
+          `${BACKEND}/api/flashcards`,
           {
             sessionName,
             studyCards: flashcardsArray, // <--- Just the flashcards array

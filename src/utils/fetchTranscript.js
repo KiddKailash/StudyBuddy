@@ -7,6 +7,8 @@ import axios from 'axios';
  * @return {Promise<string>} - Promise resolving to the transcript string.
  */
 export async function fetchTranscript(URL) {
+  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
+
   const token = localStorage.getItem('token'); // Retrieve token from localStorage
 
   if (!token) {
@@ -14,7 +16,7 @@ export async function fetchTranscript(URL) {
   }
 
   try {
-    const response = await axios.get(`${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/transcript`, {
+    const response = await axios.get(`${BACKEND}/api/transcript`, {
       params: { url: URL },
       headers: {
         Authorization: `Bearer ${token}`,
@@ -35,6 +37,8 @@ export async function fetchTranscript(URL) {
  * @return {Promise<Array<{question: string, answer: string}>>} - Array of flashcards.
  */
 export async function generateFlashcards(transcript) {
+  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
+
   const token = localStorage.getItem('token'); // Retrieve token from localStorage
 
   if (!token) {
@@ -43,7 +47,7 @@ export async function generateFlashcards(transcript) {
 
   try {
     const response = await axios.post(
-      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/openai/generate-flashcards`,
+      `${BACKEND}/api/openai/generate-flashcards`,
       { transcript },
       {
         headers: {

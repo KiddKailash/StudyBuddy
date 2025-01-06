@@ -41,6 +41,8 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
+
   useEffect(() => {
     // If user is already logged in, redirect to "/"
     if (isLoggedIn) {
@@ -131,7 +133,7 @@ const LoginPage = () => {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}${endpoint}`,
+        `${BACKEND}${endpoint}`,
         payload
       );
 

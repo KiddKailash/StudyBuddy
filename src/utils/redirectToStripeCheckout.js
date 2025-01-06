@@ -12,13 +12,15 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
  * @returns {Promise<void>}
  */
 export const redirectToStripeCheckout = async (accountType, showSnackbar) => {
+  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
+
   try {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("User is not authenticated.");
 
     // Create a Checkout session
     const response = await axios.post(
-      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/checkout/create-checkout-session`,
+      `${BACKEND}/api/checkout/create-checkout-session`,
       { accountType },
       {
         headers: {

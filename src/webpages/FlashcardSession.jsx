@@ -37,6 +37,8 @@ const FlashcardSession = () => {
 
   const { t } = useTranslation();
 
+  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
+
   useEffect(() => {
     fetchSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,7 +61,7 @@ const FlashcardSession = () => {
           throw new Error("User is not authenticated.");
         }
         const response = await axios.get(
-          `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${id}`,
+          `${BACKEND}/api/flashcards/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setSession(response.data);
@@ -101,7 +103,7 @@ const FlashcardSession = () => {
 
       await axios.post(
         `${
-          import.meta.env.VITE_LOCAL_BACKEND_URL
+          BACKEND
         }/api/flashcards/${id}/generate-additional-flashcards`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }

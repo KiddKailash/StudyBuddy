@@ -24,6 +24,8 @@ const SettingsPage = () => {
   const { showSnackbar } = useContext(SnackbarContext);
   const { t } = useTranslation();
 
+  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
+
   // State for Account Information
   const [firstName, setFirstName] = useState(user?.firstName || "");
   const [lastName, setLastName] = useState(user?.lastName || "");
@@ -60,7 +62,7 @@ const SettingsPage = () => {
 
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/users/update`,
+        `${BACKEND}/api/users/update`,
         payload,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -97,7 +99,7 @@ const SettingsPage = () => {
 
     try {
       await axios.put(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/users/change-password`,
+        `${BACKEND}/api/users/change-password`,
         payload,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -134,7 +136,7 @@ const SettingsPage = () => {
 
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/users/preferences`,
+        `${BACKEND}/api/users/preferences`,
         payload,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -165,7 +167,7 @@ const SettingsPage = () => {
 
       await axios.post(
         `${
-          import.meta.env.VITE_LOCAL_BACKEND_URL
+          BACKEND
         }/api/checkout/cancel-subscription`,
         {},
         {
@@ -177,7 +179,7 @@ const SettingsPage = () => {
 
       // Update user context after cancellation
       const updatedUserResponse = await axios.get(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/auth/me`,
+        `${BACKEND}/api/auth/me`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
