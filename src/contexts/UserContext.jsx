@@ -15,7 +15,6 @@ export const UserProvider = ({ children }) => {
   const MAX_EPHEMERAL_SESSIONS = 1; // Set your desired limit here
 
   const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
-  console.log("Backend URL is ", BACKEND)
 
   // Auth/user
   const [user, setUser] = useState(null);
