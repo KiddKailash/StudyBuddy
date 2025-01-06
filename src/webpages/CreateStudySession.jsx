@@ -220,7 +220,7 @@ const CreateStudySession = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ pt: { xs: 6.5, sm: 10 } }}>
+    <Container maxWidth="lg" sx={{ pt: { xs: 6.5, sm: 10 } }}>
       <Tabs
         value={tabValue}
         onChange={handleTabChange}
@@ -314,7 +314,7 @@ const CreateStudySession = () => {
           <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
             <Trans i18nKey="upgrade_to_create_more">
               <Link
-                component="button"
+                component="span"
                 variant="body1"
                 onClick={() => redirectToStripeCheckout("paid", showSnackbar)}
               >
