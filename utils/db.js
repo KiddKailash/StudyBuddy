@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
-const uri = process.env.MONGODB_URI;
+const uri = process.env.DATABASE_URL;
 
 const client = new MongoClient(uri, {
   tls: true,
