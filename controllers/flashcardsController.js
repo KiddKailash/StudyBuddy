@@ -396,7 +396,6 @@ async function generateFlashcards(transcript, existingQuestions) {
 
   let flashcards;
   try {
-    console.log(`API Response: ${flashcardsText}`);
     flashcards = JSON.parse(flashcardsText);
   } catch (parseError) {
     console.error("Error parsing flashcards JSON:", parseError);
