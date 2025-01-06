@@ -49,19 +49,19 @@
   "login_successful": "Login successful!",
   "error_occurred_try_again": "An error occurred. Please try again.",
   "create_account": "Create Account",
-  "create_study_cards_from_resource": "Create study cards from any resource.",
-  "login_to_your_account": "Log in to your account.",
-  "create_mode_description": "Prepare for higher performance, lower costs, and greater ease of use.",
-  "login_mode_description": "Access your study cards and continue learning.",
+  "create_study_cards_from_resource": "Make flash cards from any resource.",
+  "login_to_your_account": "Access your flash cards and continue learning.",
+  "create_mode_description": "Already have an account? <0>Sign In<0>",
+  "login_mode_description": "Dont have an account? <0>Sign Up<0>",
   "first_name": "First Name",
   "last_name": "Last Name",
   "company": "Organization",
   "email": "Email",
   "password": "Password",
-  "agree_to_terms": "I agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>.",
+  "agree_to_terms": "<0>Terms of Service</0> and <1>Privacy Policy</1>",
   "creating_account": "Creating Account...",
   "logging_in": "Logging in...",
-  "create_your_clipcard_account": "Create your ClipCard account",
+  "create_your_clipcard_account": "Create account",
   "404_page_not_found": "404: Page Not Found",
   "page_not_found_message": "Sorry, the page you are looking for does not exist. Please check you have the correct URL.",
   "go_to_landing_page": "Go to the landing page",
@@ -124,7 +124,7 @@
   "first_name_is_required": "First name is required.",
   "last_name_is_required": "Last name is required.",
   "re_enter_password_is_required": "You must re-enter the password.",
-  "must_agree_to_terms": "You must agree to the terms.",
+  "must_agree_to_terms": "Please agree to the terms of service and privacy policy.",
   "please_fill_in_all_required_fields": "Please fill in all required fields.",
   "subscription_canceled_successfully": "Subscription canceled successfully.",
   "failed_to_cancel_subscription": "Failed to cancel subscription.",
@@ -186,7 +186,7 @@
       },
       {
         "title": "13. Governing Law",
-        "body": "These Terms of Service will be governed by and construed in accordance with the laws of your jurisdiction, without regard to conflict of law principles."
+        "body": "These Terms of Service will be governed by and construed in accordance with the laws of Australia, without regard to conflict of law principles."
       }
     ]
   },
@@ -224,7 +224,7 @@
       },
       {
         "title": "8. International Transfers",
-        "body": "If you access the Service from outside [your jurisdiction], your data may be transferred and stored on servers located in other countries. We take steps to ensure adequate protection for your information in accordance with applicable laws."
+        "body": "If you access the Service from outside Australia, your data may be transferred and stored on servers located in other countries. We take steps to ensure adequate protection for your information in accordance with applicable laws."
       },
       {
         "title": "9. Children’s Privacy",
@@ -236,7 +236,7 @@
       },
       {
         "title": "11. Contact Us",
-        "body": "If you have questions about this Privacy Policy or wish to exercise your data rights, please contact us at [Insert Contact Email or Address]."
+        "body": "If you have questions about this Privacy Policy or wish to exercise your data rights, please contact us at kiddkailash@gmail.com."
       }
     ]
   },

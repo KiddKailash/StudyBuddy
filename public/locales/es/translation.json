@@ -50,18 +50,18 @@
   "error_occurred_try_again": "Ocurrió un error. Por favor inténtalo de nuevo.",
   "create_account": "Crear cuenta",
   "create_study_cards_from_resource": "Crea tarjetas de estudio desde cualquier recurso.",
-  "login_to_your_account": "Inicia sesión en tu cuenta.",
-  "create_mode_description": "Prepárate para mayor rendimiento, menores costos y más facilidad de uso.",
-  "login_mode_description": "Accede a tus tarjetas de estudio y sigue aprendiendo.",
+  "login_to_your_account": "Accede a tus tarjetas de estudio y continúa aprendiendo.",
+  "create_mode_description": "¿Ya tienes una cuenta? <0>Inicia sesión<0>",
+  "login_mode_description": "¿No tienes una cuenta? <0>Regístrate<0>",
   "first_name": "Nombre",
   "last_name": "Apellido",
   "company": "Organización",
   "email": "Correo electrónico",
   "password": "Contraseña",
-  "agree_to_terms": "Estoy de acuerdo con los <0>Términos de servicio</0> y la <1>Política de privacidad</1>.",
+  "agree_to_terms": "<0>Términos de servicio</0> y <1>Política de privacidad</1>",
   "creating_account": "Creando cuenta...",
   "logging_in": "Iniciando sesión...",
-  "create_your_clipcard_account": "Crea tu cuenta de ClipCard",
+  "create_your_clipcard_account": "Crear cuenta",
   "404_page_not_found": "404: Página no encontrada",
   "page_not_found_message": "Lo sentimos, la página que buscas no existe. Por favor verifica que tengas la URL correcta.",
   "go_to_landing_page": "Ir a la página principal",
@@ -124,7 +124,7 @@
   "first_name_is_required": "El nombre es obligatorio.",
   "last_name_is_required": "El apellido es obligatorio.",
   "re_enter_password_is_required": "Debes reingresar la contraseña.",
-  "must_agree_to_terms": "Debes aceptar los términos.",
+  "must_agree_to_terms": "Por favor, acepta los términos de servicio y la política de privacidad.",
   "please_fill_in_all_required_fields": "Por favor llena todos los campos requeridos.",
   "subscription_canceled_successfully": "Suscripción cancelada con éxito.",
   "failed_to_cancel_subscription": "Error al cancelar la suscripción.",
@@ -134,7 +134,7 @@
   "subscription_management": "Gestión de suscripción",
   "termsOfService": {
     "title": "Términos de Servicio para el Acceso a Datos de Notion",
-    "effectiveDate": "Fecha de Vigencia: [Insertar Fecha]",
+    "effectiveDate": "Fecha de entrada en vigor: 11/12/2024",
     "sections": [
       {
         "title": "1. Aceptación de los Términos",
@@ -186,13 +186,13 @@
       },
       {
         "title": "13. Ley Aplicable",
-        "body": "Estos Términos de Servicio se regirán e interpretarán de acuerdo con las leyes de [su jurisdicción], sin tener en cuenta los principios de conflicto de leyes."
+        "body": "Estos Términos de Servicio se regirán e interpretarán de acuerdo con las leyes de Australia, sin tener en cuenta los principios de conflicto de leyes."
       }
     ]
   },
   "privacyPolicy": {
     "title": "Política de Privacidad para el Acceso a Datos de Notion",
-    "effectiveDate": "Fecha de Vigencia: [Insertar Fecha]",
+    "effectiveDate": "Fecha de entrada en vigor: 11/12/2024",
     "sections": [
       {
         "title": "1. Introducción",
@@ -224,7 +224,7 @@
       },
       {
         "title": "8. Transferencias Internacionales",
-        "body": "Si accede al Servicio desde fuera de [su jurisdicción], sus datos pueden transferirse y almacenarse en servidores ubicados en otros países. Tomamos medidas para garantizar la protección adecuada de su información de acuerdo con las leyes aplicables."
+        "body": "Si accedes al servicio desde fuera de Australia, tus datos pueden ser transferidos y almacenados en servidores ubicados en otros países. Tomamos medidas para garantizar una protección adecuada de tu información de acuerdo con las leyes aplicables."
       },
       {
         "title": "9. Privacidad de los Niños",
@@ -236,7 +236,7 @@
       },
       {
         "title": "11. Contáctenos",
-        "body": "Si tiene preguntas sobre esta Política de Privacidad o desea ejercer sus derechos de datos, contáctenos en [Insertar Correo Electrónico o Dirección]."
+        "body": "Si tienes preguntas sobre esta Política de Privacidad o deseas ejercer tus derechos sobre los datos, por favor contáctanos en kiddkailash@gmail.com."
       }
     ]
   },

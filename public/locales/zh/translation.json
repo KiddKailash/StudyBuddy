@@ -49,19 +49,19 @@
   "login_successful": "登录成功！",
   "error_occurred_try_again": "发生错误，请重试。",
   "create_account": "创建账户",
-  "create_study_cards_from_resource": "从任何资源创建学习卡片。",
-  "login_to_your_account": "登录您的账户。",
-  "create_mode_description": "为更高效、更低成本和更易用性做好准备。",
-  "login_mode_description": "访问您的学习卡并继续学习。",
+  "create_study_cards_from_resource": "从任何资源创建闪卡。",
+  "login_to_your_account": "访问您的闪卡并继续学习。",
+  "create_mode_description": "已经有账户了？<0>登录<0>",
+  "login_mode_description": "还没有账户？<0>注册<0>",
   "first_name": "名字",
   "last_name": "姓氏",
   "company": "组织",
   "email": "电子邮件",
   "password": "密码",
-  "agree_to_terms": "我同意<0>服务条款</0>和<1>隐私政策</1>。",
+  "agree_to_terms": "<0>服务条款</0> 和 <1>隐私政策</1>",
   "creating_account": "正在创建账户...",
   "logging_in": "正在登录...",
-  "create_your_clipcard_account": "创建您的 ClipCard 账户",
+  "create_your_clipcard_account": "创建账户",
   "404_page_not_found": "404：页面未找到",
   "page_not_found_message": "抱歉，您要查找的页面不存在。请检查您输入的网址是否正确。",
   "go_to_landing_page": "前往主页",
@@ -124,7 +124,7 @@
   "first_name_is_required": "名字是必需的。",
   "last_name_is_required": "姓氏是必需的。",
   "re_enter_password_is_required": "您必须重新输入密码。",
-  "must_agree_to_terms": "您必须同意条款。",
+  "must_agree_to_terms": "请同意服务条款和隐私政策。",
   "please_fill_in_all_required_fields": "请填写所有必填字段。",
   "subscription_canceled_successfully": "订阅已成功取消。",
   "failed_to_cancel_subscription": "取消订阅失败。",
@@ -134,7 +134,7 @@
   "subscription_management": "订阅管理",
   "termsOfService": {
     "title": "Notion数据访问服务条款",
-    "effectiveDate": "生效日期：[插入日期]",
+    "effectiveDate": "生效日期：2024年12月11日",
     "sections": [
       {
         "title": "1. 条款的接受",
@@ -186,13 +186,13 @@
       },
       {
         "title": "13. 适用法律",
-        "body": "本服务条款将受[您的司法管辖区]的法律管辖并按其解释，不考虑法律冲突原则。"
+        "body": "本服务条款将受澳大利亚法律管辖并依其解释，但不考虑法律冲突原则。"
       }
     ]
   },
   "privacyPolicy": {
     "title": "Notion数据访问隐私政策",
-    "effectiveDate": "生效日期：[插入日期]",
+    "effectiveDate": "生效日期：2024年12月11日",
     "sections": [
       {
         "title": "1. 简介",
@@ -224,7 +224,7 @@
       },
       {
         "title": "8. 国际传输",
-        "body": "如果您在[您的司法管辖区]之外访问本服务，您的数据可能会被转移并存储在其他国家的服务器上。我们采取措施确保按照适用法律为您的信息提供充分的保护。"
+        "body": "如果您从澳大利亚以外的地区访问服务，您的数据可能会被传输并存储在其他国家的服务器上。我们会采取措施，确保根据适用法律为您的信息提供足够的保护。"
       },
       {
         "title": "9. 儿童隐私",
@@ -236,7 +236,7 @@
       },
       {
         "title": "11. 联系我们",
-        "body": "如果您对本隐私政策有疑问或希望行使您的数据权利，请通过[插入联系邮箱或地址]与我们联系。"
+        "body": "如果您对本隐私政策有任何疑问或希望行使您的数据权利，请通过 kiddkailash@gmail.com 联系我们。"
       }
     ]
   },
