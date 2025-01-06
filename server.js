@@ -22,6 +22,11 @@ const flashcardsPublicRoutes = require("./routes/flashcardsPublicRoutes"); // fr
 const uploadPublicRoutes = require("./routes/uploadPublicRoutes");
 
 const app = express();
+
+app.set("trust proxy", 1); 
+// or app.enable("trust proxy");
+// If you're behind one proxy (e.g., DigitalOcean's load balancer), "trust proxy", 1 is often enough.
+
 const PORT = process.env.PORT || 5002;
 
 connectDB()
@@ -69,11 +74,10 @@ connectDB()
     app.use("/api/flashcards-public", flashcardsPublicRoutes); 
     app.use("/api/upload-public", uploadPublicRoutes);
 
-    // PROTECTED routes (private) that require authMiddleware are still in the original files
-    // e.g. /api/openai/generate-flashcards
+    // PROTECTED routes (private) that require authMiddleware:
     app.use("/api/auth", authRoutes);
     app.use("/api/transcript", transcriptRoutes);
-    app.use("/api/openai", openaiRoutes); // has authMiddleware for generate-flashcards
+    app.use("/api/openai", openaiRoutes);
     app.use("/api/flashcards", flashcardsRoutes);
     app.use("/api/checkout", checkoutRoutes);
     app.use("/api/upload", uploadRoutes);
