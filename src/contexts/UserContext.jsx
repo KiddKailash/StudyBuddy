@@ -14,6 +14,8 @@ export const UserProvider = ({ children }) => {
   // Constants
   const MAX_EPHEMERAL_SESSIONS = 1; // Set your desired limit here
 
+  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI
+
   // Auth/user
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -97,7 +99,7 @@ export const UserProvider = ({ children }) => {
     }
     try {
       const resp = await axios.get(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/auth/me`,
+        `${BACKEND}/api/auth/me`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUser(resp.data.user);
@@ -134,7 +136,7 @@ export const UserProvider = ({ children }) => {
       if (!token) return;
 
       const resp = await axios.get(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards`,
+        `${BACKEND}/api/flashcards`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // Tag each DB session with sessionType: "db"
@@ -163,7 +165,7 @@ export const UserProvider = ({ children }) => {
       if (!token) throw new Error("Not authenticated.");
 
       await axios.delete(
-        `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/flashcards/${sessionId}`,
+        `${BACKEND}/api/flashcards/${sessionId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setFlashcardSessions((prev) => prev.filter((s) => s.id !== sessionId));
@@ -181,7 +183,7 @@ export const UserProvider = ({ children }) => {
 
       await axios.put(
         `${
-          import.meta.env.VITE_LOCAL_BACKEND_URL
+          BACKEND
         }/api/flashcards/${sessionId}/name`,
         { sessionName: newName },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -205,7 +207,7 @@ export const UserProvider = ({ children }) => {
    */
   const fetchNotionAuthUrl = async (token) => {
     return axios.get(
-      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/auth-url`,
+      `${BACKEND}/api/notion/auth-url`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -217,7 +219,7 @@ export const UserProvider = ({ children }) => {
    */
   const checkNotionAuthorization = async (token) => {
     return axios.get(
-      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/is-authorized`,
+      `${BACKEND}/api/notion/is-authorized`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -229,7 +231,7 @@ export const UserProvider = ({ children }) => {
    */
   const fetchNotionPageContent = async (token, pageId) => {
     return axios.get(
-      `${import.meta.env.VITE_LOCAL_BACKEND_URL}/api/notion/page-content`,
+      `${BACKEND}/api/notion/page-content`,
       {
         headers: { Authorization: `Bearer ${token}` },
         params: { pageId },
