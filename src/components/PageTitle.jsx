@@ -34,7 +34,7 @@ const PageTitle = ({ titleKey, subtitleKey = null }) => {
         }}
       >
         {/* Render the main title */}
-        <Typography variant="h2" gutterBottom sx={{ fontSize: 50 }}>
+        <Typography variant="h3" gutterBottom sx={{ fontSize: 50 }}>
           {t(titleKey)}
         </Typography>
 
