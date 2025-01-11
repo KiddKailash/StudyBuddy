@@ -16,16 +16,15 @@ const userRoutes = require("./routes/userRoutes");
 const notionRoutes = require("./routes/notionRoutes");
 const webhookHandler = require("./routes/webhookRoutes");
 
-// **Import new PUBLIC routes** for free-tier usage
+// Import new PUBLIC routes for free-tier usage
 const openaiPublicRoutes = require("./routes/openaiPublicRoutes");
 const flashcardsPublicRoutes = require("./routes/flashcardsPublicRoutes"); // from your earlier ephemeral code
 const uploadPublicRoutes = require("./routes/uploadPublicRoutes");
 
 const app = express();
 
+// Allows DigitalOcean Loadbalancing
 app.set("trust proxy", 1); 
-// or app.enable("trust proxy");
-// If you're behind one proxy (e.g., DigitalOcean's load balancer), "trust proxy", 1 is often enough.
 
 const PORT = process.env.PORT || 5002;
 
