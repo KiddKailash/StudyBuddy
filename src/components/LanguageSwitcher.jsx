@@ -37,7 +37,6 @@ const LanguageSwitcher = () => {
           labelId="language-select-label"
           id="language-select"
           variant="outlined"
-          fullWidth
           value={currentLanguage}
           onChange={handleLanguageChange}
           label={t("language")}
