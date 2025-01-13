@@ -108,7 +108,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
             <AvatarMenu user={user} onLogout={handleLogout} />
           ) : (
             <Button variant="contained" component={Link} to="/login">
-              {t("login")}
+              {t("create_account")}
             </Button>
           )}
         </Box>
