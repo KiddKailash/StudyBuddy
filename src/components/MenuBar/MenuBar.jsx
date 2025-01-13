@@ -1,15 +1,18 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { useNavigate, Link } from "react-router-dom";
+
 import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { UserContext } from "../../contexts/UserContext";
+
 import MobileMenu from "./MobileMenu";
 import UpgradeButton from "./UpgradeButton";
 import AvatarMenu from "./AvatarMenu";
+import LanguageSwitcher from "../LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -30,7 +33,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
    */
   const handleLogout = () => {
     resetUserContext(); // Clears user data and resets login state
-    navigate("/");      // Redirects to homepage
+    navigate("/"); // Redirects to homepage
   };
 
   return (
@@ -46,6 +49,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
         transition: theme.transitions.create(["background-color", "color"], {
           duration: theme.transitions.duration.standard,
         }),
+        padding: 1
       }}
     >
       <Toolbar
@@ -63,10 +67,10 @@ const MenuBar = ({ handleDrawerToggle }) => {
           MOBILE MENU (XS only): Hamburger + optional UpgradeButton 
           We keep margins small so it doesn't push the avatar off screen.
         */}
-        <Box 
-          sx={{ 
-            display: { xs: "flex", sm: "none" }, 
-            alignItems: "center" 
+        <Box
+          sx={{
+            display: { xs: "flex", sm: "none" },
+            alignItems: "center",
           }}
         >
           <MobileMenu handleDrawerToggle={handleDrawerToggle} />
@@ -75,8 +79,8 @@ const MenuBar = ({ handleDrawerToggle }) => {
               sx={{
                 ml: 1,
                 whiteSpace: "nowrap",
-                minWidth: "auto",  // Let the button shrink on very narrow screens
-                fontSize: "0.8rem" // If needed, reduce font size a bit on mobile
+                minWidth: "auto", // Let the button shrink on very narrow screens
+                fontSize: "0.8rem", // If needed, reduce font size a bit on mobile
               }}
             />
           )}
@@ -91,6 +95,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
             alignItems: "center",
           }}
         >
+          {!user && <LanguageSwitcher />}
           {user && user.accountType !== "paid" && <UpgradeButton />}
         </Box>
 
