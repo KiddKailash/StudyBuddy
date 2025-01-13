@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 // MUI Component Imports
@@ -14,7 +14,15 @@ import MenuItem from '@mui/material/MenuItem';
  */
 const LanguageSwitcher = () => {
   const { i18n, t } = useTranslation();
-  const currentLanguage = i18n.language || 'en';
+
+  // Keep a piece of local state that mirrors i18n's current language.
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+
+  // When i18n.language changes (either at page load or subsequent changes),
+  // update our local state to match.
+  useEffect(() => {
+    setCurrentLanguage(i18n.language);
+  }, [i18n.language]);
 
   /**
    * Handles the language change event.
@@ -26,26 +34,28 @@ const LanguageSwitcher = () => {
     i18n.changeLanguage(lang);
     // Save the selected language to localStorage for persistence
     localStorage.setItem('i18nextLng', lang);
+    // Update our component's current language
+    setCurrentLanguage(lang);
   };
 
   return (
-      <FormControl fullWidth variant="outlined">
-        <InputLabel id="language-select-label">
-          {t("language")}
-        </InputLabel>
-        <Select
-          labelId="language-select-label"
-          id="language-select"
-          variant="outlined"
-          value={currentLanguage}
-          onChange={handleLanguageChange}
-          label={t("language")}
-        >
-          <MenuItem value="en">English</MenuItem>
-          <MenuItem value="zh">中文</MenuItem>
-          <MenuItem value="es">Español</MenuItem>
-        </Select>
-      </FormControl>
+    <FormControl fullWidth variant="outlined">
+      <InputLabel id="language-select-label">
+        {t("language")}
+      </InputLabel>
+      <Select
+        labelId="language-select-label"
+        id="language-select"
+        variant="outlined"
+        value={currentLanguage}
+        onChange={handleLanguageChange}
+        label={t("language")}
+      >
+        <MenuItem value="en">English</MenuItem>
+        <MenuItem value="zh">中文</MenuItem>
+        <MenuItem value="es">Español</MenuItem>
+      </Select>
+    </FormControl>
   );
 };
 
