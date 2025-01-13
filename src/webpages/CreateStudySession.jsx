@@ -17,6 +17,7 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
+import Divider from "@mui/material/Divider";
 
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
@@ -89,10 +90,7 @@ const CreateStudySession = () => {
 
     // For unauthenticated users, enforce MAX_EPHEMERAL_SESSIONS limit
     if (!isLoggedIn && localSessions.length >= MAX_EPHEMERAL_SESSIONS) {
-      showSnackbar(
-        t("max_sessions_reached"),
-        "warning"
-      );
+      showSnackbar(t("max_sessions_reached"), "warning");
       return;
     }
 
@@ -133,11 +131,9 @@ const CreateStudySession = () => {
           transcriptText = resp.data.transcript;
         } else {
           // Logged-in route for file upload
-          const resp = await axios.post(
-            `${BACKEND}/api/upload`,
-            formData,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
+          const resp = await axios.post(`${BACKEND}/api/upload`, formData, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           transcriptText = resp.data.transcript;
         }
       } else if (tabValue === 1) {
@@ -292,8 +288,7 @@ const CreateStudySession = () => {
           (isLoggedIn &&
             accountType === "free" &&
             flashcardSessions.length >= 2) ||
-          (!isLoggedIn &&
-            localSessions.length >= MAX_EPHEMERAL_SESSIONS)
+          (!isLoggedIn && localSessions.length >= MAX_EPHEMERAL_SESSIONS)
         }
         fullWidth
         sx={{ height: 56 }}

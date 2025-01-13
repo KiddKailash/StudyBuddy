@@ -68,7 +68,7 @@ const SessionItem = ({
 
 SessionItem.propTypes = {
   session: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
     studySession: PropTypes.string.isRequired,
   }).isRequired,
   isActive: PropTypes.bool.isRequired,
