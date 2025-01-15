@@ -1,10 +1,12 @@
 import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { useTranslation, Trans } from "react-i18next";
+
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 
-// MUI Component Imports
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -18,8 +20,9 @@ import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Divider from "@mui/material/Divider";
 
-import { useTranslation, Trans } from "react-i18next";
+
 
 const LoginPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -45,6 +48,7 @@ const LoginPage = () => {
   const { t } = useTranslation();
 
   const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   useEffect(() => {
     // If user is already logged in, redirect to "/"
@@ -205,6 +209,40 @@ const LoginPage = () => {
     event.preventDefault();
   };
 
+  /**
+   * This function is called on successful Google login.
+   * @param {object} credentialResponse - The response containing the ID token from Google.
+   */
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const tokenId = credentialResponse.credential;
+
+      // Send the Google ID token to your server for verification
+      const response = await axios.post(`${BACKEND}/api/auth/google`, {
+        token: tokenId,
+      });
+
+      const { token, user } = response.data;
+
+      resetUserContext();
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      setUser(user);
+      setIsLoggedIn(true);
+      showSnackbar(t("login_successful"), "success");
+
+      // Optionally redirect somewhere:
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      showSnackbar(
+        err.response?.data?.error || t("error_occurred_try_again"),
+        "error"
+      );
+    }
+  };
+
   return (
     <Container
       maxWidth="xs"
@@ -225,7 +263,7 @@ const LoginPage = () => {
         <Typography
           variant="h5"
           color="textPrimary"
-          sx={{ mt: 1, pr: 7, pl: 7, fontWeight: 600 }}
+          sx={{ mt: 1, pr: 6, pl: 6, fontWeight: 600 }}
         >
           {authMode === "create"
             ? t("create_study_cards_from_resource")
@@ -240,11 +278,11 @@ const LoginPage = () => {
             }
             components={[
               <Link
-                key="0" // Each component must have a unique key
+                key="0"
                 component="span"
                 variant="body1"
                 onClick={(e) => {
-                  e.preventDefault(); // Prevent default button behavior
+                  e.preventDefault();
                   setAuthMode(authMode === "create" ? "login" : "create");
                 }}
               />,
@@ -253,11 +291,27 @@ const LoginPage = () => {
         </Typography>
       </Box>
 
+      {/* ====== Google Sign In button ====== */}
+      <Grid
+        size={12}
+        sx={{ display: "flex", justifyContent: "center", mb: 1, mt: 2 }}
+      >
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => showSnackbar(t("error_occurred_try_again"), "error")}
+            useOneTap
+          />
+        </GoogleOAuthProvider>
+      </Grid>
+
+      <Divider sx={{m: 2}}/>
+
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container rowSpacing={1.5} columnSpacing={1}>
           {authMode === "create" && (
             <>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid size={{xs: 12, sm: 6}}>
                 <TextField
                   fullWidth
                   label={t("first_name")}
@@ -269,7 +323,7 @@ const LoginPage = () => {
                   error={!!errors.firstName}
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid size={{xs: 12, sm: 6}}>
                 <TextField
                   fullWidth
                   label={t("last_name")}
@@ -314,12 +368,12 @@ const LoginPage = () => {
                         onMouseDown={handleMouseDownPassword}
                         edge="end"
                         sx={{
-                          fontSize: 'small',
-                          opacity: 0.5, // Reduce visibility slightly
+                          fontSize: "small",
+                          opacity: 0.5,
                           "&:hover": {
-                            opacity: 0.7, // Fully visible on hover
+                            opacity: 0.7,
                           },
-                          color: "text.secondary", // Use muted text color
+                          color: "text.secondary",
                         }}
                       >
                         {showPassword ? <VisibilityOff /> : <Visibility />}
@@ -353,11 +407,11 @@ const LoginPage = () => {
                             onMouseDown={handleMouseDownPassword}
                             edge="end"
                             sx={{
-                              opacity: 0.5, // Reduce visibility slightly
+                              opacity: 0.5,
                               "&:hover": {
-                                opacity: 0.7, // Fully visible on hover
+                                opacity: 0.7,
                               },
-                              color: "text.secondary", // Use muted text color
+                              color: "text.secondary",
                             }}
                           >
                             {showConfirmPassword ? (
@@ -391,7 +445,6 @@ const LoginPage = () => {
                     />
                   }
                   label={
-                    // Use the Trans component with placeholders replaced by links.
                     <Trans
                       i18nKey="agree_to_terms"
                       components={[
@@ -416,6 +469,7 @@ const LoginPage = () => {
               </Grid>
             </>
           )}
+
           <Grid size={12}>
             <Button
               fullWidth
