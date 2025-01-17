@@ -1,10 +1,4 @@
 /**
- * migration.js
- *
- * Usage:
- *   1) Ensure .env has DATABASE_URL for MongoDB
- *   2) Run: node migration.js
- *
  * This script:
  *   - Connects to MongoDB
  *   - Connects to studybuddy.db

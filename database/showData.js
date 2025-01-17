@@ -75,12 +75,12 @@ db.all("SELECT flashcardsJSON FROM flashcards", (err, rows) => {
 });
 
 /**
- * 3) (Optional) Print all rows if you still want details
- */
-// db.all("SELECT * FROM users", (err, rows) => {
-//   if (err) return console.error(err);
-//   console.log("Users table (detailed):", rows);
-// });
+ * 3) Print all rows if you still want details
+ **/
+db.all("SELECT * FROM users", (err, rows) => {
+  if (err) return console.error(err);
+  console.log("Users table (detailed):", rows);
+});
 // db.all("SELECT * FROM flashcards", (err, rows) => {
 //   if (err) return console.error(err);
 //   console.log("Flashcards table (detailed):", rows);
