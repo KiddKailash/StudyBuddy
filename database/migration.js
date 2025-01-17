@@ -38,7 +38,7 @@ const path = require("path");
   }
 
   console.log(
-    Fetched `${mongoUsers.length} users, ${mongoFlashcards.length} flashcards, ${mongoNotionAuths.length} notion entries from MongoDB.`
+    `Fetched ${mongoUsers.length} users, ${mongoFlashcards.length} flashcards, ${mongoNotionAuths.length} notion entries from MongoDB.`
   );
 
   // 3) Connect to SQLite
