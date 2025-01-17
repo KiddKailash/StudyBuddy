@@ -1,5 +1,5 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { getDB } = require('../utils/db');
+const { getDB } = require('../database/db');
 const { ObjectId } = require('mongodb');
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;

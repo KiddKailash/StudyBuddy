@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { getDB } = require("../utils/db");
+const { getDB } = require("../database/db");
 const { ObjectId } = require("mongodb");
 
 // Environment variables

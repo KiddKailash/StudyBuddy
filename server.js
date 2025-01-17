@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const bodyParser = require("body-parser");
-const { connectDB } = require("./utils/db");
+const { connectDB } = require("./database/db");
 
 // Import Routes
 const authRoutes = require("./routes/authRoutes");

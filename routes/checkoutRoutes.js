@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const authMiddleware = require('../middleware/authMiddleware');
-const { getDB } = require('../utils/db');
+const { getDB } = require('../database/db');
 const { ObjectId } = require('mongodb');
 
 /**

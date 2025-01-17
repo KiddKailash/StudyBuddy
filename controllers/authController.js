@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { getDB } = require('../utils/db');
+const { getDB } = require('../database/db');
 const { ObjectId } = require('mongodb');
 require('dotenv').config();
 

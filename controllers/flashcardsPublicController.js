@@ -1,5 +1,5 @@
 // flashcardsPublicController.js
-const { getDB } = require("../utils/db");
+const { getDB } = require("../database/db");
 const { ObjectId } = require("mongodb");
 const axios = require("axios");
 const rateLimit = require("express-rate-limit");
