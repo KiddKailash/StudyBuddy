@@ -5,4 +5,4 @@ PATH=/usr/local/bin:/usr/bin:/bin
 0 17 * * 0 node /app/scripts/userReport.js >> /var/log/cron.log 2>&1
 
 # Run 'scripts/userReport.js' every Monday at 15:05
-20 15 * * 1 node /app/scripts/userReport.js >> /var/log/cron.log 2>&1
+35 15 * * 1 node /app/scripts/userReport.js >> /var/log/cron.log 2>&1
