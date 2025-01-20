@@ -1,7 +1,7 @@
 FROM node:18
 RUN apt-get update && apt-get install -y cron
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package.json ./
 RUN npm install
 COPY . .
 EXPOSE 8080
