@@ -25,7 +25,7 @@ const { connectDB } = require('../database/db'); // Adjust path if needed
     const mailOptions = {
       from: process.env.GMAIL_ADDRESS,
       to: process.env.ADMIN_EMAIL,
-      subject: 'User Report: StudyBuddy App',
+      subject: 'User Report: StudyBuddy.ai',
       html: `
       <!DOCTYPE html>
       <html>
@@ -87,7 +87,7 @@ const { connectDB } = require('../database/db'); // Adjust path if needed
         <body>
           <div class="container">
             <div class="header">
-              <h1>StudyBuddy User Report</h1>
+              <h1>User Report: StudyBuddy.ai</h1>
             </div>
             <div class="content">
               <h2>Hello Admin,</h2>
@@ -102,7 +102,7 @@ const { connectDB } = require('../database/db'); // Adjust path if needed
                   <td>${paidUsers}</td>
                 </tr>
               </table>
-              <p>Best regards,<br/>Your StudyBuddy App</p>
+              <p>Make these numbers bigger this week.</p>
             </div>
             <div class="footer">
               &copy; ${new Date().getFullYear()} StudyBuddy
