@@ -3,5 +3,5 @@ SHELL=/bin/bash
 # Run 'scripts/userCountAndEmail.js' every Sunday at 5 PM
 0 17 * * 0 root node /app/scripts/userCountAndEmail.js >> /var/log/cron.log 2>&1
 
-# Run 'scripts/userCountAndEmail.js' every Tuesday at 00:05 AM
-0 1 * * 2 root node /app/scripts/userCountAndEmail.js >> /var/log/cron.log 2>&1
+# Run 'scripts/userCountAndEmail.js' every Tuesday at 01:00 AM
+10 14 20 1 * root node /app/scripts/userCountAndEmail.js >> /var/log/cron.log 2>&1
