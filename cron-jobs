@@ -2,7 +2,7 @@ SHELL=/bin/bash
 PATH=/usr/local/bin:/usr/bin:/bin
 
 # Run 'scripts/userCountAndEmail.js' every Sunday at 5 PM
-0 17 * * 0 root node /app/scripts/userReport.js >> /var/log/cron.log 2>&1
+0 17 * * 0 node /app/scripts/userReport.js >> /var/log/cron.log 2>&1
 
-# Run 'scripts/userCountAndEmail.js' every Tuesday at 1:00 AM
-55 14 * * 1 root node /app/scripts/userReport.js >> /var/log/cron.log 2>&1
+# Run 'scripts/userCountAndEmail.js' every Monday at 15:05
+20 15 * * 1 node /app/scripts/userReport.js >> /var/log/cron.log 2>&1

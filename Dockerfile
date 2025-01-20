@@ -4,30 +4,25 @@ FROM node:18
 # Install cron
 RUN apt-get update && apt-get install -y cron
 
-# Create a working directory
 WORKDIR /app
 
-# Copy package files
 COPY package.json ./
-# If you don’t have package-lock.json, use only COPY package.json ./
-
-# Install Node.js dependencies
 RUN npm install
 
-# Copy the rest of your code (including scripts/ and cron-jobs)
 COPY . .
 
-# Make the cron file readable by cron
+# Copy your cron-jobs into /etc/cron.d (system-level cron format)
 RUN chmod 0644 /app/cron-jobs
-
-# Copy our cron file into the cron.d directory
 RUN cp /app/cron-jobs /etc/cron.d/cron-jobs
 
-# Register the cron job
-RUN crontab /etc/cron.d/cron-jobs
+# (Remove the line 'RUN crontab /etc/cron.d/cron-jobs' 
+#  because /etc/cron.d/cron-jobs is enough for system-level cron.)
 
-# Expose your app port (8080 is common in DigitalOcean App Platform)
+# Add the script that sets up env + starts cron + starts server
+COPY start-cron.sh /app/start-cron.sh
+RUN chmod +x /app/start-cron.sh
+
 EXPOSE 8080
 
-# Start cron in the background, then run your Node server
-CMD ["sh", "-c", "cron && node server.js"]
+# Use start-cron.sh as the container's startup command
+CMD ["/app/start-cron.sh"]
