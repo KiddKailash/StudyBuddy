@@ -1,0 +1,5 @@
+SHELL=/bin/bash
+# Run 'scripts/userCountAndEmail.js' every Sunday at 5 PM
+# Syntax: m h dom mon dow user command
+
+0 17 * * 0 root node /app/scripts/userCountAndEmail.js >> /var/log/cron.log 2>&1
