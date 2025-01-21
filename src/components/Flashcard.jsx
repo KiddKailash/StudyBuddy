@@ -48,7 +48,7 @@ const FlipCardFace = styled(Card)(({ theme }) => ({
 const FlipCardFront = styled(FlipCardFace)(({ theme }) => ({
   zIndex: 2,
   transform: "rotateY(0deg)",
-}));
+  backgroundColor: theme.palette.background.paper,}));
 
 // Back face of the card
 const FlipCardBack = styled(FlipCardFace)(({ theme }) => ({
@@ -73,7 +73,7 @@ const Flashcard = ({ question, answer }) => {
             <Typography variant="body1" sx={{ color: "grey" }}>
               {t("question")}
             </Typography>
-            <Typography variant="body1" color="text.primary">
+            <Typography variant="body1">
               {question}
             </Typography>
           </CardContent>
@@ -83,7 +83,7 @@ const Flashcard = ({ question, answer }) => {
             <Typography variant="body1" sx={{ color: "grey" }}>
               {t("answer")}
             </Typography>
-            <Typography variant="body1" color="text.primary">
+            <Typography variant="body1">
               {answer}
             </Typography>
           </CardContent>
