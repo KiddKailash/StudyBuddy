@@ -292,7 +292,7 @@ const LoginPage = () => {
       </Box>
 
       {/* ====== Google Sign In button ====== */}
-      <Grid
+      {/* <Grid
         size={12}
         sx={{ display: "flex", justifyContent: "center", mb: 1, mt: 2 }}
       >
@@ -305,7 +305,7 @@ const LoginPage = () => {
         </GoogleOAuthProvider>
       </Grid>
 
-      <Divider sx={{m: 2}}/>
+      <Divider sx={{m: 2}}/> */}
 
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container rowSpacing={1.5} columnSpacing={1}>
