@@ -216,7 +216,7 @@ const CreateStudySession = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ pt: { xs: 6.5, sm: 10 } }}>
+    <Container maxWidth="md" sx={{ pt: { xs: 6.5, sm: 10 } }}>
       <Tabs
         value={tabValue}
         onChange={handleTabChange}
