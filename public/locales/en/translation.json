@@ -56,7 +56,7 @@
   "login_mode_description": "Don't have an account? <0>Sign Up<0>",
   "first_name": "First Name",
   "last_name": "Last Name",
-  "company": "Organization",
+  "company": "Organisation",
   "email": "Email",
   "password": "Password",
   "agree_to_terms": "<0>Terms of Service</0> and <1>Privacy Policy</1>",
@@ -139,23 +139,23 @@
     "sections": [
       {
         "title": "1. Acceptance of Terms",
-        "body": "By connecting your Notion account and granting our application (“Service”) access to your Notion page content, you agree to be bound by these Terms of Service. If you do not agree to these terms, do not authorize our Service."
+        "body": "By connecting your Notion account and granting our application (“Service”) access to your Notion page content, you agree to be bound by these Terms of Service. If you do not agree to these terms, do not authorise our Service."
       },
       {
         "title": "2. Description of the Service",
-        "body": "Our Service allows authorized users to retrieve their Notion page content to generate flashcards or other study materials. The retrieval and processing of this content is solely for your personal, non-commercial use (unless otherwise agreed in writing)."
+        "body": "Our Service allows authorised users to retrieve their Notion page content to generate flashcards or other study materials. The retrieval and processing of this content is solely for your personal, non-commercial use (unless otherwise agreed in writing)."
       },
       {
-        "title": "3. Authorization and Access",
-        "body": "By authorizing our Service via Notion’s OAuth process, you grant our Service the ability to read and process the content of your specified Notion pages. You may revoke access at any time by following the instructions provided by Notion or within the Service’s settings."
+        "title": "3. Authorisation and Access",
+        "body": "By authorising our Service via Notion’s OAuth process, you grant our Service the ability to read and process the content of your specified Notion pages. You may revoke access at any time by following the instructions provided by Notion or within the Service’s settings."
       },
       {
         "title": "4. User Responsibilities",
-        "body": "You are responsible for ensuring that any content you authorize us to access does not violate applicable laws or infringe upon any third-party rights. You represent that you have the necessary rights and permissions to grant us access to the Notion page content."
+        "body": "You are responsible for ensuring that any content you authorise us to access does not violate applicable laws or infringe upon any third-party rights. You represent that you have the necessary rights and permissions to grant us access to the Notion page content."
       },
       {
         "title": "5. Intellectual Property",
-        "body": "All Notion page content remains your property or the property of its respective owners. Our Service does not claim ownership over the content you provide or authorize us to access. The flashcards or study materials generated are derived from your content and remain subject to your rights and any applicable third-party rights."
+        "body": "All Notion page content remains your property or the property of its respective owners. Our Service does not claim ownership over the content you provide or authorise us to access. The flashcards or study materials generated are derived from your content and remain subject to your rights and any applicable third-party rights."
       },
       {
         "title": "6. Prohibited Uses",
@@ -201,11 +201,11 @@
       },
       {
         "title": "2. Data We Collect",
-        "body": "Account Information: We may collect and store basic account information such as your name, email address, and user ID as provided by your registration with our application.\nNotion Access Token: When you authorize the Service, we receive an access token from Notion that allows us to retrieve page content from your Notion workspace.\nNotion Page Content: We access and process the text and other content from the Notion pages you choose to connect to our Service."
+        "body": "Account Information: We may collect and store basic account information such as your name, email address, and user ID as provided by your registration with our application.\nNotion Access Token: When you authorise the Service, we receive an access token from Notion that allows us to retrieve page content from your Notion workspace.\nNotion Page Content: We access and process the text and other content from the Notion pages you choose to connect to our Service."
       },
       {
         "title": "3. How We Use Your Data",
-        "body": "To Provide the Service: We use your Notion page content to generate flashcards or study materials as requested by you.\nTo Maintain and Improve the Service: We may use aggregated and anonymized data for internal analytics and to improve the Service’s performance and features."
+        "body": "To Provide the Service: We use your Notion page content to generate flashcards or study materials as requested by you.\nTo Maintain and Improve the Service: We may use aggregated and anonymised data for internal analytics and to improve the Service’s performance and features."
       },
       {
         "title": "4. Data Storage and Security",
@@ -217,7 +217,7 @@
       },
       {
         "title": "6. Data Retention",
-        "body": "We retain your Notion access token and processed content for as long as you maintain an account with our Service or as needed to provide the requested functionality. Upon revocation or termination of your account, we will delete or anonymize your data according to our standard data deletion practices."
+        "body": "We retain your Notion access token and processed content for as long as you maintain an account with our Service or as needed to provide the requested functionality. Upon revocation or termination of your account, we will delete or anonymise your data according to our standard data deletion practices."
       },
       {
         "title": "7. Your Rights and Choices",
@@ -246,12 +246,12 @@
   "cancel_subscription_warning": "Are you sure you want to cancel your subscription?",
   "confirm_cancel": "Confirm",
   "please_provide_page_id": "Please provide the page ID",
-  "notion_authorized_message": "You have successfully authorized Notion.",
+  "notion_authorized_message": "You have successfully authorised Notion.",
   "enter_page_id": "Enter page ID",
   "notion_page_id_placeholder": "Enter the Notion page ID",
   "fetch_page_content": "Fetch page content",
   "page_content": "Page content",
-  "authorize_notion": "Authorize Notion",
+  "authorize_notion": "Authorise Notion",
   "your_db_sessions": "Study Sessions",
   "local_sessions": "Temporary Study Sessions",
   "max_ephemeral_sessions_reached": "You have reached the maximum number of study sessions allowed for free users.",
