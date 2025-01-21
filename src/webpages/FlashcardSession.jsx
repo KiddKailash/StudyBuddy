@@ -125,11 +125,16 @@ const FlashcardSession = () => {
 
   if (loading) {
     return (
-      <Container sx={{ mt: 2, mb: 2 }}>
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <Box
+        sx={{
+          display: "flex",
+          height: "80%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
   }
 

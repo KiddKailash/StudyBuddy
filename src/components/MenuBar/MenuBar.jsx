@@ -6,6 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import { UserContext } from "../../contexts/UserContext";
 
@@ -49,7 +50,6 @@ const MenuBar = ({ handleDrawerToggle }) => {
         transition: theme.transitions.create(["background-color", "color"], {
           duration: theme.transitions.duration.standard,
         }),
-        padding: 1,
       }}
     >
       <Toolbar
@@ -57,10 +57,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
           // Use flex layout with space-between so items don't push each other off screen
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
-          // Slightly smaller padding helps on narrow screens
-          px: 1,
-          overflow: "hidden", // prevents horizontal scroll
+          overflow: "hidden",
         }}
       >
         {/* 
@@ -77,7 +74,6 @@ const MenuBar = ({ handleDrawerToggle }) => {
           {user && user.accountType !== "paid" && (
             <UpgradeButton
               sx={{
-                ml: 1,
                 whiteSpace: "nowrap",
                 minWidth: "auto", // Let the button shrink on very narrow screens
                 fontSize: "0.8rem", // If needed, reduce font size a bit on mobile
@@ -89,21 +85,22 @@ const MenuBar = ({ handleDrawerToggle }) => {
         {/* 
           DESKTOP MENU (SM+): Only the UpgradeButton if user not paid 
         */}
-        <Box
+        <Stack
+          spacing={2}
+          direction="row"
           sx={{
             display: { xs: "none", sm: "flex" },
-            alignItems: "center",
           }}
         >
-          <LanguageSwitcherIMG />
           {user && user.accountType !== "paid" && <UpgradeButton />}
-        </Box>
+          <LanguageSwitcherIMG />
+        </Stack>
 
         {/* 
           RIGHT SIDE: Avatar (if logged in) or Login button 
           We keep this pinned to the far right with no flexGrow in front of it.
         */}
-        <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Stack spacing={2} directoion="row" sx={{ display: "flex"}}>
           {user ? (
             <AvatarMenu user={user} onLogout={handleLogout} />
           ) : (
@@ -111,7 +108,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
               {t("create_account")}
             </Button>
           )}
-        </Box>
+        </Stack>
       </Toolbar>
     </AppBar>
   );

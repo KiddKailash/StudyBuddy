@@ -78,7 +78,7 @@ export const LanguageSwitcherIMG = () => {
             <img
               src={`/assets/flags/${selectedLang}.png`}
               alt={selectedLang}
-              style={{ width: 26, height: 26 }}
+              style={{ width: 32, height: 32 }}
             />
           </Box>
         )}

@@ -260,10 +260,9 @@ const Sidebar = ({
                 }
                 onClick={isMobile ? handleDrawerToggle : undefined}
               >
-                <ListItemText
-                  primary={t("create_study_session")}
-                  primaryTypographyProps={{ variant: "subtitle2" }}
-                />
+                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  {t("create_study_session")}
+                </Typography>
                 <AddRoundedIcon sx={{ color: theme.palette.text.secondary }} />
               </ListItemButton>
             </ListItem>
