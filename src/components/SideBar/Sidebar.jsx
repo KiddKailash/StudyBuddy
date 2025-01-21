@@ -356,7 +356,6 @@ const Sidebar = ({
             width: drawerWidth,
             height: `calc(100% - ${menubarHeight}px)`,
             boxSizing: "border-box",
-            overflow: "hidden",
           },
         }}
         open
