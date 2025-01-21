@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import SetTheme from "./contexts/ThemeProvider";
+import ThemeProvider from "./contexts/ThemeProvider";
 import { UserProvider } from "./contexts/UserContext";
 import { BrowserRouter as Router } from "react-router-dom";
 import { SnackbarProvider } from "./contexts/SnackbarContext.jsx";
@@ -15,7 +15,7 @@ import "./index.css";
  */
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <SetTheme>
+    <ThemeProvider>
       <Router>
         <UserProvider>
           <SnackbarProvider>
@@ -23,6 +23,6 @@ createRoot(document.getElementById("root")).render(
           </SnackbarProvider>
         </UserProvider>
       </Router>
-    </SetTheme>
+    </ThemeProvider>
   </StrictMode>
 );
