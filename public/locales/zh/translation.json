@@ -14,6 +14,7 @@
   "error_deleting_study_session": "删除学习会话时出错：{{error}}",
   "error_renaming_study_session": "重命名学习会话时出错：{{error}}",
   "error_loading_study_sessions": "加载学习会话时出错：{{error}}",
+  "feature_unavailable_to_free_account": "创建账户以制作更多闪卡。",
   "options": "选项",
   "footer_notice": "Study Buddy 可能会出现打字错误。请核实重要信息。",
   "question": "问题",

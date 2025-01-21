@@ -14,6 +14,7 @@
   "error_deleting_study_session": "Error al eliminar la sesión de estudio: {{error}}",
   "error_renaming_study_session": "Error al renombrar la sesión de estudio: {{error}}",
   "error_loading_study_sessions": "Error al cargar sesiones de estudio: {{error}}",
+  "feature_unavailable_to_free_account": "Crea una cuenta para hacer más tarjetas de estudio.",
   "options": "Opciones",
   "footer_notice": "Study Buddy puede cometer errores de escritura. Verifica información importante.",
   "question": "Pregunta",
