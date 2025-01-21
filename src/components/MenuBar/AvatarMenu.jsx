@@ -1,58 +1,53 @@
-import React, { useContext } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import Avatar from "@mui/material/Avatar";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
-import Typography from "@mui/material/Typography";
-import { SnackbarContext } from "../../contexts/SnackbarContext";
 import { getAvatarColor, getUserInitials } from "./menubarUtils";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppRoundedIcon from "@mui/icons-material/ExitToAppRounded";
 import { useTranslation } from "react-i18next";
 
-/**
- * AvatarMenu component refactored to use MUI SpeedDial component.
- *
- * @param {object} props - Component props.
- * @param {object} props.user - User object containing user details.
- * @param {function} props.onLogout - Function to handle user logout.
- * @returns {JSX.Element} - The rendered AvatarMenu component as a SpeedDial.
- */
 const AvatarMenu = ({ user, onLogout }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { showSnackbar } = useContext(SnackbarContext);
 
   return (
     <SpeedDial
       ariaLabel="User Menu"
+      // Absolutely position this SpeedDial inside its parent Box
+      sx={{
+        position: "absolute",
+        top: -28,
+        right: 0,
+        // Keep a very high z-index so it floats over all MenuBar elements
+        zIndex: 9999,
+      }}
+      // Instead of opening horizontally, open vertically
+      direction="left" // or "up"
       icon={
         <Avatar
           sx={{
             bgcolor: getAvatarColor(user.email, theme),
             color: "#ffffff",
-            width: "50px",
-            height: "50px"
+            width: 50,
+            height: 50,
           }}
-          
         >
           {getUserInitials(user)}
         </Avatar>
       }
-      direction="left"
       FabProps={{
-        size: "small",  
+        // Control the size or shape of the SpeedDial fab
+        size: "small",
       }}
     >
       <SpeedDialAction
         icon={<ExitToAppRoundedIcon color="error" />}
         tooltipTitle={t("log_out")}
         onClick={onLogout}
-        FabProps={{
-          sx: {},
-        }}
       />
       <SpeedDialAction
         icon={<SettingsIcon />}

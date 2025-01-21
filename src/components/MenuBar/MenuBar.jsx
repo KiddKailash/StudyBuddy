@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { useNavigate, Link } from "react-router-dom";
-
 import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -9,32 +8,21 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import { UserContext } from "../../contexts/UserContext";
-
 import MobileMenu from "./MobileMenu";
 import UpgradeButton from "./UpgradeButton";
 import AvatarMenu from "./AvatarMenu";
 import { LanguageSwitcherIMG } from "../LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 
-/**
- * MenuBar component renders the top navigation bar of the application.
- *
- * @param {object} props - Component props.
- * @param {function} props.handleDrawerToggle - Function to toggle the sidebar drawer.
- * @returns {JSX.Element} - The rendered MenuBar component.
- */
 const MenuBar = ({ handleDrawerToggle }) => {
   const { user, resetUserContext } = useContext(UserContext);
   const navigate = useNavigate();
   const theme = useTheme();
   const { t } = useTranslation();
 
-  /**
-   * Handles the logout process.
-   */
   const handleLogout = () => {
-    resetUserContext(); // Clears user data and resets login state
-    navigate("/"); // Redirects to homepage
+    resetUserContext();
+    navigate("/");
   };
 
   return (
@@ -46,24 +34,22 @@ const MenuBar = ({ handleDrawerToggle }) => {
         backgroundColor: "transparent",
         boxShadow: "none",
         color: theme.palette.text.secondary,
+        // Keep a high z-index if there's a drawer, so the bar is above the drawer
         zIndex: theme.zIndex.drawer + 1,
-        transition: theme.transitions.create(["background-color", "color"], {
-          duration: theme.transitions.duration.standard,
-        }),
       }}
     >
+      {/* 
+        Make the Toolbar 'position: relative' so we can absolutely-position
+        the Avatar (SpeedDial) in the top-right corner.
+      */}
       <Toolbar
         sx={{
-          // Use flex layout with space-between so items don't push each other off screen
+          position: "relative",
           display: "flex",
           justifyContent: "space-between",
-          overflow: "hidden",
         }}
       >
-        {/* 
-          MOBILE MENU (XS only): Hamburger + optional UpgradeButton 
-          We keep margins small so it doesn't push the avatar off screen.
-        */}
+        {/* MOBILE MENU (XS) */}
         <Box
           sx={{
             display: { xs: "flex", sm: "none" },
@@ -75,16 +61,14 @@ const MenuBar = ({ handleDrawerToggle }) => {
             <UpgradeButton
               sx={{
                 whiteSpace: "nowrap",
-                minWidth: "auto", // Let the button shrink on very narrow screens
-                fontSize: "0.8rem", // If needed, reduce font size a bit on mobile
+                minWidth: "auto",
+                fontSize: "0.8rem",
               }}
             />
           )}
         </Box>
 
-        {/* 
-          DESKTOP MENU (SM+): Only the UpgradeButton if user not paid 
-        */}
+        {/* DESKTOP MENU (SM+) */}
         <Stack
           spacing={2}
           direction="row"
@@ -92,23 +76,40 @@ const MenuBar = ({ handleDrawerToggle }) => {
             display: { xs: "none", sm: "flex" },
           }}
         >
-          {user && user.accountType !== "paid" && <UpgradeButton />}
           <LanguageSwitcherIMG />
+          {user && user.accountType !== "paid" && <UpgradeButton />}
         </Stack>
 
-        {/* 
-          RIGHT SIDE: Avatar (if logged in) or Login button 
-          We keep this pinned to the far right with no flexGrow in front of it.
-        */}
-        <Stack spacing={2} directoion="row" sx={{ display: "flex"}}>
+        {/* RIGHT SIDE */}
+        <Box
+          sx={{
+            // This container can hold either Avatar or a "Login" button
+            // We'll fill the space, but the Avatar itself is absolutely positioned inside it.
+            position: "relative",
+            width: 80,
+            minWidth: 80,
+            // You can adjust these widths to ensure your SpeedDial won't be cut off
+            // if it opens downward or upward.
+          }}
+        >
           {user ? (
             <AvatarMenu user={user} onLogout={handleLogout} />
           ) : (
-            <Button variant="contained" component={Link} to="/login">
+            <Button
+              variant="contained"
+              component={Link}
+              to="/login"
+              sx={{
+                position: "absolute", // keep the button top-right
+                right: 0,
+                top: -28,
+                minWidth: 150
+              }}
+            >
               {t("create_account")}
             </Button>
           )}
-        </Stack>
+        </Box>
       </Toolbar>
     </AppBar>
   );
