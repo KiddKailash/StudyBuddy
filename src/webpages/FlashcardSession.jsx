@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import PropTypes from "prop-types";
 import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
@@ -86,7 +85,7 @@ const FlashcardSession = () => {
     // This feature is not supported for local sessions
     if (isLocalSession) {
       showSnackbar(
-        "This feature is only available for DB-based sessions.",
+        t("feature_unavailable_to_free_account"),
         "info"
       );
       return;
@@ -143,7 +142,6 @@ const FlashcardSession = () => {
   return (
     <Container sx={{ mt: 2, mb: 2 }}>
       {/* Only show "Generate more" for DB-based sessions */}
-      {!isLocalSession && (
         <Box sx={{ display: "flex", mb: 2, textAlign: "left" }}>
           <Button
             variant="outlined"
@@ -176,7 +174,6 @@ const FlashcardSession = () => {
             </Box>
           )}
         </Box>
-      )}
 
       {flashcardsArray.length === 0 ? (
         <Typography>{t("no_flashcards_in_session")}</Typography>
