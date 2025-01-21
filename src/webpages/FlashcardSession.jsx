@@ -185,7 +185,7 @@ const FlashcardSession = () => {
       ) : (
         <Grid container spacing={2}>
           {flashcardsArray.map((card, idx) => (
-            <Grid size={{ xs: 12, sm: 6, md: 6, xl: 4 }} key={idx}>
+            <Grid size={{ xs: 12, md: 6, xl: 4 }} key={idx}>
               <Flashcard question={card.question} answer={card.answer} />
             </Grid>
           ))}
