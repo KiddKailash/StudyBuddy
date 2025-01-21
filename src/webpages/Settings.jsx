@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 import axios from "axios";
-import LanguageSwitcher from "../components/LanguageSwitcher";
+import LanguageSwitcherText from "../components/LanguageSwitcher";
 
 // MUI Component Imports
 import Container from "@mui/material/Container";
@@ -209,13 +209,6 @@ const SettingsPage = () => {
         textAlign: "left",
       }}
     >
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="h4" gutterBottom>
-          {t("change_language")}
-        </Typography>
-        <LanguageSwitcher />
-      </Box>
-
       {/* Account Information Form */}
       <Typography variant="h4" gutterBottom>
         {t("account_settings")}
