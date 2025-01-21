@@ -14,6 +14,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ListItemIcon } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import Typography from "@mui/material/Typography";
 
 import { useTranslation } from "react-i18next";
 
@@ -229,14 +230,23 @@ const Sidebar = ({
             {/* Logo / Branding */}
             <ListItem key="StudyBuddy">
               <ListItemIcon>
-                <Avatar src="/assets/icon.png" alt="Study Buddy Icon" />
+                <Avatar src="/assets/flashcards.png" alt="Study Buddy Icon" />
               </ListItemIcon>
+
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, color: theme.palette.primary.main }}
+              >
+                StudyBuddy.ai
+              </Typography>
+
+              {/* 
               <Box
                 component="img"
                 src="/assets/Logo.png"
                 alt="Study Buddy Logo"
                 sx={{ maxHeight: 30, marginLeft: 1 }}
-              />
+              /> */}
             </ListItem>
 
             {/* Create Session Button */}
