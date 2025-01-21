@@ -89,16 +89,24 @@ const MenuBar = ({ handleDrawerToggle }) => {
           {user ? (
             <AvatarMenu user={user} onLogout={handleLogout} />
           ) : (
-            <Button
-              variant="contained"
-              component={Link}
-              to="/login"
-              sx={{
-
-              }}
-            >
-              {t("create_account")}
-            </Button>
+            <Stack direction='row' spacing={2}>
+              <Button
+                variant="text"
+                component={Link}
+                to="/login?mode=login"
+                sx={{}}
+              >
+                {t("sign_in")}
+              </Button>
+              <Button
+                variant="contained"
+                component={Link}
+                to="/login?mode=create"
+                sx={{}}
+              >
+                {t("create_account")}
+              </Button>
+            </Stack>
           )}
         </Box>
       </Toolbar>
