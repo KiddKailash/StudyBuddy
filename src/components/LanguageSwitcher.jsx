@@ -1,48 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 // MUI Component Imports
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Box from "@mui/material/Box";
 
 /**
- * LanguageSwitcher component allows users to change the application's language.
- *
- * @returns {JSX.Element} The rendered LanguageSwitcher component.
+ * Text-based Language Switcher
+ * (Optional: If you only want the flag-based version, you can remove this.)
  */
-const LanguageSwitcher = () => {
+const LanguageSwitcherText = () => {
   const { i18n, t } = useTranslation();
-
-  // Keep a piece of local state that mirrors i18n's current language.
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
 
-  // When i18n.language changes (either at page load or subsequent changes),
-  // update our local state to match.
   useEffect(() => {
     setCurrentLanguage(i18n.language);
   }, [i18n.language]);
 
-  /**
-   * Handles the language change event.
-   *
-   * @param {object} event - The change event from the Select component.
-   */
   const handleLanguageChange = (event) => {
     const lang = event.target.value;
     i18n.changeLanguage(lang);
-    // Save the selected language to localStorage for persistence
-    localStorage.setItem('i18nextLng', lang);
-    // Update our component's current language
+    localStorage.setItem("i18nextLng", lang);
     setCurrentLanguage(lang);
   };
 
   return (
     <FormControl fullWidth variant="outlined">
-      <InputLabel id="language-select-label">
-        {t("language")}
-      </InputLabel>
+      <InputLabel id="language-select-label">{t("language")}</InputLabel>
       <Select
         labelId="language-select-label"
         id="language-select"
@@ -59,4 +46,50 @@ const LanguageSwitcher = () => {
   );
 };
 
-export default LanguageSwitcher;
+/**
+ * Flag-based Language Switcher
+ * Displays only the selected flag in the Select field,
+ * and text labels in the dropdown list.
+ */
+export const LanguageSwitcherIMG = () => {
+  const { i18n } = useTranslation();
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+
+  useEffect(() => {
+    setCurrentLanguage(i18n.language);
+  }, [i18n.language]);
+
+  const handleLanguageChange = (event) => {
+    const lang = event.target.value;
+    i18n.changeLanguage(lang);
+    localStorage.setItem("i18nextLng", lang);
+    setCurrentLanguage(lang);
+  };
+
+  return (
+    <FormControl variant="standard">
+      <Select
+        value={currentLanguage}
+        onChange={handleLanguageChange}
+        disableUnderline
+        renderValue={(selectedLang) => (
+          <Box display="flex" alignItems="center">
+            {console.log("Selected Language is ", selectedLang)}
+            <img
+              src={`/assets/flags/${selectedLang}.png`}
+              alt={selectedLang}
+              style={{ width: 26, height: 26 }}
+            />
+          </Box>
+        )}
+      >
+        {/* If you want flags next to the text here, feel free to add <img> tags in each MenuItem. */}
+        <MenuItem value="en">English</MenuItem>
+        <MenuItem value="zh">中文</MenuItem>
+        <MenuItem value="es">Español</MenuItem>
+      </Select>
+    </FormControl>
+  );
+};
+
+export default LanguageSwitcherText;

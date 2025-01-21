@@ -12,7 +12,7 @@ import { UserContext } from "../../contexts/UserContext";
 import MobileMenu from "./MobileMenu";
 import UpgradeButton from "./UpgradeButton";
 import AvatarMenu from "./AvatarMenu";
-import LanguageSwitcher from "../LanguageSwitcher";
+import { LanguageSwitcherIMG } from "../LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -49,7 +49,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
         transition: theme.transitions.create(["background-color", "color"], {
           duration: theme.transitions.duration.standard,
         }),
-        padding: 1
+        padding: 1,
       }}
     >
       <Toolbar
@@ -95,7 +95,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
             alignItems: "center",
           }}
         >
-          {!user && <LanguageSwitcher />}
+          <LanguageSwitcherIMG />
           {user && user.accountType !== "paid" && <UpgradeButton />}
         </Box>
 
