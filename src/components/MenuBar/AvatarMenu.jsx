@@ -5,13 +5,25 @@ import { useTheme } from "@mui/material/styles";
 import Avatar from "@mui/material/Avatar";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
-import { getAvatarColor, getUserInitials } from "./menubarUtils";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppRoundedIcon from "@mui/icons-material/ExitToAppRounded";
+import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
+import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
+
 import { useTranslation } from "react-i18next";
+import { getAvatarColor, getUserInitials } from "./menubarUtils";
+
+// Import your theme context hook
+// Example: import { useThemeContext } from "../theme/SetTheme";
+import { useThemeContext } from "../../contexts/ThemeProvider";
 
 const AvatarMenu = ({ user, onLogout }) => {
+  // This is the MUI theme hook, but only used for reading default theme values if needed
   const theme = useTheme();
+
+  // Your custom theme context to toggle between light & dark
+  const { dispatch, mode } = useThemeContext();
+
   const { t } = useTranslation();
 
   return (
@@ -44,11 +56,25 @@ const AvatarMenu = ({ user, onLogout }) => {
         size: "small",
       }}
     >
+      {/* Toggle Light/Dark Theme */}
+      <SpeedDialAction
+        icon={
+          mode === "dark" ? <LightModeRoundedIcon /> : <DarkModeRoundedIcon />
+        }
+        tooltipTitle={
+          mode === "dark" ? t("switch_to_light") : t("switch_to_dark")
+        }
+        onClick={dispatch} // Calls the reducer to flip between light/dark
+      />
+
+      {/* Logout */}
       <SpeedDialAction
         icon={<ExitToAppRoundedIcon color="error" />}
         tooltipTitle={t("log_out")}
         onClick={onLogout}
       />
+
+      {/* Settings */}
       <SpeedDialAction
         icon={<SettingsIcon />}
         tooltipTitle={t("settings")}
