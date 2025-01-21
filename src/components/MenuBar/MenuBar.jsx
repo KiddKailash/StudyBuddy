@@ -83,13 +83,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
         {/* RIGHT SIDE */}
         <Box
           sx={{
-            // This container can hold either Avatar or a "Login" button
-            // We'll fill the space, but the Avatar itself is absolutely positioned inside it.
             position: "relative",
-            width: 80,
-            minWidth: 80,
-            // You can adjust these widths to ensure your SpeedDial won't be cut off
-            // if it opens downward or upward.
           }}
         >
           {user ? (
@@ -100,10 +94,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
               component={Link}
               to="/login"
               sx={{
-                position: "absolute", // keep the button top-right
-                right: 0,
-                top: -28,
-                minWidth: 150
+
               }}
             >
               {t("create_account")}
