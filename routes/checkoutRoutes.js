@@ -18,7 +18,7 @@ router.post('/create-checkout-session', authMiddleware, async (req, res) => {
   }
 
   const priceIds = {
-    paid: process.env.STRIPE_PRICE_ID_PAID, // Set in .env
+    paid: process.env.STRIPE_PRICE_ID_PAID, // Example: you have this set in your .env
   };
 
   const selectedPriceId = priceIds[accountType];
@@ -27,8 +27,8 @@ router.post('/create-checkout-session', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'Invalid account type.' });
   }
 
+  // --- Optional debugging code: can remove in production ---
   try {
-    // Optional debugging code: can be removed in production
     const products = await stripe.products.list({ limit: 100 });
     console.log('Existing products:', products.data);
 
@@ -48,8 +48,10 @@ router.post('/create-checkout-session', authMiddleware, async (req, res) => {
       .status(500)
       .json({ error: 'Failed to fetch products or prices from Stripe.' });
   }
+  // --- End of optional debugging code ---
 
   try {
+    // Create the Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -60,17 +62,20 @@ router.post('/create-checkout-session', authMiddleware, async (req, res) => {
       ],
       mode: 'subscription',
       success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL}/cancel`,
+      cancel_url: `${process.env.CLIENT_URL}`,
       automatic_tax: { enabled: true },
-      customer_email: req.user.email, // Include customer email
+      customer_email: req.user.email, // include the user's email
       metadata: {
         userId: req.user.id,
         accountType: accountType,
       },
     });
 
-    // Return session ID to the frontend
-    res.json({ sessionId: session.id });
+    // IMPORTANT: return session.url as well so the front-end can open it in a new tab
+    res.json({
+      sessionId: session.id,
+      checkoutUrl: session.url, // This is Stripe's hosted Checkout link
+    });
   } catch (error) {
     console.error('Error creating Stripe Checkout session:', error);
     res.status(500).json({ error: 'Failed to create checkout session.' });
@@ -93,7 +98,7 @@ router.post('/cancel-subscription', authMiddleware, async (req, res) => {
     // Cancel the subscription using the code snippet from Stripe documentation
     const subscription = await stripe.subscriptions.cancel(subscriptionId);
 
-    // Update user in the database to reflect canceled subscription
+    // Update the user's record to reflect the canceled subscription
     const db = getDB();
     const usersCollection = db.collection('users');
     await usersCollection.updateOne(
