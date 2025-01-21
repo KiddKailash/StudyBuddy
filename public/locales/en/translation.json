@@ -50,6 +50,7 @@
   "login_successful": "Login successful!",
   "error_occurred_try_again": "An error occurred. Please try again.",
   "create_account": "Create Account",
+  "sign_in": "Sign In",
   "create_study_cards_from_resource": "Make flash cards from any resource.",
   "login_to_your_account": "Access your flash cards and continue learning.",
   "create_mode_description": "Already have an account? <0>Sign In<0>",

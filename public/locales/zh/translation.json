@@ -50,6 +50,7 @@
   "login_successful": "登录成功！",
   "error_occurred_try_again": "发生错误，请重试。",
   "create_account": "创建账户",
+  "sign_in": "登录",
   "create_study_cards_from_resource": "从任何资源创建闪卡。",
   "login_to_your_account": "访问您的闪卡并继续学习。",
   "create_mode_description": "已经有账户了？<0>登录<0>",
