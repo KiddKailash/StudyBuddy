@@ -1,11 +1,7 @@
 import axios from "axios";
-import { loadStripe } from "@stripe/stripe-js";
-
-// Initialize Stripe with your publishable key
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 /**
- * Redirects the user to the Stripe Checkout page.
+ * Redirects the user to the Stripe Checkout page in a new tab.
  *
  * @param {string} accountType - The type of account (e.g., 'free', 'paid').
  * @param {function} showSnackbar - Function to display messages to the user.
@@ -16,9 +12,11 @@ export const redirectToStripeCheckout = async (accountType, showSnackbar) => {
 
   try {
     const token = localStorage.getItem("token");
-    if (!token) throw new Error("User is not authenticated.");
+    if (!token) {
+      throw new Error("User is not authenticated.");
+    }
 
-    // Create a Checkout session
+    // 1. Create a Checkout Session on your backend.
     const response = await axios.post(
       `${BACKEND}/api/checkout/create-checkout-session`,
       { accountType },
@@ -29,20 +27,18 @@ export const redirectToStripeCheckout = async (accountType, showSnackbar) => {
       }
     );
 
-    const { sessionId } = response.data;
-
-    // Redirect to Stripe Checkout
-    const stripe = await stripePromise;
-    const { error: stripeError } = await stripe.redirectToCheckout({
-      sessionId,
-    });
-
-    if (stripeError) {
-      console.error("Stripe Checkout error:", stripeError);
-      showSnackbar(stripeError.message, "error");
+    // 2. Get the Checkout URL from the response.
+    const { checkoutUrl } = response.data;
+    if (!checkoutUrl) {
+      throw new Error("No Checkout URL returned from server.");
     }
+
+    // 3. Open Stripe Checkout in a new tab.
+    window.open(checkoutUrl, "_blank");
+
+    // Optionally, show a message or handle success logic here
   } catch (err) {
-    console.error(err);
+    console.error("Error starting Stripe Checkout flow:", err);
     showSnackbar(
       err.response?.data?.error ||
         err.message ||
