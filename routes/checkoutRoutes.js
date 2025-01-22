@@ -7,6 +7,12 @@ const { ObjectId } = require("mongodb");
 
 const YOUR_DOMAIN = process.env.CLIENT_URL;
 
+// Ensure YOUR_DOMAIN is defined
+if (!YOUR_DOMAIN) {
+  console.error("Error: CLIENT_URL is not defined in environment variables.");
+  process.exit(1);
+}
+
 /**
  * @route   POST /api/checkout/create-checkout-session
  * @desc    Create a Stripe Checkout session for upgrading to a paid subscription (Embedded)
@@ -33,7 +39,7 @@ router.post("/create-checkout-session", authMiddleware, async (req, res) => {
   try {
     // Create the session for Embedded Checkout
     const session = await stripe.checkout.sessions.create({
-      ui_mode: "embedded",
+      mode: "subscription", // or 'payment' for one-time purchases
       payment_method_types: ["card"],
       line_items: [
         {
@@ -41,7 +47,8 @@ router.post("/create-checkout-session", authMiddleware, async (req, res) => {
           quantity: 1, // Ensure quantity is specified
         },
       ],
-      mode: "subscription", // or 'payment' if it's a one-time purchase
+      ui_mode: "embedded",
+      return_url: `${YOUR_DOMAIN}/return?session_id={CHECKOUT_SESSION_ID}`,
       automatic_tax: { enabled: true },
       customer_email: req.user.email, // Assuming authMiddleware attaches user info
       metadata: {
