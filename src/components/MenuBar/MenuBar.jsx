@@ -22,7 +22,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
   const { t } = useTranslation();
 
   const isCheckoutPage = location.pathname.startsWith("/checkout");
-  console.log(isCheckoutPage)
+  console.log(isCheckoutPage);
 
   const handleLogout = () => {
     resetUserContext();
@@ -81,7 +81,9 @@ const MenuBar = ({ handleDrawerToggle }) => {
           }}
         >
           <LanguageSwitcherIMG />
-          {user && user.accountType !== "paid" && !isCheckoutPage && <UpgradeButton />}
+          {user && user.accountType !== "paid" && !isCheckoutPage && (
+            <UpgradeButton />
+          )}
         </Stack>
 
         {/* RIGHT SIDE */}
@@ -93,7 +95,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
           {user ? (
             <AvatarMenu user={user} onLogout={handleLogout} />
           ) : (
-            <Stack direction='row' spacing={2}>
+            <Stack direction="row" spacing={2}>
               <Button
                 variant="text"
                 component={Link}
