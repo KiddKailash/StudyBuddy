@@ -256,5 +256,7 @@
   "your_db_sessions": "Sesiones de estudio",
   "local_sessions": "Sesiones temporales de estudio",
   "max_ephemeral_sessions_reached": "Has alcanzado el número máximo de sesiones permitidas para usuarios gratuitos.",
-  "max_ephemeral_sessions_reached_message": "No puedes crear más sesiones de estudio. Por favor, actualiza tu cuenta para crear más sesiones."
+  "max_ephemeral_sessions_reached_message": "No puedes crear más sesiones de estudio. Por favor, actualiza tu cuenta para crear más sesiones.",
+  "switch_to_dark": "Modo oscuro",
+  "switch_to_light": "Modo claro"
 }

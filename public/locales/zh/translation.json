@@ -256,5 +256,7 @@
   "your_db_sessions": "学习会话",
   "local_sessions": "临时学习会话",
   "max_ephemeral_sessions_reached": "您已达到免费用户允许的最大学习会话数量。",
-  "max_ephemeral_sessions_reached_message": "您无法创建更多学习会话。请升级您的账户以创建更多会话。"
+  "max_ephemeral_sessions_reached_message": "您无法创建更多学习会话。请升级您的账户以创建更多会话。",
+   "switch_to_dark": "深色模式",
+  "switch_to_light": "浅色模式"
 }
