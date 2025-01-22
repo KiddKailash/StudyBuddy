@@ -40,8 +40,6 @@ router.post("/create-checkout-session", authMiddleware, async (req, res) => {
         },
       ],
       mode: "subscription", // or 'payment' if it's a one-time purchase
-      success_url: `${process.env.CLIENT_URL}/return?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL}/return?canceled=true`,
       automatic_tax: { enabled: true },
       customer_email: req.user.email,
       metadata: {
@@ -95,9 +93,7 @@ router.post("/cancel-subscription", authMiddleware, async (req, res) => {
     const subscriptionId = req.user.subscriptionId;
 
     if (!subscriptionId) {
-      return res
-        .status(400)
-        .json({ error: "No subscription found for this user." });
+      return res.status(400).json({ error: "No subscription found for this user." });
     }
 
     // Cancel the subscription using Stripe

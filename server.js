@@ -5,6 +5,13 @@ const rateLimit = require("express-rate-limit");
 const bodyParser = require("body-parser");
 const { connectDB } = require("./database/db");
 
+const app = express();
+
+// Allows DigitalOcean Loadbalancing
+app.set("trust proxy", 1);
+
+const PORT = process.env.PORT || 8080;
+
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
 const transcriptRoutes = require("./routes/transcriptRoutes");
@@ -20,13 +27,6 @@ const webhookHandler = require("./routes/webhookRoutes");
 const openaiPublicRoutes = require("./routes/openaiPublicRoutes");
 const flashcardsPublicRoutes = require("./routes/flashcardsPublicRoutes");
 const uploadPublicRoutes = require("./routes/uploadPublicRoutes");
-
-const app = express();
-
-// Allows DigitalOcean Loadbalancing
-app.set("trust proxy", 1);
-
-const PORT = process.env.PORT || 5002;
 
 connectDB()
   .then(() => {
@@ -69,7 +69,7 @@ connectDB()
     app.use(express.json());
 
     // PUBLIC routes for free-tier (no auth):
-    app.use("/api/openai", openaiPublicRoutes);
+    app.use("/api/openai", openaiPublicRoutes); // exposes /api/openai/generate-flashcards-public
     app.use("/api/flashcards-public", flashcardsPublicRoutes);
     app.use("/api/upload-public", uploadPublicRoutes);
 
