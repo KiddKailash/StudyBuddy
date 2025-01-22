@@ -41,10 +41,6 @@ const MenuBar = ({ handleDrawerToggle }) => {
         zIndex: theme.zIndex.drawer + 1,
       }}
     >
-      {/* 
-        Make the Toolbar 'position: relative' so we can absolutely-position
-        the Avatar (SpeedDial) in the top-right corner.
-      */}
       <Toolbar
         sx={{
           position: "relative",

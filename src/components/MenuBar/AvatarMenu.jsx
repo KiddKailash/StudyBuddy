@@ -52,10 +52,16 @@ const AvatarMenu = ({ user, onLogout }) => {
         </Avatar>
       }
       FabProps={{
-        // Control the size or shape of the SpeedDial fab
         size: "small",
       }}
     >
+      {/* Logout */}
+      <SpeedDialAction
+        icon={<ExitToAppRoundedIcon color="error" />}
+        tooltipTitle={t("log_out")}
+        onClick={onLogout}
+      />
+
       {/* Toggle Light/Dark Theme */}
       <SpeedDialAction
         icon={
@@ -65,13 +71,6 @@ const AvatarMenu = ({ user, onLogout }) => {
           mode === "dark" ? t("switch_to_light") : t("switch_to_dark")
         }
         onClick={dispatch} // Calls the reducer to flip between light/dark
-      />
-
-      {/* Logout */}
-      <SpeedDialAction
-        icon={<ExitToAppRoundedIcon color="error" />}
-        tooltipTitle={t("log_out")}
-        onClick={onLogout}
       />
 
       {/* Settings */}
