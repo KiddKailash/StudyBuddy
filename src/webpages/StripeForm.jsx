@@ -1,110 +1,19 @@
-import React, { useCallback, useEffect, useState } from "react";
-import PropTypes from "prop-types";
+import React, { useEffect, useState, useContext } from "react";
+import { Navigate } from "react-router-dom";
 import axios from "axios";
-import { loadStripe } from "@stripe/stripe-js";
+import UserContext from "../contexts/UserContext";
 import {
-  EmbeddedCheckoutProvider,
-  EmbeddedCheckout,
-} from "@stripe/react-stripe-js";
-import { useNavigate, Navigate } from "react-router-dom";
+  Box,
+  CircularProgress,
+  Typography,
+  Link,
+  Alert,
+} from "@mui/material";
 
-// Make sure to call `loadStripe` outside of a component’s render to avoid
-// recreating the `Stripe` object on every render.
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
-
-/**
- * CheckoutForm Component
- *
- * Renders the embedded Stripe Checkout form.
- * Requires the user to be authenticated and sends the accountType to the backend.
- *
- * Props:
- * - accountType (string): The type of account to create a checkout session for.
- * - showSnackbar (function): Function to display notifications to the user.
- */
-export const CheckoutForm = ({ accountType = "paid", showSnackbar }) => {
-  /**
-   * Fetches the client secret from the backend to initiate the embedded Checkout.
-   */
-  const fetchClientSecret = useCallback(async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("User is not authenticated.");
-      }
-
-      // POST to your create-checkout-session endpoint using Axios
-      const response = await axios.post(
-        `${BACKEND}/api/checkout/create-checkout-session`,
-        { accountType }, // e.g., { accountType: "paid" }
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Important for authMiddleware
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Check if clientSecret is present in the response
-      if (!response.data.clientSecret) {
-        throw new Error("No clientSecret returned from server.");
-      }
-
-      return response.data.clientSecret;
-    } catch (err) {
-      console.error("Error starting Stripe Checkout flow:", err);
-      if (showSnackbar && typeof showSnackbar === "function") {
-        showSnackbar(
-          err.response?.data?.error ||
-            err.message ||
-            "An error occurred while creating the Checkout Session.",
-          "error"
-        );
-      }
-      return null; // Return null so the EmbeddedCheckout component won't render
-    }
-  }, [accountType, showSnackbar]);
-
-  // Provide fetchClientSecret to EmbeddedCheckoutProvider
-  const options = { fetchClientSecret };
-
-  return (
-    <div id="checkout">
-      <EmbeddedCheckoutProvider stripe={stripePromise} options={options}>
-        <EmbeddedCheckout />
-      </EmbeddedCheckoutProvider>
-    </div>
-  );
-};
-
-/**
- * PropTypes Validation
- */
-CheckoutForm.propTypes = {
-  /**
-   * The type of account to create a checkout session for.
-   * Typically "paid" or other defined account types.
-   */
-  accountType: PropTypes.string,
-
-  /**
-   * A function to display notifications or messages to the user.
-   * Should accept two arguments: message (string) and type (string).
-   */
-  showSnackbar: PropTypes.func,
-};
-
-/**
- * Return Component
- *
- * Since `success_url` is not supported with `ui_mode: 'embedded'`,
- * this component relies on webhook updates. It can display a loading state.
- */
 export const Return = () => {
   const [status, setStatus] = useState(null);
   const [customerEmail, setCustomerEmail] = useState("");
-  const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
   const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
 
   useEffect(() => {
@@ -120,7 +29,6 @@ export const Return = () => {
           return;
         }
 
-        // Fetch session status from the backend
         const token = localStorage.getItem("token");
         if (!token) {
           console.error("User is not authenticated.");
@@ -140,6 +48,13 @@ export const Return = () => {
 
         setStatus(response.data.status);
         setCustomerEmail(response.data.customer_email);
+
+        // Update user context after successful return
+        const updatedUserResponse = await axios.get(`${BACKEND}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUser(updatedUserResponse.data.user);
       } catch (error) {
         console.error("Error fetching session status:", error);
         setStatus("error");
@@ -147,7 +62,7 @@ export const Return = () => {
     };
 
     fetchSessionStatus();
-  }, [BACKEND]);
+  }, [BACKEND, setUser]);
 
   if (status === "open") {
     return <Navigate to="/checkout" />;
@@ -155,42 +70,49 @@ export const Return = () => {
 
   if (status === "complete") {
     return (
-      <section id="success">
-        <p>
+      <Box id="success" textAlign="center" padding={4}>
+        <Alert severity="success">
           We appreciate your business! A confirmation email has been sent to{" "}
-          {customerEmail}. If you have any questions, please email{" "}
-          <a href="mailto:orders@example.com">orders@example.com</a>.
-        </p>
-      </section>
+          <strong>{customerEmail}</strong>. If you have any questions, please email{" "}
+          <Link href="mailto:kiddkailash@gmail.com" underline="hover">
+            our admin team
+          </Link>.
+        </Alert>
+      </Box>
     );
   }
 
   if (status === "unauthorized") {
     return (
-      <section id="unauthorized">
-        <p>
-          Your session has expired. Please <a href="/login">log in</a> again.
-        </p>
-      </section>
+      <Box id="unauthorized" textAlign="center" padding={4}>
+        <Alert severity="warning">
+          Your session has expired. Please{" "}
+          <Link href="/login" underline="hover">
+            log in
+          </Link>{" "}
+          again.
+        </Alert>
+      </Box>
     );
   }
 
   if (status === "error") {
     return (
-      <section id="error">
-        <p>
+      <Box id="error" textAlign="center" padding={4}>
+        <Alert severity="error">
           There was an error processing your subscription. Please try again.
-        </p>
-      </section>
+        </Alert>
+      </Box>
     );
   }
 
   // Loading state
   return (
-    <section id="loading">
-      <p>Processing your subscription...</p>
-    </section>
+    <Box id="loading" textAlign="center" padding={4}>
+      <CircularProgress />
+      <Typography variant="body1" marginTop={2}>
+        Processing your subscription...
+      </Typography>
+    </Box>
   );
 };
-
-Return.propTypes = {};
