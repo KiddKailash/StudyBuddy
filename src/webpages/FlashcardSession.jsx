@@ -148,7 +148,7 @@ const FlashcardSession = () => {
       {/* Only show "Generate more" for DB-based sessions */}
         <Box sx={{ display: "flex", mb: 2, textAlign: "left" }}>
           <Button
-            variant="contained"
+            variant="outlined"
             onClick={handleGenerateMoreFlashcards}
             disabled={generating}
           >
