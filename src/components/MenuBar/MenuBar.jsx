@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -17,8 +17,12 @@ import { useTranslation } from "react-i18next";
 const MenuBar = ({ handleDrawerToggle }) => {
   const { user, resetUserContext } = useContext(UserContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const { t } = useTranslation();
+
+  const isCheckoutPage = location.pathname.startsWith("/checkout");
+  console.log(isCheckoutPage)
 
   const handleLogout = () => {
     resetUserContext();
@@ -57,7 +61,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
           }}
         >
           <MobileMenu handleDrawerToggle={handleDrawerToggle} />
-          {user && user.accountType !== "paid" && (
+          {user && user.accountType !== "paid" && !isCheckoutPage && (
             <UpgradeButton
               sx={{
                 whiteSpace: "nowrap",
@@ -77,7 +81,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
           }}
         >
           <LanguageSwitcherIMG />
-          {user && user.accountType !== "paid" && <UpgradeButton />}
+          {user && user.accountType !== "paid" && !isCheckoutPage && <UpgradeButton />}
         </Stack>
 
         {/* RIGHT SIDE */}
