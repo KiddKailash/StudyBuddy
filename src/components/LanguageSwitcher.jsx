@@ -74,7 +74,6 @@ export const LanguageSwitcherIMG = () => {
         disableUnderline
         renderValue={(selectedLang) => (
           <Box display="flex" alignItems="center">
-            {console.log("Selected Language is ", selectedLang)}
             <img
               src={`/assets/flags/${selectedLang}.png`}
               alt={selectedLang}
