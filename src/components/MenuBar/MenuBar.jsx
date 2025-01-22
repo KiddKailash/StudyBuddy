@@ -22,7 +22,6 @@ const MenuBar = ({ handleDrawerToggle }) => {
   const { t } = useTranslation();
 
   const isCheckoutPage = location.pathname.startsWith("/checkout");
-  console.log(isCheckoutPage);
 
   const handleLogout = () => {
     resetUserContext();
