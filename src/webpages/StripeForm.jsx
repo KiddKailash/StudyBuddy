@@ -1,14 +1,88 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useCallback, useEffect, useState, useContext } from "react";
+import PropTypes from "prop-types";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  EmbeddedCheckoutProvider,
+  EmbeddedCheckout,
+} from "@stripe/react-stripe-js";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
 import UserContext from "../contexts/UserContext";
-import {
-  Box,
-  CircularProgress,
-  Typography,
-  Link,
-  Alert,
-} from "@mui/material";
+import { Box, CircularProgress, Typography, Link, Alert } from "@mui/material";
+
+// Make sure to call `loadStripe` outside of a component’s render to avoid
+// recreating the `Stripe` object on every render.
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
+
+/**
+ * CheckoutForm Component
+ *
+ * Renders the embedded Stripe Checkout form.
+ * Requires the user to be authenticated and sends the accountType to the backend.
+ */
+export const CheckoutForm = ({ accountType = "paid", showSnackbar }) => {
+  /**
+   * Fetches the client secret from the backend to initiate the embedded Checkout.
+   */
+  const fetchClientSecret = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("User is not authenticated.");
+      }
+
+      // POST to your create-checkout-session endpoint using Axios
+      const response = await axios.post(
+        `${BACKEND}/api/checkout/create-checkout-session`,
+        { accountType }, // e.g., { accountType: "paid" }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Important for authMiddleware
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Check if clientSecret is present in the response
+      if (!response.data.clientSecret) {
+        throw new Error("No clientSecret returned from server.");
+      }
+
+      return response.data.clientSecret;
+    } catch (err) {
+      console.error("Error starting Stripe Checkout flow:", err);
+      if (showSnackbar && typeof showSnackbar === "function") {
+        showSnackbar(
+          err.response?.data?.error ||
+            err.message ||
+            "An error occurred while creating the Checkout Session.",
+          "error"
+        );
+      }
+      return null; // Return null so the EmbeddedCheckout component won't render
+    }
+  }, [accountType, showSnackbar]);
+
+  // Provide fetchClientSecret to EmbeddedCheckoutProvider
+  const options = { fetchClientSecret };
+
+  return (
+    <div id="checkout">
+      <EmbeddedCheckoutProvider stripe={stripePromise} options={options}>
+        <EmbeddedCheckout />
+      </EmbeddedCheckoutProvider>
+    </div>
+  );
+};
+
+/**
+ * PropTypes Validation
+ */
+CheckoutForm.propTypes = {
+  accountType: PropTypes.string,
+  showSnackbar: PropTypes.func,
+};
 
 export const Return = () => {
   const [status, setStatus] = useState(null);
@@ -73,10 +147,12 @@ export const Return = () => {
       <Box id="success" textAlign="center" padding={4}>
         <Alert severity="success">
           We appreciate your business! A confirmation email has been sent to{" "}
-          <strong>{customerEmail}</strong>. If you have any questions, please email{" "}
+          <strong>{customerEmail}</strong>. If you have any questions, please
+          email{" "}
           <Link href="mailto:kiddkailash@gmail.com" underline="hover">
             our admin team
-          </Link>.
+          </Link>
+          .
         </Alert>
       </Box>
     );
