@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import Button from "@mui/material/Button";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
-import { redirectToStripeCheckout } from "../../utils/redirectToStripeCheckout";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 

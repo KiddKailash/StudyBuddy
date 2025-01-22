@@ -17,7 +17,6 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
-import Divider from "@mui/material/Divider";
 
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
@@ -26,7 +25,6 @@ import FilterDramaRoundedIcon from "@mui/icons-material/FilterDramaRounded";
 
 import { useTranslation, Trans } from "react-i18next";
 import NotionIntegration from "../components/NotionIntegration";
-import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
 
 const CreateStudySession = () => {
   const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
@@ -311,7 +309,7 @@ const CreateStudySession = () => {
               <Link
                 component="span"
                 variant="body1"
-                onClick={() => redirectToStripeCheckout("paid", showSnackbar)}
+                onClick={() => navigate('/checkout')}
               >
                 {t("upgrade_your_account")}
               </Link>
@@ -333,7 +331,7 @@ const CreateStudySession = () => {
                 <Link
                   component="button"
                   variant="body1"
-                  onClick={() => redirectToStripeCheckout("paid", showSnackbar)}
+                  onClick={() => navigate('/checkout')}
                 >
                   {t("upgrade_your_account")}
                 </Link>

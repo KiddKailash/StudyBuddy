@@ -16,7 +16,6 @@ import Link from "@mui/material/Link";
 import Flashcard from "../components/Flashcard";
 import Footer from "../components/Footer";
 
-import { redirectToStripeCheckout } from "../utils/redirectToStripeCheckout";
 import { useTranslation, Trans } from "react-i18next";
 
 const FlashcardSession = () => {
@@ -166,7 +165,7 @@ const FlashcardSession = () => {
                     component="span"
                     variant="body1"
                     onClick={() =>
-                      redirectToStripeCheckout("paid", showSnackbar)
+                      navigate('/checkout')
                     }
                     sx={{
                       cursor: "pointer",
