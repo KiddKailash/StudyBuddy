@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
 import { redirectToStripeCheckout } from "../../utils/redirectToStripeCheckout";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 /**
  * UpgradeButton component handles the account upgrade functionality.
@@ -12,9 +13,9 @@ import { useTranslation } from "react-i18next";
 const UpgradeButton = () => {
   const { showSnackbar } = useContext(SnackbarContext);
   const { t } = useTranslation();
-
+  const navigate = useNavigate();
   const handleUpgrade = () => {
-    redirectToStripeCheckout("paid", showSnackbar);
+    navigate("/checkout");
   };
 
   return (
@@ -24,7 +25,7 @@ const UpgradeButton = () => {
       sx={{
         // Force the text onto a single line
         whiteSpace: "nowrap",
-        textAlign: 'left'
+        textAlign: "left",
       }}
     >
       ⭐️ {t("upgrade_account")}

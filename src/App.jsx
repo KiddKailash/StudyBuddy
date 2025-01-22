@@ -22,6 +22,7 @@ import Success from "./webpages/Success";
 import Cancel from "./webpages/Cancel";
 import PrivacyPolicy from "./webpages/PrivacyPolicy";
 import TermsOfService from "./webpages/TermsOfService";
+import { CheckoutForm, Return } from "./webpages/StripeForm";
 
 import { UserContext } from "./contexts/UserContext";
 import "./App.css";
@@ -57,6 +58,8 @@ function App() {
     { path: "/cancel", component: <Cancel /> },
     { path: "/terms", component: <TermsOfService /> },
     { path: "/privacy", component: <PrivacyPolicy /> },
+    { path: "/checkout", component: <CheckoutForm /> },
+    { path: "/return", component: <Return /> },
     { path: "*", component: <PageNotFound /> },
   ];
 
@@ -87,7 +90,7 @@ function App() {
           component="nav"
           sx={{
             position: "fixed",
-            top: `calc(${menubarHeight}-5)`,
+            top: `calc(${menubarHeight}-5px)`,
             left: 0,
             width: isExpanded ? sidebarWidth : 0,
             height: `calc(100% - ${menubarHeight})`,
@@ -167,8 +170,7 @@ function App() {
               "/success",
               "/cancel",
             ];
-            const isLocalFlashcardPath =
-              page.path.startsWith("/flashcards-local");
+            const isLocalFlashcardPath = page.path.startsWith("/flashcards-local");
 
             const isPublicPage =
               publicPaths.includes(page.path) ||
