@@ -18,13 +18,13 @@ const webhookHandler = require("./routes/webhookRoutes");
 
 // Import new PUBLIC routes for free-tier usage
 const openaiPublicRoutes = require("./routes/openaiPublicRoutes");
-const flashcardsPublicRoutes = require("./routes/flashcardsPublicRoutes"); // from your earlier ephemeral code
+const flashcardsPublicRoutes = require("./routes/flashcardsPublicRoutes");
 const uploadPublicRoutes = require("./routes/uploadPublicRoutes");
 
 const app = express();
 
 // Allows DigitalOcean Loadbalancing
-app.set("trust proxy", 1); 
+app.set("trust proxy", 1);
 
 const PORT = process.env.PORT || 5002;
 
@@ -69,8 +69,8 @@ connectDB()
     app.use(express.json());
 
     // PUBLIC routes for free-tier (no auth):
-    app.use("/api/openai", openaiPublicRoutes);   // exposes /api/openai/generate-flashcards-public
-    app.use("/api/flashcards-public", flashcardsPublicRoutes); 
+    app.use("/api/openai", openaiPublicRoutes);
+    app.use("/api/flashcards-public", flashcardsPublicRoutes);
     app.use("/api/upload-public", uploadPublicRoutes);
 
     // PROTECTED routes (private) that require authMiddleware:
@@ -78,7 +78,7 @@ connectDB()
     app.use("/api/transcript", transcriptRoutes);
     app.use("/api/openai", openaiRoutes);
     app.use("/api/flashcards", flashcardsRoutes);
-    app.use("/api/checkout", checkoutRoutes);
+    app.use("/api/checkout", checkoutRoutes); // includes /create-checkout-session, /cancel-subscription
     app.use("/api/upload", uploadRoutes);
     app.use("/api/users", userRoutes);
     app.use("/api/notion", notionRoutes);
