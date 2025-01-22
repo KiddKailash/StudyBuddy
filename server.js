@@ -78,7 +78,7 @@ connectDB()
     app.use("/api/transcript", transcriptRoutes);
     app.use("/api/openai", openaiRoutes);
     app.use("/api/flashcards", flashcardsRoutes);
-    app.use("/api/checkout", checkoutRoutes); // includes /create-checkout-session, /cancel-subscription
+    app.use("/api/checkout", checkoutRoutes);
     app.use("/api/upload", uploadRoutes);
     app.use("/api/users", userRoutes);
     app.use("/api/notion", notionRoutes);
