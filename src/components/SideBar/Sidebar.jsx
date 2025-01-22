@@ -94,9 +94,6 @@ const Sidebar = ({
     "&:hover": {
       backgroundColor: themeParam.palette.action.selected,
     },
-    transition: themeParam.transitions.create(["background-color"], {
-      duration: themeParam.transitions.duration.standard,
-    }),
     color: "text.primary",
     "& .MuiListItemText-root": { color: "text.primary" },
     display: "flex",

@@ -40,8 +40,6 @@ const MenuItem = ({ link, translationKey }) => {
         "&:hover": {
           backgroundColor: theme.palette.action.hover, // Hover effect
         },
-        // Apply centralized transition from theme
-        transition: theme.transitions.backgroundAndText,
       }}
     >
       {t(translationKey)}
