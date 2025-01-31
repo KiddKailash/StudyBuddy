@@ -37,7 +37,7 @@ export default function ThemeProvider({ children }) {
           mode,
           background: {
             default: mode === "light" ? "#ffffff" : "#0D0D0D", // Default background color
-            paper: mode === "light" ? "#f5f5f5" : "#1e1e1e",   // Paper background color
+            paper: mode === "light" ? "#f5f5f5" : "#262626",   // Paper background color
           },
         },
         // You can customize transitions/spacings/typography/etc. as needed
