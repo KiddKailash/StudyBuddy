@@ -28,8 +28,6 @@ const MobileMenu = ({ handleDrawerToggle }) => {
         edge="start"
         onClick={handleDrawerToggle}
         sx={{
-          mt: 1.3,
-          mb: 1.3,
           "&:focus": {
             outline: "none",
           },

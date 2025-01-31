@@ -35,9 +35,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
       elevation={0}
       sx={{
         backgroundColor: "transparent",
-        boxShadow: "none",
         color: theme.palette.text.secondary,
-        // Keep a high z-index if there's a drawer, so the bar is above the drawer
         zIndex: theme.zIndex.drawer + 1,
       }}
     >
@@ -49,23 +47,19 @@ const MenuBar = ({ handleDrawerToggle }) => {
         }}
       >
         {/* MOBILE MENU (XS) */}
-        <Box
+        <Stack
+          direction="row"
+          spacing={2}
           sx={{
             display: { xs: "flex", sm: "none" },
-            alignItems: "center",
           }}
         >
           <MobileMenu handleDrawerToggle={handleDrawerToggle} />
+          <LanguageSwitcherIMG />
           {user && user.accountType !== "paid" && !isCheckoutPage && (
-            <UpgradeButton
-              sx={{
-                whiteSpace: "nowrap",
-                minWidth: "auto",
-                fontSize: "0.8rem",
-              }}
-            />
+            <UpgradeButton />
           )}
-        </Box>
+        </Stack>
 
         {/* DESKTOP MENU (SM+) */}
         <Stack
