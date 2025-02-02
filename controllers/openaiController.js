@@ -23,7 +23,7 @@ exports.generateFlashcards = async (req, res) => {
     }
 
     const prompt = `
-    Convert the following transcript into 10 study flashcards in JSON format (return this as text, do NOT return this in markdown).
+    Convert the following transcript into 15 study flashcards in JSON format (return this as text, do NOT return this in markdown).
     Also generate a short session name. The final JSON format should be:
     [
       "sessionName",
