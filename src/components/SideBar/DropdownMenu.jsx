@@ -8,7 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 // Icons
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
-// import PrintRoundedIcon from "@mui/icons-material/PrintRounded";
+import PrintRoundedIcon from "@mui/icons-material/PrintRounded";
 
 /**
  * DropdownMenu for session actions: delete, rename, etc.
@@ -38,13 +38,11 @@ const DropdownMenu = ({
         <EditRoundedIcon fontSize="small" sx={{ mr: 1 }} />
         {t("rename")}
       </MenuItem>
-      {/*
-        Optionally re-enable print:
-        <MenuItem onClick={onPrintClick}>
-          <PrintRoundedIcon fontSize="small" sx={{ mr: 1 }} />
-          {t("print")}
-        </MenuItem>
-      */}
+
+      <MenuItem onClick={onPrintClick}>
+        <PrintRoundedIcon fontSize="small" sx={{ mr: 1 }} />
+        {t("print")}
+      </MenuItem>
     </Menu>
   );
 };
