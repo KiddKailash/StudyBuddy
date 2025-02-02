@@ -36,7 +36,7 @@ export default function ThemeProvider({ children }) {
         palette: {
           mode,
           background: {
-            default: mode === "light" ? "#ffffff" : "#0D0D0D", // Default background color
+            default: mode === "light" ? "#ffffff" : "#191919", // Default background color
             paper: mode === "light" ? "#f5f5f5" : "#262626",   // Paper background color
           },
         },
