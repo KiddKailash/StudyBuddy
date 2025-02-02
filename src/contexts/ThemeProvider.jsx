@@ -5,7 +5,6 @@ import {
   createTheme,
 } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import GlobalStyles from "@mui/material/GlobalStyles";
 
 // Create a context to track the current theme mode (light/dark)
 const ThemeContext = createContext();
