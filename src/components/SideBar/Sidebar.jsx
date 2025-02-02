@@ -9,10 +9,9 @@ import Avatar from "@mui/material/Avatar";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
 import ListItemButton from "@mui/material/ListItemButton";
 import CircularProgress from "@mui/material/CircularProgress";
-import { ListItemIcon } from "@mui/material";
+import ListItemIcon from "@mui/material/ListItemIcon";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import Typography from "@mui/material/Typography";
 
@@ -25,9 +24,6 @@ import SessionItem from "./SessionItem";
 import DropdownMenu from "./DropdownMenu";
 import ConfirmationDialog from "./ConfirmationDialog";
 
-/**
- * Sidebar - displays the list of DB-based and local flashcard sessions.
- */
 const Sidebar = ({
   mobileOpen,
   handleDrawerToggle,
@@ -236,14 +232,6 @@ const Sidebar = ({
               >
                 StudyBuddy.ai
               </Typography>
-
-              {/* 
-              <Box
-                component="img"
-                src="/assets/Logo.png"
-                alt="Study Buddy Logo"
-                sx={{ maxHeight: 30, marginLeft: 1 }}
-              /> */}
             </ListItem>
 
             {/* Create Session Button */}

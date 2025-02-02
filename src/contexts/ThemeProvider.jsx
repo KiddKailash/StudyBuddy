@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useReducer, useMemo } from "react";
 import PropTypes from "prop-types";
-import { ThemeProvider as MuiThemeProvider, createTheme } from "@mui/material/styles";
+import {
+  ThemeProvider as MuiThemeProvider,
+  createTheme,
+} from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import GlobalStyles from "@mui/material/GlobalStyles";
 
@@ -37,7 +40,7 @@ export default function ThemeProvider({ children }) {
           mode,
           background: {
             default: mode === "light" ? "#ffffff" : "#191919", // Default background color
-            paper: mode === "light" ? "#f5f5f5" : "#262626",   // Paper background color
+            paper: mode === "light" ? "#f5f5f5" : "#262626", // Paper background color
           },
         },
         // You can customize transitions/spacings/typography/etc. as needed
@@ -47,25 +50,8 @@ export default function ThemeProvider({ children }) {
 
   return (
     <ThemeContext.Provider value={{ mode, dispatch }}>
-      <MuiThemeProvider theme={theme}>
-        {/* Normalizes and applies MUI baseline styles */}
+      <MuiThemeProvider theme={theme} disableTransitionOnChange>
         <CssBaseline />
-        {/* Smooth background and text transitions */}
-        <GlobalStyles
-          styles={{
-            "*": {
-              transition: "background-color 0.1s ease, color 0.1s ease",
-            },
-            "html, body": {
-              height: "100%",
-              margin: 0,
-              padding: 0,
-            },
-            "#root": {
-              height: "100%",
-            },
-          }}
-        />
         {children}
       </MuiThemeProvider>
     </ThemeContext.Provider>
