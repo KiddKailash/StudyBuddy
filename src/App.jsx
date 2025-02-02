@@ -94,6 +94,7 @@ function App() {
             left: 0,
             width: isExpanded ? sidebarWidth : 0,
             height: `calc(100% - ${menubarHeight})`,
+            bgcolor: "background.paper",
             overflowY: "auto",
             zIndex: 1,
             transition: "width 0.3s ease-in-out",
