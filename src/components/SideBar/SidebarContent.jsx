@@ -17,7 +17,6 @@ import DropdownMenu from "./DropdownMenu";
 import ConfirmationDialog from "./ConfirmationDialog";
 
 import useSidebar from "./sidebarUtils";
-import { commonButtonStyles } from "./commonButtonStyles";
 
 const SidebarContent = () => {
   const {
@@ -68,9 +67,25 @@ const SidebarContent = () => {
               component={Link}
               to="/"
               selected={isCreateSessionActive}
-              sx={(themeParam) =>
-                commonButtonStyles(themeParam, isCreateSessionActive)
-              }
+              sx={(themeParam) => ({
+                mr: 1,
+                ml: 1,
+                borderRadius: 3,
+                backgroundColor: isCreateSessionActive
+                  ? themeParam.palette.action.selected
+                  : "transparent",
+                "&.Mui-selected": {
+                  backgroundColor: themeParam.palette.action.selected,
+                },
+                "&:hover": {
+                  backgroundColor: themeParam.palette.action.selected,
+                },
+                color: "text.primary",
+                "& .MuiListItemText-root": { color: "text.primary" },
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              })}
             >
               <Typography variant="body1" sx={{ fontWeight: 600 }}>
                 {t("create_study_session")}
@@ -88,7 +103,6 @@ const SidebarContent = () => {
                 session={session}
                 isActive={isActive}
                 handleMenuOpen={handleMenuOpen}
-                commonButtonStyles={commonButtonStyles}
                 routePath={`/flashcards/${session.id}`}
               />
             );
@@ -104,7 +118,6 @@ const SidebarContent = () => {
                 session={session}
                 isActive={isActive}
                 handleMenuOpen={handleMenuOpen}
-                commonButtonStyles={commonButtonStyles}
                 routePath={`/flashcards-local/${session.id}`}
               />
             );

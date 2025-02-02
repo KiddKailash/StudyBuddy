@@ -16,16 +16,9 @@ import { useTranslation } from "react-i18next";
  * @param {object} props.session - { id, studySession, ... }
  * @param {boolean} props.isActive
  * @param {function} props.handleMenuOpen - handleMenuOpen(event, sessionId)
- * @param {function} props.commonButtonStyles
  * @param {string} props.routePath - the link URL ("/flashcards/..." or "/flashcards-local/...")
  */
-const SessionItem = ({
-  session,
-  isActive,
-  handleMenuOpen,
-  commonButtonStyles,
-  routePath,
-}) => {
+const SessionItem = ({ session, isActive, handleMenuOpen, routePath }) => {
   const { t } = useTranslation();
 
   return (
@@ -35,8 +28,29 @@ const SessionItem = ({
         to={routePath}
         selected={isActive}
         sx={(theme) => ({
-          ...commonButtonStyles(theme, isActive),
-          "&:hover .session-options-button": { visibility: "visible", opacity: 1 },
+          mr: 1,
+          ml: 1,
+          borderRadius: 3,
+          backgroundColor: isActive
+            ? theme.palette.action.selected
+            : "transparent",
+          "&.Mui-selected": {
+            backgroundColor: theme.palette.action.selected,
+          },
+          "&:hover": {
+            backgroundColor: theme.palette.action.selected,
+          },
+          color: "text.primary",
+          "& .MuiListItemText-root": { color: "text.primary" },
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+
+          // Additional hover styles for the three-dot icon
+          "&:hover .session-options-button": {
+            visibility: "visible",
+            opacity: 1,
+          },
           "& .session-options-button": {
             visibility: isActive ? "visible" : "hidden",
             opacity: isActive ? 1 : 0,
@@ -73,7 +87,6 @@ SessionItem.propTypes = {
   }).isRequired,
   isActive: PropTypes.bool.isRequired,
   handleMenuOpen: PropTypes.func.isRequired,
-  commonButtonStyles: PropTypes.func.isRequired,
   routePath: PropTypes.string.isRequired,
 };
 
