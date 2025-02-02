@@ -20,7 +20,6 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth, menubarHeight })
         sx={{
           display: { xs: "block", sm: "none" },
           "& .MuiDrawer-paper": {
-            boxSizing: "border-box",
             width: drawerWidth,
           },
         }}
@@ -28,7 +27,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth, menubarHeight })
         <SidebarContent />
       </Drawer>
 
-      {/* Permanent drawer (desktop) */}
+      {/* Desktop drawer */}
       <Drawer
         variant="permanent"
         sx={{
@@ -36,7 +35,6 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth, menubarHeight })
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             height: `calc(100% - ${menubarHeight}px)`,
-            boxSizing: "border-box",
           },
         }}
         open

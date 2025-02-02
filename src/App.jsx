@@ -1,16 +1,16 @@
 import React, { useState, useContext } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
+
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import MenuBar from "./components/MenuBar/MenuBar";
-import Sidebar from "./components/SideBar/Sidebar";
+import MenuBar from "./components/Menubar/Menubar";
+import Sidebar from "./components/Sidebar/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import FlashcardSession from "./webpages/FlashcardSession";
@@ -94,7 +94,6 @@ function App() {
             left: 0,
             width: isExpanded ? sidebarWidth : 0,
             height: `calc(100% - ${menubarHeight})`,
-            bgcolor: "background.paper",
             overflowY: "auto",
             zIndex: 1,
             transition: "width 0.3s ease-in-out",
