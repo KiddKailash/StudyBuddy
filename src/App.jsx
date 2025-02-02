@@ -9,8 +9,8 @@ import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import MenuBar from "./components/Menubar/Menubar";
-import Sidebar from "./components/Sidebar/Sidebar";
+import MenuBar from "./components/MenuBar/MenuBar";
+import Sidebar from "./components/SideBar/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import FlashcardSession from "./webpages/FlashcardSession";
