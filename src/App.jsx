@@ -150,10 +150,6 @@ function App() {
               transition: "transform 0.3s ease-in-out",
               zIndex: "5000",
               border: "1px solid grey",
-              bgcolor: "background.default",
-              "&:hover": {
-                bgcolor: "grey.200",
-              },
             }}
           >
             {isExpanded ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
