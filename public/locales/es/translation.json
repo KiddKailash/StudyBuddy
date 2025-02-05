@@ -258,5 +258,9 @@
   "max_ephemeral_sessions_reached": "Has alcanzado el número máximo de sesiones permitidas para usuarios gratuitos.",
   "max_ephemeral_sessions_reached_message": "No puedes crear más sesiones de estudio. Por favor, actualiza tu cuenta para crear más sesiones.",
   "switch_to_dark": "Modo oscuro",
-  "switch_to_light": "Modo claro"
+  "switch_to_light": "Modo claro",
+  "notion": "Notion",
+  "video": "Vídeo",
+  "coming_soon": "🚧 Próximamente 🚧",
+  "feature_under_development": "Esta función está en desarrollo 🛠️"
 }

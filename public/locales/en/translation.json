@@ -258,5 +258,9 @@
   "max_ephemeral_sessions_reached": "You have reached the maximum number of study sessions allowed for free users.",
   "max_ephemeral_sessions_reached_message": "You cannot create more study sessions. Please upgrade your account to create additional sessions.",
   "switch_to_dark": "Dark Mode",
-  "switch_to_light": "Light Mode"
+  "switch_to_light": "Light Mode",
+  "notion": "Notion",
+  "video": "Video",
+  "coming_soon": "🚧 Coming Soon 🚧",
+  "feature_under_development": "This feature is under development 🛠️"
 }
