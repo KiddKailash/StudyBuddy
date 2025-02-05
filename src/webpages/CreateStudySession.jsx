@@ -22,16 +22,15 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FilterDramaRoundedIcon from "@mui/icons-material/FilterDramaRounded";
+import VideoCameraFrontIcon from "@mui/icons-material/VideoCameraFront";
 
 import { useTranslation, Trans } from "react-i18next";
-import NotionIntegration from "../components/NotionIntegration";
 
 const CreateStudySession = () => {
   const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
-  const [notionText, setNotionText] = useState("");
   const [loadingTranscript, setLoadingTranscript] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
@@ -42,7 +41,7 @@ const CreateStudySession = () => {
     setFlashcardSessions,
     localSessions,
     createLocalSession,
-    MAX_EPHEMERAL_SESSIONS, // Access the limit
+    MAX_EPHEMERAL_SESSIONS,
   } = useContext(UserContext);
 
   const accountType = user?.accountType || "free";
@@ -75,11 +74,16 @@ const CreateStudySession = () => {
     setTabValue(newValue);
     setSelectedFile(null);
     setPastedText("");
-    setNotionText("");
     navigate(`?tab=${newValue}`, { replace: true });
   };
 
   const handleFetchAndGenerate = async () => {
+    // If the selected tab is Notion (2) or Video (3), just show "Coming soon 🚧"
+    if (tabValue === 2 || tabValue === 3) {
+      showSnackbar(t("feature_under_development"), "info");
+      return;
+    }
+
     // For logged-in free users, enforce 2-sessions limit
     if (isLoggedIn && accountType === "free" && flashcardSessions.length >= 2) {
       showSnackbar(t("max_sessions_reached"), "info");
@@ -100,6 +104,7 @@ const CreateStudySession = () => {
 
       // Step 1: gather transcript
       if (tabValue === 0) {
+        // File upload
         if (!selectedFile) {
           showSnackbar(t("please_select_file"), "error");
           setLoadingTranscript(false);
@@ -135,19 +140,13 @@ const CreateStudySession = () => {
           transcriptText = resp.data.transcript;
         }
       } else if (tabValue === 1) {
+        // Pasted text
         if (!pastedText.trim()) {
           showSnackbar(t("please_paste_text"), "error");
           setLoadingTranscript(false);
           return;
         }
         transcriptText = pastedText.trim();
-      } else if (tabValue === 2) {
-        if (!notionText.trim()) {
-          showSnackbar(t("notion_content_empty"), "error");
-          setLoadingTranscript(false);
-          return;
-        }
-        transcriptText = notionText.trim();
       }
 
       // Step 2: Generate flashcards
@@ -167,7 +166,7 @@ const CreateStudySession = () => {
         generatedData = resp.data.flashcards;
       }
 
-      // Step 3: Create a session in DB if logged in, or local if not
+      // Step 3: Create a session
       const sessionName = generatedData[0];
       const flashcardsArray = generatedData[1];
 
@@ -189,7 +188,7 @@ const CreateStudySession = () => {
           `${BACKEND}/api/flashcards`,
           {
             sessionName,
-            studyCards: flashcardsArray, // <--- Just the flashcards array
+            studyCards: flashcardsArray,
             transcript: transcriptText,
           },
           { headers: { Authorization: `Bearer ${token}` } }
@@ -214,7 +213,10 @@ const CreateStudySession = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ pt: { xs: 6.5, sm: 16 }, textAlign:'centre' }}>
+    <Container
+      maxWidth="md"
+      sx={{ pt: { xs: 6.5, sm: 16 }, textAlign: "center" }}
+    >
       <Tabs
         value={tabValue}
         onChange={handleTabChange}
@@ -226,11 +228,13 @@ const CreateStudySession = () => {
       >
         <Tab icon={<UploadFileIcon />} label={t("upload_document")} />
         <Tab icon={<ContentCutIcon />} label={t("paste_text")} />
-        {/* <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} /> */}
+        <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} />
+        <Tab icon={<VideoCameraFrontIcon />} label={t("video")} />
       </Tabs>
 
+      {/* Tab 0: Upload Document */}
       {tabValue === 0 && (
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 1 }}>
           <Paper
             variant="outlined"
             {...getRootProps()}
@@ -262,6 +266,7 @@ const CreateStudySession = () => {
         </Box>
       )}
 
+      {/* Tab 1: Paste Text */}
       {tabValue === 1 && (
         <TextField
           fullWidth
@@ -271,11 +276,35 @@ const CreateStudySession = () => {
           onChange={(e) => setPastedText(e.target.value)}
           multiline
           rows={7}
-          sx={{ mb: 2 }}
+          sx={{ mb: 1, backgroundColor: "background.paper" }}
         />
       )}
 
-      {tabValue === 2 && <NotionIntegration />}
+      {/* Tab 2: Notion (Coming soon) */}
+      {tabValue === 2 && (
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 4,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6">{t("coming_soon")}</Typography>
+        </Paper>
+      )}
+
+      {/* Tab 3: Video (Coming soon) */}
+      {tabValue === 3 && (
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 4,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6">{t("coming_soon")}</Typography>
+        </Paper>
+      )}
 
       <Button
         variant="outlined"
@@ -289,7 +318,7 @@ const CreateStudySession = () => {
           (!isLoggedIn && localSessions.length >= MAX_EPHEMERAL_SESSIONS)
         }
         fullWidth
-        sx={{ height: 56 }}
+        sx={{ height: 56, mt: 2 }}
       >
         {loadingTranscript ? (
           <CircularProgress color="inherit" size={24} />
@@ -298,7 +327,7 @@ const CreateStudySession = () => {
         )}
       </Button>
 
-      {/* Inform unauthenticated users when they reach the maximum ephemeral sessions */}
+      {/* Inform unauthenticated users about max ephemeral sessions */}
       {!isLoggedIn && localSessions.length >= MAX_EPHEMERAL_SESSIONS && (
         <>
           <Typography variant="body1" color="textSecondary" sx={{ mt: 2 }}>
@@ -309,7 +338,7 @@ const CreateStudySession = () => {
               <Link
                 component="span"
                 variant="body1"
-                onClick={() => navigate('/checkout')}
+                onClick={() => navigate("/checkout")}
               >
                 {t("upgrade_your_account")}
               </Link>
@@ -318,7 +347,7 @@ const CreateStudySession = () => {
         </>
       )}
 
-      {/* Inform authenticated free users when they reach the maximum DB sessions */}
+      {/* Inform authenticated free users about max DB sessions */}
       {isLoggedIn &&
         accountType === "free" &&
         flashcardSessions.length >= 2 && (
@@ -331,7 +360,7 @@ const CreateStudySession = () => {
                 <Link
                   component="button"
                   variant="body1"
-                  onClick={() => navigate('/checkout')}
+                  onClick={() => navigate("/checkout")}
                 >
                   {t("upgrade_your_account")}
                 </Link>
