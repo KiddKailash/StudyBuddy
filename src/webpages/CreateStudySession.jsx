@@ -215,7 +215,7 @@ const CreateStudySession = () => {
   return (
     <Container
       maxWidth="md"
-      sx={{ pt: { xs: 6.5, sm: 16 }, textAlign: "center" }}
+      sx={{ pt: { xs: 6.5, sm: 10, md: 16 }, textAlign: "center" }}
     >
       <Tabs
         value={tabValue}
