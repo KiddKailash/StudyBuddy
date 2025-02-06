@@ -270,6 +270,6 @@
   "add_feature": "Agregar Función",
   "remove_feature": "Eliminar",
   "submit": "Enviar",
-  "success_message": "¡Tu solicitud de función ha sido enviada!",
+  "success_message": "¡Gracias! Tus sugerencias serán revisadas en breve.",
   "error_message": "No se pudo enviar la solicitud de función. Inténtalo de nuevo."
 }

@@ -270,6 +270,6 @@
   "add_feature": "添加功能",
   "remove_feature": "删除",
   "submit": "提交",
-  "success_message": "您的功能请求已提交！",
+  "success_message": "谢谢！您的建议将很快被审核。",
   "error_message": "提交功能请求失败。请重试。"
 }
