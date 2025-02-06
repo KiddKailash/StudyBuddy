@@ -35,7 +35,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
       elevation={0}
       sx={{
         backgroundColor: "transparent",
-        color: theme.palette.text.secondary,
+        color: "text.secondary",
         zIndex: theme.zIndex.drawer + 1,
       }}
     >
