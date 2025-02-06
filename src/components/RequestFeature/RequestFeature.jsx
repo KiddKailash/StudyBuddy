@@ -56,7 +56,7 @@ const RequestFeature = () => {
           height: 20,
           width: 20,
           bgcolor: "background.default",
-          position: "static",
+          position: "absolute",
           top: "60px",
           right: "35px",
           zIndex: "100000",
