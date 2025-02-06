@@ -87,10 +87,10 @@ const { connectDB } = require('../database/db'); // Adjust path if needed
         <body>
           <div class="container">
             <div class="header">
-              <h1>User Report: StudyBuddy.ai</h1>
+              <h1>StudyBuddy.ai</h1>
             </div>
             <div class="content">
-              <h2>Hello Admin,</h2>
+              <h2>Howdy,</h2>
               <p>Here is the latest user report from the StudyBuddy database:</p>
               <table class="report-table">
                 <tr>
