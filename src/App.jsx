@@ -12,6 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import MenuBar from "./components/MenuBar/MenuBar";
 import Sidebar from "./components/SideBar/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RequestFeature from "./components/RequestFeature/RequestFeature";
 
 import FlashcardSession from "./webpages/FlashcardSession";
 import CreateStudySession from "./webpages/CreateStudySession";
@@ -146,7 +147,7 @@ function App() {
               position: "fixed",
               bgcolor: "background.default",
               bottom: "40px",
-              right: "40px",
+              left: "40px",
               transform: "rotate(45deg)",
               transition: "transform 0.3s ease-in-out",
               zIndex: "5000",
@@ -156,6 +157,8 @@ function App() {
             {isExpanded ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
           </IconButton>
         )}
+
+        {isLoggedIn && !isLoginPage && <RequestFeature />}
 
         <Routes>
           {pages.map((page, index) => {
@@ -167,7 +170,8 @@ function App() {
               "/success",
               "/cancel",
             ];
-            const isLocalFlashcardPath = page.path.startsWith("/flashcards-local");
+            const isLocalFlashcardPath =
+              page.path.startsWith("/flashcards-local");
 
             const isPublicPage =
               publicPaths.includes(page.path) ||
