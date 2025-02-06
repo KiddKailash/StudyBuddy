@@ -49,7 +49,7 @@ export default function ThemeProvider({ children }) {
 
   return (
     <ThemeContext.Provider value={{ mode, dispatch }}>
-      <MuiThemeProvider theme={theme} disableTransitionOnChange>
+      <MuiThemeProvider theme={theme}>
         <CssBaseline />
         {children}
       </MuiThemeProvider>
