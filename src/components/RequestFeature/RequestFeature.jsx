@@ -14,8 +14,6 @@ import { SnackbarContext } from "../../contexts/SnackbarContext";
 
 const RequestFeature = () => {
   const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
-
-  // Grab the token from localStorage (or your context)
   const token = localStorage.getItem("token");
 
   // Snackbar context for success/error
@@ -29,13 +27,13 @@ const RequestFeature = () => {
   const openDialog = () => setDialogOpen(true);
   const closeDialog = () => setDialogOpen(false);
 
-  // Handle form submission from the dialog
-  // 'features' is an array: [{ title: "...", description: "..." }, ...]
+  // Handle form submission from the dialog (the dialog will already be closed)
+  // 'features' is an array of objects: [{ title: "...", description: "..." }, ...]
   const handleSubmit = async (features) => {
     try {
       await axios.post(
         `${BACKEND}/api/feature-request`,
-        { features }, // <-- pass array of features
+        { features },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,9 +44,8 @@ const RequestFeature = () => {
     } catch (error) {
       console.error("Error submitting feature request:", error);
       showSnackbar(t("error_message"), "error");
-    } finally {
-      closeDialog();
     }
+    // The dialog is already closed from the child side, so do nothing else here
   };
 
   return (
