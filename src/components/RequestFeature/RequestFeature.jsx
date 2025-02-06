@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 // MUI Imports
 import IconButton from "@mui/material/IconButton";
@@ -20,6 +21,9 @@ const RequestFeature = () => {
   // Snackbar context for success/error
   const { showSnackbar } = useContext(SnackbarContext);
 
+  // i18n
+  const { t } = useTranslation();
+
   // Dialog open/close
   const [dialogOpen, setDialogOpen] = useState(false);
   const openDialog = () => setDialogOpen(true);
@@ -38,13 +42,10 @@ const RequestFeature = () => {
           },
         }
       );
-      showSnackbar("Your feature request(s) have been submitted!", "success");
+      showSnackbar(t("success_message"), "success");
     } catch (error) {
       console.error("Error submitting feature request:", error);
-      showSnackbar(
-        "Failed to submit feature request(s). Please try again.",
-        "error"
-      );
+      showSnackbar(t("error_message"), "error");
     } finally {
       closeDialog();
     }

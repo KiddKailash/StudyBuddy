@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
+
 import {
   Dialog,
   DialogActions,
@@ -25,7 +27,8 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
  * @param {function} props.onSubmit - Function called when submitting the requests (an array).
  * @param {function} [props.t] - Optional translation function.
  */
-const RequestFeatureDialog = ({ open, onClose, onSubmit, t }) => {
+const RequestFeatureDialog = ({ open, onClose, onSubmit }) => {
+  const { t } = useTranslation();
   const [features, setFeatures] = useState([{ title: "", description: "" }]);
 
   // Update a feature field (title or description)
@@ -61,20 +64,18 @@ const RequestFeatureDialog = ({ open, onClose, onSubmit, t }) => {
       PaperProps={{
         sx: {
           borderRadius: "12px",
-          p: 2
+          p: 2,
         },
       }}
     >
       <DialogTitle sx={{ fontWeight: 600, fontSize: "1.5rem" }}>
-        {t ? t("request_feature") : "Have Your Say!"}
+        {t("request_feature")}
       </DialogTitle>
 
       <DialogContent>
         <Stack spacing={2}>
           <DialogContentText sx={{ color: "text.secondary" }}>
-            {t
-              ? t("request_feature_prompt")
-              : "We would love to hear from you. Tell us what feature you would like to use, and we will get to building it."}
+            {t("request_feature_prompt")}
           </DialogContentText>
 
           {features.map((feature, index) => (
@@ -83,7 +84,7 @@ const RequestFeatureDialog = ({ open, onClose, onSubmit, t }) => {
               {/* Show Divider only for the second feature and beyond */}
               <Stack direction="row" spacing={1}>
                 <TextField
-                  label={t ? `${t("feature_title")}` : "Feature Title"}
+                  label={t("feature_title")}
                   fullWidth
                   variant="outlined"
                   size="small"
@@ -91,7 +92,7 @@ const RequestFeatureDialog = ({ open, onClose, onSubmit, t }) => {
                   onChange={(e) =>
                     handleFeatureChange(index, "title", e.target.value)
                   }
-                  sx={{ borderRadius: "8px"}}
+                  sx={{ borderRadius: "8px" }}
                 />
                 {features.length > 1 && (
                   <IconButton
@@ -103,7 +104,7 @@ const RequestFeatureDialog = ({ open, onClose, onSubmit, t }) => {
                 )}
               </Stack>
               <TextField
-                label={t ? `${t("feature_description")}` : `Description`}
+                label={t("feature_description")}
                 fullWidth
                 multiline
                 rows={2}
@@ -128,10 +129,10 @@ const RequestFeatureDialog = ({ open, onClose, onSubmit, t }) => {
 
       <DialogActions sx={{ justifyContent: "space-between" }}>
         <Button onClick={onClose} variant="text">
-          {t ? t("cancel") : "Cancel"}
+          {t("cancel")}
         </Button>
         <Button onClick={handleSubmit} variant="text">
-          {t ? t("submit") : "Submit"}
+          {t("submit")}
         </Button>
       </DialogActions>
     </Dialog>
