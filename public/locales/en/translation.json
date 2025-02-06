@@ -270,6 +270,6 @@
   "add_feature": "Add Feature",
   "remove_feature": "Remove",
   "submit": "Submit",
-  "success_message": "Thank you! Your requests will be reviewed shortly.",
+  "success_message": "Thank you! Your suggestions will be reviewed shortly.",
   "error_message": "Failed to submit feature request(s). Please try again."
 }
