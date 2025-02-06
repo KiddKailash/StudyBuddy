@@ -15,11 +15,12 @@ const PORT = process.env.PORT || 8080;
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
 const transcriptRoutes = require("./routes/transcriptRoutes");
-const openaiRoutes = require("./routes/openaiRoutes"); // private
+const openaiRoutes = require("./routes/openaiRoutes");
 const flashcardsRoutes = require("./routes/flashcardsRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const userRoutes = require("./routes/userRoutes");
+const featureRequestRoutes = require("./routes/featureRequestRoutes");
 const notionRoutes = require("./routes/notionRoutes");
 const webhookHandler = require("./routes/webhookRoutes");
 
@@ -82,6 +83,7 @@ connectDB()
     app.use("/api/upload", uploadRoutes);
     app.use("/api/users", userRoutes);
     app.use("/api/notion", notionRoutes);
+    app.use("/api/feature-request", featureRequestRoutes);
 
     // Global error handler
     app.use((err, req, res, next) => {
