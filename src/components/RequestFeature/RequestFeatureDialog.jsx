@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 
+// MUI imports
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -40,9 +41,23 @@ const RequestFeatureDialog = ({ open, onClose, onSubmit }) => {
 
   // Submit the features
   const handleSubmit = () => {
-    onSubmit(features);
-    onClose(); // close immediately so user doesn't wait in the dialog
-    setFeatures([{ title: "", description: "" }]); // clear form data
+    // 1) Filter out rows where BOTH title and description are empty
+    const filteredFeatures = features.filter(
+      (f) => f.title.trim() !== "" || f.description.trim() !== ""
+    );
+
+    // 2) If none remain after filtering, do nothing (leave dialog open)
+    if (filteredFeatures.length === 0) {
+      // Optionally show an error or visual feedback here
+      return;
+    }
+
+    // 3) Pass only non-empty pairs up to the parent
+    onSubmit(filteredFeatures);
+
+    // 4) Close the dialog and reset the form fields
+    onClose();
+    setFeatures([{ title: "", description: "" }]);
   };
 
   return (
