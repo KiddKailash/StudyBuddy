@@ -144,6 +144,7 @@ function App() {
             onClick={toggleExpand}
             sx={{
               position: "fixed",
+              bgcolor: "background.default",
               bottom: "40px",
               right: "40px",
               transform: "rotate(45deg)",
