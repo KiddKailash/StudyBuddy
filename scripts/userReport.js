@@ -25,7 +25,7 @@ const { connectDB } = require('../database/db'); // Adjust path if needed
     const mailOptions = {
       from: process.env.GMAIL_ADDRESS,
       to: process.env.ADMIN_EMAIL,
-      subject: 'User Report: StudyBuddy.ai',
+      subject: `User Count: ${totalUsers}`,
       html: `
       <!DOCTYPE html>
       <html>
