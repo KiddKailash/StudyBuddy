@@ -262,5 +262,14 @@
   "notion": "Notion",
   "video": "视频",
   "coming_soon": "🚧 即将推出 🚧",
-  "feature_under_development": "此功能正在开发中 🛠️"
+  "feature_under_development": "此功能正在开发中 🛠️",
+  "request_feature": "发表您的意见！",
+  "request_feature_prompt": "我们希望听到您的想法。告诉我们您想要使用的功能，我们将努力开发它。",
+  "feature_title": "功能标题",
+  "feature_description": "描述",
+  "add_feature": "添加功能",
+  "remove_feature": "删除",
+  "submit": "提交",
+  "success_message": "您的功能请求已提交！",
+  "error_message": "提交功能请求失败。请重试。"
 }

@@ -262,5 +262,14 @@
   "notion": "Notion",
   "video": "Vídeo",
   "coming_soon": "🚧 Próximamente 🚧",
-  "feature_under_development": "Esta función está en desarrollo 🛠️"
+  "feature_under_development": "Esta función está en desarrollo 🛠️",
+  "request_feature": "¡Exprésate!",
+  "request_feature_prompt": "Nos encantaría saber tu opinión. Cuéntanos qué función te gustaría usar y nos pondremos a trabajar en ello.",
+  "feature_title": "Título de la Función",
+  "feature_description": "Descripción",
+  "add_feature": "Agregar Función",
+  "remove_feature": "Eliminar",
+  "submit": "Enviar",
+  "success_message": "¡Tu solicitud de función ha sido enviada!",
+  "error_message": "No se pudo enviar la solicitud de función. Inténtalo de nuevo."
 }
