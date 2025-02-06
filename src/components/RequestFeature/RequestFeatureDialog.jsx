@@ -2,31 +2,20 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
-  TextField,
-  Stack,
-  IconButton,
-  Divider,
-  Box,
-} from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Stack from "@mui/material/Stack";
+import IconButton from "@mui/material/IconButton";
+import Divider from "@mui/material/Divider";
+import Box from "@mui/material/Box";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
-/**
- * RequestFeatureDialog component for submitting multiple feature requests.
- *
- * @param {object}   props
- * @param {boolean}  props.open - If true, the dialog is displayed.
- * @param {function} props.onClose - Function to close the dialog.
- * @param {function} props.onSubmit - Function called when submitting the requests (an array).
- * @param {function} [props.t] - Optional translation function.
- */
 const RequestFeatureDialog = ({ open, onClose, onSubmit }) => {
   const { t } = useTranslation();
   const [features, setFeatures] = useState([{ title: "", description: "" }]);
@@ -52,6 +41,8 @@ const RequestFeatureDialog = ({ open, onClose, onSubmit }) => {
   // Submit the features
   const handleSubmit = () => {
     onSubmit(features);
+    onClose(); // close immediately so user doesn't wait in the dialog
+    setFeatures([{ title: "", description: "" }]); // clear form data
   };
 
   return (
@@ -75,14 +66,25 @@ const RequestFeatureDialog = ({ open, onClose, onSubmit }) => {
       <DialogContent>
         <Stack spacing={2}>
           <DialogContentText sx={{ color: "text.secondary" }}>
-            {t("request_feature_prompt")}
+            {t("request_feature_prompt_I")}
+          </DialogContentText>
+          <DialogContentText sx={{ color: "text.secondary" }}>
+            {t("request_feature_prompt_II")}
           </DialogContentText>
 
           {features.map((feature, index) => (
             <Box key={index}>
-              {index > 0 && <Divider sx={{ mb: 2 }} />}{" "}
-              {/* Show Divider only for the second feature and beyond */}
-              <Stack direction="row" spacing={1}>
+              {index > 0 && <Divider sx={{ mb: 2 }} />}
+
+              {/* Container for both Title & Description */}
+              <Box
+                sx={{
+                  position: "relative",
+                  ".delete-button": {
+                    display: "inline-flex",
+                  },
+                }}
+              >
                 <TextField
                   label={t("feature_title")}
                   fullWidth
@@ -92,30 +94,38 @@ const RequestFeatureDialog = ({ open, onClose, onSubmit }) => {
                   onChange={(e) =>
                     handleFeatureChange(index, "title", e.target.value)
                   }
+                  sx={{ mb: 1, borderRadius: "8px" }}
+                />
+
+                <TextField
+                  label={t("feature_description")}
+                  fullWidth
+                  multiline
+                  rows={2}
+                  variant="outlined"
+                  size="small"
+                  value={feature.description}
+                  onChange={(e) =>
+                    handleFeatureChange(index, "description", e.target.value)
+                  }
                   sx={{ borderRadius: "8px" }}
                 />
+
                 {features.length > 1 && (
                   <IconButton
+                    className="delete-button"
                     onClick={() => removeFeatureRequest(index)}
-                    color="error"
+                    sx={{
+                      display: "none",
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                    }}
                   >
                     <DeleteOutlineIcon />
                   </IconButton>
                 )}
-              </Stack>
-              <TextField
-                label={t("feature_description")}
-                fullWidth
-                multiline
-                rows={2}
-                variant="outlined"
-                size="small"
-                value={feature.description}
-                onChange={(e) =>
-                  handleFeatureChange(index, "description", e.target.value)
-                }
-                sx={{ mt: 1, borderRadius: "8px" }}
-              />
+              </Box>
             </Box>
           ))}
         </Stack>
@@ -143,7 +153,6 @@ RequestFeatureDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  t: PropTypes.func,
 };
 
 export default RequestFeatureDialog;
