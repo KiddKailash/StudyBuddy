@@ -15,6 +15,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import SessionItem from "./SessionItem";
 import DropdownMenu from "./DropdownMenu";
 import ConfirmationDialog from "./ConfirmationDialog";
+import RequestFeature from "../RequestFeature/RequestFeature";
 
 import useSidebar from "./sidebarUtils";
 
@@ -130,6 +131,8 @@ const SidebarContent = () => {
   return (
     <Box sx={{ width: "100%" }}>
       {drawerContent}
+      
+      <RequestFeature />
 
       {/* Dropdown menu (three dots) */}
       <DropdownMenu
