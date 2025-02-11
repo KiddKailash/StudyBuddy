@@ -4,54 +4,85 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpBackend from 'i18next-http-backend';
 
 i18n
-  // Enables loading translations via HTTP
+  // 1) Allows loading translations via HTTP.
+  //    This is useful if you keep your translations in separate JSON files
+  //    and want to dynamically load them from a server or a public folder.
   .use(HttpBackend)
-  // Detects user language preferences
+
+  // 2) Detects user language by checking querystring, localStorage, or browser settings.
+  //    The language detector makes the site dynamic for users in various locales.
   .use(LanguageDetector)
-  // Passes the i18n instance to react-i18next
+
+  // 3) Passes the i18n instance to react-i18next to enable the useTranslation hook,
+  //    translation HOCs, and other React-specific helpers.
   .use(initReactI18next)
+
+  // 4) Initializes the i18n configuration.
   .init({
-    // Fallback language in case the detected language is not available
+    // 4A) This language is used if no user language is detected,
+    //     or if the detected language is not in supportedLngs.
     fallbackLng: 'en',
-    // Supported languages in your application
-    supportedLngs: ['en', 'zh', 'es'],
-    // Allows using non-exact language codes (e.g., 'en-US' falls back to 'en')
+
+    // 4B) The list of languages your application supports.
+    //     The LanguageDetector will check against this array.
+    supportedLngs: ['en', 'zh', 'es', 'de', 'hi', 'fr', 'ja'],
+
+    // 4C) If a user’s browser is 'en-US', for instance,
+    //     this option allows fallback to 'en' automatically.
     nonExplicitSupportedLngs: true,
-    // Disables escaping since React handles it
+
+    // 4D) For React apps, it's best to disable escaping by default,
+    //     since React handles XSS protection internally by design.
     interpolation: {
       escapeValue: false,
     },
-    // Configuration for language detection
+
+    // 4E) Language detection configuration.
     detection: {
-      // Order of language detection methods
-      order: ['querystring', 'localStorage', 'navigator', 'htmlTag'],
-      // Query parameter to look for language (e.g., ?lng=es)
+      // Order in which to detect user language.
+      //  1. Browser settings (navigator)
+      //  2. Query string (?lng=en)
+      //  3. localStorage (i18nextLng)
+      //  4. HTML <html lang=""> attribute
+      order: ['navigator', 'querystring', 'localStorage', 'htmlTag'],
+
+      // The query parameter to look for (e.g., ?lng=es).
       lookupQuerystring: 'lng',
-      // Local storage key to store the selected language
+
+      // The localStorage key to store user language.
       lookupLocalStorage: 'i18nextLng',
-      // Cache the user language in local storage
+
+      // Stores user language in localStorage so the preference is remembered.
       caches: ['localStorage'],
-      // Languages to exclude from being cached
+
+      // Exclude certain languages from being cached (e.g., for debugging).
       excludeCacheFor: ['cimode'],
-      // Reference to the HTML element for setting the lang attribute
+
+      // The HTML element where i18n might set the 'lang' attribute.
       htmlTag: document.documentElement,
-      // Only detect languages that are in the supportedLngs list
+
+      // Only allow languages from the supportedLngs array above.
       checkSupportedLngs: true,
     },
-    // Backend configuration for loading translation files
+
+    // 4F) The backend configuration for where to fetch translation files.
+    //     The '{{lng}}' placeholder is replaced by the detected language.
     backend: {
-      // Path to load translation files from
-      // Adjust the path based on where your locales are served
       loadPath: '/locales/{{lng}}/translation.json',
     },
-    // React-specific options
+
+    // 4G) React-specific options.
     react: {
-      // Enables React Suspense for handling loading states
+      // Use React Suspense to show fallback while translations load.
       useSuspense: true,
     },
+
+    // OPTIONAL: You can enable debug in development mode only:
+    // debug: process.env.NODE_ENV === 'development',
   });
 
-// Update the HTML lang attribute whenever the language changes
+// 5) Whenever the user language changes, we also update <html lang="...">.
+//    This helps screen readers and accessibility tools.
 i18n.on('languageChanged', (lng) => {
   document.documentElement.lang = lng;
 });
