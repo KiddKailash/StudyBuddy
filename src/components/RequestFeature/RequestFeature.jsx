@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 // MUI Imports
 import IconButton from "@mui/material/IconButton";
-import PriorityHighRoundedIcon from "@mui/icons-material/PriorityHighRounded";
+import BiotechRoundedIcon from '@mui/icons-material/BiotechRounded';
 
 // Import the new dialog
 import RequestFeatureDialog from "./RequestFeatureDialog";
@@ -53,19 +53,17 @@ const RequestFeature = () => {
       <IconButton
         onClick={openDialog}
         sx={{
-          height: 20,
-          width: 20,
           bgcolor: "background.default",
-          position: "absolute",
-          top: "60px",
-          right: "35px",
+          position: "fixed",
+          left: "20px",
+          bottom: "20px",
           zIndex: "100000",
           "&:hover": {
-            bgcolor: "background.paper",
+            bgcolor: "background.default",
           },
         }}
       >
-        <PriorityHighRoundedIcon sx={{ fontSize: 15 }} />
+        <BiotechRoundedIcon />
       </IconButton>
 
       <RequestFeatureDialog

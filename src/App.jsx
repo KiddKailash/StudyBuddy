@@ -146,8 +146,8 @@ function App() {
             sx={{
               position: "fixed",
               bgcolor: "background.default",
-              bottom: "40px",
-              left: "40px",
+              bottom: "20px",
+              right: "20px",
               transform: "rotate(45deg)",
               transition: "transform 0.3s ease-in-out",
               zIndex: "5000",
