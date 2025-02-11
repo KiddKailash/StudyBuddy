@@ -151,7 +151,10 @@ function App() {
               transform: "rotate(45deg)",
               transition: "transform 0.3s ease-in-out",
               zIndex: "5000",
-              border: "1px solid grey",
+              border: "0.5px solid grey",
+              "&:hover": {
+                bgcolor: "background.default",
+              },
             }}
           >
             {isExpanded ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
