@@ -153,15 +153,13 @@ function App() {
               zIndex: "5000",
               border: "0.5px solid grey",
               "&:hover": {
-                bgcolor: "background.default",
+                bgcolor: "background.paper",
               },
             }}
           >
             {isExpanded ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
           </IconButton>
         )}
-
-        {isLoggedIn && !isLoginPage && <RequestFeature />}
 
         <Routes>
           {pages.map((page, index) => {
