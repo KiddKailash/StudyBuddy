@@ -1,18 +1,20 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+import { UserContext } from "../../contexts/UserContext";
+import MobileMenu from "./MobileMenu";
+import UpgradeButton from "./UpgradeButton";
+import AvatarMenu from "./AvatarMenu";
+import { LanguageSwitcherIMG } from "../LanguageSwitcher";
+
 import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
-import { UserContext } from "../../contexts/UserContext";
-import MobileMenu from "./MobileMenu";
-import UpgradeButton from "./UpgradeButton";
-import AvatarMenu from "./AvatarMenu";
-import { LanguageSwitcherIMG } from "../LanguageSwitcher";
-import { useTranslation } from "react-i18next";
 
 const MenuBar = ({ handleDrawerToggle }) => {
   const { user, resetUserContext } = useContext(UserContext);
