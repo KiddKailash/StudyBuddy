@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
+import zhFlag from '../assets/flags/zh.png';
+import deFlag from '../assets/flags/de.png';
+import enFlag from '../assets/flags/en.png';
+import esFlag from '../assets/flags/es.png';
+import frFlag from '../assets/flags/fr.png';
+import hiFlag from '../assets/flags/hi.png';
+import jaFlag from '../assets/flags/ja.png';
+
 // MUI Component Imports
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
@@ -59,6 +67,16 @@ export const LanguageSwitcherIMG = () => {
   const { i18n } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
 
+  const flags = {
+    en: enFlag,
+    zh: zhFlag,
+    de: deFlag,
+    es: esFlag,
+    fr: frFlag,
+    hi: hiFlag,
+    ja: jaFlag
+  }
+
   useEffect(() => {
     setCurrentLanguage(i18n.language);
   }, [i18n.language]);
@@ -79,7 +97,7 @@ export const LanguageSwitcherIMG = () => {
         renderValue={(selectedLang) => (
           <Box display="flex" alignItems="center">
             <img
-              src={`/assets/flags/${selectedLang}.png`}
+              src={flags[selectedLang]}
               alt={selectedLang}
               style={{ width: 32, height: 32 }}
             />
