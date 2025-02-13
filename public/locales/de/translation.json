@@ -272,6 +272,7 @@
     "remove_feature": "Entfernen",
     "submit": "Absenden",
     "success_message": "Vielen Dank! Ihre Vorschläge werden in Kürze überprüft.",
-    "error_message": "Fehler beim Senden der Funktionsanfrage(n). Bitte versuchen Sie es erneut."
+    "error_message": "Fehler beim Senden der Funktionsanfrage(n). Bitte versuchen Sie es erneut.",
+    "searchbar": "Kaarten filteren..."
   }
   

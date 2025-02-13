@@ -272,5 +272,6 @@
   "remove_feature": "删除",
   "submit": "提交",
   "success_message": "谢谢！您的建议将很快被审核。",
-  "error_message": "提交功能请求失败。请重试。"
+  "error_message": "提交功能请求失败。请重试。",
+  "searchbar": "筛选卡片"
 }

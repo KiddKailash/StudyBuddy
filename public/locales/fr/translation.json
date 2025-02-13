@@ -272,6 +272,7 @@
     "remove_feature": "Supprimer",
     "submit": "Envoyer",
     "success_message": "Merci ! Vos suggestions seront examinées sous peu.",
-    "error_message": "Échec de l'envoi de la demande de fonctionnalité. Veuillez réessayer."
+    "error_message": "Échec de l'envoi de la demande de fonctionnalité. Veuillez réessayer.",
+    "searchbar": "Filtrer les cartes..."
   }
   

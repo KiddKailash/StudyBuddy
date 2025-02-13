@@ -272,5 +272,6 @@
   "remove_feature": "Remove",
   "submit": "Submit",
   "success_message": "Thank you! Your suggestions will be reviewed shortly.",
-  "error_message": "Failed to submit feature request(s). Please try again."
+  "error_message": "Failed to submit feature request(s). Please try again.",
+  "searchbar": "Filter cards..."
 }
