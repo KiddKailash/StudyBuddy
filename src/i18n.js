@@ -44,7 +44,7 @@ i18n
       //  2. Query string (?lng=en)
       //  3. localStorage (i18nextLng)
       //  4. HTML <html lang=""> attribute
-      order: ['navigator', 'querystring', 'localStorage', 'htmlTag'],
+      order: ['querystring', 'localStorage', 'navigator', 'htmlTag'],
 
       // The query parameter to look for (e.g., ?lng=es).
       lookupQuerystring: 'lng',
