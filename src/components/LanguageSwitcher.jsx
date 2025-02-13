@@ -1,25 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import zhFlag from '../assets/flags/zh.png';
-import deFlag from '../assets/flags/de.png';
-import enFlag from '../assets/flags/en.png';
-import esFlag from '../assets/flags/es.png';
-import frFlag from '../assets/flags/fr.png';
-import hiFlag from '../assets/flags/hi.png';
-import jaFlag from '../assets/flags/ja.png';
+// Static imports (bundled with your app; no extra loading time)
+import zhFlag from "/assets/flags/zh.png";
+import deFlag from "/assets/flags/de.png";
+import enFlag from "/assets/flags/en.png";
+import esFlag from "/assets/flags/es.png";
+import frFlag from "/assets/flags/fr.png";
+import hiFlag from "/assets/flags/hi.png";
+import jaFlag from "/assets/flags/ja.png";
 
-// MUI Component Imports
+// MUI
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Box from "@mui/material/Box";
 
-/**
- * Text-based Language Switcher
- * (Optional: If you only want the flag-based version, you can remove this.)
- */
+// Text-based switcher (unchanged):
 const LanguageSwitcherText = () => {
   const { i18n, t } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
@@ -59,14 +57,15 @@ const LanguageSwitcherText = () => {
 };
 
 /**
- * Flag-based Language Switcher
- * Displays only the selected flag in the Select field,
- * and text labels in the dropdown list.
+ * Flag-based switcher
+ * Very simple approach: once the user changes language,
+ * we immediately set the new flag (no spinners needed).
  */
 export const LanguageSwitcherIMG = () => {
   const { i18n } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
 
+  // All flags pre-bundled with your app => no extra load time.
   const flags = {
     en: enFlag,
     zh: zhFlag,
@@ -74,10 +73,12 @@ export const LanguageSwitcherIMG = () => {
     es: esFlag,
     fr: frFlag,
     hi: hiFlag,
-    ja: jaFlag
-  }
+    ja: jaFlag,
+  };
 
   useEffect(() => {
+    // Whenever i18n's language changes outside this component,
+    // sync that state
     setCurrentLanguage(i18n.language);
   }, [i18n.language]);
 
@@ -96,6 +97,7 @@ export const LanguageSwitcherIMG = () => {
         disableUnderline
         renderValue={(selectedLang) => (
           <Box display="flex" alignItems="center">
+            {/* Because these images are bundled, there's typically no "blank" time */}
             <img
               src={flags[selectedLang]}
               alt={selectedLang}
@@ -104,7 +106,6 @@ export const LanguageSwitcherIMG = () => {
           </Box>
         )}
       >
-        {/* If you want flags next to the text here, feel free to add <img> tags in each MenuItem. */}
         <MenuItem value="en">English</MenuItem>
         <MenuItem value="zh">中文</MenuItem>
         <MenuItem value="es">Español</MenuItem>
