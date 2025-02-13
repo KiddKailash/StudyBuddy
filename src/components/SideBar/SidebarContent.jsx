@@ -94,35 +94,37 @@ const SidebarContent = () => {
               <AddRoundedIcon sx={{ color: theme.palette.text.secondary }} />
             </ListItemButton>
           </ListItem>
+          <Box sx={{mb: 6}}>
+            {/* DB-based sessions */}
+            {flashcardSessions.map((session) => {
+              const isActive =
+                location.pathname === `/flashcards/${session.id}`;
+              return (
+                <SessionItem
+                  key={session.id}
+                  session={session}
+                  isActive={isActive}
+                  handleMenuOpen={handleMenuOpen}
+                  routePath={`/flashcards/${session.id}`}
+                />
+              );
+            })}
 
-          {/* DB-based sessions */}
-          {flashcardSessions.map((session) => {
-            const isActive = location.pathname === `/flashcards/${session.id}`;
-            return (
-              <SessionItem
-                key={session.id}
-                session={session}
-                isActive={isActive}
-                handleMenuOpen={handleMenuOpen}
-                routePath={`/flashcards/${session.id}`}
-              />
-            );
-          })}
-
-          {/* Local ephemeral sessions */}
-          {localSessions.map((session) => {
-            const isActive =
-              location.pathname === `/flashcards-local/${session.id}`;
-            return (
-              <SessionItem
-                key={session.id}
-                session={session}
-                isActive={isActive}
-                handleMenuOpen={handleMenuOpen}
-                routePath={`/flashcards-local/${session.id}`}
-              />
-            );
-          })}
+            {/* Local ephemeral sessions */}
+            {localSessions.map((session) => {
+              const isActive =
+                location.pathname === `/flashcards-local/${session.id}`;
+              return (
+                <SessionItem
+                  key={session.id}
+                  session={session}
+                  isActive={isActive}
+                  handleMenuOpen={handleMenuOpen}
+                  routePath={`/flashcards-local/${session.id}`}
+                />
+              );
+            })}
+          </Box>
         </>
       )}
     </List>
@@ -131,7 +133,7 @@ const SidebarContent = () => {
   return (
     <Box sx={{ width: "100%" }}>
       {drawerContent}
-      
+
       <RequestFeature />
 
       {/* Dropdown menu (three dots) */}
