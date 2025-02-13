@@ -44,7 +44,7 @@
     "upgrade_your_account": "Mettez à niveau votre compte",
     "to_unlock_feature": "pour déverrouiller cette fonctionnalité.",
     "upgrade_to_unlock": "<0>Mettez à niveau votre compte</0> pour déverrouiller cette fonctionnalité.",
-    "no_flashcards_in_session": "Il n'y a aucune carte mémoire dans cette session.",
+"no_flashcards_in_session": "⚠️ Aucune carte de révision trouvée ⚠️",
     "no_session_data_available": "Aucune donnée de session disponible.",
     "account_created_successfully": "Compte créé avec succès !",
     "login_successful": "Connexion réussie !",

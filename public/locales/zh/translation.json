@@ -44,7 +44,7 @@
   "upgrade_your_account": "升级您的账户",
   "to_unlock_feature": "以解锁此功能。",
   "upgrade_to_unlock": "<0>升级您的账户</0>以解锁此功能。",
-  "no_flashcards_in_session": "此会话中没有闪卡。",
+  "no_flashcards_in_session": "⚠️ 未找到任何闪卡 ⚠️",
   "no_session_data_available": "没有会话数据。",
   "account_created_successfully": "账户已成功创建！",
   "login_successful": "登录成功！",

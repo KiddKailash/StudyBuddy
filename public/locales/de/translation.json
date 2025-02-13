@@ -44,7 +44,7 @@
     "upgrade_your_account": "Führen Sie ein Upgrade Ihres Kontos durch",
     "to_unlock_feature": "um diese Funktion freizuschalten.",
     "upgrade_to_unlock": "<0>Aktualisieren Sie Ihr Konto</0>, um diese Funktion freizuschalten.",
-    "no_flashcards_in_session": "Es sind keine Karteikarten in dieser Sitzung vorhanden.",
+    "no_flashcards_in_session": "⚠️ Keine Lernkarten gefunden ⚠️",
     "no_session_data_available": "Keine Sitzungsdaten verfügbar.",
     "account_created_successfully": "Konto erfolgreich erstellt!",
     "login_successful": "Anmeldung erfolgreich!",
@@ -273,6 +273,6 @@
     "submit": "Absenden",
     "success_message": "Vielen Dank! Ihre Vorschläge werden in Kürze überprüft.",
     "error_message": "Fehler beim Senden der Funktionsanfrage(n). Bitte versuchen Sie es erneut.",
-    "searchbar": "Kaarten filteren..."
+    "searchbar": "Karten filtern..."
   }
   
