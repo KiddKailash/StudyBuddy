@@ -174,8 +174,7 @@ const FlashcardSession = () => {
           display: 'inline-flex',
           width: '100%',
           justifyContent: "space-between",
-          mb: 2,
-          gap: 2,
+          mb: 1,
         }}
       >
         {/* SEARCH BAR */}
@@ -187,7 +186,7 @@ const FlashcardSession = () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon sx={{ color: theme.palette.primary.main }} />
+                <SearchIcon sx={{ color: "primary.main" }} />
               </InputAdornment>
             ),
           }}
@@ -256,7 +255,7 @@ const FlashcardSession = () => {
           }}
           sx={{
             width: "100%",
-            mb: 1,
+            mb: {xs: 1, md: 0},
             display: {md: 'none'},
             "& .MuiOutlinedInput-root": { borderRadius: "8px" },
           }}
