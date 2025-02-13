@@ -54,7 +54,7 @@ const RequestFeature = () => {
         onClick={openDialog}
         sx={{
           bgcolor: "background.default",
-          position: "absolute",
+          position: "fixed",
           left: "20px",
           bottom: "20px",
           zIndex: "5000",
