@@ -39,11 +39,6 @@ i18n
 
     // 4E) Language detection configuration.
     detection: {
-      // Order in which to detect user language.
-      //  1. Browser settings (navigator)
-      //  2. Query string (?lng=en)
-      //  3. localStorage (i18nextLng)
-      //  4. HTML <html lang=""> attribute
       order: ['querystring', 'localStorage', 'navigator', 'htmlTag'],
 
       // The query parameter to look for (e.g., ?lng=es).
