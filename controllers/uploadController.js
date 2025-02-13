@@ -1,6 +1,5 @@
 const multer = require("multer");
 const fs = require("fs");
-const path = require("path");
 const pdfParse = require("pdf-parse");
 const mammoth = require("mammoth");
 
@@ -8,9 +7,9 @@ const mammoth = require("mammoth");
  * Configure multer for file uploads.
  */
 const upload = multer({
-  dest: "uploads/", // Temporary folder to store uploaded files
+  dest: "uploads/",
   limits: {
-    fileSize: 20 * 1024 * 1024, // 10 MB file size limit
+    fileSize: 20 * 1024 * 1024, // 20 MB file size limit
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
@@ -75,7 +74,7 @@ exports.uploadFile = (req, res) => {
       res.status(200).json({ transcript });
     } catch (error) {
       console.error("File Processing Error:", error);
-      // Clean up: Delete the file in case of error
+      // Clean up in case of error
       fs.unlinkSync(filePath);
       res.status(500).json({ error: "Failed to process the file." });
     }
