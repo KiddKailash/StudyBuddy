@@ -51,7 +51,6 @@ const FlashcardSession = () => {
   // Backend URI
   const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
 
-  // Fetch the session data on mount or when "id" changes
   useEffect(() => {
     fetchSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,7 +61,7 @@ const FlashcardSession = () => {
     try {
       if (isLocalSession) {
         // Load session from local storage
-        let localSessions = JSON.parse(
+        const localSessions = JSON.parse(
           localStorage.getItem("localSessions") || "[]"
         );
         const found = localSessions.find((s) => s.id === id);
@@ -70,9 +69,7 @@ const FlashcardSession = () => {
       } else {
         // Protected DB-based session
         const token = localStorage.getItem("token");
-        if (!token) {
-          throw new Error("User is not authenticated.");
-        }
+        if (!token) throw new Error("User is not authenticated.");
         const response = await axios.get(`${BACKEND}/api/flashcards/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -91,11 +88,8 @@ const FlashcardSession = () => {
     }
   };
 
-  /**
-   * Generate additional flashcards - only works for DB-based sessions.
-   */
   const handleGenerateMoreFlashcards = async () => {
-    // This feature is not supported for local sessions
+    // Feature not supported for local sessions
     if (isLocalSession) {
       showSnackbar(t("feature_unavailable_to_free_account"), "info");
       return;
@@ -133,7 +127,6 @@ const FlashcardSession = () => {
     }
   };
 
-  // If loading, show spinner
   if (loading) {
     return (
       <Box
@@ -160,31 +153,38 @@ const FlashcardSession = () => {
   // Filter flashcards by search term
   const filteredFlashcards = flashcardsArray.filter((card) => {
     const lowerSearch = searchTerm.toLowerCase();
-    const questionMatch = card.question.toLowerCase().includes(lowerSearch);
-    const answerMatch = card.answer.toLowerCase().includes(lowerSearch);
-    return questionMatch || answerMatch;
+    return (
+      card.question.toLowerCase().includes(lowerSearch) ||
+      card.answer.toLowerCase().includes(lowerSearch)
+    );
   });
 
   return (
     <Container sx={{ mt: 1, mb: 2 }}>
-      {/* Row with "Generate more" button (if DB-based) and the custom search bar */}
+      {/* 
+        TOP AREA: 
+        - "Generate More" button + possible upgrade text 
+        - Search bar
+        Reordered responsively using Stack + order.
+      */}
       <Box
+        // This box manages the direction/search bar/etc.
         sx={{
-          display: "flex",
-          mb: 2,
-          textAlign: "left",
-          alignItems: "center",
+          alignItems: "flex-start",
+          display: 'inline-flex',
+          width: '100%',
           justifyContent: "space-between",
+          mb: 2,
+          gap: 2,
         }}
       >
-        {/* LEFT SIDE: Search Bar */}
+        {/* SEARCH BAR */}
         <TextField
           placeholder={t("searchbar")}
           size="small"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
-            // Start icon (magnifying glass)
             startAdornment: (
               <InputAdornment position="start">
                 <SearchIcon sx={{ color: theme.palette.primary.main }} />
@@ -192,18 +192,36 @@ const FlashcardSession = () => {
             ),
           }}
           sx={{
-            // Rounded pill shape for the outlined field
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "8px",
-            },
+            width: { xs: "100%", md: "auto" },
+            order: { xs: 2, md: 1 }, // On xs => second; md => first
+            display: {xs: 'none', md: 'inherit'},
+            "& .MuiOutlinedInput-root": { borderRadius: "8px" },
           }}
         />
 
-        {/* RIGHT SIDE: Generate more flashcards button */}
-        <Stack direction="row" spacing={2}>
-          {/* If using a free account or not logged in, show upgrade prompt */}
+        {/* BUTTON + UPGRADE TEXT STACK */}
+        <Stack
+          // Force a row layout on xs so text + button sit side by side
+          direction="row"
+          spacing={2} // Creates gap between items
+          alignItems="center"
+          justifyContent="flex-start"
+          sx={{
+            width: "100%",
+          }}
+        >
+          {/* "GENERATE MORE" BUTTON */}
+          <Button
+            variant="outlined"
+            onClick={handleGenerateMoreFlashcards}
+            disabled={generating}
+          >
+            {generating ? t("generating") : t("more_flashcards")}
+          </Button>
+
+          {/* UPGRADE TEXT (typography) */}
           {(accountType === "free" || !user) && (
-            <Box sx={{ textAlign: "right" }}>
+            <Box sx={{ textAlign: "left" }}>
               <Typography variant="body1" color="textSecondary">
                 {t("want_more_flashcards")}
               </Typography>
@@ -213,9 +231,7 @@ const FlashcardSession = () => {
                     component="span"
                     variant="body1"
                     onClick={() => navigate("/checkout")}
-                    sx={{
-                      cursor: "pointer",
-                    }}
+                    sx={{ cursor: "pointer" }}
                   >
                     {t("upgrade_your_account")}
                   </Link>
@@ -223,19 +239,34 @@ const FlashcardSession = () => {
               </Typography>
             </Box>
           )}
-          <Button
-            variant="outlined"
-            onClick={handleGenerateMoreFlashcards}
-            disabled={generating}
-          >
-            {generating ? t("generating") : t("more_flashcards")}
-          </Button>
         </Stack>
       </Box>
 
+      <TextField
+          placeholder={t("searchbar")}
+          size="small"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: theme.palette.primary.main }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            width: "100%",
+            mb: 1,
+            display: {md: 'none'},
+            "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+          }}
+        />
+
       {/* Flashcards grid */}
       {filteredFlashcards.length === 0 ? (
-        <Box sx={{borderRadius: 2, bgcolor: 'background.paper', padding: 4}}><Typography>{t("no_flashcards_in_session")}</Typography></Box>
+        <Box sx={{ borderRadius: 2, bgcolor: "background.paper", p: 4 }}>
+          <Typography>{t("no_flashcards_in_session")}</Typography>
+        </Box>
       ) : (
         <Grid container spacing={2}>
           {filteredFlashcards.map((card, idx) => (
