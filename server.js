@@ -7,7 +7,7 @@ const { connectDB } = require("./database/db");
 
 const app = express();
 
-// Allows DigitalOcean Loadbalancing
+// Allows DigitalOcean Load Balancing (or other proxies)
 app.set("trust proxy", 1);
 
 const PORT = process.env.PORT || 8080;
@@ -39,7 +39,7 @@ connectDB()
     app.use(
       cors({
         origin: function (origin, callback) {
-          if (!origin) return callback(null, true);
+          if (!origin) return callback(null, true); // Allow server-to-server or CLI requests
           if (allowedOrigins.includes(origin)) {
             return callback(null, true);
           }
@@ -51,14 +51,14 @@ connectDB()
     // Rate Limiting
     const limiter = rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 500, // Adjust as needed
+      max: 500, // Number of requests per window
       message: "Too many requests from this IP, please try again later.",
     });
     app.use(limiter);
 
     /**
-     * Define the Stripe Webhook endpoint BEFORE applying global JSON parsing.
-     * Stripe requires the raw body to verify the signature.
+     * 1) Define the Stripe Webhook endpoint BEFORE applying global JSON parsing.
+     *    Stripe requires the raw body to verify the signature.
      */
     app.post(
       "/api/webhook",
@@ -66,15 +66,19 @@ connectDB()
       webhookHandler
     );
 
-    // Now apply JSON parsing for all other routes.
-    app.use(express.json());
+    /**
+     * 2) Now apply JSON parsing for all other routes.
+     *    Increase limit to 20mb to avoid PayloadTooLargeError for bigger uploads.
+     */
+    app.use(express.json({ limit: "20mb" }));
+    app.use(express.urlencoded({ limit: "20mb", extended: true }));
 
     // PUBLIC routes for free-tier (no auth):
-    app.use("/api/openai", openaiPublicRoutes); // exposes /api/openai/generate-flashcards-public
+    app.use("/api/openai", openaiPublicRoutes); // e.g. /api/openai/generate-flashcards-public
     app.use("/api/flashcards-public", flashcardsPublicRoutes);
     app.use("/api/upload-public", uploadPublicRoutes);
 
-    // PROTECTED routes (private) that require authMiddleware:
+    // PROTECTED routes (require auth middleware in each route file or at the route level):
     app.use("/api/auth", authRoutes);
     app.use("/api/transcript", transcriptRoutes);
     app.use("/api/openai", openaiRoutes);
