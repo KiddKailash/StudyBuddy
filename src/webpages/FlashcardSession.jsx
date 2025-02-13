@@ -9,7 +9,7 @@ import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
@@ -166,7 +166,7 @@ const FlashcardSession = () => {
   });
 
   return (
-    <Container sx={{ mt: 2, mb: 2 }}>
+    <Container sx={{ mt: 1, mb: 2 }}>
       {/* Row with "Generate more" button (if DB-based) and the custom search bar */}
       <Box
         sx={{
@@ -177,7 +177,7 @@ const FlashcardSession = () => {
           justifyContent: "space-between",
         }}
       >
-        {/* LEFT SIDE: Search Bar - styled like your screenshot */}
+        {/* LEFT SIDE: Search Bar */}
         <TextField
           placeholder={t("searchbar")}
           size="small"
@@ -203,7 +203,7 @@ const FlashcardSession = () => {
         <Stack direction="row" spacing={2}>
           {/* If using a free account or not logged in, show upgrade prompt */}
           {(accountType === "free" || !user) && (
-            <Box sx={{textAlign: 'right'}}>
+            <Box sx={{ textAlign: "right" }}>
               <Typography variant="body1" color="textSecondary">
                 {t("want_more_flashcards")}
               </Typography>
@@ -235,11 +235,11 @@ const FlashcardSession = () => {
 
       {/* Flashcards grid */}
       {filteredFlashcards.length === 0 ? (
-        <Typography>{t("no_flashcards_in_session")}</Typography>
+        <Box sx={{borderRadius: 2, bgcolor: 'background.paper', padding: 4}}><Typography>{t("no_flashcards_in_session")}</Typography></Box>
       ) : (
         <Grid container spacing={2}>
           {filteredFlashcards.map((card, idx) => (
-            <Grid item xs={12} md={6} xl={4} key={idx}>
+            <Grid size={{ xs: 12, md: 6, xl: 4 }} key={idx}>
               <Flashcard question={card.question} answer={card.answer} />
             </Grid>
           ))}
