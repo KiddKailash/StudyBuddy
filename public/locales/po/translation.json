@@ -1,0 +1,277 @@
+{
+  "create_study_session": "Nova sessão de estudo",
+  "delete": "Excluir",
+  "rename": "Renomear",
+  "delete_study_session": "Excluir sessão de estudo",
+  "rename_study_session": "Renomear sessão de estudo",
+  "delete_confirmation": "Tem certeza de que deseja excluir esta sessão de estudo? Esta ação não pode ser desfeita.",
+  "rename_prompt": "Insira o novo nome para a sessão de estudo.",
+  "new_session_name": "Novo nome de sessão",
+  "please_enter_valid_session_name": "Por favor, insira um nome de sessão válido.",
+  "cancel": "Cancelar",
+  "study_session_deleted_success": "Sessão de estudo excluída com sucesso.",
+  "study_session_renamed_success": "Sessão de estudo renomeada com sucesso.",
+  "error_deleting_study_session": "Erro ao excluir a sessão de estudo: {{error}}",
+  "error_renaming_study_session": "Erro ao renomear a sessão de estudo: {{error}}",
+  "error_loading_study_sessions": "Erro ao carregar sessões de estudo: {{error}}",
+  "feature_unavailable_to_free_account": "Crie uma conta para fazer mais flashcards.",
+  "options": "Opções",
+  "footer_notice": "O Study Buddy pode cometer erros de digitação. Verifique informações importantes.",
+  "question": "Pergunta",
+  "answer": "Resposta",
+  "login": "Entrar",
+  "account_type_user": "Usuário {{accountType}}",
+  "account_type_free": "Gratuito",
+  "account_type_paid": "Premium",
+  "account_type_admin": "Administrador",
+  "settings": "Configurações",
+  "log_out": "Sair",
+  "upgrade_account": "Fazer upgrade",
+  "open_drawer": "Abrir menu",
+  "thank_you_for_purchase": "Obrigado pela sua compra!",
+  "subscription_upgraded_successfully": "Sua assinatura foi atualizada com sucesso.",
+  "go_to_dashboard": "Ir para o painel",
+  "payment_canceled": "Pagamento cancelado",
+  "payment_canceled_message": "Seu pagamento foi cancelado. Se isso foi um erro, tente novamente.",
+  "go_to_home": "Ir para a página inicial",
+  "premium_feature_upgrade": "Gerar mais cartões é um recurso premium. Faça upgrade para acessar este recurso.",
+  "flashcards_generated_success": "Flashcards adicionais gerados com sucesso.",
+  "error_generating_flashcards": "Ocorreu um erro ao gerar flashcards adicionais.",
+  "error_fetching_session": "Ocorreu um erro ao obter a sessão.",
+  "generating": "Gerando...",
+  "more_flashcards": "+10 Cartões",
+  "want_more_flashcards": "Deseja gerar mais cartões?",
+  "upgrade_your_account": "Faça upgrade da sua conta",
+  "to_unlock_feature": "para desbloquear este recurso.",
+  "upgrade_to_unlock": "<0>Faça upgrade da sua conta</0> para desbloquear este recurso.",
+  "no_flashcards_in_session": "⚠️ Nenhum flashcard foi encontrado ⚠️",
+  "no_session_data_available": "Nenhum dado de sessão disponível.",
+  "account_created_successfully": "Conta criada com sucesso!",
+  "login_successful": "Login bem-sucedido!",
+  "error_occurred_try_again": "Ocorreu um erro. Tente novamente.",
+  "create_account": "Cadastrar-se",
+  "sign_in": "Fazer login",
+  "create_study_cards_from_resource": "Crie flashcards a partir de qualquer recurso.",
+  "login_to_your_account": "Acesse seus flashcards e continue aprendendo.",
+  "create_mode_description": "Já tem uma conta? <0>Fazer login<0>",
+  "login_mode_description": "Não tem uma conta? <0>Cadastrar-se<0>",
+  "first_name": "Nome",
+  "last_name": "Sobrenome",
+  "company": "Organização",
+  "email": "E-mail",
+  "password": "Senha",
+  "agree_to_terms": "<0>Termos de serviço</0> e <1>Política de Privacidade</1>",
+  "creating_account": "Criando conta...",
+  "logging_in": "Fazendo login...",
+  "create_your_clipcard_account": "Criar conta",
+  "404_page_not_found": "404: Página não encontrada",
+  "page_not_found_message": "Desculpe, a página que você procura não existe. Verifique se o URL está correto.",
+  "go_to_landing_page": "Ir para a página inicial",
+  "change_language": "Idioma e Região",
+  "account_settings": "Configurações da conta",
+  "account_information": "Informações da conta",
+  "updating": "Atualizando...",
+  "update_account_information": "Atualizar informações da conta",
+  "change_password": "Mudar senha",
+  "current_password": "Senha atual",
+  "new_password": "Nova senha",
+  "confirm_new_password": "Confirmar nova senha",
+  "changing_password": "Mudando senha...",
+  "preferences": "Preferências",
+  "enable_dark_mode": "Ativar modo escuro",
+  "enable_notifications": "Ativar notificações",
+  "updating_preferences": "Atualizando preferências...",
+  "update_preferences": "Atualizar preferências",
+  "account_info_updated_success": "Informações da conta atualizadas com sucesso.",
+  "failed_to_update_account_info": "Falha ao atualizar as informações da conta.",
+  "password_mismatch": "A nova senha e a confirmação não coincidem.",
+  "password_changed_success": "Senha alterada com sucesso.",
+  "failed_to_change_password": "Falha ao alterar a senha.",
+  "preferences_updated_success": "Preferências atualizadas com sucesso.",
+  "failed_to_update_preferences": "Falha ao atualizar preferências.",
+  "user_not_authenticated": "Usuário não autenticado.",
+  "max_sessions_reached": "Você atingiu o número máximo de sessões de estudo permitidas para contas gratuitas. Faça upgrade para criar mais sessões.",
+  "please_select_file": "Selecione um arquivo Word ou PDF.",
+  "invalid_file_type": "Envie um arquivo válido em Word, PDF ou TXT.",
+  "please_paste_text": "Cole ou insira algum texto.",
+  "session": "Sessão",
+  "flashcards_created_success": "Flashcards criados com sucesso.",
+  "failed_to_create_session": "Falha ao criar a sessão.",
+  "error_processing_request": "Ocorreu um erro ao processar sua solicitação.",
+  "upload_document": "Fazer upload de documento",
+  "paste_text": "Colar texto",
+  "choose_document": "Escolha um documento Word ou PDF",
+  "paste_your_text_here": "Cole seu texto aqui",
+  "create_flashcards": "Criar flashcards",
+  "max_sessions_reached_message": "Você atingiu o número máximo de sessões de estudo permitidas para uma conta gratuita.",
+  "upgrade_to_create_more": "<0>Faça upgrade da sua conta</0> para criar mais sessões.",
+  "open_chat": "Abrir chat",
+  "ai_assistant": "Assistente de IA",
+  "message_cannot_be_empty": "A mensagem não pode estar vazia.",
+  "api_key_missing": "A chave de API da OpenAI está ausente. Defina-a em suas variáveis de ambiente.",
+  "network_error_try_again": "Erro de rede. Tente novamente.",
+  "error": "Erro",
+  "your_message": "Sua mensagem",
+  "close": "Fechar",
+  "send": "Enviar",
+  "print": "Imprimir",
+  "failed_to_retrieve_session": "Falha ao recuperar a sessão.",
+  "error_printing_session": "Erro ao imprimir a sessão: {{error}}",
+  "generating_pdf": "Gerando PDF...",
+  "drag_drop_or_click": "Upload de arquivo",
+  "re_enter_password": "Digite a senha novamente",
+  "passwords_do_not_match": "As senhas não coincidem.",
+  "email_is_required": "E-mail é obrigatório.",
+  "password_is_required": "Senha é obrigatória.",
+  "first_name_is_required": "O nome é obrigatório.",
+  "last_name_is_required": "O sobrenome é obrigatório.",
+  "re_enter_password_is_required": "Você deve digitar a senha novamente.",
+  "must_agree_to_terms": "Por favor, concorde com os termos de serviço e a política de privacidade.",
+  "please_fill_in_all_required_fields": "Preencha todos os campos obrigatórios.",
+  "subscription_canceled_successfully": "Assinatura cancelada com sucesso.",
+  "failed_to_cancel_subscription": "Falha ao cancelar a assinatura.",
+  "cancelling_subscription": "Cancelando assinatura...",
+  "cancel_subscription": "Cancelar assinatura",
+  "manage_or_downgrade_subscription": "Gerenciar ou rebaixar assinatura",
+  "subscription_management": "Gerenciamento de assinatura",
+  "termsOfService": {
+    "title": "Termos de Serviço para Acesso a Dados do Notion",
+    "effectiveDate": "Data de vigência: 11/12/2024",
+    "sections": [
+      {
+        "title": "1. Aceitação dos Termos",
+        "body": "Ao conectar sua conta do Notion e conceder acesso do nosso aplicativo (“Serviço”) ao conteúdo das suas páginas do Notion, você concorda em estar vinculado a estes Termos de Serviço. Caso não concorde com estes termos, não autorize nosso Serviço."
+      },
+      {
+        "title": "2. Descrição do Serviço",
+        "body": "Nosso Serviço permite que usuários autorizados recuperem o conteúdo de suas páginas do Notion para gerar flashcards ou outros materiais de estudo. A recuperação e o processamento desse conteúdo destinam-se exclusivamente ao seu uso pessoal e não comercial (a menos que acordado de outra forma por escrito)."
+      },
+      {
+        "title": "3. Autorização e Acesso",
+        "body": "Ao autorizar nosso Serviço via processo OAuth do Notion, você concede ao nosso Serviço a capacidade de ler e processar o conteúdo das páginas específicas do Notion. Você pode revogar o acesso a qualquer momento seguindo as instruções fornecidas pelo Notion ou nas configurações do Serviço."
+      },
+      {
+        "title": "4. Responsabilidades do Usuário",
+        "body": "Você é responsável por garantir que qualquer conteúdo que autorizar nosso acesso não viole as leis aplicáveis ou infrinja direitos de terceiros. Você declara ter os direitos e permissões necessários para nos conceder acesso ao conteúdo das páginas do Notion."
+      },
+      {
+        "title": "5. Propriedade Intelectual",
+        "body": "Todo o conteúdo das páginas do Notion permanece sendo sua propriedade ou de seus respectivos proprietários. Nosso Serviço não reivindica propriedade sobre o conteúdo que você fornece ou nos autoriza a acessar. Os flashcards ou materiais de estudo gerados são derivados do seu conteúdo e continuam sujeitos aos seus direitos e a quaisquer direitos de terceiros aplicáveis."
+      },
+      {
+        "title": "6. Usos Proibidos",
+        "body": "Você concorda em não usar o Serviço para enviar, armazenar, gerar ou compartilhar qualquer conteúdo ilegal, difamatório, assediante, que viole direitos ou seja de outra forma questionável. Você não pode usar o Serviço para violar qualquer lei ou regulamento aplicável."
+      },
+      {
+        "title": "7. Privacidade e Uso de Dados",
+        "body": "Sua privacidade é importante para nós. Por favor, revise nossa Política de Privacidade para obter detalhes sobre como lidamos e protegemos seus dados."
+      },
+      {
+        "title": "8. Isenção de Garantias",
+        "body": "O Serviço é fornecido “no estado em que se encontra” e “conforme disponibilidade” sem garantia de qualquer tipo. Não garantimos que o Serviço atenderá às suas necessidades, seja ininterrupto, seguro ou livre de erros, ou que qualquer informação obtida seja precisa ou confiável."
+      },
+      {
+        "title": "9. Limitação de Responsabilidade",
+        "body": "Na extensão máxima permitida por lei, não seremos responsáveis por quaisquer danos diretos, indiretos, incidentais, especiais, consequenciais ou exemplares resultantes do uso ou da incapacidade de uso do Serviço ou da confiança em qualquer conteúdo acessado por meio do Serviço."
+      },
+      {
+        "title": "10. Indenização",
+        "body": "Você concorda em nos isentar e manter-nos livres de qualquer reivindicação, dano, perda, responsabilidade ou despesa decorrente ou relacionada ao seu uso do Serviço, incluindo qualquer conteúdo acessado do Notion."
+      },
+      {
+        "title": "11. Rescisão",
+        "body": "Nós nos reservamos o direito de encerrar ou suspender seu acesso ao Serviço a qualquer momento, com ou sem aviso prévio, se acreditarmos que você violou estes termos ou se envolveu em qualquer conduta inadequada."
+      },
+      {
+        "title": "12. Alterações nos Termos",
+        "body": "Podemos modificar estes Termos de Serviço a qualquer momento. Seu uso contínuo do Serviço após quaisquer modificações indica sua aceitação dos termos atualizados."
+      },
+      {
+        "title": "13. Lei Aplicável",
+        "body": "Estes Termos de Serviço serão regidos e interpretados de acordo com as leis da Austrália, independentemente de conflitos de princípios legais."
+      }
+    ]
+  },
+  "privacyPolicy": {
+    "title": "Política de Privacidade para Acesso a Dados do Notion",
+    "effectiveDate": "Data de vigência: 11/12/2024",
+    "sections": [
+      {
+        "title": "1. Introdução",
+        "body": "Estamos comprometidos em proteger sua privacidade. Esta Política de Privacidade explica como coletamos, usamos, armazenamos e divulgamos as informações pessoais e os dados do Notion que você fornece por meio de nosso Serviço."
+      },
+      {
+        "title": "2. Dados que Coletamos",
+        "body": "Informações de Conta: Podemos coletar e armazenar informações básicas de conta, como seu nome, endereço de e-mail e ID de usuário, conforme fornecido no registro em nosso aplicativo.\nToken de Acesso do Notion: Quando você autoriza o Serviço, recebemos um token de acesso do Notion que nos permite recuperar o conteúdo das páginas do seu workspace.\nConteúdo das Páginas do Notion: Acessamos e processamos o texto e outros conteúdos das páginas do Notion que você escolhe conectar ao nosso Serviço."
+      },
+      {
+        "title": "3. Como Usamos Seus Dados",
+        "body": "Para Fornecer o Serviço: Usamos o conteúdo das suas páginas do Notion para gerar flashcards ou materiais de estudo conforme solicitado.\nPara Manter e Melhorar o Serviço: Podemos usar dados agregados e anonimizados para análises internas e para melhorar o desempenho e os recursos do Serviço."
+      },
+      {
+        "title": "4. Armazenamento e Segurança de Dados",
+        "body": "Tomamos medidas razoáveis para proteger seus dados, incluindo o uso de servidores seguros e criptografia quando apropriado. No entanto, nenhum método de armazenamento ou transmissão de dados pode ser 100% seguro."
+      },
+      {
+        "title": "5. Compartilhamento e Divulgação de Dados",
+        "body": "Terceiros: Não vendemos nem alugamos suas informações pessoais ou o conteúdo das páginas do Notion a terceiros. Apenas compartilhamos dados com prestadores de serviço ou contratados conforme necessário para operar e melhorar nosso Serviço, e eles estão sujeitos a acordos de confidencialidade.\nRequisitos Legais: Podemos divulgar suas informações se exigido por lei ou se acreditarmos de boa-fé que tal divulgação é necessária para cumprir obrigações legais ou proteger os direitos, a propriedade ou a segurança de nossos usuários ou de terceiros."
+      },
+      {
+        "title": "6. Retenção de Dados",
+        "body": "Mantemos seu token de acesso do Notion e o conteúdo processado enquanto você mantiver uma conta em nosso Serviço ou conforme necessário para fornecer a funcionalidade solicitada. Ao revogar ou encerrar sua conta, excluiremos ou anonimizaremos seus dados de acordo com nossas práticas padrão de exclusão de dados."
+      },
+      {
+        "title": "7. Seus Direitos e Escolhas",
+        "body": "Acesso e Controle: Você pode revogar o acesso do Serviço à sua conta do Notion a qualquer momento. Você também pode solicitar que excluamos seus dados pessoais.\nAtualizações das Suas Informações: Você pode atualizar suas informações de conta entrando em contato com o suporte ou por meio das configurações da sua conta."
+      },
+      {
+        "title": "8. Transferências Internacionais",
+        "body": "Se você acessar o Serviço de fora da Austrália, seus dados podem ser transferidos e armazenados em servidores localizados em outros países. Tomamos medidas para garantir proteção adequada às suas informações de acordo com as leis aplicáveis."
+      },
+      {
+        "title": "9. Privacidade de Crianças",
+        "body": "O Serviço não se destina a indivíduos com menos de 13 anos (ou a idade definida pela lei local). Não coletamos intencionalmente informações pessoais de crianças. Se você acredita que coletamos tais informações, entre em contato para que possamos removê-las."
+      },
+      {
+        "title": "10. Alterações nesta Política de Privacidade",
+        "body": "Podemos atualizar esta Política de Privacidade periodicamente. Seu uso contínuo do Serviço após quaisquer alterações indica sua aceitação da política atualizada."
+      },
+      {
+        "title": "11. Entre em Contato Conosco",
+        "body": "Se você tiver perguntas sobre esta Política de Privacidade ou desejar exercer seus direitos sobre dados, entre em contato pelo endereço de e-mail kiddkailash@gmail.com."
+      }
+    ]
+  },
+  "language": "Lng. / 语言 / Idi.",
+  "confirm_cancel_subscription": "Confirmar cancelamento de assinatura",
+  "cancel_subscription_warning": "Tem certeza de que deseja cancelar sua assinatura?",
+  "confirm_cancel": "Confirmar",
+  "please_provide_page_id": "Por favor, forneça o ID da página",
+  "notion_authorized_message": "Você autorizou o Notion com sucesso.",
+  "enter_page_id": "Insira o ID da página",
+  "notion_page_id_placeholder": "Insira o ID da página do Notion",
+  "fetch_page_content": "Buscar conteúdo da página",
+  "page_content": "Conteúdo da página",
+  "authorize_notion": "Autorizar Notion",
+  "your_db_sessions": "Sessões de estudo",
+  "local_sessions": "Sessões temporárias de estudo",
+  "max_ephemeral_sessions_reached": "Você atingiu o número máximo de sessões de estudo permitidas para usuários gratuitos.",
+  "max_ephemeral_sessions_reached_message": "Você não pode criar mais sessões de estudo. Faça upgrade da sua conta para criar sessões adicionais.",
+  "switch_to_dark": "Modo escuro",
+  "switch_to_light": "Modo claro",
+  "notion": "Notion",
+  "video": "Vídeo",
+  "coming_soon": "🚧 Em breve 🚧",
+  "feature_under_development": "Este recurso está em desenvolvimento 🛠️",
+  "request_feature": "Dê sua opinião!",
+  "request_feature_prompt_I": "Adoraríamos ouvir você.",
+  "request_feature_prompt_II": "Por favor, diga quais recursos você gostaria que criássemos, e nós começaremos a desenvolvê-los.",
+  "feature_title": "Título do recurso",
+  "feature_description": "Descrição",
+  "add_feature": "Adicionar recurso",
+  "remove_feature": "Remover",
+  "submit": "Enviar",
+  "success_message": "Obrigado! Suas sugestões serão analisadas em breve.",
+  "error_message": "Falha ao enviar a(s) solicitação(ões) de recurso. Tente novamente.",
+  "searchbar": "Filtrar cartões..."
+}
