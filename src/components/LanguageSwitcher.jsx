@@ -63,11 +63,11 @@ const LanguageSwitcherText = () => {
         <MenuItem value="zh">中文</MenuItem>
         <MenuItem value="es">Español</MenuItem>
         <MenuItem value="de">Deutsch</MenuItem>
-        <MenuItem value="hi">हिन्दी</MenuItem>
-        <MenuItem value="fr">Français</MenuItem>
         <MenuItem value="ja">日本語</MenuItem>
         <MenuItem value="ko">한국어</MenuItem>
+        <MenuItem value="fr">Français</MenuItem>
         <MenuItem value="po">Português</MenuItem>
+        <MenuItem value="hi">हिन्दी</MenuItem>
       </Select>
     </FormControl>
   );
@@ -126,11 +126,11 @@ export const LanguageSwitcherIMG = () => {
         <MenuItem value="zh">中文</MenuItem>
         <MenuItem value="es">Español</MenuItem>
         <MenuItem value="de">Deutsch</MenuItem>
-        <MenuItem value="hi">हिन्दी</MenuItem>
-        <MenuItem value="fr">Français</MenuItem>
         <MenuItem value="ja">日本語</MenuItem>
         <MenuItem value="ko">한국어</MenuItem>
+        <MenuItem value="fr">Français</MenuItem>
         <MenuItem value="po">Português</MenuItem>
+        <MenuItem value="hi">हिन्दी</MenuItem>
       </Select>
     </FormControl>
   );
