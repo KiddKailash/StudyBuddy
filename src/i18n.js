@@ -25,7 +25,7 @@ i18n
 
     // 4B) The list of languages your application supports.
     //     The LanguageDetector will check against this array.
-    supportedLngs: ['en', 'zh', 'es', 'de', 'hi', 'fr', 'ja'],
+    supportedLngs: ['en', 'zh', 'es', 'de', 'hi', 'fr', 'ja', 'ko'],
 
     // 4C) If a user’s browser is 'en-US', for instance,
     //     this option allows fallback to 'en' automatically.
