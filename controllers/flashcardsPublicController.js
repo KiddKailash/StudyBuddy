@@ -1,14 +1,10 @@
-// flashcardsPublicController.js
-const { getDB } = require("../database/db");
-const { ObjectId } = require("mongodb");
-const axios = require("axios");
 const rateLimit = require("express-rate-limit");
 const { v4: uuidv4 } = require('uuid');
 
 // Rate Limiter Middleware for Public Routes
 const createFlashcardSessionLimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours
-  max: 3, // limit each IP to 5 create requests per windowMs
+  max: 2, // limit each IP to 2 create requests per windowMs
   message: {
     error: "You have reached the maximum number of study sessions allowed per day. Please try again later or create an account.",
   },
