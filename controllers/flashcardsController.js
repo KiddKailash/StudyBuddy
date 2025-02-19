@@ -344,7 +344,7 @@ async function generateFlashcards(transcript, existingQuestions) {
     Convert the following transcript into 10 more study flashcards in JSON format (return this as text, do NOT return this in markdown).
     Each flashcard should be an object with "question" and "answer" fields.
     Ensure that the flashcards cover the important information in the transcript.
-    Do not duplicate already existing flashcards, these 10 new flashcards must cover new content and topics within the transcript that are not covered by the existing flashcards.
+    Do not duplicate already existing flashcards, these 10 new flashcards MUST cover new content and topics within the transcript that are not covered by the existing flashcards.
 
     Transcript:
     ${transcript}
@@ -352,7 +352,7 @@ async function generateFlashcards(transcript, existingQuestions) {
     Already Existing Flashcards:
     ${existingQuestions.join("\n")}
 
-    Please provide the flashcards in the following JSON format:
+    Provide the flashcards in the following JSON format:
     [
       {
         "question": "Question 1",
@@ -369,6 +369,7 @@ async function generateFlashcards(transcript, existingQuestions) {
       - Do not include any extra text, explanations, or code snippets.
       - Do not use markdown formatting or code blocks.
       - Ensure the JSON is valid and can be parsed.
+      - Generated flashcards MUST be in the same language as the transcript. If the transcript is a language other than English, generated output MUST be in that language.
       - Ignore information within the transcript pertaining to personnel or course structure. Flashcards are for educational content.
   `;
 
