@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const transcriptController = require("../controllers/transcriptController");
-const authMiddleware = require("../middleware/authMiddleware");
 
-// @route   GET /api/transcript
+// @route   GET /api/transcript-public
 // @desc    Fetch YouTube transcript
-// @access  Private
-router.get("/", authMiddleware, transcriptController.fetchTranscript);
+// @access  Public
+router.get("/", transcriptController.fetchTranscript);
 
 module.exports = router;

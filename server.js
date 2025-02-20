@@ -14,7 +14,6 @@ const PORT = process.env.PORT || 8080;
 
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
-const transcriptRoutes = require("./routes/transcriptRoutes");
 const openaiRoutes = require("./routes/openaiRoutes");
 const flashcardsRoutes = require("./routes/flashcardsRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
@@ -24,10 +23,14 @@ const featureRequestRoutes = require("./routes/featureRequestRoutes");
 const notionRoutes = require("./routes/notionRoutes");
 const webhookHandler = require("./routes/webhookRoutes");
 
-// Import new PUBLIC routes for free-tier usage
+// Public versions of routes
 const openaiPublicRoutes = require("./routes/openaiPublicRoutes");
 const flashcardsPublicRoutes = require("./routes/flashcardsPublicRoutes");
 const uploadPublicRoutes = require("./routes/uploadPublicRoutes");
+const transcriptPublicRoutes = require("./routes/transcriptPublicRoutes");
+
+// Protected route
+const transcriptRoutes = require("./routes/transcriptRoutes");
 
 connectDB()
   .then(() => {
@@ -57,8 +60,7 @@ connectDB()
     app.use(limiter);
 
     /**
-     * 1) Define the Stripe Webhook endpoint BEFORE applying global JSON parsing.
-     *    Stripe requires the raw body to verify the signature.
+     * 1) Stripe webhook endpoint (raw body).
      */
     app.post(
       "/api/webhook",
@@ -67,18 +69,18 @@ connectDB()
     );
 
     /**
-     * 2) Now apply JSON parsing for all other routes.
-     *    Increase limit to 20mb to avoid PayloadTooLargeError for bigger uploads.
+     * 2) Global JSON parsing.
      */
     app.use(express.json({ limit: "20mb" }));
     app.use(express.urlencoded({ limit: "20mb", extended: true }));
 
     // PUBLIC routes for free-tier (no auth):
-    app.use("/api/openai", openaiPublicRoutes); // e.g. /api/openai/generate-flashcards-public
+    app.use("/api/openai", openaiPublicRoutes);
     app.use("/api/flashcards-public", flashcardsPublicRoutes);
     app.use("/api/upload-public", uploadPublicRoutes);
+    app.use("/api/transcript-public", transcriptPublicRoutes);
 
-    // PROTECTED routes (require auth middleware in each route file or at the route level):
+    // PROTECTED routes (require auth in each route file or at the route level):
     app.use("/api/auth", authRoutes);
     app.use("/api/transcript", transcriptRoutes);
     app.use("/api/openai", openaiRoutes);
