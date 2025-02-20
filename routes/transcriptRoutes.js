@@ -7,6 +7,6 @@ const authMiddleware = require('../middleware/authMiddleware');
 // @route   GET /api/transcript
 // @desc    Fetch YouTube transcript
 // @access  Private
-router.get('/', authMiddleware, transcriptController.fetchTranscript);
+router.get('/', transcriptController.fetchTranscript);
 
 module.exports = router;
