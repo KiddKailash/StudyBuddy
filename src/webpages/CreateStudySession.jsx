@@ -229,7 +229,6 @@ const CreateStudySession = () => {
         <Tab icon={<UploadFileIcon />} label={t("upload_document")} />
         <Tab icon={<ContentCutIcon />} label={t("paste_text")} />
         <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} />
-        <Tab icon={<VideoCameraFrontIcon />} label={t("video")} />
       </Tabs>
 
       {/* Tab 0: Upload Document */}
@@ -282,19 +281,6 @@ const CreateStudySession = () => {
 
       {/* Tab 2: Notion (Coming soon) */}
       {tabValue === 2 && (
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 4,
-            textAlign: "center",
-          }}
-        >
-          <Typography variant="h6">{t("coming_soon")}</Typography>
-        </Paper>
-      )}
-
-      {/* Tab 3: Video (Coming soon) */}
-      {tabValue === 3 && (
         <Paper
           variant="outlined"
           sx={{
