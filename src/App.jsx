@@ -12,7 +12,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import MenuBar from "./components/MenuBar/MenuBar";
 import Sidebar from "./components/SideBar/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import RequestFeature from "./components/RequestFeature/RequestFeature";
 
 import FlashcardSession from "./webpages/FlashcardSession";
 import CreateStudySession from "./webpages/CreateStudySession";
@@ -23,6 +22,7 @@ import Success from "./webpages/Success";
 import Cancel from "./webpages/Cancel";
 import PrivacyPolicy from "./webpages/PrivacyPolicy";
 import TermsOfService from "./webpages/TermsOfService";
+import LandingPage from "./webpages/LandingPage";
 import { CheckoutForm, Return } from "./webpages/StripeForm";
 
 import { UserContext } from "./contexts/UserContext";
@@ -51,6 +51,7 @@ function App() {
 
   const pages = [
     { path: "/", component: <CreateStudySession /> },
+    { path: "/landing-page", component: <LandingPage /> },
     { path: "/flashcards-local/:id", component: <FlashcardSession /> },
     { path: "/flashcards/:id", component: <FlashcardSession /> },
     { path: "/login", component: <LoginPage /> },
@@ -83,10 +84,11 @@ function App() {
   const isTermsOrPrivacyPolicy =
     location.pathname.startsWith("/terms") ||
     location.pathname.startsWith("/privacy");
+  const isLandingPage = location.pathname.startsWith("/landing-page");
 
   return (
     <>
-      {(!isLoginPage || isTermsOrPrivacyPolicy) && (
+      {!(isLoginPage || isTermsOrPrivacyPolicy || isLandingPage) && (
         <Box
           component="nav"
           sx={{
@@ -119,11 +121,11 @@ function App() {
           position: "fixed",
           top: 0,
           left:
-            isMobile || !isExpanded || isLoginPage || isTermsOrPrivacyPolicy
+            isMobile || !isExpanded || isLoginPage || isTermsOrPrivacyPolicy || isLandingPage
               ? 0
               : sidebarWidth,
           width:
-            isMobile || !isExpanded || isLoginPage || isTermsOrPrivacyPolicy
+            isMobile || !isExpanded || isLoginPage || isTermsOrPrivacyPolicy || isLandingPage
               ? "100%"
               : `calc(100% - ${sidebarWidth})`,
           height: "100%",
@@ -140,7 +142,7 @@ function App() {
           <MenuBar handleDrawerToggle={handleDrawerToggle} />
         )}
 
-        {!isMobile && isLoggedIn && !isLoginPage && (
+        {!isMobile && isLoggedIn && !isLoginPage && !isLandingPage && (
           <IconButton
             onClick={toggleExpand}
             sx={{
@@ -166,6 +168,7 @@ function App() {
             const publicPaths = [
               "/",
               "/login",
+              "/landing-page",
               "/terms",
               "/privacy",
               "/success",
