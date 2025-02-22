@@ -2,6 +2,9 @@ import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 
+// Components
+import ReviewCard from "../components/ReviewCard";
+
 // Assets
 import HeroImage from "/assets/branded-images/student.svg";
 import Stanford from "/assets/universities/stanford.png";
@@ -20,6 +23,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid2";
 import Divider from "@mui/material/Divider";
 import Avatar from "@mui/material/Avatar";
+import Masonry from "@mui/lab/Masonry";
 
 // Icons
 import BookIcon from "@mui/icons-material/Book";
@@ -59,6 +63,63 @@ const LandingPage = () => {
   useEffect(() => {
     resetUserContext();
   }, [resetUserContext]);
+
+  const reviews = [
+    {
+      name: "Sene",
+      country: "United States",
+      rating: 5,
+      text: "I saw it on TikTok and decided to give it a try. In less than 20 minutes, I knew it was the best study AI tool I’d ever seen.",
+    },
+    {
+      name: "Arwa",
+      country: "Canada",
+      rating: 5,
+      text: "I absolutely love using it because it integrates directly with materials from my courses. It really simplifies my study process!",
+    },
+    {
+      name: "Tim",
+      country: "United States",
+      rating: 4,
+      text: "College was a tough transition for me. This tool has been a big help, though I wish the flashcard feature was a bit more customizable. 10/10 recommend trying it out!",
+    },
+    {
+      name: "Lucia",
+      country: "Spain",
+      rating: 5,
+      text: "I must say it is significantly better than ChatGPT 🤭. The answers were more accurate, and the summarization tool saved me hours of revision.",
+    },
+    {
+      name: "Asriel",
+      country: "France",
+      rating: 5,
+      text: "So easy to use. It’s like having a personal tutor available 24/7.",
+    },
+    {
+      name: "Raj",
+      country: "India",
+      rating: 5,
+      text: "I've been using it for a while now, and it's been a game-changer for my exam prep. The quiz builder is fantastic!",
+    },
+    {
+      name: "Katie",
+      country: "United Kingdom",
+      rating: 4,
+      text: "Great tool for breaking down complex topics. I wish the mobile app was a little faster, but overall, I’m really impressed.",
+    },
+    {
+      name: "Noah",
+      country: "Germany",
+      rating: 5,
+      text: "The video summarization feature is brilliant. It turns an hour-long lecture into concise notes!",
+    },
+    {
+      name: "Emily",
+      country: "New Zealand",
+      rating: 4,
+      text: "Really helpful for note-taking. Sometimes the summaries miss minor details, but it's still worth it for the time saved.",
+    },
+  ];
 
   return (
     <>
@@ -116,14 +177,12 @@ const LandingPage = () => {
           </Typography>
 
           <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={4}
+            direction={{ xs: "column", sm: "row" }}
+            spacing={3}
             sx={{
-              mb: 2,
+              my: 2,
               justifyContent: "center",
               alignItems: "center",
-              borderRadius: 2,
-              p: 2,
             }}
           >
             <Stack direction="row" spacing={4}>
@@ -145,8 +204,8 @@ const LandingPage = () => {
         maxWidth="lg"
         sx={{ p: 4, bgcolor: "background.paper", borderRadius: 2 }}
       >
-        <Typography variant="h5" color="primary.light">
-          Study Material
+        <Typography variant="h6" color="primary.main">
+          Revise, cram, test yourself with study materials
         </Typography>
         <Typography variant="h4" sx={{ fontWeight: 700 }} gutterBottom>
           Anywhere, Anytime, from Anything.
@@ -158,19 +217,28 @@ const LandingPage = () => {
           sx={{ mt: 4 }}
         >
           {/* Create Q&A Flashcards */}
-          <Box sx={{ textAlign: "left" }}>
+          <Box
+            sx={{
+              display: "flex", // Makes children stack vertically
+              flexDirection: "column", // Stack items top to bottom
+              alignItems: { xs: "center", sm: "flex-start" }, // Center items horizontally
+              justifyContent: { xs: "center", sm: "left" }, // Center items vertically (if height allows)
+              textAlign: { xs: "center", sm: "left" }, // Center text inside each child
+            }}
+          >
             <Avatar sx={{ bgcolor: "primary.light", mr: 2 }}>
               <BookIcon />
             </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ mt: 0.5 }}>
+                Create Q&A Flashcards
+              </Typography>
 
-            <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
-              Create Q&A Flashcards
-            </Typography>
-
-            <Typography variant="body2" color="textSecondary">
-              Upload any resource - video, website, document, or transcript -
-              and create flashcards for revision.
-            </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Upload any resource - video, website, document, or transcript -
+                and create flashcards for revision.
+              </Typography>
+            </Box>
 
             <Button variant="outlined" sx={{ mt: 1 }}>
               Learn more
@@ -178,39 +246,83 @@ const LandingPage = () => {
           </Box>
 
           {/* Mock Exams */}
-          <Box sx={{ textAlign: "left" }}>
+          <Box
+            sx={{
+              display: "flex", // Makes children stack vertically
+              flexDirection: "column", // Stack items top to bottom
+              alignItems: { xs: "center", sm: "flex-start" }, // Center items horizontally
+              justifyContent: { xs: "center", sm: "left" }, // Center items vertically (if height allows)
+              textAlign: { xs: "center", sm: "left" }, // Center text inside each child
+            }}
+          >
             <Avatar sx={{ bgcolor: "primary.light" }}>
               <LightbulbIcon />
             </Avatar>
-            <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
-              Mock Exams
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Test you knowledge before the real exam with our mock exams.
-            </Typography>
+            <Box>
+              <Typography variant="h6" sx={{ mt: 0.5 }}>
+                Mock Exams
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Test you knowledge before the real exam with our mock exams.
+              </Typography>
+            </Box>
             <Button variant="outlined" sx={{ mt: 1 }}>
               Learn more
             </Button>
           </Box>
 
           {/* Summarize Content */}
-          <Box sx={{ textAlign: "left" }}>
+          <Box
+            sx={{
+              display: "flex", // Makes children stack vertically
+              flexDirection: "column", // Stack items top to bottom
+              alignItems: { xs: "center", sm: "flex-start" }, // Center items horizontally
+              justifyContent: { xs: "center", sm: "left" }, // Center items vertically (if height allows)
+              textAlign: { xs: "center", sm: "left" }, // Center text inside each child
+            }}
+          >
+            {" "}
             <Avatar sx={{ bgcolor: "primary.light" }}>
               <TrendingUpIcon />
             </Avatar>
-            <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
-              Summarise Content
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Great for students looking to ace their exams, or experts looking
-              to keep up with cutting-edge research.
-            </Typography>
+            <Box>
+              <Typography variant="h6" sx={{ mt: 0.5 }}>
+                Summarise Key Content
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Great for students looking to ace their exams, or experts
+                looking to keep up with cutting-edge research.
+              </Typography>
+            </Box>
             <Button variant="outlined" sx={{ mt: 1 }}>
               Learn more
             </Button>
           </Box>
         </Stack>
       </Container>
+
+      <Box sx={{ py: 8 }}>
+        <Container maxWidth="lg">
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{ fontWeight: 700, color: "primary.main" }}
+          >
+            What Students Say
+          </Typography>
+          <Masonry columns={{ xs: 1, sm: 2, md: 3 }} spacing={2} sx={{ mt: 1 }}>
+            {reviews.map((review, index) => (
+              <ReviewCard
+                key={index}
+                name={review.name}
+                country={review.country}
+                rating={review.rating}
+                text={review.text}
+              />
+            ))}
+          </Masonry>
+        </Container>
+      </Box>
     </>
   );
 };
