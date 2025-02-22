@@ -107,7 +107,7 @@ const LandingPage = () => {
             variant="body1"
             sx={{ color: "text.secondary", textAlign: "center", mb: 1 }}
           >
-            Trusted by 350,000+ students at
+            Trusted by students at
           </Typography>
 
           <Stack
