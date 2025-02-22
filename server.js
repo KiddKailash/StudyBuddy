@@ -22,12 +22,14 @@ const userRoutes = require("./routes/userRoutes");
 const featureRequestRoutes = require("./routes/featureRequestRoutes");
 const notionRoutes = require("./routes/notionRoutes");
 const webhookHandler = require("./routes/webhookRoutes");
+const websiteTranscriptRoutes = require("./routes/websiteTranscriptRoutes");
 
 // Public versions of routes
 const openaiPublicRoutes = require("./routes/openaiPublicRoutes");
 const flashcardsPublicRoutes = require("./routes/flashcardsPublicRoutes");
 const uploadPublicRoutes = require("./routes/uploadPublicRoutes");
 const transcriptPublicRoutes = require("./routes/transcriptPublicRoutes");
+const websiteTranscriptPublicRoutes = require("./routes/websiteTranscriptPublicRoutes");
 
 // Protected route
 const transcriptRoutes = require("./routes/transcriptRoutes");
@@ -79,6 +81,7 @@ connectDB()
     app.use("/api/flashcards-public", flashcardsPublicRoutes);
     app.use("/api/upload-public", uploadPublicRoutes);
     app.use("/api/transcript-public", transcriptPublicRoutes);
+    app.use("/api/website-transcript-public", websiteTranscriptPublicRoutes);
 
     // PROTECTED routes (require auth in each route file or at the route level):
     app.use("/api/auth", authRoutes);
@@ -90,6 +93,7 @@ connectDB()
     app.use("/api/users", userRoutes);
     app.use("/api/notion", notionRoutes);
     app.use("/api/feature-request", featureRequestRoutes);
+    app.use("/api/website-transcript", websiteTranscriptRoutes);
 
     // Global error handler
     app.use((err, req, res, next) => {
