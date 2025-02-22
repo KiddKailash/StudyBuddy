@@ -136,86 +136,75 @@ const LandingPage = () => {
       </Container>
 
       {/* Learn Faster and Better Section */}
-      <Box sx={{ py: 6, bgcolor: "background.paper" }}>
-        <Container maxWidth="lg">
-          <Typography variant="h5" color="primary.main">
-            Instantly make study resources
-          </Typography>
-          <Typography variant="h4" sx={{ fontWeight: 700 }} gutterBottom>
-            Anywhere, Anytime, from Anything.
-          </Typography>
+      <Container maxWidth="lg" sx={{ p: 6, bgcolor: "background.paper", borderRadius: 2 }}>
+        <Typography variant="h5" color="primary.light">
+          Instantly make study resources
+        </Typography>
+        <Typography variant="h4" sx={{ fontWeight: 700 }} gutterBottom>
+          Anywhere, Anytime, from Anything.
+        </Typography>
 
-          <Grid container spacing={4} sx={{ mt: 4 }}>
-            {/* Video or Website */}
-            <Grid size={{ xs: 12, sm: 4 }}>
-              <Box display="inline-block" alignItems="center" sx={{ px: 2 }}>
-                <Avatar sx={{ bgcolor: "primary.main", mr: 2 }}>
-                  <BookIcon />
-                </Avatar>
-                <Box sx={{ textAlign: { xs: "center", md: "left" } }}>
-                  <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
-                    Create Q&A Flashcards
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Upload any resource - video, website, document, or
-                    transcript - and create flashcards for revision and study.
-                  </Typography>
-                  <Box mt={1}>
-                    <Button variant="outlined" color="primary">
-                      Learn more
-                    </Button>
-                  </Box>
-                </Box>
-              </Box>
-            </Grid>
+        <Grid container spacing={4} sx={{ mt: 4 }}>
+          {/* Video or Website */}
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Box sx={{ textAlign: "left" }}>
+              <Avatar sx={{ bgcolor: "primary.light", mr: 2 }}>
+                <BookIcon />
+              </Avatar>
 
-            {/* Smart Teaching Methods */}
-            <Grid size={{ xs: 12, sm: 4 }}>
-              <Box display="inline-block" alignItems="center" sx={{ px: 2 }}>
-                <Avatar sx={{ bgcolor: "primary.main", mr: 2 }}>
-                  <LightbulbIcon />
-                </Avatar>
-                <Box sx={{ textAlign: { xs: "center", md: "left" } }}>
-                  <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
-                    Mock Exams
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Test you knowledge before the real exam with our mock exams.
-                  </Typography>
-                  <Box mt={1}>
-                    <Button variant="outlined" color="primary">
-                      Learn more
-                    </Button>
-                  </Box>
-                </Box>
-              </Box>
-            </Grid>
+              <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
+                Create Q&A Flashcards
+              </Typography>
 
-            {/* Adapts to Your Expertise */}
-            <Grid size={{ xs: 12, sm: 4 }}>
-              <Box display="inline-block" alignItems="center" sx={{ px: 2 }}>
-                <Avatar sx={{ bgcolor: "primary.main", mr: 2 }}>
-                  <TrendingUpIcon />
-                </Avatar>
-                <Box sx={{ textAlign: { xs: "center", md: "left" } }}>
-                  <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
-                    Summarise Key Points from Articles
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Great for students looking to ace their exams, or experts
-                    looking to keep up with cutting-edge research.
-                  </Typography>
-                  <Box mt={1}>
-                    <Button variant="outlined" color="primary">
-                      Learn more
-                    </Button>
-                  </Box>
-                </Box>
-              </Box>
-            </Grid>
+              <Typography variant="body2" color="textSecondary">
+                Upload any resource - video, website, document, or transcript -
+                and create flashcards for revision.
+              </Typography>
+
+              <Button variant="outlined" sx={{ mt: 1 }}>
+                Learn more
+              </Button>
+            </Box>
           </Grid>
-        </Container>
-      </Box>
+
+          {/* Smart Teaching Methods */}
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Box sx={{ textAlign: "left" }}>
+              <Avatar sx={{ bgcolor: "primary.light" }}>
+                <LightbulbIcon />
+              </Avatar>
+              <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
+                Mock Exams
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Test you knowledge before the real exam with our mock exams.
+              </Typography>
+              <Button variant="outlined" sx={{ mt: 1 }}>
+                Learn more
+              </Button>
+            </Box>
+          </Grid>
+
+          {/* Adapts to Your Expertise */}
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Box sx={{ textAlign: "left" }}>
+              <Avatar sx={{ bgcolor: "primary.light" }}>
+                <TrendingUpIcon />
+              </Avatar>
+              <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
+                Summarise Key Points from Articles
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Great for students looking to ace their exams, or experts
+                looking to keep up with cutting-edge research.
+              </Typography>
+              <Button variant="outlined" sx={{ mt: 1 }}>
+                Learn more
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
+      </Container>
     </>
   );
 };
