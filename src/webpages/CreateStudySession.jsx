@@ -263,7 +263,7 @@ const CreateStudySession = () => {
       >
         <Tab icon={<UploadFileIcon />} label={t("upload_document")} />
         <Tab icon={<ContentCutIcon />} label={t("paste_text")} />
-        <Tab icon={<LanguageRoundedIcon />} label={"Website"} />
+        <Tab icon={<LanguageRoundedIcon />} label={t("website")} />
         <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} />
       </Tabs>
 
@@ -320,7 +320,7 @@ const CreateStudySession = () => {
         <Box sx={{ mb: 1 }}>
           <TextField
             fullWidth
-            label={"Enter website URL here"}
+            label={t("enter_website_url_here")}
             variant="outlined"
             value={websiteUrl}
             onChange={(e) => setWebsiteUrl(e.target.value)}
