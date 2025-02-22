@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useThemeContext } from "../contexts/ThemeProvider";
+import { UserContext } from "../contexts/UserContext";
 
 // Assets
 import HeroImage from "/assets/branded-images/student.svg";
@@ -28,7 +28,7 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 // Helper for logo mask styling
 const getLogoMaskStyle = (src, ratio) => ({
-  height: "clamp(20px, 1.5vw, 40px)",
+  height: "clamp(20px, 2vw, 40px)",
   aspectRatio: ratio,
   backgroundColor: "text.secondary",
   maskImage: `url(${src})`,
@@ -53,12 +53,17 @@ const logosRow2 = [
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const theme = useThemeContext();
+  const { resetUserContext } = useContext(UserContext);
+
+  // Use an effect to avoid updating context while rendering
+  useEffect(() => {
+    resetUserContext();
+  }, [resetUserContext]);
 
   return (
     <>
       {/* Hero Section */}
-      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, px: 4 }}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
           <Box
             sx={{
@@ -95,7 +100,7 @@ const LandingPage = () => {
               color="primary"
               size="large"
               onClick={() => navigate("/login?mode=create")}
-              sx={{ mt: 2 }}
+              sx={{ mt: 1 }}
             >
               Get Started
             </Button>
@@ -107,7 +112,7 @@ const LandingPage = () => {
             variant="body1"
             sx={{ color: "text.secondary", textAlign: "center", mb: 1 }}
           >
-            Trusted by students at
+            Trusted by 350,000+ students at
           </Typography>
 
           <Stack
@@ -135,75 +140,76 @@ const LandingPage = () => {
         </Box>
       </Container>
 
-      {/* Learn Faster and Better Section */}
-      <Container maxWidth="lg" sx={{ p: 6, bgcolor: "background.paper", borderRadius: 2 }}>
+      {/* Anywhere, Anytime, from Anything. */}
+      <Container
+        maxWidth="lg"
+        sx={{ p: 4, bgcolor: "background.paper", borderRadius: 2 }}
+      >
         <Typography variant="h5" color="primary.light">
-          Instantly make study resources
+          Study Material
         </Typography>
         <Typography variant="h4" sx={{ fontWeight: 700 }} gutterBottom>
           Anywhere, Anytime, from Anything.
         </Typography>
 
-        <Grid container spacing={4} sx={{ mt: 4 }}>
-          {/* Video or Website */}
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <Box sx={{ textAlign: "left" }}>
-              <Avatar sx={{ bgcolor: "primary.light", mr: 2 }}>
-                <BookIcon />
-              </Avatar>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={4}
+          sx={{ mt: 4 }}
+        >
+          {/* Create Q&A Flashcards */}
+          <Box sx={{ textAlign: "left" }}>
+            <Avatar sx={{ bgcolor: "primary.light", mr: 2 }}>
+              <BookIcon />
+            </Avatar>
 
-              <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
-                Create Q&A Flashcards
-              </Typography>
+            <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
+              Create Q&A Flashcards
+            </Typography>
 
-              <Typography variant="body2" color="textSecondary">
-                Upload any resource - video, website, document, or transcript -
-                and create flashcards for revision.
-              </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Upload any resource - video, website, document, or transcript -
+              and create flashcards for revision.
+            </Typography>
 
-              <Button variant="outlined" sx={{ mt: 1 }}>
-                Learn more
-              </Button>
-            </Box>
-          </Grid>
+            <Button variant="outlined" sx={{ mt: 1 }}>
+              Learn more
+            </Button>
+          </Box>
 
-          {/* Smart Teaching Methods */}
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <Box sx={{ textAlign: "left" }}>
-              <Avatar sx={{ bgcolor: "primary.light" }}>
-                <LightbulbIcon />
-              </Avatar>
-              <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
-                Mock Exams
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Test you knowledge before the real exam with our mock exams.
-              </Typography>
-              <Button variant="outlined" sx={{ mt: 1 }}>
-                Learn more
-              </Button>
-            </Box>
-          </Grid>
+          {/* Mock Exams */}
+          <Box sx={{ textAlign: "left" }}>
+            <Avatar sx={{ bgcolor: "primary.light" }}>
+              <LightbulbIcon />
+            </Avatar>
+            <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
+              Mock Exams
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Test you knowledge before the real exam with our mock exams.
+            </Typography>
+            <Button variant="outlined" sx={{ mt: 1 }}>
+              Learn more
+            </Button>
+          </Box>
 
-          {/* Adapts to Your Expertise */}
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <Box sx={{ textAlign: "left" }}>
-              <Avatar sx={{ bgcolor: "primary.light" }}>
-                <TrendingUpIcon />
-              </Avatar>
-              <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
-                Summarise Key Points from Articles
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Great for students looking to ace their exams, or experts
-                looking to keep up with cutting-edge research.
-              </Typography>
-              <Button variant="outlined" sx={{ mt: 1 }}>
-                Learn more
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
+          {/* Summarize Content */}
+          <Box sx={{ textAlign: "left" }}>
+            <Avatar sx={{ bgcolor: "primary.light" }}>
+              <TrendingUpIcon />
+            </Avatar>
+            <Typography variant="h6" gutterBottom sx={{ mt: 0.5 }}>
+              Summarise Content
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Great for students looking to ace their exams, or experts looking
+              to keep up with cutting-edge research.
+            </Typography>
+            <Button variant="outlined" sx={{ mt: 1 }}>
+              Learn more
+            </Button>
+          </Box>
+        </Stack>
       </Container>
     </>
   );
