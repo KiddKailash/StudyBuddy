@@ -273,5 +273,7 @@
   "submit": "Enviar",
   "success_message": "Obrigado! Suas sugestões serão analisadas em breve.",
   "error_message": "Falha ao enviar a(s) solicitação(ões) de recurso. Tente novamente.",
-  "searchbar": "Filtrar cartões..."
+  "searchbar": "Filtrar cartões...",
+  "website": "Site",
+  "enter_website_url_here": "Insira a URL do site aqui"
 }

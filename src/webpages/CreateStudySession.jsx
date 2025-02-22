@@ -15,14 +15,14 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
-import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
+import Link from "@mui/material/Link";
 
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FilterDramaRoundedIcon from "@mui/icons-material/FilterDramaRounded";
-import VideoCameraFrontIcon from "@mui/icons-material/VideoCameraFront";
+import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 
 import { useTranslation, Trans } from "react-i18next";
 
@@ -31,6 +31,7 @@ const CreateStudySession = () => {
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [pastedText, setPastedText] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState(""); // <-- New state for website URL
   const [loadingTranscript, setLoadingTranscript] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
@@ -65,6 +66,7 @@ const CreateStudySession = () => {
       maxFiles: 1,
     });
 
+  // Read tab from query string on mount
   useEffect(() => {
     const { tab } = queryString.parse(location.search);
     setTabValue(Number(tab) || 0);
@@ -74,16 +76,11 @@ const CreateStudySession = () => {
     setTabValue(newValue);
     setSelectedFile(null);
     setPastedText("");
+    setWebsiteUrl("");
     navigate(`?tab=${newValue}`, { replace: true });
   };
 
   const handleFetchAndGenerate = async () => {
-    // If the selected tab is Notion (2) or Video (3), just show "Coming soon 🚧"
-    if (tabValue === 2 || tabValue === 3) {
-      showSnackbar(t("feature_under_development"), "info");
-      return;
-    }
-
     // For logged-in free users, enforce 2-sessions limit
     if (isLoggedIn && accountType === "free" && flashcardSessions.length >= 2) {
       showSnackbar(t("max_sessions_reached"), "info");
@@ -102,9 +99,11 @@ const CreateStudySession = () => {
       let transcriptText = "";
       const token = localStorage.getItem("token");
 
-      // Step 1: gather transcript
+      /**
+       * 1) Gather transcript
+       */
       if (tabValue === 0) {
-        // File upload
+        // Upload Document
         if (!selectedFile) {
           showSnackbar(t("please_select_file"), "error");
           setLoadingTranscript(false);
@@ -126,14 +125,14 @@ const CreateStudySession = () => {
         formData.append("file", selectedFile);
 
         if (!token) {
-          // Public route for file upload
+          // Public route
           const resp = await axios.post(
             `${BACKEND}/api/upload-public`,
             formData
           );
           transcriptText = resp.data.transcript;
         } else {
-          // Logged-in route for file upload
+          // Auth route
           const resp = await axios.post(`${BACKEND}/api/upload`, formData, {
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -147,17 +146,51 @@ const CreateStudySession = () => {
           return;
         }
         transcriptText = pastedText.trim();
+      } else if (tabValue === 3) {
+        // Notion (still coming soon)
+        showSnackbar(t("feature_under_development"), "info");
+        setLoadingTranscript(false);
+        return;
+      } else if (tabValue === 2) {
+        // Website URL
+        if (!websiteUrl.trim()) {
+          showSnackbar("Please enter a valid website URL", "error");
+          setLoadingTranscript(false);
+          return;
+        }
+
+        if (!token) {
+          // Public route
+          const resp = await axios.get(
+            `${BACKEND}/api/website-transcript-public`,
+            {
+              params: { url: websiteUrl.trim() },
+            }
+          );
+          transcriptText = resp.data.transcript;
+        } else {
+          // Auth route
+          const resp = await axios.get(`${BACKEND}/api/website-transcript`, {
+            params: { url: websiteUrl.trim() },
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          transcriptText = resp.data.transcript;
+        }
       }
 
-      // Step 2: Generate flashcards
+      /**
+       * 2) Generate flashcards from transcript
+       */
       let generatedData = [];
       if (!token) {
+        // public openai endpoint
         const resp = await axios.post(
           `${BACKEND}/api/openai/generate-flashcards-public`,
           { transcript: transcriptText }
         );
         generatedData = resp.data.flashcards;
       } else {
+        // protected openai endpoint
         const resp = await axios.post(
           `${BACKEND}/api/openai/generate-flashcards`,
           { transcript: transcriptText },
@@ -166,12 +199,14 @@ const CreateStudySession = () => {
         generatedData = resp.data.flashcards;
       }
 
-      // Step 3: Create a session
+      /**
+       * 3) Create a local or DB-based session
+       */
       const sessionName = generatedData[0];
       const flashcardsArray = generatedData[1];
 
       if (!token) {
-        // free-tier local session
+        // Ephemeral local session
         const sessionId = window.crypto.randomUUID();
         const newSession = {
           id: sessionId,
@@ -228,10 +263,11 @@ const CreateStudySession = () => {
       >
         <Tab icon={<UploadFileIcon />} label={t("upload_document")} />
         <Tab icon={<ContentCutIcon />} label={t("paste_text")} />
+        <Tab icon={<LanguageRoundedIcon />} label={"Website"} />
         <Tab icon={<FilterDramaRoundedIcon />} label={t("notion")} />
       </Tabs>
 
-      {/* Tab 0: Upload Document */}
+      {/* TAB 0: Upload Document */}
       {tabValue === 0 && (
         <Box sx={{ mb: 1 }}>
           <Paper
@@ -265,7 +301,7 @@ const CreateStudySession = () => {
         </Box>
       )}
 
-      {/* Tab 1: Paste Text */}
+      {/* TAB 1: Paste Text */}
       {tabValue === 1 && (
         <TextField
           fullWidth
@@ -279,15 +315,23 @@ const CreateStudySession = () => {
         />
       )}
 
-      {/* Tab 2: Notion (Coming soon) */}
+      {/* TAB 3: Website */}
       {tabValue === 2 && (
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 4,
-            textAlign: "center",
-          }}
-        >
+        <Box sx={{ mb: 1 }}>
+          <TextField
+            fullWidth
+            label={"Enter website URL here"}
+            variant="outlined"
+            value={websiteUrl}
+            onChange={(e) => setWebsiteUrl(e.target.value)}
+            sx={{ backgroundColor: "background.paper" }}
+          />
+        </Box>
+      )}
+
+      {/* TAB 2: Notion (coming soon) */}
+      {tabValue === 3 && (
+        <Paper variant="outlined" sx={{ p: 4, textAlign: "center" }}>
           <Typography variant="h6">{t("coming_soon")}</Typography>
         </Paper>
       )}
@@ -313,7 +357,7 @@ const CreateStudySession = () => {
         )}
       </Button>
 
-      {/* Inform unauthenticated users about max ephemeral sessions */}
+      {/* If unauthenticated users exceed ephemeral sessions */}
       {!isLoggedIn && localSessions.length >= MAX_EPHEMERAL_SESSIONS && (
         <>
           <Typography variant="body1" color="textSecondary" sx={{ mt: 2 }}>
@@ -333,7 +377,7 @@ const CreateStudySession = () => {
         </>
       )}
 
-      {/* Inform authenticated free users about max DB sessions */}
+      {/* If authenticated free users exceed sessions */}
       {isLoggedIn &&
         accountType === "free" &&
         flashcardSessions.length >= 2 && (

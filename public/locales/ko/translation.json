@@ -273,6 +273,8 @@
     "submit": "제출",
     "success_message": "감사합니다! 귀하의 제안은 곧 검토될 예정입니다.",
     "error_message": "기능 요청 전송에 실패했습니다. 다시 시도해 주세요.",
-    "searchbar": "카드 필터..."
+    "searchbar": "카드 필터...",
+    "website": "웹사이트",
+  "enter_website_url_here": "웹사이트 URL을 여기에 입력하세요"
   }
   

@@ -273,5 +273,7 @@
   "submit": "Enviar",
   "success_message": "¡Gracias! Tus sugerencias serán revisadas en breve.",
   "error_message": "No se pudo enviar la solicitud de función. Inténtalo de nuevo.",
-  "searchbar": "Filtrar tarjetas..."
+  "searchbar": "Filtrar tarjetas...",
+  "website": "Sitio web",
+  "enter_website_url_here": "Ingrese la URL del sitio web aquí"
 }

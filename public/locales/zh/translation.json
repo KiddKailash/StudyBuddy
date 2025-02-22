@@ -273,5 +273,7 @@
   "submit": "提交",
   "success_message": "谢谢！您的建议将很快被审核。",
   "error_message": "提交功能请求失败。请重试。",
-  "searchbar": "筛选卡片"
+  "searchbar": "筛选卡片",
+  "website": "网站",
+  "enter_website_url_here": "在此输入网站 URL"
 }

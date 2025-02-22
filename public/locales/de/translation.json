@@ -273,5 +273,7 @@
   "submit": "Absenden",
   "success_message": "Vielen Dank! Ihre Vorschläge werden in Kürze überprüft.",
   "error_message": "Fehler beim Senden der Funktionsanfrage(n). Bitte versuchen Sie es erneut.",
-  "searchbar": "Karten filtern..."
+  "searchbar": "Karten filtern...",
+  "website": "Webseite",
+  "enter_website_url_here": "Geben Sie die Website-URL hier ein"
 }

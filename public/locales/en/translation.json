@@ -273,5 +273,7 @@
   "submit": "Submit",
   "success_message": "Thank you! Your suggestions will be reviewed shortly.",
   "error_message": "Failed to submit feature request(s). Please try again.",
-  "searchbar": "Filter cards..."
+  "searchbar": "Filter cards...",
+  "website": "Website",
+  "enter_website_url_here": "Enter website URL here"
 }

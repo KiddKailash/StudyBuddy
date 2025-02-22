@@ -273,5 +273,7 @@
   "submit": "送信",
   "success_message": "ありがとうございます！ご意見はまもなく確認されます。",
   "error_message": "機能リクエストの送信に失敗しました。再度お試しください。",
-  "searchbar": "カードをフィルター"
+  "searchbar": "カードをフィルター",
+  "website": "ウェブサイト",
+  "enter_website_url_here": "ここにウェブサイトのURLを入力してください"
 }

@@ -273,5 +273,7 @@
   "submit": "Envoyer",
   "success_message": "Merci ! Vos suggestions seront examinées sous peu.",
   "error_message": "Échec de l'envoi de la demande de fonctionnalité. Veuillez réessayer.",
-  "searchbar": "Filtrer les cartes..."
+  "searchbar": "Filtrer les cartes...",
+  "website": "Site web",
+  "enter_website_url_here": "Entrez l'URL du site Web ici"
 }
