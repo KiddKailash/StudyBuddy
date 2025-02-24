@@ -114,7 +114,7 @@ const { connectDB } = require('../database/db'); // Adjust path if needed
 
     // 5. Send the email
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.response);
+    console.log('Email sent successfully!');
 
     // Optionally exit or close DB connection
     process.exit(0);
