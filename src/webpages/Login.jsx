@@ -22,8 +22,6 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Divider from "@mui/material/Divider";
 
-
-
 const LoginPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialMode = searchParams.get("mode") === "login" ? "login" : "create";
@@ -40,28 +38,52 @@ const LoginPage = () => {
   const [authMode, setAuthMode] = useState(initialMode);
   const [loading, setLoading] = useState(false);
 
-  const { resetUserContext, setUser, setIsLoggedIn, isLoggedIn } =
-    useContext(UserContext);
-  const { showSnackbar } = useContext(SnackbarContext);
+  const {
+    logout,            // Exposed logout function from UserContext
+    resetUserContext,  // Used during submission
+    setUser,
+    setIsLoggedIn,
+    isLoggedIn,
+    authLoading
+  } = useContext(UserContext);
 
+  const { showSnackbar } = useContext(SnackbarContext);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+  /**
+   * This effect checks the auth state only after user context loading is complete.
+   *
+   * If user is logged in, navigate to "/".
+   * If user is not logged in but a stale token is present, call logout to clear it.
+   * Otherwise do nothing, so we avoid repeating logout calls and an infinite loop.
+   */
   useEffect(() => {
-    // If user is already logged in, redirect to "/"
-    if (isLoggedIn) {
-      navigate("/");
+    if (!authLoading) {
+      if (isLoggedIn) {
+        // Already authenticated, go home
+        navigate("/");
+      } else {
+        // If we find a stale token in localStorage, clear it out
+        const storedToken = localStorage.getItem("token");
+        if (storedToken) {
+          logout();
+        }
+      }
     }
-  }, [isLoggedIn, navigate]);
+  }, [authLoading, isLoggedIn, logout, navigate]);
 
   // Whenever authMode changes, update the URL query param.
   useEffect(() => {
     setSearchParams({ mode: authMode });
   }, [authMode, setSearchParams]);
 
+  /**
+   * Toggle between login or create modes
+   */
   const handleAuthModeChange = (event) => {
     setAuthMode(event.target.value);
 
@@ -75,6 +97,9 @@ const LoginPage = () => {
     setErrors({});
   };
 
+  /**
+   * Checks required fields
+   */
   const validateRequiredFields = () => {
     const newErrors = {};
 
@@ -99,6 +124,9 @@ const LoginPage = () => {
     return true;
   };
 
+  /**
+   * Checks Terms of Service (for create mode)
+   */
   const validateTOS = () => {
     if (authMode === "create" && !tosChecked) {
       setErrors((prev) => ({ ...prev, tos: true }));
@@ -108,6 +136,9 @@ const LoginPage = () => {
     return true;
   };
 
+  /**
+   * Form submission for login or create
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -139,10 +170,11 @@ const LoginPage = () => {
 
     try {
       const response = await axios.post(`${BACKEND}${endpoint}`, payload);
-
       const { token, user } = response.data;
 
+      // Always reset the context first to ensure a clean state
       resetUserContext();
+
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
@@ -155,6 +187,8 @@ const LoginPage = () => {
           : t("login_successful"),
         "success"
       );
+      // Optionally navigate somewhere:
+      // navigate("/");
     } catch (err) {
       console.error(err);
       showSnackbar(
@@ -166,6 +200,9 @@ const LoginPage = () => {
     }
   };
 
+  /**
+   * Generic field-change handler to manage form state and clear errors
+   */
   const handleFieldChange = (field, value) => {
     switch (field) {
       case "firstName":
@@ -210,8 +247,7 @@ const LoginPage = () => {
   };
 
   /**
-   * This function is called on successful Google login.
-   * @param {object} credentialResponse - The response containing the ID token from Google.
+   * Handle successful Google login
    */
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
@@ -283,7 +319,9 @@ const LoginPage = () => {
                 variant="body1"
                 onClick={(e) => {
                   e.preventDefault();
-                  setAuthMode(authMode === "create" ? "login" : "create");
+                  setAuthMode(
+                    authMode === "create" ? "login" : "create"
+                  );
                 }}
               />,
             ]}
@@ -291,8 +329,8 @@ const LoginPage = () => {
         </Typography>
       </Box>
 
-      {/* ====== Google Sign In button ====== */}
-      {/* <Grid
+      {/* Uncomment below for Google Sign-In if needed:
+      <Grid
         size={12}
         sx={{ display: "flex", justifyContent: "center", mb: 1, mt: 2 }}
       >
@@ -304,14 +342,14 @@ const LoginPage = () => {
           />
         </GoogleOAuthProvider>
       </Grid>
-
-      <Divider sx={{m: 2}}/> */}
+      <Divider sx={{ m: 2 }} />
+      */}
 
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container rowSpacing={1.5} columnSpacing={1}>
           {authMode === "create" && (
             <>
-              <Grid size={{xs: 12, sm: 6}}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   label={t("first_name")}
@@ -323,7 +361,7 @@ const LoginPage = () => {
                   error={!!errors.firstName}
                 />
               </Grid>
-              <Grid size={{xs: 12, sm: 6}}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   label={t("last_name")}
