@@ -256,6 +256,8 @@ const CreateStudySession = () => {
         value={tabValue}
         onChange={handleTabChange}
         variant="fullWidth"
+        allowScrollButtonsMobile
+        scrollButtons="auto"
         sx={{
           mb: 3,
           "& .MuiTab-root": { outline: "none" },
