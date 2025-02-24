@@ -17,7 +17,7 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 
 const MenuBar = ({ handleDrawerToggle }) => {
-  const { user, resetUserContext } = useContext(UserContext);
+  const { user, resetUserContext, logout } = useContext(UserContext);
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
@@ -26,8 +26,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
   const isCheckoutPage = location.pathname.startsWith("/checkout");
 
   const handleLogout = () => {
-    resetUserContext();
-    navigate("/");
+    logout();
   };
 
   return (
