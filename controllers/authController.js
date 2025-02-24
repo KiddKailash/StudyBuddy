@@ -1,8 +1,8 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { getDB } = require('../database/db');
-const { ObjectId } = require('mongodb');
-require('dotenv').config();
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { getDB } = require("../database/db");
+const { ObjectId } = require("mongodb");
+require("dotenv").config();
 
 /**
  * Generates a JWT token for authenticated users.
@@ -14,7 +14,7 @@ const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, accountType: user.accountType },
     process.env.JWT_SECRET,
-    { expiresIn: '1h' } // Token validity
+    { expiresIn: "14d" } // Token validity
   );
 };
 
@@ -29,17 +29,21 @@ exports.register = async (req, res) => {
 
   // Basic validation
   if (!email || !password || !firstName || !lastName) {
-    return res.status(400).json({ error: 'Email, password, first name, and last name are required.' });
+    return res
+      .status(400)
+      .json({
+        error: "Email, password, first name, and last name are required.",
+      });
   }
 
   try {
     const db = getDB();
-    const usersCollection = db.collection('users');
+    const usersCollection = db.collection("users");
 
     // Check if user already exists
     const existingUser = await usersCollection.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ error: 'User already exists.' });
+      return res.status(409).json({ error: "User already exists." });
     }
 
     // Hash the password
@@ -56,7 +60,7 @@ exports.register = async (req, res) => {
       firstName,
       lastName,
       company: userCompany,
-      accountType: 'free', // Set default account type
+      accountType: "free", // Set default account type
       createdAt: new Date(),
       // Initialize subscription-related fields
       stripeCustomerId: null,
@@ -76,7 +80,7 @@ exports.register = async (req, res) => {
     const token = generateToken(newUser);
 
     res.status(201).json({
-      message: 'User registered successfully.',
+      message: "User registered successfully.",
       token,
       user: {
         id: newUser._id,
@@ -88,8 +92,8 @@ exports.register = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Server error during registration.' });
+    console.error("Registration error:", error);
+    res.status(500).json({ error: "Server error during registration." });
   }
 };
 
@@ -104,23 +108,23 @@ exports.login = async (req, res) => {
 
   // Basic validation
   if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required.' });
+    return res.status(400).json({ error: "Email and password are required." });
   }
 
   try {
     const db = getDB();
-    const usersCollection = db.collection('users');
+    const usersCollection = db.collection("users");
 
     // Find user
     const user = await usersCollection.findOne({ email });
     if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials.' });
+      return res.status(401).json({ error: "Invalid credentials." });
     }
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid credentials.' });
+      return res.status(401).json({ error: "Invalid credentials." });
     }
 
     // Generate token
@@ -142,13 +146,13 @@ exports.login = async (req, res) => {
     };
 
     res.status(200).json({
-      message: 'Login successful.',
+      message: "Login successful.",
       token,
       user: userResponse,
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Server error during login.' });
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Server error during login." });
   }
 };
 
@@ -160,7 +164,9 @@ exports.login = async (req, res) => {
  */
 exports.upgradeSubscription = async (req, res) => {
   // This function may not be necessary if subscription handling is done via Stripe webhooks
-  res.status(501).json({ error: 'Subscription upgrade is handled via Stripe checkout.' });
+  res
+    .status(501)
+    .json({ error: "Subscription upgrade is handled via Stripe checkout." });
 };
 
 /**
@@ -174,7 +180,7 @@ exports.getCurrentUser = async (req, res) => {
 
   try {
     const db = getDB();
-    const usersCollection = db.collection('users');
+    const usersCollection = db.collection("users");
 
     // Retrieve the user data
     const user = await usersCollection.findOne(
@@ -183,7 +189,7 @@ exports.getCurrentUser = async (req, res) => {
     );
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found.' });
+      return res.status(404).json({ error: "User not found." });
     }
 
     res.status(200).json({
@@ -202,7 +208,7 @@ exports.getCurrentUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching user data:', error);
-    res.status(500).json({ error: 'Server error while fetching user data.' });
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ error: "Server error while fetching user data." });
   }
 };
