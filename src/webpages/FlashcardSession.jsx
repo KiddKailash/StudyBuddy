@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 
@@ -31,7 +30,7 @@ const FlashcardSession = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Determine if we're using local sessions vs DB-based sessions
+  // Determine if we're using a local session or a DB-based session
   const isLocalSession = location.pathname.includes("/flashcards-local/");
 
   // State for session data, loading/generating status, and search term
@@ -40,16 +39,12 @@ const FlashcardSession = () => {
   const [generating, setGenerating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Context
-  const { user } = useContext(UserContext);
+  // Context values and helper functions
+  const { user, fetchFlashcardSession, generateAdditionalFlashcards } = useContext(UserContext);
   const { showSnackbar } = useContext(SnackbarContext);
   const accountType = user?.accountType || "free";
 
-  // i18n
   const { t } = useTranslation();
-
-  // Backend URI
-  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
 
   useEffect(() => {
     fetchSession();
@@ -60,20 +55,13 @@ const FlashcardSession = () => {
     setLoading(true);
     try {
       if (isLocalSession) {
-        // Load session from local storage
-        const localSessions = JSON.parse(
-          localStorage.getItem("localSessions") || "[]"
-        );
+        const localSessions = JSON.parse(localStorage.getItem("localSessions") || "[]");
         const found = localSessions.find((s) => s.id === id);
         setSession(found || null);
       } else {
-        // Protected DB-based session
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("User is not authenticated.");
-        const response = await axios.get(`${BACKEND}/api/flashcards/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setSession(response.data);
+        // Use the context helper function to fetch the session
+        const data = await fetchFlashcardSession(id);
+        setSession(data);
       }
     } catch (error) {
       console.error("Error fetching session:", error);
@@ -89,30 +77,19 @@ const FlashcardSession = () => {
   };
 
   const handleGenerateMoreFlashcards = async () => {
-    // Feature not supported for local sessions
     if (isLocalSession) {
       showSnackbar(t("feature_unavailable_to_free_account"), "info");
       return;
     }
-
-    // If user is free, nudge them to upgrade
     if (accountType === "free") {
       showSnackbar(t("premium_feature_upgrade"), "info");
       return;
     }
-
     setGenerating(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("User is not authenticated.");
-
-      await axios.post(
-        `${BACKEND}/api/flashcards/${id}/generate-additional-flashcards`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await generateAdditionalFlashcards(id);
       showSnackbar(t("flashcards_generated_success"), "success");
-      // Re-fetch session to get newly generated cards
+      // Refresh the session to include newly generated flashcards
       fetchSession();
     } catch (error) {
       console.error("Error generating more flashcards:", error);
@@ -142,15 +119,12 @@ const FlashcardSession = () => {
     );
   }
 
-  // If there's no session after loading, redirect home
   if (!session) {
     navigate("/");
+    return null;
   }
 
-  // The array of flashcards from the session
   const flashcardsArray = session?.flashcardsJSON || [];
-
-  // Filter flashcards by search term
   const filteredFlashcards = flashcardsArray.filter((card) => {
     const lowerSearch = searchTerm.toLowerCase();
     return (
@@ -161,23 +135,15 @@ const FlashcardSession = () => {
 
   return (
     <Container sx={{ mt: 1, mb: 2 }}>
-      {/* 
-        TOP AREA: 
-        - "Generate More" button + possible upgrade text 
-        - Search bar
-        Reordered responsively using Stack + order.
-      */}
       <Box
-        // This box manages the direction/search bar/etc.
         sx={{
-          alignItems: "flex-start",
-          display: 'inline-flex',
-          width: '100%',
+          display: "inline-flex",
+          width: "100%",
           justifyContent: "space-between",
           mb: 1,
+          alignItems: "flex-start",
         }}
       >
-        {/* SEARCH BAR */}
         <TextField
           placeholder={t("searchbar")}
           size="small"
@@ -186,30 +152,25 @@ const FlashcardSession = () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon sx={{ color: "primary.main" }} />
+                <SearchIcon sx={{ color: theme.palette.primary.main }} />
               </InputAdornment>
             ),
           }}
           sx={{
             width: { xs: "100%", md: "auto" },
-            order: { xs: 2, md: 1 }, // On xs => second; md => first
-            display: {xs: 'none', md: 'inherit'},
+            order: { xs: 2, md: 1 },
+            display: { xs: "none", md: "inherit" },
             "& .MuiOutlinedInput-root": { borderRadius: "8px" },
           }}
         />
 
-        {/* BUTTON + UPGRADE TEXT STACK */}
         <Stack
-          // Force a row layout on xs so text + button sit side by side
           direction="row"
-          spacing={2} // Creates gap between items
+          spacing={2}
           alignItems="center"
           justifyContent="flex-start"
-          sx={{
-            width: "100%",
-          }}
+          sx={{ width: "100%" }}
         >
-          {/* "GENERATE MORE" BUTTON */}
           <Button
             variant="outlined"
             onClick={handleGenerateMoreFlashcards}
@@ -217,8 +178,6 @@ const FlashcardSession = () => {
           >
             {generating ? t("generating") : t("more_flashcards")}
           </Button>
-
-          {/* UPGRADE TEXT (typography) */}
           {(accountType === "free" || !user) && (
             <Box sx={{ textAlign: "left" }}>
               <Typography variant="body1" color="textSecondary">
@@ -242,26 +201,25 @@ const FlashcardSession = () => {
       </Box>
 
       <TextField
-          placeholder={t("searchbar")}
-          size="small"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: theme.palette.primary.main }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            width: "100%",
-            mb: {xs: 1, md: 0},
-            display: {md: 'none'},
-            "& .MuiOutlinedInput-root": { borderRadius: "8px" },
-          }}
-        />
+        placeholder={t("searchbar")}
+        size="small"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon sx={{ color: theme.palette.primary.main }} />
+            </InputAdornment>
+          ),
+        }}
+        sx={{
+          width: "100%",
+          mb: { xs: 1, md: 0 },
+          display: { md: "none" },
+          "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+        }}
+      />
 
-      {/* Flashcards grid */}
       {filteredFlashcards.length === 0 ? (
         <Box sx={{ borderRadius: 2, bgcolor: "background.paper", p: 4 }}>
           <Typography>{t("no_flashcards_in_session")}</Typography>
@@ -269,14 +227,13 @@ const FlashcardSession = () => {
       ) : (
         <Grid container spacing={2}>
           {filteredFlashcards.map((card, idx) => (
-            <Grid size={{ xs: 12, md: 6, xl: 4 }} key={idx}>
+            <Grid key={idx} size={{xs: 12, md: 6, xl: 4}} >
               <Flashcard question={card.question} answer={card.answer} />
             </Grid>
           ))}
         </Grid>
       )}
 
-      {/* Footer */}
       <Footer />
     </Container>
   );

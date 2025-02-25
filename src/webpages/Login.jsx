@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useTranslation, Trans } from "react-i18next";
@@ -39,35 +38,26 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
 
   const {
-    logout,            // Exposed logout function from UserContext
-    resetUserContext,  // Used during submission
+    logout,
+    resetUserContext,
     setUser,
     setIsLoggedIn,
     isLoggedIn,
-    authLoading
+    authLoading,
+    loginUser,
+    registerUser,
+    googleLoginUser,
   } = useContext(UserContext);
-
   const { showSnackbar } = useContext(SnackbarContext);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
-  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
-  /**
-   * This effect checks the auth state only after user context loading is complete.
-   *
-   * If user is logged in, navigate to "/".
-   * If user is not logged in but a stale token is present, call logout to clear it.
-   * Otherwise do nothing, so we avoid repeating logout calls and an infinite loop.
-   */
+  // On mount: if authLoading is done, redirect logged-in users home
   useEffect(() => {
     if (!authLoading) {
       if (isLoggedIn) {
-        // Already authenticated, go home
         navigate("/");
       } else {
-        // If we find a stale token in localStorage, clear it out
         const storedToken = localStorage.getItem("token");
         if (storedToken) {
           logout();
@@ -76,18 +66,14 @@ const LoginPage = () => {
     }
   }, [authLoading, isLoggedIn, logout, navigate]);
 
-  // Whenever authMode changes, update the URL query param.
+  // Update URL query param when authMode changes
   useEffect(() => {
     setSearchParams({ mode: authMode });
   }, [authMode, setSearchParams]);
 
-  /**
-   * Toggle between login or create modes
-   */
   const handleAuthModeChange = (event) => {
     setAuthMode(event.target.value);
-
-    // Clear form fields when toggling between modes
+    // Clear form fields when toggling modes
     setEmail("");
     setPassword("");
     setConfirmPassword("");
@@ -97,12 +83,8 @@ const LoginPage = () => {
     setErrors({});
   };
 
-  /**
-   * Checks required fields
-   */
   const validateRequiredFields = () => {
     const newErrors = {};
-
     if (authMode === "login") {
       if (!email) newErrors.email = true;
       if (!password) newErrors.password = true;
@@ -113,20 +95,14 @@ const LoginPage = () => {
       if (!password) newErrors.password = true;
       if (!confirmPassword) newErrors.confirmPassword = true;
     }
-
     setErrors(newErrors);
-
     if (Object.keys(newErrors).length > 0) {
       showSnackbar(t("please_fill_in_all_required_fields"), "warning");
       return false;
     }
-
     return true;
   };
 
-  /**
-   * Checks Terms of Service (for create mode)
-   */
   const validateTOS = () => {
     if (authMode === "create" && !tosChecked) {
       setErrors((prev) => ({ ...prev, tos: true }));
@@ -136,9 +112,6 @@ const LoginPage = () => {
     return true;
   };
 
-  /**
-   * Form submission for login or create
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -160,19 +133,21 @@ const LoginPage = () => {
       return;
     }
 
-    const endpoint =
-      authMode === "create" ? "/api/auth/register" : "/api/auth/login";
-
     const payload =
       authMode === "create"
         ? { email, password, firstName, lastName }
         : { email, password };
 
     try {
-      const response = await axios.post(`${BACKEND}${endpoint}`, payload);
-      const { token, user } = response.data;
+      let responseData;
+      if (authMode === "create") {
+        responseData = await registerUser(payload);
+      } else {
+        responseData = await loginUser(payload);
+      }
+      const { token, user } = responseData;
 
-      // Always reset the context first to ensure a clean state
+      // Reset context for a clean state
       resetUserContext();
 
       localStorage.setItem("token", token);
@@ -187,7 +162,7 @@ const LoginPage = () => {
           : t("login_successful"),
         "success"
       );
-      // Optionally navigate somewhere:
+      // Optionally navigate home:
       // navigate("/");
     } catch (err) {
       console.error(err);
@@ -200,9 +175,6 @@ const LoginPage = () => {
     }
   };
 
-  /**
-   * Generic field-change handler to manage form state and clear errors
-   */
   const handleFieldChange = (field, value) => {
     switch (field) {
       case "firstName":
@@ -223,7 +195,6 @@ const LoginPage = () => {
       default:
         break;
     }
-
     if (errors[field]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -241,42 +212,9 @@ const LoginPage = () => {
     setShowConfirmPassword((prev) => !prev);
   };
 
-  // Prevent the input losing focus when clicking the icon
+  // Prevent input from losing focus when clicking on the icon
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
-  };
-
-  /**
-   * Handle successful Google login
-   */
-  const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      const tokenId = credentialResponse.credential;
-
-      // Send the Google ID token to your server for verification
-      const response = await axios.post(`${BACKEND}/api/auth/google`, {
-        token: tokenId,
-      });
-
-      const { token, user } = response.data;
-
-      resetUserContext();
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      setUser(user);
-      setIsLoggedIn(true);
-      showSnackbar(t("login_successful"), "success");
-
-      // Optionally redirect somewhere:
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      showSnackbar(
-        err.response?.data?.error || t("error_occurred_try_again"),
-        "error"
-      );
-    }
   };
 
   return (
@@ -289,10 +227,7 @@ const LoginPage = () => {
         mt: 3,
       }}
     >
-      <Box
-        textAlign="center"
-        sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}
-      >
+      <Box textAlign="center" sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}>
         <Typography variant="h4" color="primary">
           StudyBuddy.ai
         </Typography>
@@ -319,31 +254,13 @@ const LoginPage = () => {
                 variant="body1"
                 onClick={(e) => {
                   e.preventDefault();
-                  setAuthMode(
-                    authMode === "create" ? "login" : "create"
-                  );
+                  setAuthMode(authMode === "create" ? "login" : "create");
                 }}
               />,
             ]}
           />
         </Typography>
       </Box>
-
-      {/* Uncomment below for Google Sign-In if needed:
-      <Grid
-        size={12}
-        sx={{ display: "flex", justifyContent: "center", mb: 1, mt: 2 }}
-      >
-        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => showSnackbar(t("error_occurred_try_again"), "error")}
-            useOneTap
-          />
-        </GoogleOAuthProvider>
-      </Grid>
-      <Divider sx={{ m: 2 }} />
-      */}
 
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container rowSpacing={1.5} columnSpacing={1}>
@@ -355,9 +272,7 @@ const LoginPage = () => {
                   label={t("first_name")}
                   variant="outlined"
                   value={firstName}
-                  onChange={(e) =>
-                    handleFieldChange("firstName", e.target.value)
-                  }
+                  onChange={(e) => handleFieldChange("firstName", e.target.value)}
                   error={!!errors.firstName}
                 />
               </Grid>
@@ -367,9 +282,7 @@ const LoginPage = () => {
                   label={t("last_name")}
                   variant="outlined"
                   value={lastName}
-                  onChange={(e) =>
-                    handleFieldChange("lastName", e.target.value)
-                  }
+                  onChange={(e) => handleFieldChange("lastName", e.target.value)}
                   error={!!errors.lastName}
                 />
               </Grid>
@@ -431,9 +344,7 @@ const LoginPage = () => {
                   type={showConfirmPassword ? "text" : "password"}
                   variant="outlined"
                   value={confirmPassword}
-                  onChange={(e) =>
-                    handleFieldChange("confirmPassword", e.target.value)
-                  }
+                  onChange={(e) => handleFieldChange("confirmPassword", e.target.value)}
                   error={!!errors.confirmPassword}
                   slotProps={{
                     input: {
@@ -452,11 +363,7 @@ const LoginPage = () => {
                               color: "text.secondary",
                             }}
                           >
-                            {showConfirmPassword ? (
-                              <VisibilityOff />
-                            ) : (
-                              <Visibility />
-                            )}
+                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
                       ),

@@ -1,8 +1,6 @@
 import React, { useState, useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
-import axios from "axios";
-import LanguageSwitcherText from "../components/LanguageSwitcher";
 
 // MUI Component Imports
 import Container from "@mui/material/Container";
@@ -20,11 +18,9 @@ import DialogActions from "@mui/material/DialogActions";
 import { useTranslation } from "react-i18next";
 
 const SettingsPage = () => {
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser, updateAccountInfo, changePassword, updatePreferences, cancelSubscription } = useContext(UserContext);
   const { showSnackbar } = useContext(SnackbarContext);
   const { t } = useTranslation();
-
-  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
 
   // State for Account Information
   const [firstName, setFirstName] = useState(user?.firstName || "");
@@ -32,13 +28,9 @@ const SettingsPage = () => {
   const [email, setEmail] = useState(user?.email || "");
   const [company, setCompany] = useState(user?.company || "");
 
-  // Preferences states (if needed)
-  const [darkMode, setDarkMode] = useState(
-    user?.preferences?.darkMode || false
-  );
-  const [notificationsEnabled, setNotificationsEnabled] = useState(
-    user?.preferences?.notificationsEnabled || false
-  );
+  // Preferences states
+  const [darkMode, setDarkMode] = useState(user?.preferences?.darkMode || false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(user?.preferences?.notificationsEnabled || false);
 
   // State for Password Change
   const [currentPassword, setCurrentPassword] = useState("");
@@ -57,26 +49,14 @@ const SettingsPage = () => {
   const handleAccountInfoSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     const payload = { firstName, lastName, email, company };
-
     try {
-      const response = await axios.put(
-        `${BACKEND}/api/users/update`,
-        payload,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-
-      setUser(response.data.user);
+      const updatedUser = await updateAccountInfo(payload);
+      setUser(updatedUser);
       showSnackbar(t("account_info_updated_success"), "success");
     } catch (err) {
       console.error("Error updating account information:", err);
-      showSnackbar(
-        err.response?.data?.error || t("failed_to_update_account_info"),
-        "error"
-      );
+      showSnackbar(err.response?.data?.error || t("failed_to_update_account_info"), "error");
     } finally {
       setLoading(false);
     }
@@ -88,34 +68,21 @@ const SettingsPage = () => {
   const handlePasswordChangeSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     if (newPassword !== confirmPassword) {
       showSnackbar(t("password_mismatch"), "error");
       setLoading(false);
       return;
     }
-
     const payload = { currentPassword, newPassword };
-
     try {
-      await axios.put(
-        `${BACKEND}/api/users/change-password`,
-        payload,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-
+      await changePassword(payload);
       showSnackbar(t("password_changed_success"), "success");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
       console.error("Error changing password:", err);
-      showSnackbar(
-        err.response?.data?.error || t("failed_to_change_password"),
-        "error"
-      );
+      showSnackbar(err.response?.data?.error || t("failed_to_change_password"), "error");
     } finally {
       setLoading(false);
     }
@@ -126,31 +93,19 @@ const SettingsPage = () => {
    */
   const handlePreferencesChange = async () => {
     setLoading(true);
-
     const payload = {
       preferences: {
         darkMode,
         notificationsEnabled,
       },
     };
-
     try {
-      const response = await axios.put(
-        `${BACKEND}/api/users/preferences`,
-        payload,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-
-      setUser(response.data.user);
+      const updatedUser = await updatePreferences(payload);
+      setUser(updatedUser);
       showSnackbar(t("preferences_updated_success"), "success");
     } catch (err) {
       console.error("Error updating preferences:", err);
-      showSnackbar(
-        err.response?.data?.error || t("failed_to_update_preferences"),
-        "error"
-      );
+      showSnackbar(err.response?.data?.error || t("failed_to_update_preferences"), "error");
     } finally {
       setLoading(false);
     }
@@ -162,53 +117,20 @@ const SettingsPage = () => {
   const handleCancelSubscription = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("User is not authenticated.");
-
-      await axios.post(
-        `${
-          BACKEND
-        }/api/checkout/cancel-subscription`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      // Update user context after cancellation
-      const updatedUserResponse = await axios.get(
-        `${BACKEND}/api/auth/me`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      setUser(updatedUserResponse.data.user);
+      const updatedUser = await cancelSubscription();
+      setUser(updatedUser);
       showSnackbar(t("subscription_canceled_successfully"), "success");
     } catch (err) {
       console.error("Error canceling subscription:", err);
-      showSnackbar(
-        err.response?.data?.error || t("failed_to_cancel_subscription"),
-        "error"
-      );
+      showSnackbar(err.response?.data?.error || t("failed_to_cancel_subscription"), "error");
     } finally {
       setLoading(false);
-      setOpenDialog(false); // Close the dialog after operation
+      setOpenDialog(false);
     }
   };
 
   return (
-    <Container
-      maxWidth="xl"
-      sx={{
-        mt: 5,
-        alignContent: "inherit",
-        alignItems: "inherit",
-        textAlign: "left",
-      }}
-    >
+    <Container maxWidth="xl" sx={{ mt: 5, alignContent: "inherit", alignItems: "inherit", textAlign: "left" }}>
       {/* Account Information Form */}
       <Typography variant="h4" gutterBottom>
         {t("account_settings")}
@@ -253,22 +175,13 @@ const SettingsPage = () => {
           value={company}
           onChange={(e) => setCompany(e.target.value)}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          type="submit"
-          disabled={loading}
-        >
+        <Button variant="contained" color="primary" type="submit" disabled={loading}>
           {loading ? t("updating") : t("update_account_information")}
         </Button>
       </Box>
 
       {/* Password Change Form */}
-      <Box
-        component="form"
-        onSubmit={handlePasswordChangeSubmit}
-        sx={{ mb: 2 }}
-      >
+      <Box component="form" onSubmit={handlePasswordChangeSubmit} sx={{ mb: 2 }}>
         <Typography variant="h6" gutterBottom>
           {t("change_password")}
         </Typography>
@@ -302,13 +215,33 @@ const SettingsPage = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
-        <Button
-          variant="contained"
-          color="primary"
-          type="submit"
-          disabled={loading}
-        >
+        <Button variant="contained" color="primary" type="submit" disabled={loading}>
           {loading ? t("changing_password") : t("change_password")}
+        </Button>
+      </Box>
+
+      {/* Preferences Section */}
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="h6" gutterBottom>
+          {t("preferences")}
+        </Typography>
+        {/* You can implement toggles or checkboxes for preferences as needed */}
+        <TextField
+          label={t("dark_mode")}
+          type="checkbox"
+          checked={darkMode}
+          onChange={(e) => setDarkMode(e.target.checked)}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          label={t("notifications_enabled")}
+          type="checkbox"
+          checked={notificationsEnabled}
+          onChange={(e) => setNotificationsEnabled(e.target.checked)}
+          sx={{ mb: 2 }}
+        />
+        <Button variant="contained" color="primary" onClick={handlePreferencesChange} disabled={loading}>
+          {loading ? t("updating") : t("update_preferences")}
         </Button>
       </Box>
 
@@ -323,27 +256,16 @@ const SettingsPage = () => {
           </Button>
 
           {/* Confirmation Dialog */}
-          <Dialog
-            open={openDialog}
-            onClose={() => setOpenDialog(false)}
-            sx={{ textAlign: "center"}}
-          >
-            <DialogTitle sx={{pb: 1}}>{t("confirm_cancel_subscription")}</DialogTitle>
-            <DialogContent sx={{pb: 1}}>
-              <DialogContentText>
-                {t("cancel_subscription_warning")}
-              </DialogContentText>
+          <Dialog open={openDialog} onClose={() => setOpenDialog(false)} sx={{ textAlign: "center" }}>
+            <DialogTitle sx={{ pb: 1 }}>{t("confirm_cancel_subscription")}</DialogTitle>
+            <DialogContent sx={{ pb: 1 }}>
+              <DialogContentText>{t("cancel_subscription_warning")}</DialogContentText>
             </DialogContent>
-            <DialogActions sx={{justifyContent: "center" }}>
+            <DialogActions sx={{ justifyContent: "center" }}>
               <Button onClick={() => setOpenDialog(false)} color="primary">
                 {t("cancel")}
               </Button>
-              <Button
-                variant="text"
-                color="error"
-                onClick={handleCancelSubscription}
-                disabled={loading}
-              >
+              <Button variant="text" color="error" onClick={handleCancelSubscription} disabled={loading}>
                 {loading ? t("cancelling_subscription") : t("confirm_cancel")}
               </Button>
             </DialogActions>

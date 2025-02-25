@@ -8,7 +8,13 @@ import {
 import { Navigate } from "react-router-dom";
 import axios from "axios";
 import UserContext from "../contexts/UserContext";
-import { Box, CircularProgress, Typography, Link, Alert } from "@mui/material";
+
+// MUI Components
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
+import Alert from "@mui/material/Alert";
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.

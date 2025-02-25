@@ -1,10 +1,10 @@
 import React, { createContext, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import PropTypes from "prop-types";
+import { jwtDecode } from "jwt-decode";
 
-// eslint-disable-next-line
+//eslint-disable-next-line
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
@@ -14,11 +14,11 @@ export const UserProvider = ({ children }) => {
 
   // Auth state
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null); // track token in state
+  const [token, setToken] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Flashcard sessions (DB-based)
+  // DB-based flashcard sessions
   const [flashcardSessions, setFlashcardSessions] = useState([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [flashcardError, setFlashcardError] = useState(null);
@@ -26,24 +26,10 @@ export const UserProvider = ({ children }) => {
   // Local ephemeral sessions
   const [localSessions, setLocalSessions] = useState([]);
 
-  // Hooks from React Router
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  /**
-   * A centralized logout function that:
-   *  - Clears user context
-   *  - Removes token from storage
-   *  - Navigates to login page (with "mode=login")
-   */
-  const logout = () => {
-    resetUserContext();
-    navigate("/login?mode=login", { replace: true });
-  };
-
-  /**
-   * Reset context on logout or token failure
-   */
+  // Reset user context on logout or auth failure
   const resetUserContext = () => {
     setUser(null);
     setToken(null);
@@ -54,9 +40,13 @@ export const UserProvider = ({ children }) => {
     localStorage.removeItem("token");
   };
 
+  const logout = () => {
+    resetUserContext();
+    navigate("/login?mode=login", { replace: true });
+  };
+
   /**
-   * Loads token from localStorage (if any),
-   * then tries to fetch current user details from the backend.
+   * Fetch current user details from backend.
    */
   const fetchCurrentUser = async () => {
     const localToken = localStorage.getItem("token");
@@ -64,87 +54,67 @@ export const UserProvider = ({ children }) => {
       setAuthLoading(false);
       return;
     }
-
-    // Store token in state
     setToken(localToken);
-
     try {
-      // Attempt to retrieve user with the token
       const resp = await axios.get(`${BACKEND}/api/auth/me`, {
         headers: { Authorization: `Bearer ${localToken}` },
       });
-
-      // If successful, store user data & set loggedIn state
       setUser(resp.data.user);
       setIsLoggedIn(true);
     } catch (err) {
       console.error("fetchCurrentUser error:", err);
-      resetUserContext(); // Invalidate local token if fetch fails
+      resetUserContext();
     } finally {
       setAuthLoading(false);
     }
   };
 
-  // On mount: Load ephemeral sessions and attempt to fetch current user
+  // On mount: restore local sessions and fetch current user
   useEffect(() => {
-    // Restore ephemeral sessions from localStorage
     try {
       const stored = JSON.parse(localStorage.getItem("localSessions") || "[]");
       setLocalSessions(stored);
     } catch (err) {
       console.error("Error loading localSessions:", err);
     }
-
-    // Attempt user fetch
     fetchCurrentUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Persist ephemeral sessions to localStorage on each update
+  // Persist local sessions to localStorage on change
   useEffect(() => {
     localStorage.setItem("localSessions", JSON.stringify(localSessions));
   }, [localSessions]);
 
-  /**
-   * Automatically log out when the token expires.
-   * We do this by setting a timer for (exp - now).
-   */
+  // Automatically logout when token expires
   useEffect(() => {
-    // We'll store the timeout ID so we can clear it if the token changes again
     let tokenExpiryTimeout;
-
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        const expiryTimestamp = decoded.exp * 1000; // exp is in seconds, convert to ms
+        const expiryTimestamp = decoded.exp * 1000;
         const timeLeft = expiryTimestamp - Date.now();
-
-        // If already expired, log out immediately
         if (timeLeft <= 0) {
           logout();
         } else {
-          // Otherwise, set a timeout to log out the user right when it expires
           tokenExpiryTimeout = setTimeout(() => {
             logout();
           }, timeLeft);
         }
       } catch (error) {
         console.error("Error decoding token:", error);
-        // If there's any issue decoding, treat it as invalid
         logout();
       }
     }
-
-    // Cleanup: if token changes or component unmounts, clear the old timeout
     return () => {
       if (tokenExpiryTimeout) {
         clearTimeout(tokenExpiryTimeout);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]); // depends on 'token'
+  }, [token]);
 
-  // If user changes, load DB-based flashcard sessions (if logged in)
+  // Load DB-based flashcard sessions when user changes
   useEffect(() => {
     if (user) {
       loadFlashcardSessions();
@@ -154,22 +124,16 @@ export const UserProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  /**
-   * Load DB-based flashcard sessions
-   */
   const loadFlashcardSessions = async () => {
     if (!user) return;
     setLoadingSessions(true);
     setFlashcardError(null);
-
     try {
       const localToken = localStorage.getItem("token");
       if (!localToken) return;
-
       const resp = await axios.get(`${BACKEND}/api/flashcards`, {
         headers: { Authorization: `Bearer ${localToken}` },
       });
-      // Tag each DB session with a "db" type
       const loadedDbSessions = (resp.data.flashcards || []).map((s) => ({
         ...s,
         sessionType: "db",
@@ -183,9 +147,7 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Create ephemeral session (local) with limit check
-   */
+  // Local ephemeral session functions
   const createLocalSession = (sessionData) => {
     if (localSessions.length >= MAX_EPHEMERAL_SESSIONS) {
       throw new Error("Maximum number of study sessions reached.");
@@ -196,9 +158,6 @@ export const UserProvider = ({ children }) => {
     setLocalSessions(updatedSessions);
   };
 
-  /**
-   * Delete ephemeral session
-   */
   const deleteLocalSession = (sessionId) => {
     if (location.pathname === `/flashcards-local/${sessionId}`) {
       navigate("/");
@@ -206,9 +165,6 @@ export const UserProvider = ({ children }) => {
     setLocalSessions((prev) => prev.filter((s) => s.id !== sessionId));
   };
 
-  /**
-   * Rename ephemeral session
-   */
   const updateLocalSession = (sessionId, newName) => {
     setLocalSessions((prev) =>
       prev.map((s) =>
@@ -217,9 +173,7 @@ export const UserProvider = ({ children }) => {
     );
   };
 
-  /**
-   * Delete DB-based session
-   */
+  // DB-based session functions
   const deleteFlashcardSession = async (sessionId) => {
     if (location.pathname === `/flashcards/${sessionId}`) {
       navigate("/");
@@ -227,7 +181,6 @@ export const UserProvider = ({ children }) => {
     try {
       const localToken = localStorage.getItem("token");
       if (!localToken) throw new Error("Not authenticated.");
-
       await axios.delete(`${BACKEND}/api/flashcards/${sessionId}`, {
         headers: { Authorization: `Bearer ${localToken}` },
       });
@@ -238,14 +191,10 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Rename DB-based session
-   */
   const updateFlashcardSessionName = async (sessionId, newName) => {
     try {
       const localToken = localStorage.getItem("token");
       if (!localToken) throw new Error("Not authenticated.");
-
       await axios.put(
         `${BACKEND}/api/flashcards/${sessionId}/name`,
         { sessionName: newName },
@@ -264,26 +213,163 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Example Notion methods (unchanged), kept for completeness
-   */
-  const fetchNotionAuthUrl = async (token) => {
-    return axios.get(`${BACKEND}/api/notion/auth-url`, {
+  // Axios functions for flashcard session management
+  const fetchFlashcardSession = async (sessionId) => {
+    try {
+      const localToken = localStorage.getItem("token");
+      if (!localToken) throw new Error("User is not authenticated.");
+      const response = await axios.get(
+        `${BACKEND}/api/flashcards/${sessionId}`,
+        {
+          headers: { Authorization: `Bearer ${localToken}` },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("fetchFlashcardSession error:", error);
+    }
+  };
+
+  const generateAdditionalFlashcards = async (sessionId) => {
+    try {
+      const localToken = localStorage.getItem("token");
+      if (!localToken) throw new Error("User is not authenticated.");
+      await axios.post(
+        `${BACKEND}/api/flashcards/${sessionId}/generate-additional-flashcards`,
+        {},
+        { headers: { Authorization: `Bearer ${localToken}` } }
+      );
+    } catch (error) {
+      console.error("generateAdditionalFlashcards error:", error);
+    }
+  };
+
+  // Axios functions for CreateStudySession functionality
+  const uploadDocumentTranscript = async (selectedFile) => {
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    if (!token) {
+      const resp = await axios.post(`${BACKEND}/api/upload-public`, formData);
+      return resp.data.transcript;
+    } else {
+      const resp = await axios.post(`${BACKEND}/api/upload`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return resp.data.transcript;
+    }
+  };
+
+  const getWebsiteTranscript = async (websiteUrl) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      const resp = await axios.get(`${BACKEND}/api/website-transcript-public`, {
+        params: { url: websiteUrl.trim() },
+      });
+      return resp.data.transcript;
+    } else {
+      const resp = await axios.get(`${BACKEND}/api/website-transcript`, {
+        params: { url: websiteUrl.trim() },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return resp.data.transcript;
+    }
+  };
+
+  const generateFlashcardsFromTranscript = async (transcriptText) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      const resp = await axios.post(
+        `${BACKEND}/api/openai/generate-flashcards-public`,
+        { transcript: transcriptText }
+      );
+      return resp.data.flashcards;
+    } else {
+      const resp = await axios.post(
+        `${BACKEND}/api/openai/generate-flashcards`,
+        { transcript: transcriptText },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return resp.data.flashcards;
+    }
+  };
+
+  const createDBStudySession = async (
+    sessionName,
+    studyCards,
+    transcriptText
+  ) => {
+    const token = localStorage.getItem("token");
+    const resp = await axios.post(
+      `${BACKEND}/api/flashcards`,
+      {
+        sessionName,
+        studyCards,
+        transcript: transcriptText,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return resp.data.flashcard;
+  };
+
+  // New Axios functions for Settings functionality
+  const updateAccountInfo = async (payload) => {
+    const token = localStorage.getItem("token");
+    const response = await axios.put(`${BACKEND}/api/users/update`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.user;
+  };
+
+  const changePassword = async (payload) => {
+    const token = localStorage.getItem("token");
+    await axios.put(`${BACKEND}/api/users/change-password`, payload, {
       headers: { Authorization: `Bearer ${token}` },
     });
   };
 
-  const checkNotionAuthorization = async (token) => {
-    return axios.get(`${BACKEND}/api/notion/is-authorized`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  const updatePreferences = async (payload) => {
+    const token = localStorage.getItem("token");
+    const response = await axios.put(
+      `${BACKEND}/api/users/preferences`,
+      payload,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response.data.user;
   };
 
-  const fetchNotionPageContent = async (token, pageId) => {
-    return axios.get(`${BACKEND}/api/notion/page-content`, {
+  const cancelSubscription = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("User is not authenticated.");
+    await axios.post(
+      `${BACKEND}/api/checkout/cancel-subscription`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const updatedUserResponse = await axios.get(`${BACKEND}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
-      params: { pageId },
     });
+    return updatedUserResponse.data.user;
+  };
+
+  // New Axios functions for Login functionality
+  const loginUser = async (payload) => {
+    const response = await axios.post(`${BACKEND}/api/auth/login`, payload);
+    return response.data;
+  };
+
+  const registerUser = async (payload) => {
+    const response = await axios.post(`${BACKEND}/api/auth/register`, payload);
+    return response.data;
+  };
+
+  const googleLoginUser = async (tokenId) => {
+    const response = await axios.post(`${BACKEND}/api/auth/google`, {
+      token: tokenId,
+    });
+    return response.data;
   };
 
   return (
@@ -296,9 +382,7 @@ export const UserProvider = ({ children }) => {
         setIsLoggedIn,
         authLoading,
         resetUserContext,
-        logout, // Expose logout
-
-        // DB-based sessions
+        logout,
         flashcardSessions,
         setFlashcardSessions,
         loadingSessions,
@@ -306,14 +390,33 @@ export const UserProvider = ({ children }) => {
         setFlashcardError,
         deleteFlashcardSession,
         updateFlashcardSessionName,
-
-        // Local ephemeral sessions
         localSessions,
         setLocalSessions,
         createLocalSession,
         deleteLocalSession,
         updateLocalSession,
         MAX_EPHEMERAL_SESSIONS,
+
+        // FlashcardSession.jsx functions
+        fetchFlashcardSession,
+        generateAdditionalFlashcards,
+
+        // CreateStudySession.jsx axios functions
+        uploadDocumentTranscript,
+        getWebsiteTranscript,
+        generateFlashcardsFromTranscript,
+        createDBStudySession,
+
+        // Settings.jsx axios functions
+        updateAccountInfo,
+        changePassword,
+        updatePreferences,
+        cancelSubscription,
+
+        // Login.jsx axios functions
+        loginUser,
+        registerUser,
+        googleLoginUser,
       }}
     >
       {children}
