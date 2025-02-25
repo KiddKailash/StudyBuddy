@@ -36,7 +36,7 @@ exports.fetchWebsiteTranscript = async (req, res) => {
 
     return res.json({ transcript });
   } catch (error) {
-    console.error("Error scraping website:", error);
+    console.error("Error scraping website");
     return res.status(500).json({
       error: "Error scraping website",
       details: error.message,

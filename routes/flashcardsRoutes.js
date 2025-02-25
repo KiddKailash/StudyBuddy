@@ -9,6 +9,7 @@ const {
   updateFlashcardSessionName,
   addFlashcardsToSession,
   generateAdditionalFlashcards,
+  assignFolderToSession
 } = require("../controllers/flashcardsController");
 
 // Apply authentication middleware to all routes
@@ -50,5 +51,10 @@ router.put("/:id/add-flashcards", addFlashcardsToSession);
 // @desc    Generate additional flashcards for an existing session
 // @access  Private
 router.post("/:id/generate-additional-flashcards", generateAdditionalFlashcards);
+
+// @route   PUT /api/flashcards/:id/assign-folder
+// @desc    Assign a folder to a flashcard session
+// @access  Private
+router.put("/:id/assign-folder", authMiddleware, assignFolderToSession);
 
 module.exports = router;

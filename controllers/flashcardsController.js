@@ -41,6 +41,7 @@ exports.createFlashcardSession = async (req, res) => {
       flashcardsJSON: studyCards,
       transcript: transcript,
       createdDate: new Date(),
+      folderID: null,
     };
 
     const result = await flashcardsCollection.insertOne(newSession);
@@ -263,6 +264,44 @@ exports.updateFlashcardSessionName = async (req, res) => {
     res
       .status(500)
       .json({ error: "Server error while updating flashcard session name." });
+  }
+};
+
+/**
+ * Assign a folder to an existing flashcard session.
+ */
+exports.assignFolderToSession = async (req, res) => {
+  const { id } = req.params;
+  const { folderID } = req.body;
+  const userId = req.user.id;
+
+  if (!folderID) {
+    return res.status(400).json({ error: "folderID is required." });
+  }
+
+  try {
+    const db = getDB();
+    const flashcardsCollection = db.collection("flashcards");
+
+    // Verify that the session exists and belongs to the user
+    const session = await flashcardsCollection.findOne({
+      _id: new ObjectId(id),
+      userId: new ObjectId(userId),
+    });
+    if (!session) {
+      return res.status(404).json({ error: "Flashcard session not found." });
+    }
+
+    // Update the session to assign the folder
+    await flashcardsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { folderID } }
+    );
+
+    res.status(200).json({ message: "Folder assigned successfully." });
+  } catch (error) {
+    console.error("Error assigning folder:", error);
+    res.status(500).json({ error: "Server error assigning folder." });
   }
 };
 

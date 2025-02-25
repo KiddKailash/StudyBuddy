@@ -23,6 +23,7 @@ const featureRequestRoutes = require("./routes/featureRequestRoutes");
 const notionRoutes = require("./routes/notionRoutes");
 const webhookHandler = require("./routes/webhookRoutes");
 const websiteTranscriptRoutes = require("./routes/websiteTranscriptRoutes");
+const foldersRoutes = require("./routes/foldersRoutes");
 
 // Public versions of routes
 const openaiPublicRoutes = require("./routes/openaiPublicRoutes");
@@ -90,6 +91,7 @@ connectDB()
     app.use("/api/flashcards", flashcardsRoutes);
     app.use("/api/checkout", checkoutRoutes);
     app.use("/api/upload", uploadRoutes);
+    app.use("/api/folders", foldersRoutes);
     app.use("/api/users", userRoutes);
     app.use("/api/notion", notionRoutes);
     app.use("/api/feature-request", featureRequestRoutes);
