@@ -13,6 +13,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
@@ -28,17 +30,16 @@ const SettingsPage = () => {
   const [email, setEmail] = useState(user?.email || "");
   const [company, setCompany] = useState(user?.company || "");
 
-  // Preferences states
-  const [darkMode, setDarkMode] = useState(user?.preferences?.darkMode || false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(user?.preferences?.notificationsEnabled || false);
-
   // State for Password Change
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Loading State
-  const [loading, setLoading] = useState(false);
+  // Individual Loading States for each update
+  const [accountLoading, setAccountLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [preferencesLoading, setPreferencesLoading] = useState(false);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
 
   // Dialog State for Cancel Subscription Confirmation
   const [openDialog, setOpenDialog] = useState(false);
@@ -48,7 +49,7 @@ const SettingsPage = () => {
    */
   const handleAccountInfoSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setAccountLoading(true);
     const payload = { firstName, lastName, email, company };
     try {
       const updatedUser = await updateAccountInfo(payload);
@@ -58,7 +59,7 @@ const SettingsPage = () => {
       console.error("Error updating account information:", err);
       showSnackbar(err.response?.data?.error || t("failed_to_update_account_info"), "error");
     } finally {
-      setLoading(false);
+      setAccountLoading(false);
     }
   };
 
@@ -67,10 +68,10 @@ const SettingsPage = () => {
    */
   const handlePasswordChangeSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setPasswordLoading(true);
     if (newPassword !== confirmPassword) {
       showSnackbar(t("password_mismatch"), "error");
-      setLoading(false);
+      setPasswordLoading(false);
       return;
     }
     const payload = { currentPassword, newPassword };
@@ -84,30 +85,7 @@ const SettingsPage = () => {
       console.error("Error changing password:", err);
       showSnackbar(err.response?.data?.error || t("failed_to_change_password"), "error");
     } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * Handles preferences update.
-   */
-  const handlePreferencesChange = async () => {
-    setLoading(true);
-    const payload = {
-      preferences: {
-        darkMode,
-        notificationsEnabled,
-      },
-    };
-    try {
-      const updatedUser = await updatePreferences(payload);
-      setUser(updatedUser);
-      showSnackbar(t("preferences_updated_success"), "success");
-    } catch (err) {
-      console.error("Error updating preferences:", err);
-      showSnackbar(err.response?.data?.error || t("failed_to_update_preferences"), "error");
-    } finally {
-      setLoading(false);
+      setPasswordLoading(false);
     }
   };
 
@@ -115,7 +93,7 @@ const SettingsPage = () => {
    * Handles direct subscription cancellation.
    */
   const handleCancelSubscription = async () => {
-    setLoading(true);
+    setSubscriptionLoading(true);
     try {
       const updatedUser = await cancelSubscription();
       setUser(updatedUser);
@@ -124,7 +102,7 @@ const SettingsPage = () => {
       console.error("Error canceling subscription:", err);
       showSnackbar(err.response?.data?.error || t("failed_to_cancel_subscription"), "error");
     } finally {
-      setLoading(false);
+      setSubscriptionLoading(false);
       setOpenDialog(false);
     }
   };
@@ -175,8 +153,8 @@ const SettingsPage = () => {
           value={company}
           onChange={(e) => setCompany(e.target.value)}
         />
-        <Button variant="contained" color="primary" type="submit" disabled={loading}>
-          {loading ? t("updating") : t("update_account_information")}
+        <Button variant="contained" color="primary" type="submit" disabled={accountLoading}>
+          {accountLoading ? t("updating") : t("update_account_information")}
         </Button>
       </Box>
 
@@ -215,33 +193,8 @@ const SettingsPage = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
-        <Button variant="contained" color="primary" type="submit" disabled={loading}>
-          {loading ? t("changing_password") : t("change_password")}
-        </Button>
-      </Box>
-
-      {/* Preferences Section */}
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          {t("preferences")}
-        </Typography>
-        {/* You can implement toggles or checkboxes for preferences as needed */}
-        <TextField
-          label={t("dark_mode")}
-          type="checkbox"
-          checked={darkMode}
-          onChange={(e) => setDarkMode(e.target.checked)}
-          sx={{ mb: 2 }}
-        />
-        <TextField
-          label={t("notifications_enabled")}
-          type="checkbox"
-          checked={notificationsEnabled}
-          onChange={(e) => setNotificationsEnabled(e.target.checked)}
-          sx={{ mb: 2 }}
-        />
-        <Button variant="contained" color="primary" onClick={handlePreferencesChange} disabled={loading}>
-          {loading ? t("updating") : t("update_preferences")}
+        <Button variant="contained" color="primary" type="submit" disabled={passwordLoading}>
+          {passwordLoading ? t("changing_password") : t("change_password")}
         </Button>
       </Box>
 
@@ -265,8 +218,8 @@ const SettingsPage = () => {
               <Button onClick={() => setOpenDialog(false)} color="primary">
                 {t("cancel")}
               </Button>
-              <Button variant="text" color="error" onClick={handleCancelSubscription} disabled={loading}>
-                {loading ? t("cancelling_subscription") : t("confirm_cancel")}
+              <Button variant="text" color="error" onClick={handleCancelSubscription} disabled={subscriptionLoading}>
+                {subscriptionLoading ? t("cancelling_subscription") : t("confirm_cancel")}
               </Button>
             </DialogActions>
           </Dialog>
