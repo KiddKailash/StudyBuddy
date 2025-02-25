@@ -116,7 +116,6 @@ export const UserProvider = ({ children }) => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        console.log(decoded);
         const expiryTimestamp = decoded.exp * 1000; // exp is in seconds, convert to ms
         const timeLeft = expiryTimestamp - Date.now();
 
