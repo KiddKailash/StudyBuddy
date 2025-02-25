@@ -55,7 +55,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
             display: { xs: "flex", sm: "none" },
           }}
         >
-          <MobileMenu handleDrawerToggle={handleDrawerToggle} />
+          {user && <MobileMenu handleDrawerToggle={handleDrawerToggle} />}
           <LanguageSwitcherIMG />
           {user && user.accountType !== "paid" && !isCheckoutPage && (
             <UpgradeButton />
