@@ -312,6 +312,53 @@ export const UserProvider = ({ children }) => {
     return resp.data.flashcard;
   };
 
+  // New state and helper functions for folders in UserContext.jsx
+  const [folders, setFolders] = useState([]);
+
+  // Retrieves folders from the backend.
+  const getFolders = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("User is not authenticated.");
+    const response = await axios.get(`${BACKEND}/api/folders`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.folders;
+  };
+
+  // Refresh folder state.
+  const refreshFolders = async () => {
+    try {
+      const foldersData = await getFolders();
+      setFolders(foldersData);
+    } catch (error) {
+      console.error("Error fetching folders:", error);
+    }
+  };
+
+  // Creates a new folder.
+  const createFolder = async (folderName) => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("User is not authenticated.");
+    const response = await axios.post(
+      `${BACKEND}/api/folders`,
+      { folderName },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data.folder;
+  };
+
+  // Assigns a folder to a session.
+  const assignSessionToFolder = async (sessionId, folderID) => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("User is not authenticated.");
+    const response = await axios.put(
+      `${BACKEND}/api/flashcards/${sessionId}/assign-folder`,
+      { folderID },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  };
+
   // New Axios functions for Settings functionality
   const updateAccountInfo = async (payload) => {
     const token = localStorage.getItem("token");
@@ -435,7 +482,13 @@ export const UserProvider = ({ children }) => {
         googleLoginUser,
 
         // RequestFeature.jsx axios function
-        requestFeature
+        requestFeature,
+
+        // Folder functionality
+        folders,
+        refreshFolders,
+        createFolder,
+        assignSessionToFolder,
       }}
     >
       {children}
