@@ -10,6 +10,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 const ThemeContext = createContext();
 
 // Hook for any component to read or toggle the current theme
+//eslint-disable-next-line
 export function useThemeContext() {
   return useContext(ThemeContext);
 }

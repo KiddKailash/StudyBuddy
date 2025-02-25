@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Typography from "@mui/material/Typography";
-import { formatAccountType } from "./menubarUtils";
 import { useTranslation } from "react-i18next";
 
 /**
