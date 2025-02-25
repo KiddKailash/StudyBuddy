@@ -354,6 +354,22 @@ export const UserProvider = ({ children }) => {
     return updatedUserResponse.data.user;
   };
 
+  // New Axios function for RequestFeature functionality
+  const requestFeature = async (features) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("User is not authenticated.");
+    }
+    const response = await axios.post(
+      `${BACKEND}/api/feature-request`,
+      { features },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response.data;
+  };
+
   // New Axios functions for Login functionality
   const loginUser = async (payload) => {
     const response = await axios.post(`${BACKEND}/api/auth/login`, payload);
@@ -417,6 +433,9 @@ export const UserProvider = ({ children }) => {
         loginUser,
         registerUser,
         googleLoginUser,
+
+        // RequestFeature.jsx axios function
+        requestFeature
       }}
     >
       {children}

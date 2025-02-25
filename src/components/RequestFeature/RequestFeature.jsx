@@ -1,45 +1,35 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
 import { useTranslation } from "react-i18next";
 
-// MUI Imports
+// MUI Components
 import IconButton from "@mui/material/IconButton";
-import BiotechRoundedIcon from '@mui/icons-material/BiotechRounded';
+import BiotechRoundedIcon from "@mui/icons-material/BiotechRounded";
 
-// Import the new dialog
+// Components
 import RequestFeatureDialog from "./RequestFeatureDialog";
 
-// Import any contexts you need
+// Contexts
 import { SnackbarContext } from "../../contexts/SnackbarContext";
+import { UserContext } from "../../contexts/UserContext";
 
 const RequestFeature = () => {
-  const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
-  const token = localStorage.getItem("token");
-
   // Snackbar context for success/error
   const { showSnackbar } = useContext(SnackbarContext);
-
-  // i18n
   const { t } = useTranslation();
+
+  // Bring in the new requestFeature function from context
+  const { requestFeature } = useContext(UserContext);
 
   // Dialog open/close
   const [dialogOpen, setDialogOpen] = useState(false);
   const openDialog = () => setDialogOpen(true);
   const closeDialog = () => setDialogOpen(false);
 
-  // Handle form submission from the dialog (the dialog will already be closed)
+  // Handle form submission from the dialog
   // 'features' is an array of objects: [{ title: "...", description: "..." }, ...]
   const handleSubmit = async (features) => {
     try {
-      await axios.post(
-        `${BACKEND}/api/feature-request`,
-        { features },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await requestFeature(features);
       showSnackbar(t("success_message"), "success");
     } catch (error) {
       console.error("Error submitting feature request:", error);
@@ -60,18 +50,14 @@ const RequestFeature = () => {
           zIndex: "5000",
           "&:hover": {
             bgcolor: "background.default",
-            color: "primary.main"
+            color: "primary.main",
           },
         }}
       >
         <BiotechRoundedIcon />
       </IconButton>
 
-      <RequestFeatureDialog
-        open={dialogOpen}
-        onClose={closeDialog}
-        onSubmit={handleSubmit}
-      />
+      <RequestFeatureDialog open={dialogOpen} onClose={closeDialog} onSubmit={handleSubmit} />
     </>
   );
 };
