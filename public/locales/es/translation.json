@@ -275,5 +275,89 @@
   "error_message": "No se pudo enviar la solicitud de función. Inténtalo de nuevo.",
   "searchbar": "Filtrar tarjetas...",
   "website": "Sitio web",
-  "enter_website_url_here": "Ingrese la URL del sitio web aquí"
+  "enter_website_url_here": "Ingrese la URL del sitio web aquí",
+  "hero": {
+    "title": "Estudia S.M.A.R.T",
+    "subtitle": "S.M.A.R.T significa 'Study Materials, by AI, for Revision and Tutelage'.",
+    "getStarted": "Comenzar"
+  },
+  "tagline": "Con la confianza de más de 350,000 estudiantes en",
+  "section": {
+    "reviseTitle": "Repasa, estudia intensamente y pon a prueba tus conocimientos con materiales de estudio",
+    "anywhereTitle": "En cualquier lugar, en cualquier momento, desde cualquier cosa."
+  },
+  "features": {
+    "createFlashcards": {
+      "title": "Crea tarjetas de preguntas y respuestas",
+      "description": "Sube cualquier recurso: video, sitio web, documento o transcripción, y crea tarjetas para repasar.",
+      "learnMore": "Saber más"
+    },
+    "mockExams": {
+      "title": "Exámenes de práctica",
+      "description": "Pon a prueba tus conocimientos antes del examen real con nuestros exámenes de práctica.",
+      "learnMore": "Saber más"
+    },
+    "summariseContent": {
+      "title": "Resumir contenido clave",
+      "description": "Ideal para estudiantes que desean sobresalir en sus exámenes o para expertos que quieren mantenerse al día con la investigación de vanguardia.",
+      "learnMore": "Saber más"
+    }
+  },
+  "reviewsTitle": "Lo que dicen los estudiantes",
+  "reviews": [
+    {
+      "name": "Sene",
+      "country": "Estados Unidos",
+      "rating": 5,
+      "text": "Lo vi en TikTok y decidí probarlo. En menos de 20 minutos, supe que era la mejor herramienta de estudio con IA que había visto."
+    },
+    {
+      "name": "Arwa",
+      "country": "Canadá",
+      "rating": 5,
+      "text": "Me encanta usarlo porque se integra directamente con los materiales de mis cursos. ¡Realmente simplifica mi proceso de estudio!"
+    },
+    {
+      "name": "Tim",
+      "country": "Estados Unidos",
+      "rating": 4,
+      "text": "La universidad fue una transición difícil para mí. Esta herramienta ha sido de gran ayuda, aunque desearía que la función de tarjetas fuera un poco más personalizable. ¡10/10 la recomiendo!"
+    },
+    {
+      "name": "Lucia",
+      "country": "España",
+      "rating": 5,
+      "text": "Debo decir que es significativamente mejor que ChatGPT 🤭. Las respuestas fueron más precisas y la herramienta de resumen me ahorró horas de repaso."
+    },
+    {
+      "name": "Asriel",
+      "country": "Francia",
+      "rating": 5,
+      "text": "Tan fácil de usar. Es como tener un tutor personal disponible las 24 horas, los 7 días de la semana."
+    },
+    {
+      "name": "Raj",
+      "country": "India",
+      "rating": 5,
+      "text": "Lo he estado usando durante un tiempo y ha sido un cambio radical para mi preparación de exámenes. ¡El constructor de cuestionarios es fantástico!"
+    },
+    {
+      "name": "Katie",
+      "country": "Reino Unido",
+      "rating": 4,
+      "text": "Excelente herramienta para desglosar temas complejos. Ojalá la aplicación móvil fuera un poco más rápida, pero en general estoy muy impresionada."
+    },
+    {
+      "name": "Noah",
+      "country": "Alemania",
+      "rating": 5,
+      "text": "La función de resumen de video es brillante. ¡Convierte una conferencia de una hora en notas concisas!"
+    },
+    {
+      "name": "Emily",
+      "country": "Nueva Zelanda",
+      "rating": 4,
+      "text": "Realmente útil para tomar notas. A veces los resúmenes omiten detalles menores, pero aún así vale la pena por el tiempo que ahorra."
+    }
+  ]
 }

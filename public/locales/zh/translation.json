@@ -275,5 +275,89 @@
   "error_message": "提交功能请求失败。请重试。",
   "searchbar": "筛选卡片",
   "website": "网站",
-  "enter_website_url_here": "在此输入网站 URL"
+  "enter_website_url_here": "在此输入网站 URL",
+  "hero": {
+    "title": "学习 S.M.A.R.T",
+    "subtitle": "S.M.A.R.T 代表 “Study Materials, by AI, for Revision and Tutelage”。",
+    "getStarted": "开始使用"
+  },
+  "tagline": "受到超过 350,000 名学生的信赖，遍布于",
+  "section": {
+    "reviseTitle": "复习、突击、利用学习资料测试自己",
+    "anywhereTitle": "随时随地，随心所欲，使用任何资源。"
+  },
+  "features": {
+    "createFlashcards": {
+      "title": "创建问答式抽认卡",
+      "description": "上传任何资源——视频、网站、文档或文字记录，并创建用于复习的抽认卡。",
+      "learnMore": "了解更多"
+    },
+    "mockExams": {
+      "title": "模拟考试",
+      "description": "在真正考试之前，使用我们的模拟考试来测试你的知识。",
+      "learnMore": "了解更多"
+    },
+    "summariseContent": {
+      "title": "总结关键内容",
+      "description": "非常适合想要在考试中取得优异成绩的学生，或者希望跟进最新研究成果的专家。",
+      "learnMore": "了解更多"
+    }
+  },
+  "reviewsTitle": "学生评价",
+  "reviews": [
+    {
+      "name": "Sene",
+      "country": "美国",
+      "rating": 5,
+      "text": "我在TikTok上看到它后决定试试。在不到20分钟的时间里，我就知道它是我见过的最好的学习AI工具。"
+    },
+    {
+      "name": "Arwa",
+      "country": "加拿大",
+      "rating": 5,
+      "text": "我非常喜欢使用它，因为它可以直接与我课程中的材料整合。它真的简化了我的学习过程！"
+    },
+    {
+      "name": "Tim",
+      "country": "美国",
+      "rating": 4,
+      "text": "上大学对我来说是一个艰难的过渡。这款工具提供了很大帮助，不过我希望抽认卡功能能再多一些自定义选项。强烈推荐尝试！"
+    },
+    {
+      "name": "Lucia",
+      "country": "西班牙",
+      "rating": 5,
+      "text": "我必须说它比ChatGPT好得多 🤭。答案更加准确，而且总结功能为我节省了好几个小时的复习时间。"
+    },
+    {
+      "name": "Asriel",
+      "country": "法国",
+      "rating": 5,
+      "text": "使用起来非常简单。就像随时都有一个私人家教在身边一样。"
+    },
+    {
+      "name": "Raj",
+      "country": "印度",
+      "rating": 5,
+      "text": "我已经使用它有一段时间了，对我的考试复习来说是个改变游戏规则的工具。测验生成器很棒！"
+    },
+    {
+      "name": "Katie",
+      "country": "英国",
+      "rating": 4,
+      "text": "对于分解复杂主题来说是个很棒的工具。我希望移动应用可以再快一点，但总体来说我对它印象深刻。"
+    },
+    {
+      "name": "Noah",
+      "country": "德国",
+      "rating": 5,
+      "text": "视频总结功能非常棒。可以把一个小时的讲座变成简明扼要的笔记！"
+    },
+    {
+      "name": "Emily",
+      "country": "新西兰",
+      "rating": 4,
+      "text": "对记笔记非常有帮助。有时总结会遗漏一些细节，但就节省的时间而言仍然值得。"
+    }
+  ]
 }

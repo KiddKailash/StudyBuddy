@@ -275,5 +275,89 @@
   "error_message": "Fehler beim Senden der Funktionsanfrage(n). Bitte versuchen Sie es erneut.",
   "searchbar": "Karten filtern...",
   "website": "Webseite",
-  "enter_website_url_here": "Geben Sie die Website-URL hier ein"
+  "enter_website_url_here": "Geben Sie die Website-URL hier ein",
+  "hero": {
+    "title": "Lerne S.M.A.R.T",
+    "subtitle": "S.M.A.R.T steht für 'Study Materials, by AI, for Revision and Tutelage'.",
+    "getStarted": "Loslegen"
+  },
+  "tagline": "Vertraut von über 350.000 Studierenden an",
+  "section": {
+    "reviseTitle": "Wiederhole, lerne intensiv und teste dich selbst mit Lernmaterialien",
+    "anywhereTitle": "Überall, jederzeit, mit allem."
+  },
+  "features": {
+    "createFlashcards": {
+      "title": "Erstelle Q&A-Lernkarten",
+      "description": "Lade beliebige Ressourcen hoch – Videos, Websites, Dokumente oder Transkripte – und erstelle Lernkarten zur Wiederholung.",
+      "learnMore": "Mehr erfahren"
+    },
+    "mockExams": {
+      "title": "Probeklausuren",
+      "description": "Teste dein Wissen vor der eigentlichen Prüfung mit unseren Probeklausuren.",
+      "learnMore": "Mehr erfahren"
+    },
+    "summariseContent": {
+      "title": "Fasse wichtige Inhalte zusammen",
+      "description": "Ideal für Studierende, die in ihren Prüfungen glänzen möchten, oder Experten, die auf dem neuesten Stand der Forschung bleiben wollen.",
+      "learnMore": "Mehr erfahren"
+    }
+  },
+  "reviewsTitle": "Was Studierende sagen",
+  "reviews": [
+    {
+      "name": "Sene",
+      "country": "USA",
+      "rating": 5,
+      "text": "Ich habe es auf TikTok gesehen und wollte es ausprobieren. In weniger als 20 Minuten wusste ich, dass es das beste KI-Lernwerkzeug ist, das ich je gesehen habe."
+    },
+    {
+      "name": "Arwa",
+      "country": "Kanada",
+      "rating": 5,
+      "text": "Ich liebe es, weil es sich direkt in die Materialien meiner Kurse integriert. Es vereinfacht meinen Lernprozess wirklich!"
+    },
+    {
+      "name": "Tim",
+      "country": "USA",
+      "rating": 4,
+      "text": "Der Einstieg ins College war für mich schwierig. Dieses Tool hat mir sehr geholfen, obwohl ich mir wünsche, dass die Lernkarten-Funktion etwas anpassbarer wäre. Ich empfehle es jedem!"
+    },
+    {
+      "name": "Lucia",
+      "country": "Spanien",
+      "rating": 5,
+      "text": "Ich muss sagen, es ist deutlich besser als ChatGPT 🤭. Die Antworten waren genauer und das Zusammenfassungs-Tool hat mir stundenlanges Lernen erspart."
+    },
+    {
+      "name": "Asriel",
+      "country": "Frankreich",
+      "rating": 5,
+      "text": "So einfach zu benutzen. Es ist, als hätte man rund um die Uhr einen persönlichen Tutor."
+    },
+    {
+      "name": "Raj",
+      "country": "Indien",
+      "rating": 5,
+      "text": "Ich nutze es schon seit einer Weile und es hat meine Prüfungsvorbereitung grundlegend verändert. Der Quiz-Builder ist fantastisch!"
+    },
+    {
+      "name": "Katie",
+      "country": "Großbritannien",
+      "rating": 4,
+      "text": "Tolles Tool, um komplexe Themen aufzuschlüsseln. Ich wünschte, die mobile App wäre etwas schneller, aber insgesamt bin ich sehr beeindruckt."
+    },
+    {
+      "name": "Noah",
+      "country": "Deutschland",
+      "rating": 5,
+      "text": "Die Video-Zusammenfassungsfunktion ist genial. Sie verwandelt eine einstündige Vorlesung in prägnante Notizen!"
+    },
+    {
+      "name": "Emily",
+      "country": "Neuseeland",
+      "rating": 4,
+      "text": "Wirklich hilfreich beim Notieren. Manchmal fehlen in den Zusammenfassungen ein paar Details, aber für die gesparte Zeit lohnt es sich dennoch."
+    }
+  ]
 }

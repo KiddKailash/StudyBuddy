@@ -275,5 +275,89 @@
   "error_message": "Échec de l'envoi de la demande de fonctionnalité. Veuillez réessayer.",
   "searchbar": "Filtrer les cartes...",
   "website": "Site web",
-  "enter_website_url_here": "Entrez l'URL du site Web ici"
+  "enter_website_url_here": "Entrez l'URL du site Web ici",
+  "hero": {
+    "title": "Étudiez S.M.A.R.T",
+    "subtitle": "S.M.A.R.T signifie « Study Materials, by AI, for Revision and Tutelage ».",
+    "getStarted": "Commencer"
+  },
+  "tagline": "Fait confiance à plus de 350 000 étudiants de",
+  "section": {
+    "reviseTitle": "Révisez, bachotez et testez vos connaissances avec du matériel d’étude",
+    "anywhereTitle": "Partout, à tout moment, depuis n’importe quoi."
+  },
+  "features": {
+    "createFlashcards": {
+      "title": "Créez des flashcards de questions-réponses",
+      "description": "Téléchargez n'importe quelle ressource — vidéo, site web, document ou transcription — et créez des flashcards pour réviser.",
+      "learnMore": "En savoir plus"
+    },
+    "mockExams": {
+      "title": "Examens blancs",
+      "description": "Testez vos connaissances avant l'examen final grâce à nos examens blancs.",
+      "learnMore": "En savoir plus"
+    },
+    "summariseContent": {
+      "title": "Résumez les contenus clés",
+      "description": "Idéal pour les étudiants qui souhaitent exceller à leurs examens ou pour les experts qui veulent se tenir au courant des dernières recherches.",
+      "learnMore": "En savoir plus"
+    }
+  },
+  "reviewsTitle": "Avis des étudiants",
+  "reviews": [
+    {
+      "name": "Sene",
+      "country": "États-Unis",
+      "rating": 5,
+      "text": "Je l'ai vu sur TikTok et j'ai décidé de l'essayer. En moins de 20 minutes, j'ai su que c'était le meilleur outil d'étude à base d'IA que j'avais jamais vu."
+    },
+    {
+      "name": "Arwa",
+      "country": "Canada",
+      "rating": 5,
+      "text": "J'adore l'utiliser car il s'intègre directement aux cours que je suis. Cela simplifie vraiment mon processus d'étude !"
+    },
+    {
+      "name": "Tim",
+      "country": "États-Unis",
+      "rating": 4,
+      "text": "L'université a été une transition difficile pour moi. Cet outil m'a beaucoup aidé, même si j'aurais aimé que la fonction flashcards soit un peu plus personnalisable. Je le recommande à 100 % !"
+    },
+    {
+      "name": "Lucia",
+      "country": "Espagne",
+      "rating": 5,
+      "text": "Je dois dire qu'il est nettement meilleur que ChatGPT 🤭. Les réponses étaient plus précises et l'outil de synthèse m'a fait gagner des heures de révision."
+    },
+    {
+      "name": "Asriel",
+      "country": "France",
+      "rating": 5,
+      "text": "Tellement facile à utiliser. C’est comme avoir un tuteur personnel disponible 24h/24 et 7j/7."
+    },
+    {
+      "name": "Raj",
+      "country": "Inde",
+      "rating": 5,
+      "text": "Je l'utilise depuis un moment maintenant, et c'est un véritable atout pour mes préparations d'examens. Le créateur de quiz est fantastique !"
+    },
+    {
+      "name": "Katie",
+      "country": "Royaume-Uni",
+      "rating": 4,
+      "text": "Excellent outil pour décomposer des sujets complexes. J'aimerais que l'application mobile soit un peu plus rapide, mais globalement, je suis vraiment impressionnée."
+    },
+    {
+      "name": "Noah",
+      "country": "Allemagne",
+      "rating": 5,
+      "text": "La fonction de résumé vidéo est brillante. Elle transforme une conférence d'une heure en notes concises !"
+    },
+    {
+      "name": "Emily",
+      "country": "Nouvelle-Zélande",
+      "rating": 4,
+      "text": "Vraiment utile pour la prise de notes. Parfois, les résumés passent à côté de petits détails, mais cela vaut quand même le coup pour le temps gagné."
+    }
+  ]
 }
