@@ -86,7 +86,82 @@ export const UserProvider = ({ children }) => {
     localStorage.setItem("localSessions", JSON.stringify(localSessions));
   }, [localSessions]);
 
-  // Automatically logout when token expires
+  // -------------------------------------------------
+  //  Weekly Sliding Expiration: Axios Request Interceptor
+  // -------------------------------------------------
+  // This interceptor will check if the token is near expiring
+  // (e.g., < 1 day remaining). If so, it calls /refresh to get a new 7-day token.
+  useEffect(() => {
+    // Helper function to refresh token
+    const refreshToken = async (oldToken) => {
+      try {
+        const response = await axios.post(
+          `${BACKEND}/api/auth/refresh`,
+          {},
+          { headers: { Authorization: `Bearer ${oldToken}` } }
+        );
+        return response.data.token;
+      } catch (error) {
+        console.error("Refresh token error:", error);
+        logout(); // If refresh fails, log out to force re-login
+        return null;
+      }
+    };
+
+    const interceptor = axios.interceptors.request.use(
+      async (config) => {
+        const localToken = localStorage.getItem("token");
+        if (localToken) {
+          try {
+            const decoded = jwtDecode(localToken);
+            const expiryTimestamp = decoded.exp * 1000; // 'exp' is in seconds
+            const timeLeft = expiryTimestamp - Date.now();
+
+            // Let's define "near expiration" = 1 day left
+            const fourDays = 96 * 60 * 60 * 1000;
+            if (timeLeft < fourDays && timeLeft > 0) {
+              // Attempt to refresh
+              const newToken = await refreshToken(localToken);
+              if (newToken) {
+                localStorage.setItem("token", newToken);
+                setToken(newToken);
+                config.headers.Authorization = `Bearer ${newToken}`;
+                return config;
+              } else {
+                return Promise.reject("Token refresh failed");
+              }
+            } else if (timeLeft <= 0) {
+              // Already expired; handle logout
+              logout();
+              return Promise.reject("Token is expired");
+            } else {
+              // Token is still valid (>= 1 day left), just attach existing token
+              config.headers.Authorization = `Bearer ${localToken}`;
+              return config;
+            }
+          } catch (error) {
+            console.error("Error decoding token for interceptor:", error);
+            logout();
+            return Promise.reject(error);
+          }
+        }
+        // If no token, proceed without Authorization header
+        return config;
+      },
+      (error) => {
+        // Request error
+        return Promise.reject(error);
+      }
+    );
+
+    // Cleanup: eject interceptor on unmount
+    return () => {
+      axios.interceptors.request.eject(interceptor);
+    };
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [BACKEND]); // only set up once
+
+  // Automatically logout when token definitely expires
   useEffect(() => {
     let tokenExpiryTimeout;
     if (token) {
@@ -111,7 +186,7 @@ export const UserProvider = ({ children }) => {
         clearTimeout(tokenExpiryTimeout);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   // Load DB-based flashcard sessions when user changes
@@ -312,7 +387,7 @@ export const UserProvider = ({ children }) => {
     return resp.data.flashcard;
   };
 
-  // New state and helper functions for folders in UserContext.jsx
+  // New state and helper functions for folders
   const [folders, setFolders] = useState([]);
 
   // Retrieves folders from the backend.
@@ -359,7 +434,7 @@ export const UserProvider = ({ children }) => {
     return response.data;
   };
 
-  // New Axios functions for Settings functionality
+  // Axios functions for Settings
   const updateAccountInfo = async (payload) => {
     const token = localStorage.getItem("token");
     const response = await axios.put(`${BACKEND}/api/users/update`, payload, {
@@ -401,7 +476,7 @@ export const UserProvider = ({ children }) => {
     return updatedUserResponse.data.user;
   };
 
-  // New Axios function for RequestFeature functionality
+  // Axios function for RequestFeature
   const requestFeature = async (features) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -417,7 +492,7 @@ export const UserProvider = ({ children }) => {
     return response.data;
   };
 
-  // New Axios functions for Login functionality
+  // Axios functions for Login
   const loginUser = async (payload) => {
     const response = await axios.post(`${BACKEND}/api/auth/login`, payload);
     return response.data;
