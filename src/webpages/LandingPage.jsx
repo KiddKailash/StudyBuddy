@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { UserContext } from "../contexts/UserContext";
 
 // Components
@@ -20,8 +21,6 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid2";
-import Divider from "@mui/material/Divider";
 import Avatar from "@mui/material/Avatar";
 import Masonry from "@mui/lab/Masonry";
 
@@ -49,6 +48,7 @@ const logosRow1 = [
   { src: Harvard, ratio: "1238 / 311" },
   { src: NYU, ratio: "320 / 109" },
 ];
+
 const logosRow2 = [
   { src: USC, ratio: "365 / 81" },
   { src: Columbia, ratio: "628 / 94" },
@@ -58,68 +58,15 @@ const logosRow2 = [
 const LandingPage = () => {
   const navigate = useNavigate();
   const { resetUserContext } = useContext(UserContext);
+  const { t } = useTranslation();
 
-  // Use an effect to avoid updating context while rendering
   useEffect(() => {
+    // Reset user context whenever this page loads
     resetUserContext();
   }, [resetUserContext]);
 
-  const reviews = [
-    {
-      name: "Sene",
-      country: "United States",
-      rating: 5,
-      text: "I saw it on TikTok and decided to give it a try. In less than 20 minutes, I knew it was the best study AI tool I’d ever seen.",
-    },
-    {
-      name: "Arwa",
-      country: "Canada",
-      rating: 5,
-      text: "I absolutely love using it because it integrates directly with materials from my courses. It really simplifies my study process!",
-    },
-    {
-      name: "Tim",
-      country: "United States",
-      rating: 4,
-      text: "College was a tough transition for me. This tool has been a big help, though I wish the flashcard feature was a bit more customizable. 10/10 recommend trying it out!",
-    },
-    {
-      name: "Lucia",
-      country: "Spain",
-      rating: 5,
-      text: "I must say it is significantly better than ChatGPT 🤭. The answers were more accurate, and the summarization tool saved me hours of revision.",
-    },
-    {
-      name: "Asriel",
-      country: "France",
-      rating: 5,
-      text: "So easy to use. It’s like having a personal tutor available 24/7.",
-    },
-    {
-      name: "Raj",
-      country: "India",
-      rating: 5,
-      text: "I've been using it for a while now, and it's been a game-changer for my exam prep. The quiz builder is fantastic!",
-    },
-    {
-      name: "Katie",
-      country: "United Kingdom",
-      rating: 4,
-      text: "Great tool for breaking down complex topics. I wish the mobile app was a little faster, but overall, I’m really impressed.",
-    },
-    {
-      name: "Noah",
-      country: "Germany",
-      rating: 5,
-      text: "The video summarization feature is brilliant. It turns an hour-long lecture into concise notes!",
-    },
-    {
-      name: "Emily",
-      country: "New Zealand",
-      rating: 4,
-      text: "Really helpful for note-taking. Sometimes the summaries miss minor details, but it's still worth it for the time saved.",
-    },
-  ];
+  // Pull array of reviews from translations
+  const reviews = t("reviews", { returnObjects: true });
 
   return (
     <>
@@ -149,11 +96,10 @@ const LandingPage = () => {
               variant="h2"
               sx={{ fontWeight: 700, color: "primary.main" }}
             >
-              Study S.M.A.R.T
+              {t("hero.title")}
             </Typography>
             <Typography variant="h6" color="textSecondary" gutterBottom>
-              <b>S</b>tudy <b>M</b>aterials, by <b>A</b>I, for <b>R</b>evision
-              and <b>T</b>utelage
+              {t("hero.subtitle")}
             </Typography>
 
             <Button
@@ -163,7 +109,7 @@ const LandingPage = () => {
               onClick={() => navigate("/login?mode=create")}
               sx={{ mt: 1 }}
             >
-              Get Started
+              {t("hero.getStarted")}
             </Button>
           </Box>
         </Stack>
@@ -173,7 +119,7 @@ const LandingPage = () => {
             variant="body1"
             sx={{ color: "text.secondary", textAlign: "center", mb: 1 }}
           >
-            Trusted by 350,000+ students at
+            {t("tagline")}
           </Typography>
 
           <Stack
@@ -199,16 +145,16 @@ const LandingPage = () => {
         </Box>
       </Container>
 
-      {/* Anywhere, Anytime, from Anything. */}
+      {/* Anywhere, Anytime, from Anything */}
       <Container
         maxWidth="lg"
         sx={{ p: 4, bgcolor: "background.paper", borderRadius: 2 }}
       >
         <Typography variant="h6" color="primary.main">
-          Revise, cram, test yourself with study materials
+          {t("section.reviseTitle")}
         </Typography>
         <Typography variant="h4" sx={{ fontWeight: 700 }} gutterBottom>
-          Anywhere, Anytime, from Anything.
+          {t("section.anywhereTitle")}
         </Typography>
 
         <Stack
@@ -216,91 +162,69 @@ const LandingPage = () => {
           spacing={4}
           sx={{ mt: 4 }}
         >
-          {/* Create Q&A Flashcards */}
+          {/* Feature 1: Create Q&A Flashcards */}
           <Box
             sx={{
-              display: "flex", // Makes children stack vertically
-              flexDirection: "column", // Stack items top to bottom
-              alignItems: { xs: "center", sm: "flex-start" }, // Center items horizontally
-              justifyContent: { xs: "center", sm: "left" }, // Center items vertically (if height allows)
-              textAlign: { xs: "center", sm: "left" }, // Center text inside each child
+              display: "flex",
+              flexDirection: "column",
+              alignItems: { xs: "center", sm: "flex-start" },
+              textAlign: { xs: "center", sm: "left" },
             }}
           >
-            <Avatar sx={{ bgcolor: "primary.light", mr: 2 }}>
+            <Avatar sx={{ bgcolor: "primary.light", mb: 1 }}>
               <BookIcon />
             </Avatar>
-            <Box>
-              <Typography variant="h6" sx={{ mt: 0.5 }}>
-                Create Q&A Flashcards
-              </Typography>
-
-              <Typography variant="body2" color="textSecondary">
-                Upload any resource - video, website, document, or transcript -
-                and create flashcards for revision.
-              </Typography>
-            </Box>
-
-            <Button variant="outlined" sx={{ mt: 1 }}>
-              Learn more
-            </Button>
+            <Typography variant="h6">
+              {t("features.createFlashcards.title")}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+              {t("features.createFlashcards.description")}
+            </Typography>
           </Box>
 
-          {/* Mock Exams */}
+          {/* Feature 2: Mock Exams */}
           <Box
             sx={{
-              display: "flex", // Makes children stack vertically
-              flexDirection: "column", // Stack items top to bottom
-              alignItems: { xs: "center", sm: "flex-start" }, // Center items horizontally
-              justifyContent: { xs: "center", sm: "left" }, // Center items vertically (if height allows)
-              textAlign: { xs: "center", sm: "left" }, // Center text inside each child
+              display: "flex",
+              flexDirection: "column",
+              alignItems: { xs: "center", sm: "flex-start" },
+              textAlign: { xs: "center", sm: "left" },
             }}
           >
-            <Avatar sx={{ bgcolor: "primary.light" }}>
+            <Avatar sx={{ bgcolor: "primary.light", mb: 1 }}>
               <LightbulbIcon />
             </Avatar>
-            <Box>
-              <Typography variant="h6" sx={{ mt: 0.5 }}>
-                Mock Exams
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Test you knowledge before the real exam with our mock exams.
-              </Typography>
-            </Box>
-            <Button variant="outlined" sx={{ mt: 1 }}>
-              Learn more
-            </Button>
+            <Typography variant="h6">
+              {t("features.mockExams.title")}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+              {t("features.mockExams.description")}
+            </Typography>
           </Box>
 
-          {/* Summarize Content */}
+          {/* Feature 3: Summarise Content */}
           <Box
             sx={{
-              display: "flex", // Makes children stack vertically
-              flexDirection: "column", // Stack items top to bottom
-              alignItems: { xs: "center", sm: "flex-start" }, // Center items horizontally
-              justifyContent: { xs: "center", sm: "left" }, // Center items vertically (if height allows)
-              textAlign: { xs: "center", sm: "left" }, // Center text inside each child
+              display: "flex",
+              flexDirection: "column",
+              alignItems: { xs: "center", sm: "flex-start" },
+              textAlign: { xs: "center", sm: "left" },
             }}
           >
-            {" "}
-            <Avatar sx={{ bgcolor: "primary.light" }}>
+            <Avatar sx={{ bgcolor: "primary.light", mb: 1 }}>
               <TrendingUpIcon />
             </Avatar>
-            <Box>
-              <Typography variant="h6" sx={{ mt: 0.5 }}>
-                Summarise Key Content
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Great for students looking to ace their exams, or experts
-                looking to keep up with cutting-edge research.
-              </Typography>
-            </Box>
-            <Button variant="outlined" sx={{ mt: 1 }}>
-              Learn more
-            </Button>
+            <Typography variant="h6">
+              {t("features.summariseContent.title")}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+              {t("features.summariseContent.description")}
+            </Typography>
           </Box>
         </Stack>
       </Container>
 
+      {/* Reviews Section */}
       <Box sx={{ py: 8 }}>
         <Container maxWidth="lg">
           <Typography
@@ -308,8 +232,9 @@ const LandingPage = () => {
             align="center"
             sx={{ fontWeight: 700, color: "primary.main" }}
           >
-            What Students Say
+            {t("reviewsTitle")}
           </Typography>
+
           <Masonry columns={{ xs: 1, sm: 2, md: 3 }} spacing={2} sx={{ mt: 1 }}>
             {reviews.map((review, index) => (
               <ReviewCard
