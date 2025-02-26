@@ -13,6 +13,11 @@ router.post('/register', authController.register);
 // @access  Public
 router.post('/login', authController.login);
 
+// @route   POST /api/auth/refresh
+// @desc    Refresh the user's JWT (sliding expiration)
+// @access  Private (or semi-private -- see note below)
+router.post('/refresh', authController.refreshToken);
+
 // @route   POST /api/auth/upgrade
 // @desc    Upgrade user subscription
 // @access  Private

@@ -11,10 +11,11 @@ require("dotenv").config();
  * @returns {string} - JWT token
  */
 const generateToken = (user) => {
+  // Set expiresIn to 7 days for weekly sliding expiration
   return jwt.sign(
     { id: user._id, email: user.email, accountType: user.accountType },
     process.env.JWT_SECRET,
-    { expiresIn: "14d" } // Token validity
+    { expiresIn: "7d" } // Token Validity
   );
 };
 
@@ -29,11 +30,9 @@ exports.register = async (req, res) => {
 
   // Basic validation
   if (!email || !password || !firstName || !lastName) {
-    return res
-      .status(400)
-      .json({
-        error: "Email, password, first name, and last name are required.",
-      });
+    return res.status(400).json({
+      error: "Email, password, first name, and last name are required.",
+    });
   }
 
   try {
@@ -153,6 +152,46 @@ exports.login = async (req, res) => {
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ error: "Server error during login." });
+  }
+};
+
+/**
+ * Refresh the user's token (sliding expiration).
+ * This requires that the old token is not fully expired.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.refreshToken = (req, res) => {
+  try {
+    const oldToken = req.headers.authorization?.split(" ")[1];
+    if (!oldToken) {
+      return res.status(401).json({ error: "No token provided." });
+    }
+
+    // Verify/Decode old token is still valid
+    const decoded = jwt.verify(oldToken, process.env.JWT_SECRET);
+
+    // OPTIONAL: Check user existence in DB if needed
+    // const db = getDB();
+    // const user = db.collection("users").findOne({ _id: new ObjectId(decoded.id) });
+    // if (!user) return res.status(404).json({ error: "User not found." });
+
+    // Generate a new 7-day token
+    const newToken = jwt.sign(
+      {
+        id: decoded.id,
+        email: decoded.email,
+        accountType: decoded.accountType,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(200).json({ token: newToken });
+  } catch (error) {
+    console.error("refreshToken error:", error);
+    return res.status(401).json({ error: "Token refresh failed." });
   }
 };
 
