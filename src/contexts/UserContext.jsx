@@ -513,6 +513,7 @@ export const UserProvider = ({ children }) => {
   return (
     <UserContext.Provider
       value={{
+        // Authorization Functionality
         user,
         setUser,
         token,
@@ -521,6 +522,8 @@ export const UserProvider = ({ children }) => {
         authLoading,
         resetUserContext,
         logout,
+
+        // Flashcard DB (Logged in) Session Functionality
         flashcardSessions,
         setFlashcardSessions,
         loadingSessions,
@@ -528,6 +531,8 @@ export const UserProvider = ({ children }) => {
         setFlashcardError,
         deleteFlashcardSession,
         updateFlashcardSessionName,
+
+        // Local Session Functionality
         localSessions,
         setLocalSessions,
         createLocalSession,
