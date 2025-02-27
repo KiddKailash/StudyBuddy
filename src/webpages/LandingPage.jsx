@@ -126,7 +126,6 @@ const LandingPage = () => {
             direction={{ xs: "column", sm: "row" }}
             spacing={3}
             sx={{
-              my: 2,
               justifyContent: "center",
               alignItems: "center",
             }}
@@ -145,11 +144,32 @@ const LandingPage = () => {
         </Box>
       </Container>
 
-      {/* Anywhere, Anytime, from Anything */}
-      <Container
-        maxWidth="lg"
-        sx={{ p: 4, bgcolor: "background.paper", borderRadius: 2 }}
+      <Box
+        maxWidth="md"
+        sx={{ bgcolor: "primary.light", borderRadius: 3, p: 1, margin: 'auto' }}
       >
+        <Box
+          sx={{
+            width: "100%",
+            borderRadius: 2,
+            overflow: "hidden",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <video
+            src="/assets/demo.mov"
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{ width: "100%", display: "block", m: 0, p: 0 }}
+          />
+        </Box>
+      </Box>
+
+      {/* Anywhere, Anytime, from Anything */}
+      <Container maxWidth="lg" sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h6" color="primary.main">
           {t("section.reviseTitle")}
         </Typography>
