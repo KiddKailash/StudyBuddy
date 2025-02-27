@@ -146,17 +146,16 @@ const LandingPage = () => {
 
       <Box
         maxWidth="md"
-        sx={{ bgcolor: "primary.light", borderRadius: 3, p: 1, margin: 'auto' }}
+        sx={{
+          borderRadius: 2,
+          margin: "auto",
+          boxShadow: 20,
+          width: "100%",
+          overflow: "hidden",
+          display: "flex",
+          justifyContent: "center",
+        }}
       >
-        <Box
-          sx={{
-            width: "100%",
-            borderRadius: 2,
-            overflow: "hidden",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
           <video
             src="/assets/demo.mov"
             autoPlay
@@ -165,7 +164,6 @@ const LandingPage = () => {
             playsInline
             style={{ width: "100%", display: "block", m: 0, p: 0 }}
           />
-        </Box>
       </Box>
 
       {/* Anywhere, Anytime, from Anything */}
