@@ -21,8 +21,6 @@ const Footer = () => {
   return (
     <Box
       sx={{
-        marginTop: 3,
-        marginBottom: 0,
         color: "text.secondary", // Use theme text color
       }}
     >
