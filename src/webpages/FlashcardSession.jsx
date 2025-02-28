@@ -356,7 +356,7 @@ const FlashcardSession = () => {
             <Box
               sx={{
                 width: "100%",
-                height: "55vh",
+                height: "40vh",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
