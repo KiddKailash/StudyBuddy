@@ -11,10 +11,10 @@ import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 
 // Container for the flip card with perspective
-const FlipCard = styled("div")(({ theme }) => ({
+const FlipCard = styled("div")(() => ({
   perspective: 1000,
   width: "100%",
-  height: "200px",
+  height: "100%",
   cursor: "pointer",
   position: "relative",
 }));
@@ -30,7 +30,7 @@ const FlipCardInner = styled("div")(({ flipped }) => ({
 }));
 
 // Common styles for both faces
-const FlipCardFace = styled(Card)(({ theme }) => ({
+const FlipCardFace = styled(Card)(() => ({
   position: "absolute",
   width: "100%",
   height: "100%",
@@ -40,22 +40,22 @@ const FlipCardFace = styled(Card)(({ theme }) => ({
   justifyContent: "center",
   alignItems: "center",
   overflowY: "auto", // Allows vertical scrolling if content overflows
-  paddingTop: theme.spacing(1),
-  boxSizing: "border-box",
+  boxSizing: "-box",
 }));
 
 // Front face of the card
-const FlipCardFront = styled(FlipCardFace)(({ theme }) => ({
+const FlipCardFront = styled(FlipCardFace)(() => ({
   zIndex: 2,
   transform: "rotateY(0deg)",
-  backgroundColor: theme.palette.background.paper,}));
+  backgroundColor: "background.paper",
+}));
 
 // Back face of the card
-const FlipCardBack = styled(FlipCardFace)(({ theme }) => ({
+const FlipCardBack = styled(FlipCardFace)(() => ({
   transform: "rotateY(180deg)",
 }));
 
-const Flashcard = ({ question, answer }) => {
+const Flashcard = ({ question, answer, size }) => {
   const [flipped, setFlipped] = useState(false);
 
   // Initialize the translation function
@@ -69,21 +69,39 @@ const Flashcard = ({ question, answer }) => {
     <FlipCard onClick={handleCardClick}>
       <FlipCardInner flipped={flipped}>
         <FlipCardFront>
-          <CardContent>
-            <Typography variant="body1" sx={{ color: "grey" }}>
+          <CardContent sx={{ px: "15%", py: "auto", m: "auto" }}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "text.secondary",
+                fontSize: size === "large" ? "1.2rem" : "1rem",
+              }}
+            >
               {t("question")}
             </Typography>
-            <Typography variant="body1">
+            <Typography
+              variant="body1"
+              sx={{ fontSize: size === "large" ? "1.3rem" : "1rem" }}
+            >
               {question}
             </Typography>
           </CardContent>
         </FlipCardFront>
         <FlipCardBack>
-          <CardContent>
-            <Typography variant="body1" sx={{ color: "grey" }}>
+          <CardContent sx={{ px: "15%", py: "auto", m: "auto" }}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "text.secondary",
+                fontSize: size === "large" ? "1.2rem" : "1rem",
+              }}
+            >
               {t("answer")}
             </Typography>
-            <Typography variant="body1">
+            <Typography
+              variant="body1"
+              sx={{ fontSize: size === "large" ? "1.3rem" : "1rem" }}
+            >
               {answer}
             </Typography>
           </CardContent>
@@ -96,6 +114,7 @@ const Flashcard = ({ question, answer }) => {
 Flashcard.propTypes = {
   question: PropTypes.string.isRequired,
   answer: PropTypes.string.isRequired,
+  size: PropTypes.string,
 };
 
 export default Flashcard;

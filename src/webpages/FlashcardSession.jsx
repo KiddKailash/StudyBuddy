@@ -13,9 +13,19 @@ import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
-import SearchIcon from "@mui/icons-material/Search";
-import { useTheme } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
+import Divider from "@mui/material/Divider";
+import { useTheme } from "@mui/material/styles";
+
+// Icons
+import SearchIcon from "@mui/icons-material/Search";
+import ShuffleRoundedIcon from "@mui/icons-material/ShuffleRounded";
+import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import IconButton from "@mui/material/IconButton";
+import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
 
 // Custom components
 import Flashcard from "../components/Flashcard";
@@ -39,8 +49,14 @@ const FlashcardSession = () => {
   const [generating, setGenerating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Practice mode states
+  const [practiceMode, setPracticeMode] = useState(false);
+  const [practiceCards, setPracticeCards] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   // Context values and helper functions
-  const { user, fetchFlashcardSession, generateAdditionalFlashcards } = useContext(UserContext);
+  const { user, fetchFlashcardSession, generateAdditionalFlashcards } =
+    useContext(UserContext);
   const { showSnackbar } = useContext(SnackbarContext);
   const accountType = user?.accountType || "free";
 
@@ -55,7 +71,9 @@ const FlashcardSession = () => {
     setLoading(true);
     try {
       if (isLocalSession) {
-        const localSessions = JSON.parse(localStorage.getItem("localSessions") || "[]");
+        const localSessions = JSON.parse(
+          localStorage.getItem("localSessions") || "[]"
+        );
         const found = localSessions.find((s) => s.id === id);
         setSession(found || null);
       } else {
@@ -73,6 +91,7 @@ const FlashcardSession = () => {
       );
     } finally {
       setLoading(false);
+      console.log(session);
     }
   };
 
@@ -104,6 +123,37 @@ const FlashcardSession = () => {
     }
   };
 
+  // Enter/exit practice mode
+  const handleTogglePractice = () => {
+    if (practiceMode) {
+      // Switch back to grid view
+      setPracticeMode(false);
+    } else {
+      // Enter practice mode: shuffle current filtered flashcards
+      const shuffled = [...filteredFlashcards].sort(() => 0.5 - Math.random());
+      setPracticeCards(shuffled);
+      setCurrentIndex(0);
+      setPracticeMode(true);
+    }
+  };
+
+  const handleReshuffle = () => {
+    // Re-shuffle current practice deck
+    const reshuffled = [...practiceCards].sort(() => 0.5 - Math.random());
+    setPracticeCards(reshuffled);
+    setCurrentIndex(0);
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % practiceCards.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) =>
+      prev === 0 ? practiceCards.length - 1 : prev - 1
+    );
+  };
+
   if (loading) {
     return (
       <Box
@@ -120,6 +170,7 @@ const FlashcardSession = () => {
   }
 
   if (!session) {
+    // If no session found, redirect home
     navigate("/");
     return null;
   }
@@ -134,7 +185,15 @@ const FlashcardSession = () => {
   });
 
   return (
-    <Container sx={{ mt: 1, mb: 2 }}>
+    <Container maxWidth="md" sx={{ mt: 1, mb: 2 }}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{ textAlign: "left", fontWeight: 600, mb: 2, mt: 2 }}
+      >
+        {session.studySession}
+      </Typography>
+      {/* Top bar (Search + Buttons) only if NOT in practice mode */}
       <Box
         sx={{
           display: "inline-flex",
@@ -171,13 +230,46 @@ const FlashcardSession = () => {
           justifyContent="flex-start"
           sx={{ width: "100%" }}
         >
-          <Button
-            variant="outlined"
-            onClick={handleGenerateMoreFlashcards}
-            disabled={generating}
+          <Stack
+            direction="row"
+            spacing={1}
+            divider={<Divider orientation="vertical" flexItem />}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              p: 0.5,
+              border: 0.1,
+              borderColor: "text.secondary",
+              borderRadius: 2,
+            }}
           >
-            {generating ? t("generating") : t("more_flashcards")}
-          </Button>
+            <Button
+              variant="text"
+              color="text.secondary"
+              onClick={handleGenerateMoreFlashcards}
+              disabled={generating}
+              startIcon={<AddRoundedIcon sx={{ color: "primary.main" }} />}
+            >
+              {generating ? t("generating") : t("more_flashcards")}
+            </Button>
+
+            <Button
+              variant="text"
+              color="text.secondary"
+              onClick={handleTogglePractice}
+              startIcon={
+                practiceMode ? (
+                  <EditNoteRoundedIcon color="primary" />
+                ) : (
+                  <ViewCarouselRoundedIcon color="primary" />
+                )
+              }
+            >
+              {practiceMode ? t("edit") : t("practice")}
+            </Button>
+          </Stack>
+
           {(accountType === "free" || !user) && (
             <Box sx={{ textAlign: "left" }}>
               <Typography variant="body1" color="textSecondary">
@@ -200,38 +292,139 @@ const FlashcardSession = () => {
         </Stack>
       </Box>
 
-      <TextField
-        placeholder={t("searchbar")}
-        size="small"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon sx={{ color: theme.palette.primary.main }} />
-            </InputAdornment>
-          ),
-        }}
-        sx={{
-          width: "100%",
-          mb: { xs: 1, md: 0 },
-          display: { md: "none" },
-          "& .MuiOutlinedInput-root": { borderRadius: "8px" },
-        }}
-      />
+      {/* Search field for small screens (hidden if in practice mode) */}
+      {!practiceMode && (
+        <TextField
+          placeholder={t("searchbar")}
+          size="small"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: theme.palette.primary.main }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            width: "100%",
+            mb: { xs: 1, md: 0 },
+            display: { md: "none" },
+            "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+          }}
+        />
+      )}
 
-      {filteredFlashcards.length === 0 ? (
-        <Box sx={{ borderRadius: 2, bgcolor: "background.paper", p: 4 }}>
-          <Typography>{t("no_flashcards_in_session")}</Typography>
-        </Box>
-      ) : (
-        <Grid container spacing={2}>
-          {filteredFlashcards.map((card, idx) => (
-            <Grid key={idx} size={{xs: 12, md: 6, xl: 4}} >
-              <Flashcard question={card.question} answer={card.answer} />
+      {/* Normal (grid) view */}
+      {!practiceMode && (
+        <>
+          {filteredFlashcards.length === 0 ? (
+            <Box sx={{ borderRadius: 2, bgcolor: "background.paper", p: 4 }}>
+              <Typography>{t("no_flashcards_in_session")}</Typography>
+            </Box>
+          ) : (
+            <Grid container spacing={2}>
+              {filteredFlashcards.map((card, idx) => (
+                <Grid
+                  key={idx}
+                  size={{ xs: 12, md: 6, xl: 4 }}
+                  sx={{ height: 200 }}
+                >
+                  <Flashcard
+                    question={card.question}
+                    answer={card.answer}
+                    size="small"
+                  />
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
+          )}
+        </>
+      )}
+
+      {/* Practice Mode: single card + bottom toolbar */}
+      {practiceMode && (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          {/* The Card */}
+          {practiceCards.length > 0 ? (
+            <Box
+              sx={{
+                width: "100%",
+                height: "55vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 2,
+              }}
+            >
+              <Flashcard
+                question={practiceCards[currentIndex].question}
+                answer={practiceCards[currentIndex].answer}
+                size="large"
+              />
+            </Box>
+          ) : (
+            <Typography>{t("no_flashcards_in_session")}</Typography>
+          )}
+
+          {/* Bottom toolbar */}
+          <Stack
+            direction="row"
+            spacing={1}
+            divider={<Divider orientation="vertical" flexItem />}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              p: 0.5,
+              border: 0.1,
+              borderColor: "text.secondary",
+              borderRadius: 2,
+            }}
+          >
+            <Box sx={{ display: "flex", direction: "row" }}>
+              {/* Prev arrow */}
+              <IconButton
+                onClick={handlePrev}
+                disabled={practiceCards.length === 0}
+              >
+                <ArrowLeftIcon fontSize="small" />
+              </IconButton>
+
+              {/* "X / Y" */}
+              <Typography
+                variant="subtitle2"
+                sx={{ width: 60, textAlign: "center", m: "auto" }}
+              >
+                {practiceCards.length > 0
+                  ? `${currentIndex + 1} / ${practiceCards.length}`
+                  : "0 / 0"}
+              </Typography>
+
+              {/* Next arrow */}
+              <IconButton
+                onClick={handleNext}
+                disabled={practiceCards.length === 0}
+              >
+                <ArrowRightIcon fontSize="small" />
+              </IconButton>
+            </Box>
+
+            {/* Shuffle */}
+            <IconButton
+              onClick={handleReshuffle}
+              disabled={practiceCards.length === 0}
+            >
+              <ShuffleRoundedIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        </Box>
       )}
 
       <Footer />
