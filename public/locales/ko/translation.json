@@ -39,7 +39,7 @@
   "error_generating_flashcards": "추가 플래시카드를 생성하는 중 오류가 발생했습니다.",
   "error_fetching_session": "세션을 불러오는 중 오류가 발생했습니다.",
   "generating": "생성 중...",
-  "more_flashcards": "+10 카드",
+  "more_flashcards": "10 카드",
   "want_more_flashcards": "더 많은 카드를 생성하시겠습니까?",
   "upgrade_your_account": "계정을 업그레이드하세요",
   "to_unlock_feature": "이 기능을 사용하려면.",
@@ -359,5 +359,7 @@
       "rating": 4,
       "text": "노트 필기에 정말 도움이 돼요. 가끔 요약에서 사소한 디테일이 빠지긴 하지만, 절약되는 시간을 생각하면 충분히 가치가 있습니다."
     }
-  ]
+  ],
+  "edit": "편집",
+  "practice": "연습"
 }

@@ -39,7 +39,7 @@
   "error_generating_flashcards": "生成额外闪卡时发生错误。",
   "error_fetching_session": "获取会话时发生错误。",
   "generating": "正在生成...",
-  "more_flashcards": "+10 更多卡片",
+  "more_flashcards": "10 更多卡片",
   "want_more_flashcards": "想生成更多卡片吗？",
   "upgrade_your_account": "升级您的账户",
   "to_unlock_feature": "以解锁此功能。",
@@ -359,5 +359,7 @@
       "rating": 4,
       "text": "对记笔记非常有帮助。有时总结会遗漏一些细节，但就节省的时间而言仍然值得。"
     }
-  ]
+  ],
+  "edit": "编辑",
+  "practice": "练习"
 }

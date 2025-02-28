@@ -39,7 +39,7 @@
   "error_generating_flashcards": "Une erreur s'est produite lors de la génération des cartes mémoire supplémentaires.",
   "error_fetching_session": "Une erreur s'est produite lors de la récupération de la session.",
   "generating": "Génération en cours...",
-  "more_flashcards": "+10 Cartes",
+  "more_flashcards": "10 Cartes",
   "want_more_flashcards": "Vous souhaitez générer plus de cartes ?",
   "upgrade_your_account": "Mettez à niveau votre compte",
   "to_unlock_feature": "pour déverrouiller cette fonctionnalité.",
@@ -359,5 +359,7 @@
       "rating": 4,
       "text": "Vraiment utile pour la prise de notes. Parfois, les résumés passent à côté de petits détails, mais cela vaut quand même le coup pour le temps gagné."
     }
-  ]
+  ],
+    "edit": "Modifier",
+  "practice": "S'entraîner"
 }

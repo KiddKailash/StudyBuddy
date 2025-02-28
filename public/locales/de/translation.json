@@ -39,7 +39,7 @@
   "error_generating_flashcards": "Beim Generieren zusätzlicher Karteikarten ist ein Fehler aufgetreten.",
   "error_fetching_session": "Beim Abrufen der Sitzung ist ein Fehler aufgetreten.",
   "generating": "Wird generiert...",
-  "more_flashcards": "+10 Karten",
+  "more_flashcards": "10 Karten",
   "want_more_flashcards": "Möchten Sie mehr Karten generieren?",
   "upgrade_your_account": "Führen Sie ein Upgrade Ihres Kontos durch",
   "to_unlock_feature": "um diese Funktion freizuschalten.",
@@ -359,5 +359,7 @@
       "rating": 4,
       "text": "Wirklich hilfreich beim Notieren. Manchmal fehlen in den Zusammenfassungen ein paar Details, aber für die gesparte Zeit lohnt es sich dennoch."
     }
-  ]
+  ],
+    "edit": "Bearbeiten",
+  "practice": "Üben"
 }

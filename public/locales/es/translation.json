@@ -39,7 +39,7 @@
   "error_generating_flashcards": "Ocurrió un error al generar tarjetas adicionales.",
   "error_fetching_session": "Ocurrió un error al obtener la sesión.",
   "generating": "Generando...",
-  "more_flashcards": "+10 Tarjetas",
+  "more_flashcards": "10 Tarjetas",
   "want_more_flashcards": "¿Quieres generar más tarjetas?",
   "upgrade_your_account": "Actualiza tu cuenta",
   "to_unlock_feature": "para desbloquear esta función.",
@@ -359,5 +359,7 @@
       "rating": 4,
       "text": "Realmente útil para tomar notas. A veces los resúmenes omiten detalles menores, pero aún así vale la pena por el tiempo que ahorra."
     }
-  ]
+  ],
+    "edit": "Editar",
+  "practice": "Practicar"
 }

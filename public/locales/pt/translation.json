@@ -39,7 +39,7 @@
   "error_generating_flashcards": "Ocorreu um erro ao gerar flashcards adicionais.",
   "error_fetching_session": "Ocorreu um erro ao obter a sessão.",
   "generating": "Gerando...",
-  "more_flashcards": "+10 Cartões",
+  "more_flashcards": "10 Cartões",
   "want_more_flashcards": "Deseja gerar mais cartões?",
   "upgrade_your_account": "Faça upgrade da sua conta",
   "to_unlock_feature": "para desbloquear este recurso.",
@@ -359,5 +359,7 @@
       "rating": 4,
       "text": "Realmente útil para tomar notas. Às vezes, os resumos perdem alguns detalhes, mas ainda vale a pena pelo tempo economizado."
     }
-  ]
+  ],
+  "edit": "Editar",
+  "practice": "Praticar"
 }
