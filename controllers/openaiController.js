@@ -59,7 +59,7 @@ exports.generateFlashcards = async (req, res) => {
         model: "gpt-4o",
         messages: [{ role: "user", content: prompt.trim() }],
         max_tokens: 15000,
-        temperature: 0.3,
+        temperature: 0.1,
       },
       {
         headers: {
