@@ -21,7 +21,8 @@ const Footer = () => {
   return (
     <Box
       sx={{
-        color: "text.secondary", // Use theme text color
+        color: "text.secondary",
+        mt: 2,
       }}
     >
       <Typography variant="body2">
