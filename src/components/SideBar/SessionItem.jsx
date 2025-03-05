@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
@@ -10,15 +9,15 @@ import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import { useTranslation } from "react-i18next";
 
 /**
- * SessionItem - represents one sidebar session (DB or ephemeral).
- *
- * @param {object} props
- * @param {object} props.session - { id, studySession, ... }
- * @param {boolean} props.isActive
- * @param {function} props.handleMenuOpen - handleMenuOpen(event, sessionId)
- * @param {string} props.routePath - the link URL ("/flashcards/..." or "/flashcards-local/...")
+ * SessionItem represents one sidebar session.
+ * Props:
+ *  - session: { id, studySession, ... }
+ *  - isActive: boolean
+ *  - resourceType: string ("flashcard", "quiz", "summary", or "chat")
+ *  - handleMenuOpen: function(event, sessionId, resourceType)
+ *  - routePath: the link URL
  */
-const SessionItem = ({ session, isActive, handleMenuOpen, routePath }) => {
+const SessionItem = ({ session, isActive, resourceType, handleMenuOpen, routePath }) => {
   const { t } = useTranslation();
 
   return (
@@ -45,8 +44,6 @@ const SessionItem = ({ session, isActive, handleMenuOpen, routePath }) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-
-          // Additional hover styles for the three-dot icon
           "&:hover .session-options-button": {
             visibility: "visible",
             opacity: 1,
@@ -67,8 +64,10 @@ const SessionItem = ({ session, isActive, handleMenuOpen, routePath }) => {
           edge="end"
           aria-label={t("options")}
           onClick={(e) => {
-            e.preventDefault(); // prevent navigation
-            handleMenuOpen(e, session.id);
+            e.preventDefault();
+            if (handleMenuOpen) {
+              handleMenuOpen(e, session.id, resourceType);
+            }
           }}
           className="session-options-button"
           sx={{ color: "text.secondary" }}
@@ -82,11 +81,12 @@ const SessionItem = ({ session, isActive, handleMenuOpen, routePath }) => {
 
 SessionItem.propTypes = {
   session: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    studySession: PropTypes.string.isRequired,
+    id: PropTypes.string,
+    studySession: PropTypes.string,
   }).isRequired,
   isActive: PropTypes.bool.isRequired,
-  handleMenuOpen: PropTypes.func.isRequired,
+  resourceType: PropTypes.string.isRequired,
+  handleMenuOpen: PropTypes.func,
   routePath: PropTypes.string.isRequired,
 };
 
