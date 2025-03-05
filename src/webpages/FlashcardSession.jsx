@@ -55,8 +55,12 @@ const FlashcardSession = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Context values and helper functions
-  const { user, fetchFlashcardSession, generateAdditionalFlashcards } =
-    useContext(UserContext);
+  const {
+    user,
+    fetchFlashcardSession,
+    generateAdditionalFlashcards,
+    flashcardSessions,
+  } = useContext(UserContext);
   const { showSnackbar } = useContext(SnackbarContext);
   const accountType = user?.accountType || "free";
 
@@ -65,7 +69,7 @@ const FlashcardSession = () => {
   useEffect(() => {
     fetchSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, flashcardSessions]);
 
   const fetchSession = async () => {
     setLoading(true);
@@ -78,8 +82,8 @@ const FlashcardSession = () => {
         setSession(found || null);
       } else {
         // Use the context helper function to fetch the session
-        const data = await fetchFlashcardSession(id);
-        setSession(data);
+        const response = await fetchFlashcardSession(id);
+        setSession(response.data);
       }
     } catch (error) {
       console.error("Error fetching session:", error);
@@ -91,7 +95,6 @@ const FlashcardSession = () => {
       );
     } finally {
       setLoading(false);
-      console.log(session);
     }
   };
 
@@ -185,7 +188,10 @@ const FlashcardSession = () => {
   });
 
   return (
-    <Container maxWidth="md" sx={{ mt: 1, mb: 2 }}>
+    <Container
+      maxWidth="md"
+      sx={{ mt: 1, mb: 2, transition: "all 0.3s ease-in-out" }}
+    >
       <Typography
         variant="h5"
         gutterBottom
@@ -239,8 +245,7 @@ const FlashcardSession = () => {
               alignItems: "center",
               justifyContent: "center",
               p: 0.5,
-              border: 0.1,
-              borderColor: "text.secondary",
+              border: "0.5px solid grey",
               borderRadius: 2,
             }}
           >
@@ -383,8 +388,7 @@ const FlashcardSession = () => {
               alignItems: "center",
               justifyContent: "center",
               p: 0.5,
-              border: 0.1,
-              borderColor: "text.secondary",
+              border: "0.5px solid grey",
               borderRadius: 2,
             }}
           >
