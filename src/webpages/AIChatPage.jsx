@@ -93,7 +93,7 @@ const AIChatPage = () => {
         </Typography>
         <Typography
           sx={{ textDecoration: "underline", cursor: "pointer" }}
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/create-resource")}
         >
           Go back home
         </Typography>

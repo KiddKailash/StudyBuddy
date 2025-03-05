@@ -276,7 +276,7 @@ export const UserProvider = ({ children }) => {
 
   const deleteLocalSession = (sessionId) => {
     if (location.pathname === `/flashcards-local/${sessionId}`) {
-      navigate("/");
+      navigate("/create-resource");
     }
     setLocalSessions((prev) => prev.filter((s) => s.id !== sessionId));
   };
@@ -292,7 +292,7 @@ export const UserProvider = ({ children }) => {
   // DB-based
   const deleteFlashcardSession = async (sessionId) => {
     if (location.pathname === `/flashcards/${sessionId}`) {
-      navigate("/");
+      navigate("/create-resource");
     }
     try {
       const localToken = localStorage.getItem("token");
@@ -537,6 +537,9 @@ export const UserProvider = ({ children }) => {
   };
 
   const deleteQuiz = async (quizID) => {
+    if (location.pathname === `/mcq/${quizID}`) {
+      navigate("/create-resource");
+    }
     try {
       const localToken = localStorage.getItem("token");
       if (!localToken) throw new Error("User is not authenticated.");
@@ -581,6 +584,9 @@ export const UserProvider = ({ children }) => {
   };
 
   const deleteSummary = async (summaryId) => {
+    if (location.pathname === `/summary/${summaryId}`) {
+      navigate("/create-resource");
+    }
     try {
       const localToken = localStorage.getItem("token");
       if (!localToken) throw new Error("User is not authenticated.");
@@ -641,6 +647,9 @@ export const UserProvider = ({ children }) => {
   };
 
   const deleteAiChat = async (chatId) => {
+    if (location.pathname === `/chat/${chatId}`) {
+      navigate("/create-resource");
+    }
     try {
       const localToken = localStorage.getItem("token");
       if (!localToken) throw new Error("User is not authenticated.");

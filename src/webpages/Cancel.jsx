@@ -26,7 +26,7 @@ const Cancel = () => {
           {t('payment_canceled_message')}
         </Typography>
         <Box sx={{ mt: 4 }}>
-          <Button variant="contained" color="primary" onClick={() => navigate('/')}>
+          <Button variant="contained" color="primary" onClick={() => navigate('/create-resource')}>
             {t('go_to_home')}
           </Button>
         </Box>

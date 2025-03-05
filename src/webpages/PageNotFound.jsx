@@ -32,7 +32,7 @@ const PageNotFound = () => {
         variant="contained"
         color="primary"
         sx={{ marginTop: 4 }}
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/create-resource")}
       >
         {t('go_to_landing_page')}
       </Button>

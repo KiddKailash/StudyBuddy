@@ -174,7 +174,7 @@ const FlashcardSession = () => {
 
   if (!session) {
     // If no session found, redirect home
-    navigate("/");
+    navigate("/create-resource");
     return null;
   }
 

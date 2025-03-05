@@ -25,7 +25,7 @@ const Success = () => {
           {t('subscription_upgraded_successfully')}
         </Typography>
         <Box sx={{ mt: 4 }}>
-          <Button variant="contained" color="primary" onClick={() => navigate('/')}>
+          <Button variant="contained" color="primary" onClick={() => navigate('/create-resource')}>
             {t('go_to_dashboard')}
           </Button>
         </Box>
