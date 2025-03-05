@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+
+// MUI
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -9,8 +11,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
-
 import useMediaQuery from "@mui/material/useMediaQuery";
+import Divider from "@mui/material/Divider";
 
 import SessionItem from "./SessionItem";
 import DropdownMenu from "./DropdownMenu";
@@ -27,6 +29,9 @@ const SidebarContent = () => {
     flashcardSessions,
     localSessions,
     loadingSessions,
+    multipleChoiceQuizzes,
+    summaries,
+    aiChats,
     isCreateSessionActive,
     menuAnchorEl,
     dialogState,
@@ -66,7 +71,7 @@ const SidebarContent = () => {
           <ListItem disablePadding key="create-session">
             <ListItemButton
               component={Link}
-              to="/"
+              to="/create-resource"
               selected={isCreateSessionActive}
               sx={(themeParam) => ({
                 mr: 1,
@@ -82,7 +87,6 @@ const SidebarContent = () => {
                   backgroundColor: themeParam.palette.action.selected,
                 },
                 color: "text.primary",
-                "& .MuiListItemText-root": { color: "text.primary" },
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -94,23 +98,28 @@ const SidebarContent = () => {
               <AddRoundedIcon sx={{ color: theme.palette.text.secondary }} />
             </ListItemButton>
           </ListItem>
-          <Box sx={{mb: 6}}>
-            {/* DB-based sessions */}
+
+          {/* FLASHCARDS SECTION */}
+          <ListItem>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              {t("flashcards")}
+            </Typography>
+            <Divider />
+          </ListItem>
+          <Box sx={{ mb: 2 }}>
             {flashcardSessions.map((session) => {
-              const isActive =
-                location.pathname === `/flashcards/${session.id}`;
+              const isActive = location.pathname === `/flashcards/${session.id}`;
               return (
                 <SessionItem
                   key={session.id}
                   session={session}
+                  resourceType="flashcard"
                   isActive={isActive}
                   handleMenuOpen={handleMenuOpen}
                   routePath={`/flashcards/${session.id}`}
                 />
               );
             })}
-
-            {/* Local ephemeral sessions */}
             {localSessions.map((session) => {
               const isActive =
                 location.pathname === `/flashcards-local/${session.id}`;
@@ -118,9 +127,76 @@ const SidebarContent = () => {
                 <SessionItem
                   key={session.id}
                   session={session}
+                  resourceType="flashcard"
                   isActive={isActive}
                   handleMenuOpen={handleMenuOpen}
                   routePath={`/flashcards-local/${session.id}`}
+                />
+              );
+            })}
+          </Box>
+
+          {/* MULTIPLE CHOICE QUIZZES SECTION */}
+          <ListItem>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              {t("multiple_choice_quizzes")}
+            </Typography>
+          </ListItem>
+          <Box sx={{ mb: 2 }}>
+            {multipleChoiceQuizzes.map((quiz) => {
+              const isActive = location.pathname === `/mcq/${quiz.id}`;
+              return (
+                <SessionItem
+                  key={quiz.id}
+                  session={quiz}
+                  resourceType="quiz"
+                  isActive={isActive}
+                  handleMenuOpen={handleMenuOpen}
+                  routePath={`/mcq/${quiz.id}`}
+                />
+              );
+            })}
+          </Box>
+
+          {/* SUMMARIES SECTION */}
+          <ListItem>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              {t("summaries")}
+            </Typography>
+          </ListItem>
+          <Box sx={{ mb: 2 }}>
+            {summaries.map((summary) => {
+              const isActive = location.pathname === `/summary/${summary.id}`;
+              return (
+                <SessionItem
+                  key={summary.id}
+                  session={summary}
+                  resourceType="summary"
+                  isActive={isActive}
+                  handleMenuOpen={handleMenuOpen}
+                  routePath={`/summary/${summary.id}`}
+                />
+              );
+            })}
+          </Box>
+
+          {/* AI CHATS SECTION */}
+          <ListItem>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              {t("ai_chats")}
+            </Typography>
+          </ListItem>
+          <Box sx={{ mb: 6 }}>
+            {aiChats.map((chat) => {
+              const isActive = location.pathname === `/chat/${chat.id}`;
+              return (
+                <SessionItem
+                  key={chat.id}
+                  session={chat}
+                  resourceType="chat"
+                  isActive={isActive}
+                  handleMenuOpen={handleMenuOpen}
+                  routePath={`/chat/${chat.id}`}
                 />
               );
             })}
@@ -136,7 +212,6 @@ const SidebarContent = () => {
 
       <RequestFeature />
 
-      {/* Dropdown menu (three dots) */}
       <DropdownMenu
         anchorEl={menuAnchorEl}
         isOpen={Boolean(menuAnchorEl)}
@@ -146,7 +221,6 @@ const SidebarContent = () => {
         t={t}
       />
 
-      {/* Confirmation dialog for delete/rename actions */}
       <ConfirmationDialog
         open={dialogState.open}
         type={dialogState.type}
