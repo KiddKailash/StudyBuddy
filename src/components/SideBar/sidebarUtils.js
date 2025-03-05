@@ -7,10 +7,10 @@ import { UserContext } from "../../contexts/UserContext";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
 
 export default function useSidebar() {
+  // All hooks are called unconditionally at the top
   const theme = useTheme();
   const { t } = useTranslation();
   const location = useLocation();
-
   const { showSnackbar } = useContext(SnackbarContext);
   const {
     flashcardSessions,
@@ -21,120 +21,135 @@ export default function useSidebar() {
     updateLocalSession,
     deleteFlashcardSession,
     updateFlashcardSessionName,
+    multipleChoiceQuizzes,
+    summaries,
+    aiChats,
+    renameQuiz,
+    deleteQuiz,
+    renameSummary,
+    deleteSummary,
+    renameAiChat,
+    deleteAiChat,
   } = useContext(UserContext);
 
-  // Track menu anchor for the three-dot menu
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
-  // Track selected session for menu actions
   const [selectedSessionId, setSelectedSessionId] = useState(null);
-
-  // Dialog state includes type (delete/rename), open boolean, sessionId
+  const [selectedResourceType, setSelectedResourceType] = useState(null);
   const [dialogState, setDialogState] = useState({
     type: null,
     open: false,
     sessionId: null,
+    resourceType: null,
   });
-
   const [newSessionName, setNewSessionName] = useState("");
 
-  // Show error snackbar if there's a loading error
   useEffect(() => {
     if (flashcardError) {
-      showSnackbar(
-        t("error_loading_study_sessions", { error: flashcardError }),
-        "error"
-      );
+      showSnackbar(t("error_loading_study_sessions", { error: flashcardError }), "error");
     }
   }, [flashcardError, showSnackbar, t]);
 
-  // Check if we’re on the "Create Session" route
   const isCreateSessionActive = location.pathname === "/";
 
-  // Open three-dot menu
-  const handleMenuOpen = (event, sessionId) => {
+  const handleMenuOpen = (event, sessionId, resourceType) => {
     event.stopPropagation();
     event.preventDefault();
     setMenuAnchorEl(event.currentTarget);
     setSelectedSessionId(sessionId);
+    setSelectedResourceType(resourceType);
   };
 
-  // Close three-dot menu
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
     setSelectedSessionId(null);
+    setSelectedResourceType(null);
   };
 
-  // Open rename/delete dialog
   const handleDialogOpen = (type) => {
     setDialogState({
       type,
       open: true,
       sessionId: selectedSessionId,
+      resourceType: selectedResourceType,
     });
     handleMenuClose();
   };
 
-  // Close rename/delete dialog
   const handleDialogClose = () => {
-    setDialogState({
-      type: null,
-      open: false,
-      sessionId: null,
-    });
+    setDialogState({ type: null, open: false, sessionId: null, resourceType: null });
     setNewSessionName("");
   };
 
-  // Handle DB session operations
-  const handleDeleteDbSession = (id) => {
-    deleteFlashcardSession(id);
-    handleDialogClose();
-  };
-
-  const handleRenameDbSession = (id) => {
-    if (!newSessionName.trim()) {
-      showSnackbar(t("please_enter_valid_session_name"), "error");
+  const handleConfirmAction = async () => {
+    const { type, sessionId, resourceType } = dialogState;
+    if (!sessionId || !resourceType) {
+      console.error("Session not found: missing sessionId or resourceType");
       return;
     }
-    updateFlashcardSessionName(id, newSessionName.trim());
-    handleDialogClose();
-  };
-
-  // Handle local session operations
-  const handleDeleteLocalSession = (id) => {
-    deleteLocalSession(id);
-    handleDialogClose();
-  };
-
-  const handleRenameLocalSession = (id) => {
-    if (!newSessionName.trim()) {
-      showSnackbar(t("please_enter_valid_session_name"), "error");
-      return;
-    }
-    updateLocalSession(id, newSessionName.trim());
-    handleDialogClose();
-  };
-
-  // When user confirms in dialog
-  const handleConfirmAction = () => {
-    const { type, sessionId } = dialogState;
-    if (!sessionId) {
-      console.error("Session not found: no sessionId in dialogState");
-      return;
-    }
-
-    const combinedSessions = [...localSessions, ...flashcardSessions];
-    const targetSession = combinedSessions.find((s) => s.id === sessionId);
-    if (!targetSession) {
-      console.error("Session not found:", sessionId);
-      return;
-    }
-
-    if (targetSession.sessionType === "local") {
-      if (type === "delete") handleDeleteLocalSession(sessionId);
-      else if (type === "rename") handleRenameLocalSession(sessionId);
-    } else {
-      if (type === "delete") handleDeleteDbSession(sessionId);
-      else if (type === "rename") handleRenameDbSession(sessionId);
+    try {
+      if (resourceType === "flashcard") {
+        const combinedSessions = [...localSessions, ...flashcardSessions];
+        const targetSession = combinedSessions.find((s) => s.id === sessionId);
+        if (!targetSession) {
+          console.error("Session not found:", sessionId);
+          return;
+        }
+        if (targetSession.sessionType === "local") {
+          if (type === "delete") {
+            deleteLocalSession(sessionId);
+          } else if (type === "rename") {
+            if (!newSessionName.trim()) {
+              showSnackbar(t("please_enter_valid_session_name"), "error");
+              return;
+            }
+            updateLocalSession(sessionId, newSessionName.trim());
+          }
+        } else {
+          if (type === "delete") {
+            deleteFlashcardSession(sessionId);
+          } else if (type === "rename") {
+            if (!newSessionName.trim()) {
+              showSnackbar(t("please_enter_valid_session_name"), "error");
+              return;
+            }
+            updateFlashcardSessionName(sessionId, newSessionName.trim());
+          }
+        }
+      } else if (resourceType === "quiz") {
+        if (type === "delete") {
+          await deleteQuiz(sessionId);
+        } else if (type === "rename") {
+          if (!newSessionName.trim()) {
+            showSnackbar(t("please_enter_valid_session_name"), "error");
+            return;
+          }
+          await renameQuiz(sessionId, newSessionName.trim());
+        }
+      } else if (resourceType === "summary") {
+        if (type === "delete") {
+          await deleteSummary(sessionId);
+        } else if (type === "rename") {
+          if (!newSessionName.trim()) {
+            showSnackbar(t("please_enter_valid_session_name"), "error");
+            return;
+          }
+          await renameSummary(sessionId, newSessionName.trim());
+        }
+      } else if (resourceType === "chat") {
+        if (type === "delete") {
+          await deleteAiChat(sessionId);
+        } else if (type === "rename") {
+          if (!newSessionName.trim()) {
+            showSnackbar(t("please_enter_valid_session_name"), "error");
+            return;
+          }
+          await renameAiChat(sessionId, newSessionName.trim());
+        }
+      }
+      handleDialogClose();
+    } catch (error) {
+      console.error("Error in handleConfirmAction:", error);
+      showSnackbar(error.message || t("action_failed"), "error");
     }
   };
 
@@ -145,6 +160,9 @@ export default function useSidebar() {
     flashcardSessions,
     localSessions,
     loadingSessions,
+    multipleChoiceQuizzes,
+    summaries,
+    aiChats,
     isCreateSessionActive,
     menuAnchorEl,
     dialogState,
