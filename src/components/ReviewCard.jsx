@@ -13,9 +13,9 @@ const ReviewCard = ({ name, country, rating, text }) => {
           name="read-only"
           value={rating}
           readOnly
-          precision={1}
+          precision={0.5}
           icon={
-            <StarIcon fontSize="inherit" sx={{ color: "primary.main", opacity: 0.6 }} />
+            <StarIcon fontSize="inherit" sx={{ color: "primary.light", opacity: 1 }} />
           }
           emptyIcon={
             <StarIcon fontSize="inherit" sx={{ color: "text: secondary" }} />
