@@ -9,10 +9,12 @@ import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import CircularProgress from "@mui/material/CircularProgress";
 
+// Layout components
 import MenuBar from "./components/MenuBar/MenuBar";
 import Sidebar from "./components/SideBar/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// Existing pages
 import FlashcardSession from "./webpages/FlashcardSession";
 import CreateStudySession from "./webpages/CreateStudySession";
 import LoginPage from "./webpages/Login";
@@ -24,8 +26,17 @@ import PrivacyPolicy from "./webpages/PrivacyPolicy";
 import TermsOfService from "./webpages/TermsOfService";
 import LandingPage from "./webpages/LandingPage";
 import { CheckoutForm, Return } from "./webpages/StripeForm";
+import CreateStudyResource from "./webpages/CreateStudyResource";
 
+// NEW resource pages
+import MCQSession from "./webpages/MCQSession";
+import SummaryPage from "./webpages/SummaryPage";
+import AIChatPage from "./webpages/AIChatPage";
+
+// Context
 import { UserContext } from "./contexts/UserContext";
+
+// Styles
 import "./App.css";
 
 function App() {
@@ -49,11 +60,37 @@ function App() {
     setMobileOpen(!mobileOpen);
   };
 
+  // ----------------------------
+  // Define your routes/pages here
+  // ----------------------------
   const pages = [
+    // Public or existing
     { path: "/", component: <CreateStudySession /> },
     { path: "/landing-page", component: <LandingPage /> },
+
+    // Flashcards, ephemeral and DB
     { path: "/flashcards-local/:id", component: <FlashcardSession /> },
     { path: "/flashcards/:id", component: <FlashcardSession /> },
+
+    // NEW: MCQ Quizzes
+    // Ephemeral route (if desired) -> /mcq-local/:id
+    { path: "/mcq-local/:id", component: <MCQSession /> },
+    // DB-based route (requires auth)
+    { path: "/mcq/:id", component: <MCQSession /> },
+
+    // NEW: Summaries
+    // Ephemeral route (if desired)
+    { path: "/summary-local/:id", component: <SummaryPage /> },
+    // DB-based
+    { path: "/summary/:id", component: <SummaryPage /> },
+
+    // NEW: AI Chats
+    // Ephemeral route (if desired)
+    { path: "/chat-local/:id", component: <AIChatPage /> },
+    // DB-based
+    { path: "/chat/:id", component: <AIChatPage /> },
+
+    // Other existing public pages
     { path: "/login", component: <LoginPage /> },
     { path: "/settings", component: <SettingsPage /> },
     { path: "/success", component: <Success /> },
@@ -62,6 +99,11 @@ function App() {
     { path: "/privacy", component: <PrivacyPolicy /> },
     { path: "/checkout", component: <CheckoutForm /> },
     { path: "/return", component: <Return /> },
+
+    // The page with the resource creation dialog
+    { path: "/create-resource", component: <CreateStudyResource />},
+
+    // 404
     { path: "*", component: <PageNotFound /> },
   ];
 
@@ -80,6 +122,7 @@ function App() {
     );
   }
 
+  // For simpler checks
   const isLoginPage = location.pathname.startsWith("/login");
   const isTermsOrPrivacyPolicy =
     location.pathname.startsWith("/terms") ||
@@ -88,6 +131,7 @@ function App() {
 
   return (
     <>
+      {/* If the user is on login, terms, privacy, or landing, hide the sidebar */}
       {!(isLoginPage || isTermsOrPrivacyPolicy || isLandingPage) && (
         <Box
           component="nav"
@@ -97,7 +141,6 @@ function App() {
             left: 0,
             width: isExpanded ? sidebarWidth : 0,
             height: `calc(100% - ${menubarHeight})`,
-            bgcolor: "background.paper",
             overflowY: "auto",
             zIndex: 1,
             transition: "width 0.3s ease-in-out",
@@ -142,6 +185,7 @@ function App() {
           <MenuBar handleDrawerToggle={handleDrawerToggle} />
         )}
 
+        {/* Expand/collapse button for the sidebar (desktop only) */}
         {!isMobile && isLoggedIn && !isLoginPage && !isLandingPage && (
           <IconButton
             onClick={toggleExpand}
@@ -163,8 +207,11 @@ function App() {
           </IconButton>
         )}
 
+        {/* ----------- MAIN ROUTES ----------- */}
         <Routes>
           {pages.map((page, index) => {
+            // These paths are public or ephemeral
+            // (Add any new ephemeral routes here)
             const publicPaths = [
               "/",
               "/login",
@@ -174,13 +221,25 @@ function App() {
               "/success",
               "/cancel",
             ];
-            const isLocalFlashcardPath =
-              page.path.startsWith("/flashcards-local");
 
+            // ephemeral routes
+            const ephemeralRoutes = [
+              "/flashcards-local/",
+              "/mcq-local/",
+              "/summary-local/",
+              "/chat-local/",
+            ];
+
+            // Check if current route is ephemeral
+            const isEphemeral = ephemeralRoutes.some((prefix) =>
+              page.path.startsWith(prefix)
+            );
+
+            // Public or ephemeral => no ProtectedRoute needed
             const isPublicPage =
               publicPaths.includes(page.path) ||
               page.path === "*" ||
-              isLocalFlashcardPath;
+              isEphemeral;
 
             return (
               <Route
@@ -190,7 +249,9 @@ function App() {
                   isPublicPage ? (
                     page.component
                   ) : (
-                    <ProtectedRoute>{page.component}</ProtectedRoute>
+                    <ProtectedRoute>
+                      {page.component}
+                    </ProtectedRoute>
                   )
                 }
               />
