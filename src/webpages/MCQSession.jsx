@@ -82,10 +82,7 @@ const MCQSession = () => {
   // If an error occurred or quiz not found, display message
   if (errorMessage || !quiz) {
     return (
-      <Container
-        maxWidth="md"
-        sx={{ mt: 1, mb: 2, transition: "all 0.3s ease-in-out" }}
-      >
+      <>
         <Typography color="error" gutterBottom>
           {errorMessage || "Quiz not found."}
         </Typography>
@@ -95,16 +92,13 @@ const MCQSession = () => {
         >
           Go back home
         </Typography>
-      </Container>
+      </>
     );
   }
 
   // Otherwise, display the quiz
   return (
-    <Container
-      maxWidth="md"
-      sx={{ mt: 1, mb: 2, transition: "all 0.3s ease-in-out", textAlign: 'left' }}
-    >
+    <>
       <Typography
         variant="h5"
         gutterBottom
@@ -125,7 +119,7 @@ const MCQSession = () => {
           ))}
         </Box>
       ))}
-    </Container>
+    </>
   );
 };
 

@@ -188,14 +188,11 @@ const FlashcardSession = () => {
   });
 
   return (
-    <Container
-      maxWidth="md"
-      sx={{ mt: 1, mb: 2, transition: "all 0.3s ease-in-out" }}
-    >
+    <>
       <Typography
         variant="h5"
         gutterBottom
-        sx={{ textAlign: "left", fontWeight: 600, mb: 2, mt: 2 }}
+        sx={{ textAlign: "left", fontWeight: 600, mb: 2 }}
       >
         {session.studySession}
       </Typography>
@@ -432,7 +429,7 @@ const FlashcardSession = () => {
       )}
 
       <Footer />
-    </Container>
+    </>
   );
 };
 

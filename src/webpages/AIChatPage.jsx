@@ -44,7 +44,7 @@ const AIChatPage = () => {
           headers: { Authorization: `Bearer ${localToken}` },
         });
 
-        // The server might return { chat: {...} } or { data: {...} }, 
+        // The server might return { chat: {...} } or { data: {...} },
         // depending on your controller. Adjust accordingly:
         // For example: const fetchedChat = response.data.chat;
         const fetchedChat = response.data.chat;
@@ -102,11 +102,10 @@ const AIChatPage = () => {
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <>
       <Typography variant="h4" gutterBottom>
         AI Chat
       </Typography>
-
       <Box>
         {chat.messagesJSON?.map((m, idx) => (
           <Box
@@ -119,7 +118,6 @@ const AIChatPage = () => {
           </Box>
         ))}
       </Box>
-
       {/* Simple input to continue chat (if you handle it) */}
       <Box sx={{ mt: 3 }}>
         <TextField
@@ -133,7 +131,7 @@ const AIChatPage = () => {
           Send
         </Button>
       </Box>
-    </Box>
+    </>
   );
 };
 

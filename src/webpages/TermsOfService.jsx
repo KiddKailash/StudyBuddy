@@ -7,7 +7,7 @@ const TermsOfService = () => {
   const sections = t("termsOfService.sections", { returnObjects: true });
 
   return (
-    <Container maxWidth="md" sx={{ py: 4, textAlign: "left" }}>
+    <>
       <Typography variant="h4" gutterBottom>
         {t("termsOfService.title")}
       </Typography>
@@ -35,7 +35,7 @@ const TermsOfService = () => {
           </React.Fragment>
         ))}
       </Box>
-    </Container>
+    </>
   );
 };
 

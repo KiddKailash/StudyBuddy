@@ -92,12 +92,12 @@ const SummaryPage = () => {
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <>
       <Typography variant="h4" gutterBottom>
         Summary
       </Typography>
       <Typography sx={{ mt: 2 }}>{summary.summary}</Typography>
-    </Box>
+    </>
   );
 };
 

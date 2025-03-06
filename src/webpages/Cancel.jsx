@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 // MUI Component Imports
 import Typography from "@mui/material/Typography";
@@ -8,7 +8,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 
 // Import the useTranslation hook
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 const Cancel = () => {
   const navigate = useNavigate();
@@ -17,21 +17,23 @@ const Cancel = () => {
   const { t } = useTranslation();
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 10, textAlign: 'center' }}>
+    <>
       <Box>
         <Typography variant="h4" gutterBottom>
-          {t('payment_canceled')}
+          {t("payment_canceled")}
         </Typography>
-        <Typography variant="body1">
-          {t('payment_canceled_message')}
-        </Typography>
+        <Typography variant="body1">{t("payment_canceled_message")}</Typography>
         <Box sx={{ mt: 4 }}>
-          <Button variant="contained" color="primary" onClick={() => navigate('/create-resource')}>
-            {t('go_to_home')}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate("/create-resource")}
+          >
+            {t("go_to_home")}
           </Button>
         </Box>
       </Box>
-    </Container>
+    </>
   );
 };
 

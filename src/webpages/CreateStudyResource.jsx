@@ -53,7 +53,7 @@ const CreateStudyResource = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 2, textAlign: "left" }}>
+    <>
       <Typography
         variant="body2"
         color="text.secondary.dark"
@@ -64,7 +64,7 @@ const CreateStudyResource = () => {
 
       <Box
         sx={{
-          bgcolor: theme.palette.background.default,
+          bgcolor: theme.palette.background.paper,
           p: 4,
           borderRadius: 4,
           mb: 4,
@@ -140,7 +140,7 @@ const CreateStudyResource = () => {
       </Typography>
       <Box
         sx={{
-          bgcolor: theme.palette.background.default,
+          bgcolor: theme.palette.background.paper,
           p: 5,
           borderRadius: 5,
           mb: 4,
@@ -167,7 +167,7 @@ const CreateStudyResource = () => {
           </DialogActions>
         </Box>
       </Dialog>
-    </Container>
+    </>
   );
 };
 

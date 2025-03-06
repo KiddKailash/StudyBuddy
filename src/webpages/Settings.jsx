@@ -20,7 +20,14 @@ import Checkbox from "@mui/material/Checkbox";
 import { useTranslation } from "react-i18next";
 
 const SettingsPage = () => {
-  const { user, setUser, updateAccountInfo, changePassword, updatePreferences, cancelSubscription } = useContext(UserContext);
+  const {
+    user,
+    setUser,
+    updateAccountInfo,
+    changePassword,
+    updatePreferences,
+    cancelSubscription,
+  } = useContext(UserContext);
   const { showSnackbar } = useContext(SnackbarContext);
   const { t } = useTranslation();
 
@@ -57,7 +64,10 @@ const SettingsPage = () => {
       showSnackbar(t("account_info_updated_success"), "success");
     } catch (err) {
       console.error("Error updating account information:", err);
-      showSnackbar(err.response?.data?.error || t("failed_to_update_account_info"), "error");
+      showSnackbar(
+        err.response?.data?.error || t("failed_to_update_account_info"),
+        "error"
+      );
     } finally {
       setAccountLoading(false);
     }
@@ -83,7 +93,10 @@ const SettingsPage = () => {
       setConfirmPassword("");
     } catch (err) {
       console.error("Error changing password:", err);
-      showSnackbar(err.response?.data?.error || t("failed_to_change_password"), "error");
+      showSnackbar(
+        err.response?.data?.error || t("failed_to_change_password"),
+        "error"
+      );
     } finally {
       setPasswordLoading(false);
     }
@@ -100,7 +113,10 @@ const SettingsPage = () => {
       showSnackbar(t("subscription_canceled_successfully"), "success");
     } catch (err) {
       console.error("Error canceling subscription:", err);
-      showSnackbar(err.response?.data?.error || t("failed_to_cancel_subscription"), "error");
+      showSnackbar(
+        err.response?.data?.error || t("failed_to_cancel_subscription"),
+        "error"
+      );
     } finally {
       setSubscriptionLoading(false);
       setOpenDialog(false);
@@ -108,7 +124,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 5, alignContent: "inherit", alignItems: "inherit", textAlign: "left" }}>
+    <>
       {/* Account Information Form */}
       <Typography variant="h4" gutterBottom>
         {t("account_settings")}
@@ -153,13 +169,22 @@ const SettingsPage = () => {
           value={company}
           onChange={(e) => setCompany(e.target.value)}
         />
-        <Button variant="contained" color="primary" type="submit" disabled={accountLoading}>
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          disabled={accountLoading}
+        >
           {accountLoading ? t("updating") : t("update_account_information")}
         </Button>
       </Box>
 
       {/* Password Change Form */}
-      <Box component="form" onSubmit={handlePasswordChangeSubmit} sx={{ mb: 2 }}>
+      <Box
+        component="form"
+        onSubmit={handlePasswordChangeSubmit}
+        sx={{ mb: 2 }}
+      >
         <Typography variant="h6" gutterBottom>
           {t("change_password")}
         </Typography>
@@ -193,7 +218,12 @@ const SettingsPage = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
-        <Button variant="contained" color="primary" type="submit" disabled={passwordLoading}>
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          disabled={passwordLoading}
+        >
           {passwordLoading ? t("changing_password") : t("change_password")}
         </Button>
       </Box>
@@ -209,23 +239,38 @@ const SettingsPage = () => {
           </Button>
 
           {/* Confirmation Dialog */}
-          <Dialog open={openDialog} onClose={() => setOpenDialog(false)} sx={{ textAlign: "center" }}>
-            <DialogTitle sx={{ pb: 1 }}>{t("confirm_cancel_subscription")}</DialogTitle>
+          <Dialog
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+            sx={{ textAlign: "center" }}
+          >
+            <DialogTitle sx={{ pb: 1 }}>
+              {t("confirm_cancel_subscription")}
+            </DialogTitle>
             <DialogContent sx={{ pb: 1 }}>
-              <DialogContentText>{t("cancel_subscription_warning")}</DialogContentText>
+              <DialogContentText>
+                {t("cancel_subscription_warning")}
+              </DialogContentText>
             </DialogContent>
             <DialogActions sx={{ justifyContent: "center" }}>
               <Button onClick={() => setOpenDialog(false)} color="primary">
                 {t("cancel")}
               </Button>
-              <Button variant="text" color="error" onClick={handleCancelSubscription} disabled={subscriptionLoading}>
-                {subscriptionLoading ? t("cancelling_subscription") : t("confirm_cancel")}
+              <Button
+                variant="text"
+                color="error"
+                onClick={handleCancelSubscription}
+                disabled={subscriptionLoading}
+              >
+                {subscriptionLoading
+                  ? t("cancelling_subscription")
+                  : t("confirm_cancel")}
               </Button>
             </DialogActions>
           </Dialog>
         </Box>
       )}
-    </Container>
+    </>
   );
 };
 

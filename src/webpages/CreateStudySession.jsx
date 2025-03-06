@@ -173,7 +173,7 @@ const CreateStudySession = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ pt: { xs: 6.5, sm: 10, md: 15 }, textAlign: "center" }}>
+    <>
       <Tabs
         value={tabValue}
         onChange={handleTabChange}
@@ -296,7 +296,7 @@ const CreateStudySession = () => {
           </Typography>
         </>
       )}
-    </Container>
+    </>
   );
 };
 
