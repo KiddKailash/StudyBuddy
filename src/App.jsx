@@ -173,7 +173,7 @@ function App() {
               : `calc(100% - ${sidebarWidth})`,
           height: "100%",
           padding: 2,
-          bgcolor: "background.default",
+          bgcolor: "background.paper",
           zIndex: 50,
           transition: isLoggedIn
             ? "all 0.3s ease-in-out"
