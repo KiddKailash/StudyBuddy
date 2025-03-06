@@ -2,44 +2,58 @@ import React from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
-import IconButton from "@mui/material/IconButton";
+import {
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  IconButton,
+  Tooltip,
+  Box,
+} from "@mui/material";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 
-import { useTranslation } from "react-i18next";
-import { Box, Tooltip } from "@mui/material";
-
-// Example icons (use whichever you like)
-import NoteIcon from "@mui/icons-material/Note";        // For flashcards
-import QuizIcon from "@mui/icons-material/Quiz";        // For quizzes
-import ArticleIcon from "@mui/icons-material/Article";  // For summaries
-import ChatIcon from "@mui/icons-material/Chat";        // For AI chats
+// Icons
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded"; // flashcards
+import QuizIcon from "@mui/icons-material/Quiz"; // quizzes
+import ArticleIcon from "@mui/icons-material/Article"; // summaries
+import ChatIcon from "@mui/icons-material/Chat"; // AI chats
+import Avatar from "@mui/material/Avatar";
 
 /**
- * Returns an icon component based on the resourceType.
- * You can customize or replace these as desired.
+ * Returns an icon component (or avatar) based on the resourceType.
+ * We unify brand, create, flashcard, quiz, summary, chat, etc.
  */
-function getResourceIcon(resourceType) {
+function getResourceIcon(resourceType, session) {
   switch (resourceType) {
+    case "brand":
+      // Return an Avatar as the "icon"
+      return (
+        <Avatar
+          src="/assets/flashcards.png"
+          alt="Study Buddy Icon"
+          size="inherit"
+        />
+      );
+    case "create":
+      return <AddRoundedIcon />;
     case "flashcard":
-      return NoteIcon;
+      return <ViewCarouselRoundedIcon />;
     case "quiz":
-      return QuizIcon;
+      return <QuizIcon />;
     case "summary":
-      return ArticleIcon;
+      return <ArticleIcon />;
     case "chat":
-      return ChatIcon;
+      return <ChatIcon />;
     default:
-      return NoteIcon; // fallback icon
+      return <ViewCarouselRoundedIcon />;
   }
 }
 
 /**
- * SessionItem represents one sidebar session row.
- * If expanded => show icon + session name
- * If collapsed => show icon only, with a tooltip for session name
+ * SessionItem represents one sidebar row. All items in the sidebar use this pattern.
+ * If expanded => show (icon + text)
+ * If collapsed => show (icon w/ tooltip)
  */
 const SessionItem = ({
   session,
@@ -49,17 +63,25 @@ const SessionItem = ({
   routePath,
   isExpanded,
 }) => {
-  const { t } = useTranslation();
+  // This is the text that displays in expanded mode, or in the tooltip
+  const textLabel = session?.studySession || "Untitled";
 
-  // Pick an icon based on resource type
-  const ResourceIcon = getResourceIcon(resourceType);
+  // Get the correct icon (or avatar)
+  const iconElement = getResourceIcon(resourceType, session);
+
+  // If there's no route, we can skip making this clickable
+  const clickableProps = routePath
+    ? {
+        component: Link,
+        to: routePath,
+        selected: isActive,
+      }
+    : {};
 
   return (
     <ListItem disablePadding>
       <ListItemButton
-        component={Link}
-        to={routePath}
-        selected={isActive}
+        {...clickableProps}
         sx={(theme) => ({
           mr: 1,
           ml: 1,
@@ -74,14 +96,11 @@ const SessionItem = ({
             backgroundColor: theme.palette.action.selected,
           },
           color: "text.primary",
-          "& .MuiListItemText-root": { color: "text.primary" },
-
-          // Lay out the item horizontally
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
 
-          // Show/hide the "More" icon on hover or if active
+          // Only show "more" icon if hovered or active
           "&:hover .session-options-button": {
             visibility: "visible",
             opacity: 1,
@@ -93,38 +112,38 @@ const SessionItem = ({
           },
         })}
       >
-        {/* Left side: icon + text if expanded, else just icon w/ tooltip */}
+        {/* Left side: icon + text if expanded, else just icon with tooltip */}
         {isExpanded ? (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <ResourceIcon />
+            {iconElement}
             <ListItemText
-              primary={session.studySession}
+              primary={textLabel}
               primaryTypographyProps={{ variant: "subtitle2" }}
             />
           </Box>
         ) : (
-          <Tooltip title={session.studySession} placement="right">
+          <Tooltip title={textLabel} placement="right">
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <ResourceIcon />
+              {iconElement}
             </Box>
           </Tooltip>
         )}
 
-        {/* Right side: More options icon */}
-        <IconButton
-          edge="end"
-          aria-label={t("options")}
-          onClick={(e) => {
-            e.preventDefault();
-            if (handleMenuOpen) {
+        {/* More options icon, only if there's a handleMenuOpen function */}
+        {handleMenuOpen && (
+          <IconButton
+            edge="end"
+            aria-label="Options"
+            onClick={(e) => {
+              e.preventDefault();
               handleMenuOpen(e, session.id, resourceType);
-            }
-          }}
-          className="session-options-button"
-          sx={{ color: "text.secondary" }}
-        >
-          <MoreVertRoundedIcon />
-        </IconButton>
+            }}
+            className="session-options-button"
+            sx={{ color: "text.secondary" }}
+          >
+            <MoreVertRoundedIcon />
+          </IconButton>
+        )}
       </ListItemButton>
     </ListItem>
   );
@@ -132,18 +151,16 @@ const SessionItem = ({
 
 SessionItem.propTypes = {
   session: PropTypes.shape({
-    id: PropTypes.string,
+    id: PropTypes.string.isRequired,
     studySession: PropTypes.string,
   }).isRequired,
   isActive: PropTypes.bool.isRequired,
   resourceType: PropTypes.string.isRequired,
   handleMenuOpen: PropTypes.func,
-  routePath: PropTypes.string.isRequired,
-
+  routePath: PropTypes.string,
   /**
-   * Whether the sidebar is expanded or collapsed.
-   * Expanded => show icon + text
-   * Collapsed => show icon only w/ tooltip
+   * If expanded => show icon + text
+   * If collapsed => show icon only (tooltip)
    */
   isExpanded: PropTypes.bool.isRequired,
 };

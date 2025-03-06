@@ -1,37 +1,26 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
 // MUI
+import useMediaQuery from "@mui/material/useMediaQuery";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/Box";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import CircularProgress from "@mui/material/CircularProgress";
-import Typography from "@mui/material/Typography";
-import Avatar from "@mui/material/Avatar";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import Divider from "@mui/material/Divider";
-import Tooltip from "@mui/material/Tooltip";
+import Stack from "@mui/material/Stack";
 
-// MUI Icons
-import AddRoundedIcon from '@mui/icons-material/AddRounded';
-
+// Local Imports
 import useSidebar from "./sidebarUtils";
 import SessionItem from "./SessionItem";
 import DropdownMenu from "./DropdownMenu";
 import ConfirmationDialog from "./ConfirmationDialog";
-import RequestFeature from "../../components/RequestFeature/RequestFeature";
 
 /**
  * Renders sidebar content:
- *  - Branding
- *  - "Create Session" button (icon + text)
- *  - Flashcards / Summaries / Quizzes / etc. sections
- *  - Each session mapped out with SessionItem
- * 
- * If 'isExpanded' is false, we only show icons + tooltips (except for the <Typography> headings).
+ *  - Brand row ("StudyBuddy.ai") using SessionItem with resourceType="brand"
+ *  - "Create Session" using SessionItem with resourceType="create"
+ *  - Mapped session items for flashcards/quizzes/summaries/chats
+ *  - Everything uses the same SessionItem pattern
  */
 const SidebarContent = ({ isExpanded }) => {
   const {
@@ -58,204 +47,115 @@ const SidebarContent = ({ isExpanded }) => {
 
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // Conditionally render Icon + text, or just Icon (with tooltip), for an item
-  const renderItemWithIcon = (IconComponent, text, toLink, selected) => {
-    return (
-      <ListItem disablePadding>
-        <ListItemButton
-          component={Link}
-          to={toLink}
-          selected={selected}
-          sx={(themeParam) => ({
-            mr: 1,
-            ml: 1,
-            borderRadius: 3,
-            backgroundColor: selected
-              ? themeParam.palette.action.selected
-              : "transparent",
-            "&.Mui-selected": {
-              backgroundColor: themeParam.palette.action.selected,
-            },
-            "&:hover": {
-              backgroundColor: themeParam.palette.action.selected,
-            },
-            color: "text.primary",
-            display: "flex",
-            alignItems: "center",
-            gap: 1, // space between icon & text if expanded
-          })}
-        >
-          {/* If collapsed => just icon w/ tooltip; if expanded => icon + text */}
-          {isExpanded ? (
-            <>
-              <IconComponent />
-              <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                {text}
-              </Typography>
-            </>
-          ) : (
-            <Tooltip title={text} placement="right">
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <IconComponent />
-              </Box>
-            </Tooltip>
-          )}
-        </ListItemButton>
-      </ListItem>
-    );
-  };
-
-  const drawerContent = (
-    <List component="nav">
-      {/* Show spinner if loading */}
-      {loadingSessions ? (
-        <ListItem sx={{ justifyContent: "center" }}>
-          <CircularProgress color="inherit" />
-        </ListItem>
-      ) : (
-        <>
-          {/* 1) Branding (Avatar + "StudyBuddy.ai") */}
-          <ListItem key="StudyBuddy">
-            <ListItemIcon>
-              <Avatar src="/assets/flashcards.png" alt="Study Buddy Icon" />
-            </ListItemIcon>
-            {/* The brand text is <Typography>; we do NOT hide or tooltip it. */}
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 600, color: theme.palette.primary.main }}
-            >
-              StudyBuddy.ai
-            </Typography>
-          </ListItem>
-
-          {/* 2) Create Session Button (icon + text if expanded, else icon + tooltip) */}
-          {renderItemWithIcon(
-            AddRoundedIcon,
-            t("create_study_session"),
-            "/create-resource",
-            isCreateSessionActive
-          )}
-
-          {/* FLASHCARDS SECTION Heading (typography, unaltered) */}
-          <ListItem>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-              {t("flashcards")}
-            </Typography>
-            <Divider />
-          </ListItem>
-
-          <Box sx={{ mb: 2 }}>
-            {/* Mapped flashcard sessions */}
-            {flashcardSessions.map((session) => {
-              const isActive = location.pathname === `/flashcards/${session.id}`;
-              return (
-                <SessionItem
-                  key={session.id}
-                  session={session}
-                  resourceType="flashcard"
-                  isActive={isActive}
-                  handleMenuOpen={handleMenuOpen}
-                  routePath={`/flashcards/${session.id}`}
-                  isExpanded={isExpanded} // pass to SessionItem
-                />
-              );
-            })}
-            {/* Mapped local sessions */}
-            {localSessions.map((session) => {
-              const isActive =
-                location.pathname === `/flashcards-local/${session.id}`;
-              return (
-                <SessionItem
-                  key={session.id}
-                  session={session}
-                  resourceType="flashcard"
-                  isActive={isActive}
-                  handleMenuOpen={handleMenuOpen}
-                  routePath={`/flashcards-local/${session.id}`}
-                  isExpanded={isExpanded}
-                />
-              );
-            })}
-          </Box>
-
-          {/* MULTIPLE CHOICE QUIZZES SECTION (typography heading) */}
-          <ListItem>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-              {t("multiple_choice_quizzes")}
-            </Typography>
-          </ListItem>
-          <Box sx={{ mb: 2 }}>
-            {multipleChoiceQuizzes.map((quiz) => {
-              const isActive = location.pathname === `/mcq/${quiz.id}`;
-              return (
-                <SessionItem
-                  key={quiz.id}
-                  session={quiz}
-                  resourceType="quiz"
-                  isActive={isActive}
-                  handleMenuOpen={handleMenuOpen}
-                  routePath={`/mcq/${quiz.id}`}
-                  isExpanded={isExpanded}
-                />
-              );
-            })}
-          </Box>
-
-          {/* SUMMARIES SECTION (typography heading) */}
-          <ListItem>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-              {t("summaries")}
-            </Typography>
-          </ListItem>
-          <Box sx={{ mb: 2 }}>
-            {summaries.map((summary) => {
-              const isActive = location.pathname === `/summary/${summary.id}`;
-              return (
-                <SessionItem
-                  key={summary.id}
-                  session={summary}
-                  resourceType="summary"
-                  isActive={isActive}
-                  handleMenuOpen={handleMenuOpen}
-                  routePath={`/summary/${summary.id}`}
-                  isExpanded={isExpanded}
-                />
-              );
-            })}
-          </Box>
-
-          {/* AI CHATS SECTION (typography heading) */}
-          <ListItem>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-              {t("ai_chats")}
-            </Typography>
-          </ListItem>
-          <Box sx={{ mb: 6 }}>
-            {aiChats.map((chat) => {
-              const isActive = location.pathname === `/chat/${chat.id}`;
-              return (
-                <SessionItem
-                  key={chat.id}
-                  session={chat}
-                  resourceType="chat"
-                  isActive={isActive}
-                  handleMenuOpen={handleMenuOpen}
-                  routePath={`/chat/${chat.id}`}
-                  isExpanded={isExpanded}
-                />
-              );
-            })}
-          </Box>
-        </>
-      )}
-    </List>
-  );
+  /**
+   * Just a helper to see if a given route is active
+   */
+  const isActiveRoute = (path) => location.pathname === path;
 
   return (
     <Box sx={{ width: "100%" }}>
-      {drawerContent}
+      <List component="nav">
+        {/* Show spinner if loading */}
+        {loadingSessions ? (
+          <ListItem sx={{ justifyContent: "center" }}>
+            <CircularProgress color="inherit" />
+          </ListItem>
+        ) : (
+          <Stack direction="column" spacing={1}>
+            {/* 1) BRAND (StudyBuddy.ai) */}
+            <SessionItem
+              session={{
+                // 'studySession' used as the display text in SessionItem
+                id: "brand",
+                studySession: "StudyBuddy.ai",
+              }}
+              resourceType="brand"
+              isActive={false}
+              routePath="" // no route for brand
+              handleMenuOpen={null}
+              isExpanded={isExpanded}
+            />
 
-      {/* Additional features */}
+            {/* 2) CREATE SESSION */}
+            <SessionItem
+              session={{
+                id: "create-session",
+                studySession: t("create_study_session"),
+              }}
+              resourceType="create"
+              isActive={isCreateSessionActive}
+              routePath="/create-resource"
+              handleMenuOpen={null}
+              isExpanded={isExpanded}
+            />
+
+            {/* 3) FLASHCARD SESSIONS */}
+            {flashcardSessions.map((s) => (
+              <SessionItem
+                key={s.id}
+                session={s}
+                resourceType="flashcard"
+                isActive={isActiveRoute(`/flashcards/${s.id}`)}
+                routePath={`/flashcards/${s.id}`}
+                handleMenuOpen={handleMenuOpen}
+                isExpanded={isExpanded}
+              />
+            ))}
+            {localSessions.map((s) => (
+              <SessionItem
+                key={s.id}
+                session={s}
+                resourceType="flashcard"
+                isActive={isActiveRoute(`/flashcards-local/${s.id}`)}
+                routePath={`/flashcards-local/${s.id}`}
+                handleMenuOpen={handleMenuOpen}
+                isExpanded={isExpanded}
+              />
+            ))}
+
+            {/* 4) MULTIPLE CHOICE QUIZZES */}
+            {multipleChoiceQuizzes.map((q) => (
+              <SessionItem
+                key={q.id}
+                session={q}
+                resourceType="quiz"
+                isActive={isActiveRoute(`/mcq/${q.id}`)}
+                routePath={`/mcq/${q.id}`}
+                handleMenuOpen={handleMenuOpen}
+                isExpanded={isExpanded}
+              />
+            ))}
+
+            {/* 5) SUMMARIES */}
+            {summaries.map((summary) => (
+              <SessionItem
+                key={summary.id}
+                session={summary}
+                resourceType="summary"
+                isActive={isActiveRoute(`/summary/${summary.id}`)}
+                routePath={`/summary/${summary.id}`}
+                handleMenuOpen={handleMenuOpen}
+                isExpanded={isExpanded}
+              />
+            ))}
+
+            {/* 6) AI CHATS */}
+            {aiChats.map((chat) => (
+              <SessionItem
+                key={chat.id}
+                session={chat}
+                resourceType="chat"
+                isActive={isActiveRoute(`/chat/${chat.id}`)}
+                routePath={`/chat/${chat.id}`}
+                handleMenuOpen={handleMenuOpen}
+                isExpanded={isExpanded}
+              />
+            ))}
+          </Stack>
+        )}
+      </List>
+
+      {/* Additional features: dropdown & dialogs */}
       <DropdownMenu
         anchorEl={menuAnchorEl}
         isOpen={Boolean(menuAnchorEl)}
@@ -264,6 +164,7 @@ const SidebarContent = ({ isExpanded }) => {
         onRenameClick={() => handleDialogOpen("rename")}
         t={t}
       />
+
       <ConfirmationDialog
         open={dialogState.open}
         type={dialogState.type}
@@ -279,6 +180,6 @@ const SidebarContent = ({ isExpanded }) => {
 
 SidebarContent.propTypes = {
   isExpanded: PropTypes.bool.isRequired,
-}
+};
 
 export default SidebarContent;
