@@ -7,6 +7,8 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
 
 /**
  * Base64 Images for instant loading
@@ -73,14 +75,11 @@ const LanguageSwitcherText = () => {
   );
 };
 
-/**
- * Flag-based Language Switcher
- * Uses base64 inline images so they're always ready
- * (no network fetch required, thus preventing blank images).
- */
-export const LanguageSwitcherIMG = () => {
+const LanguageSwitcherIMG = () => {
   const { i18n } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
   // Object mapping language codes to base64-encoded images
   const flags = {
@@ -95,45 +94,55 @@ export const LanguageSwitcherIMG = () => {
     pt: ptFlagBase64,
   };
 
+  const languageNames = {
+    en: "English",
+    zh: "中文",
+    es: "Español",
+    de: "Deutsch",
+    fr: "Français",
+    hi: "हिन्दी",
+    ja: "日本語",
+    ko: "한국어",
+    pt: "Português",
+  };
+
   useEffect(() => {
     setCurrentLanguage(i18n.language);
   }, [i18n.language]);
 
-  const handleLanguageChange = (event) => {
-    const lang = event.target.value;
+  const handleLanguageChange = (lang) => {
     i18n.changeLanguage(lang);
     localStorage.setItem("i18nextLng", lang);
     setCurrentLanguage(lang);
+    handleClose();
+  };
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   return (
-    <FormControl variant="standard">
-      <Select
-        value={currentLanguage}
-        onChange={handleLanguageChange}
-        disableUnderline
-        renderValue={(selectedLang) => (
-          <Box display="flex" alignItems="center">
-            <img
-              src={flags[selectedLang]}
-              alt={selectedLang}
-              style={{ width: 32, height: 32 }}
-            />
-          </Box>
-        )}
-      >
-        <MenuItem value="en">English</MenuItem>
-        <MenuItem value="zh">中文</MenuItem>
-        <MenuItem value="es">Español</MenuItem>
-        <MenuItem value="de">Deutsch</MenuItem>
-        <MenuItem value="ja">日本語</MenuItem>
-        <MenuItem value="ko">한국어</MenuItem>
-        <MenuItem value="fr">Français</MenuItem>
-        <MenuItem value="pt">Português</MenuItem>
-        <MenuItem value="hi">हिन्दी</MenuItem>
-      </Select>
-    </FormControl>
+    <Box>
+      <IconButton onClick={handleClick} size="large">
+        <img
+          src={flags[currentLanguage]}
+          alt={currentLanguage}
+          style={{ width: 25, height: 25 }}
+        />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        {Object.keys(flags).map((lang) => (
+          <MenuItem key={lang} onClick={() => handleLanguageChange(lang)}>
+            {languageNames[lang]}
+          </MenuItem>
+        ))}
+      </Menu>
+    </Box>
   );
 };
 
-export default LanguageSwitcherText;
+export default LanguageSwitcherIMG;
