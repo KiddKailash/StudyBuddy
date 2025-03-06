@@ -226,6 +226,8 @@ export const UserProvider = ({ children }) => {
       fetchAllSummaries();
       // AI Chats
       fetchAllAiChats();
+      // Folders
+      fetchFolders();
     } else {
       setFlashcardSessions([]);
       setMultipleChoiceQuizzes([]);
@@ -687,16 +689,17 @@ export const UserProvider = ({ children }) => {
     const response = await axios.get(`${BACKEND}/api/folders`, {
       headers: { Authorization: `Bearer ${localToken}` },
     });
-    return response.data.folders;
+    console.log("Resp: ", response);
+    return response.data.data;
   };
 
-  const refreshFolders = async () => {
-    try {
-      const foldersData = await getFolders();
-      setFolders(foldersData);
-    } catch (error) {
-      console.error("Error fetching folders:", error);
-    }
+  const fetchFolders = async () => {
+    const localToken = localStorage.getItem("token");
+    if (!localToken) throw new Error("User is not authenticated.");
+    const resp = await axios.get(`${BACKEND}/api/folders`, {
+      headers: { Authorization: `Bearer ${localToken}` },
+    });
+    setFolders(resp.data.folders || []);
   };
 
   const createFolder = async (folderName) => {
@@ -856,7 +859,7 @@ export const UserProvider = ({ children }) => {
 
         // Folders
         folders,
-        refreshFolders,
+        fetchFolders,
         createFolder,
         assignSessionToFolder,
         renameFolder,
