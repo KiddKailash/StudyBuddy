@@ -1,49 +1,74 @@
-// src/layouts/MainLayout.jsx
-
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
 
 import SidebarPrimary from "./SidebarPrimary/SidebarPrimary";
 import SidebarSecondary from "./SidebarSecondary/SidebarSecondary";
 
+/**
+ * Layout:
+ *    [PrimarySidebar 80px] | [SecondarySidebar collapsible] | [Main content area fills leftover space + can scroll]
+ */
 const MainLayout = () => {
-
-  const PRIMARYsidebarWIDTH = '80px';
+  const PRIMARY_SIDEBAR_WIDTH = 80;
 
   return (
     <Box
       sx={{
         display: "flex",
-        // Use 100vh so the container (and thus the sidebars) fills the entire viewport
-        height: "100vh",
-        bgcolor: "background.paper"
+        height: "100vh", // fill viewport height
+        width: "100vw",
+        bgcolor: "background.paper",
+        p: 1,
       }}
     >
-      {/* 1) PRIMARY SIDEBAR (constant 80px width, no scrolling) */}
+      {/* PRIMARY SIDEBAR */}
       <Box
         sx={{
-          width: PRIMARYsidebarWIDTH,
+          width: PRIMARY_SIDEBAR_WIDTH,
           flexShrink: 0,
-          overflow: "scroll", // no scroll bar in primary
+          overflow: "hidden",
         }}
       >
         <SidebarPrimary />
       </Box>
 
-      <Box sx={{bgcolor: "background.default", borderRadius: 5, display: 'flex', m: 1}}>
-        {/* 2) SECONDARY SIDEBAR (expand/collapse width inside itself), no scrolling */}
+      {/* Outer box that holds secondary sidebar + main content */}
+      <Box
+        sx={{
+          bgcolor: "background.default",
+          borderRadius: 5,
+          display: "flex",
+          flexGrow: 1, // let this box expand to fill leftover space
+        }}
+      >
+        {/* SECONDARY SIDEBAR */}
         <SidebarSecondary />
 
-        {/* 3) MAIN CONTENT (flexes to fill remaining space, scrollable) */}
+        {/* MAIN CONTENT AREA */}
         <Box
           sx={{
-            flexGrow: 1,
-            overflowY: "auto", // only the main content scrolls
-            overflowX: "hidden", // typically hide horizontal scroll
+            flexGrow: 1,          // again, fill remaining horizontal space
+            overflowY: "auto",    // scroll if content is too tall
+            display: "flex",      // we use a flex container to position the <Container>
           }}
         >
-          <Outlet />
+          <Container
+            maxWidth="md"
+            // "fullWidth" isn't a standard MUI Container prop, so it has no effect. 
+            // We can leave it or remove it.
+            sx={{
+              p: 4,
+              // Remove my: "auto" and mx: "auto" so it fills space
+              width: "100%",
+              height: "100%",
+              overflowY: "auto",
+            }}
+          >
+            {/* Renders whatever route/page is active */}
+            <Outlet />
+          </Container>
         </Box>
       </Box>
     </Box>
