@@ -35,7 +35,7 @@ const AvatarMenu = () => {
       direction="right"
       sx={{
         position: "absolute",
-        zIndex: 2000,   // ensure above other elements
+        zIndex: 50,
         bottom: 30,
         left: 27
       }}
