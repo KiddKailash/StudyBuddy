@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 
 // MUI
 import Container from "@mui/material/Container";
@@ -56,7 +56,7 @@ const CreateStudyResource = () => {
     <Container maxWidth="md" sx={{ mt: 2, textAlign: "left" }}>
       <Typography
         variant="body2"
-        color="text.secondary"
+        color="text.secondary.dark"
         sx={{ fontWeight: 600, ml: 2, mb: 1 }}
       >
         New Study Resource
@@ -64,9 +64,9 @@ const CreateStudyResource = () => {
 
       <Box
         sx={{
-          bgcolor: theme.palette.background.paper,
-          p: 3,
-          borderRadius: 5,
+          bgcolor: theme.palette.background.default,
+          p: 4,
+          borderRadius: 4,
           mb: 4,
         }}
       >
@@ -133,14 +133,14 @@ const CreateStudyResource = () => {
 
       <Typography
         variant="body2"
-        color="text.secondary"
+        color="text.secondary.dark"
         sx={{ fontWeight: 600, ml: 2, mb: 1 }}
       >
         Recent Study Resources
       </Typography>
       <Box
         sx={{
-          bgcolor: theme.palette.background.paper,
+          bgcolor: theme.palette.background.default,
           p: 5,
           borderRadius: 5,
           mb: 4,
@@ -151,19 +151,21 @@ const CreateStudyResource = () => {
 
       {/* ------------- DIALOG ------------- */}
       <Dialog open={open} onClose={handleDialogClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ pb: 0 }}>
-          Create {selectedResourceType?.toUpperCase()}
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1, minHeight: 600 }}>
-          {selectedResourceType && (
-            <UploadResource resourceType={selectedResourceType} />
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="error">
-            Cancel
-          </Button>
-        </DialogActions>
+        <Box sx={{ p: 2 }}>
+          <DialogTitle variant="h6" sx={{ fontWeight: 600 }}>
+            Create a {selectedResourceType}
+          </DialogTitle>
+          <DialogContent>
+            {selectedResourceType && (
+              <UploadResource resourceType={selectedResourceType} />
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} color="error">
+              Cancel
+            </Button>
+          </DialogActions>
+        </Box>
       </Dialog>
     </Container>
   );
