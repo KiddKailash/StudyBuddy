@@ -69,7 +69,9 @@ const Flashcard = ({ question, answer, size }) => {
     <FlipCard onClick={handleCardClick}>
       <FlipCardInner flipped={flipped}>
         <FlipCardFront>
-          <CardContent sx={{ px: "15%", py: "auto", m: "auto" }}>
+          <CardContent
+            sx={{ px: "15%", py: "auto", m: "auto", textAlign: "center" }}
+          >
             <Typography
               variant="body1"
               sx={{
@@ -88,7 +90,9 @@ const Flashcard = ({ question, answer, size }) => {
           </CardContent>
         </FlipCardFront>
         <FlipCardBack>
-          <CardContent sx={{ px: "15%", py: "auto", m: "auto" }}>
+          <CardContent
+            sx={{ px: "15%", py: "auto", m: "auto", textAlign: "center" }}
+          >
             <Typography
               variant="body1"
               sx={{
