@@ -1,15 +1,15 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Stack, Divider, Tooltip, IconButton } from "@mui/material";
+import { Stack, Divider, Tooltip, IconButton, Box } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import FolderIcon from "@mui/icons-material/Folder";
 import AddIcon from "@mui/icons-material/Add";
-import HelpIcon from "@mui/icons-material/Help";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 
 import { UserContext } from "../../contexts/UserContext";
 import RequestFeature from "../../components/RequestFeature/RequestFeature";
+import LanguageSwitcherIMG from "../../components/LanguageSwitcher";
+import AvatarMenu from "./AvatarMenu";
 
 const SidebarPrimary = () => {
   const navigate = useNavigate();
@@ -31,6 +31,7 @@ const SidebarPrimary = () => {
       {/* Home Icon */}
       <Tooltip title="Home" placement="right">
         <IconButton
+          size="large"
           onClick={() => navigate("/create-resource")}
           sx={{
             "&:hover": {
@@ -48,6 +49,7 @@ const SidebarPrimary = () => {
       {folders?.map((folder) => (
         <Tooltip key={folder.id} title={folder.folderName} placement="right">
           <IconButton
+            size="large"
             onClick={() => navigate(`/${folder.id}/home`)}
             sx={{
               "&:hover": {
@@ -63,6 +65,7 @@ const SidebarPrimary = () => {
       {/* Create Folder */}
       <Tooltip title="Create Folder" placement="right">
         <IconButton
+          size="large"
           onClick={handleCreateFolder}
           sx={{
             "&:hover": {
@@ -77,41 +80,25 @@ const SidebarPrimary = () => {
       {/* Space Between */}
       <div style={{ flexGrow: 1 }} />
 
-      {/* Support */}
-      <Tooltip title="Support" placement="right">
-        <IconButton
-          onClick={handleOpenChat}
-          sx={{
-            "&:hover": {
-              color: "primary.main",
-            },
-          }}
-        >
-          <HelpIcon />
-        </IconButton>
+      {/* Language Switcher 
+          Wrap in <span> or <Box> so Tooltip can attach its ref properly. */}
+      <Tooltip title="Language" placement="right">
+        <Box>
+          <LanguageSwitcherIMG />
+        </Box>
       </Tooltip>
 
-      {/* Account */}
-      <Tooltip title="Account" placement="right">
-        <IconButton
-          onClick={handleOpenAccountModal}
-          sx={{
-            "&:hover": {
-              color: "primary.main",
-            },
-          }}
-        >
-          <AccountCircleIcon />
-        </IconButton>
-      </Tooltip>
-
+      {/* Request Feature: also wrap with a span or div */}
       <Tooltip title="Request Feature" placement="right">
-        <RequestFeature />
+        <Box>
+          <RequestFeature />
+        </Box>
       </Tooltip>
 
       {/* Go Pro */}
       <Tooltip title="Go Pro" placement="right">
         <IconButton
+          size="large"
           onClick={handleOpenGoProModal}
           sx={{
             "&:hover": {
@@ -122,6 +109,11 @@ const SidebarPrimary = () => {
           <WorkspacePremiumIcon />
         </IconButton>
       </Tooltip>
+
+      <Box sx={{height: 50}} />
+
+      {/* Account (Avatar menu) */}
+      <AvatarMenu />
     </Stack>
   );
 };
