@@ -43,13 +43,7 @@ const RequestFeature = () => {
       <IconButton
         onClick={openDialog}
         sx={{
-          bgcolor: "background.default",
-          position: "fixed",
-          left: "20px",
-          bottom: "20px",
-          zIndex: "5000",
           "&:hover": {
-            bgcolor: "background.default",
             color: "primary.main",
           },
         }}
