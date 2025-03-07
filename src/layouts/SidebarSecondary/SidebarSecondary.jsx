@@ -5,6 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
+import Stack from "@mui/material/Stack";
 import SidebarContent from "./SidebarContent";
 import { UserContext } from "../../contexts/UserContext";
 
@@ -26,31 +27,43 @@ const SidebarSecondary = () => {
     <Box
       sx={{
         width: isExpanded ? FULL_WIDTH : COLLAPSED_WIDTH,
-        transition: "width 0.3s ease-in-out",
-        borderRight: 1,
-        borderRightColor: "divider",
+        transition: "width 0s ease-in-out",
+        borderRight: 2,
+        borderRightColor: "background.paper",
         overflowY: "auto",
       }}
     >
       {/* Top header: expand/collapse button and folder name (only when expanded) */}
-      <Box sx={{ p: 1, display: "flex", alignItems: "center", gap: 1 }}>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{ px: 2, pt: 3, display: "flex", alignItems: "center" }}
+      >
         <IconButton
           onClick={toggleExpand}
           size="small"
           sx={{
-            border: "1px solid #999",
-            bgcolor: "background.paper",
-            transform: "rotate(45deg)",
+            borderRadius: 2,
           }}
         >
-          {isExpanded ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
+          {isExpanded ? (
+            <UnfoldLessIcon
+              fontSize="small"
+              sx={{ transform: "rotate(45deg)" }}
+            />
+          ) : (
+            <UnfoldMoreIcon
+              fontSize="small"
+              sx={{ transform: "rotate(45deg)" }}
+            />
+          )}
         </IconButton>
         {isExpanded && (
           <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
             {folder ? folder.folderName : "Unfoldered"}
           </Typography>
         )}
-      </Box>
+      </Stack>
 
       {/* Sidebar content containing the new study resource button and the study resources */}
       <SidebarContent isExpanded={isExpanded} />
