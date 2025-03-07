@@ -75,11 +75,13 @@ const LanguageSwitcherText = () => {
   );
 };
 
-const LanguageSwitcherIMG = () => {
+const LanguageSwitcherIMG = (size) => {
   const { i18n } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
+  const SIZE = size === 'small' ? 16 : size === 'large' ? 48 : 32;
 
   // Object mapping language codes to base64-encoded images
   const flags = {
@@ -127,11 +129,11 @@ const LanguageSwitcherIMG = () => {
 
   return (
     <Box>
-      <IconButton onClick={handleClick} size="large">
+      <IconButton onClick={handleClick} size={"large"}>
         <img
           src={flags[currentLanguage]}
           alt={currentLanguage}
-          style={{ width: 25, height: 25 }}
+          style={{ width: SIZE, height: SIZE }}
         />
       </IconButton>
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
