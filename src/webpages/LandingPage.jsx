@@ -5,6 +5,7 @@ import { UserContext } from "../contexts/UserContext";
 
 // Components
 import ReviewCard from "../components/ReviewCard";
+import MenuBar from "../components/MenuBar/MenuBar";
 
 // Assets
 import HeroImage from "/assets/branded-images/student.svg";
@@ -71,7 +72,8 @@ const LandingPage = () => {
   return (
     <>
       {/* Hero Section */}
-      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, px: 4 }}>
+      <Container maxWidth="lg">
+        <MenuBar />
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
           <Box
             sx={{
@@ -156,14 +158,14 @@ const LandingPage = () => {
           justifyContent: "center",
         }}
       >
-          <video
-            src="/assets/demo.mov"
-            autoPlay
-            loop
-            muted
-            playsInline
-            style={{ width: "100%", display: "block", m: 0, p: 0 }}
-          />
+        <video
+          src="/assets/demo.mov"
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{ width: "100%", display: "block", m: 0, p: 0 }}
+        />
       </Box>
 
       {/* Anywhere, Anytime, from Anything */}

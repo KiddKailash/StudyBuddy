@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 // MUI Component Imports
 import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 
@@ -27,7 +26,7 @@ const Cancel = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => navigate("/create-resource")}
+            onClick={() => navigate("/create")}
           >
             {t("go_to_home")}
           </Button>

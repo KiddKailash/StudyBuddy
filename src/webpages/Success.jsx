@@ -28,7 +28,7 @@ const Success = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => navigate("/create-resource")}
+            onClick={() => navigate("/create")}
           >
             {t("go_to_dashboard")}
           </Button>

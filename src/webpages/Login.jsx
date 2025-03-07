@@ -56,7 +56,7 @@ const LoginPage = () => {
   useEffect(() => {
     if (!authLoading) {
       if (isLoggedIn) {
-        navigate("/create-resource");
+        navigate("/create");
       } else {
         const storedToken = localStorage.getItem("token");
         if (storedToken) {

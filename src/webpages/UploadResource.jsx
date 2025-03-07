@@ -9,20 +9,18 @@ import { UserContext } from "../contexts/UserContext";
 // Dropzone
 import { useDropzone } from "react-dropzone";
 
-// MUI
-import {
-  Box,
-  Container,
-  TextField,
-  Button,
-  CircularProgress,
-  Typography,
-  Paper,
-  Divider,
-  Stack,
-} from "@mui/material";
+// MUI Components
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
+import Divider from "@mui/material/Divider";
+import Stack from "@mui/material/Stack";
 
-// Icons
+// MUI Icons
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const UploadResource = ({ resourceType }) => {
