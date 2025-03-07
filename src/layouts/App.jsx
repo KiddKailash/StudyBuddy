@@ -25,7 +25,9 @@ function App() {
   // Define all your routes as objects:
   const pages = [
     // Public
-    { path: "/", component: <CreateStudySession /> },
+    { path: "/", component: <CreateStudyResource /> },
+    { path: "/create", component: <CreateStudyResource /> },
+    { path: "/:folderID/create", component: <CreateStudyResource /> },
     { path: "/landing-page", component: <LandingPage /> },
     { path: "/login", component: <LoginPage /> },
     { path: "/success", component: <Success /> },
@@ -37,16 +39,16 @@ function App() {
     { path: "/create-resource", component: <CreateStudyResource /> },
 
     // Ephemeral routes (also public)
-    { path: "/flashcards-local/:id", component: <FlashcardSession /> },
-    { path: "/mcq-local/:id", component: <MCQSession /> },
-    { path: "/summary-local/:id", component: <SummaryPage /> },
-    { path: "/chat-local/:id", component: <AIChatPage /> },
+    { path: "/:folderID/flashcards-local/:id", component: <FlashcardSession /> },
+    { path: "/:folderID/mcq-local/:id", component: <MCQSession /> },
+    { path: "/:folderID/summary-local/:id", component: <SummaryPage /> },
+    { path: "/:folderID/chat-local/:id", component: <AIChatPage /> },
 
     // Auth-protected routes
-    { path: "/flashcards/:id", component: <FlashcardSession /> },
-    { path: "/mcq/:id", component: <MCQSession /> },
-    { path: "/summary/:id", component: <SummaryPage /> },
-    { path: "/chat/:id", component: <AIChatPage /> },
+    { path: "/:folderID/flashcards/:id", component: <FlashcardSession /> },
+    { path: "/:folderID/mcq/:id", component: <MCQSession /> },
+    { path: "/:folderID/summary/:id", component: <SummaryPage /> },
+    { path: "/:folderID/chat/:id", component: <AIChatPage /> },
     { path: "/settings", component: <SettingsPage /> },
 
     // 404
@@ -67,7 +69,12 @@ function App() {
     "/create-resource",
   ];
   // For ephemeral routes, treat them as public
-  const ephemeralPrefixes = ["/flashcards-local/", "/mcq-local/", "/summary-local/", "/chat-local/"];
+  const ephemeralPrefixes = [
+    "/flashcards-local/",
+    "/mcq-local/",
+    "/summary-local/",
+    "/chat-local/",
+  ];
 
   return (
     <Routes>
