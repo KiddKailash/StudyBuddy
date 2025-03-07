@@ -2,24 +2,23 @@ import React from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import {
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  IconButton,
-  Tooltip,
-  Box,
-} from "@mui/material";
-import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
+// MUI
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import Box from "@mui/material/Box";
 
-// Icons
+// MUI Icons
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded"; // flashcards
 import QuizIcon from "@mui/icons-material/Quiz"; // quizzes
 import ArticleIcon from "@mui/icons-material/Article"; // summaries
 import ChatIcon from "@mui/icons-material/Chat"; // AI chats
 import Avatar from "@mui/material/Avatar";
-
+import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
+import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
 /**
  * Returns an icon component (or avatar) based on the resourceType.
  * We unify brand, create, flashcard, quiz, summary, chat, etc.
@@ -36,17 +35,19 @@ function getResourceIcon(resourceType, session) {
         />
       );
     case "create":
-      return <AddRoundedIcon />;
+      return <AddRoundedIcon color="action" />;
     case "flashcard":
-      return <ViewCarouselRoundedIcon />;
+      return <ViewCarouselRoundedIcon color="action" />;
     case "quiz":
-      return <QuizIcon />;
+      return <QuizIcon color="action" />;
     case "summary":
-      return <ArticleIcon />;
+      return <ArticleIcon color="action" />;
     case "chat":
-      return <ChatIcon />;
+      return <ChatIcon color="action" />;
+    case "understanding":
+      return <SchoolRoundedIcon color="action" />;
     default:
-      return <ViewCarouselRoundedIcon />;
+      return <ViewCarouselRoundedIcon color="action" />;
   }
 }
 
