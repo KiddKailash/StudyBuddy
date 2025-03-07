@@ -1,11 +1,26 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Stack, Divider, Tooltip, IconButton, Box } from "@mui/material";
+
+// MUI
+import Stack from "@mui/material/Stack";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import Box from "@mui/material/Box";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+
+// MUI Icons
 import HomeIcon from "@mui/icons-material/Home";
 import FolderIcon from "@mui/icons-material/Folder";
 import AddIcon from "@mui/icons-material/Add";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 
+// Local Imports
 import { UserContext } from "../../contexts/UserContext";
 import RequestFeature from "../../components/RequestFeature/RequestFeature";
 import LanguageSwitcherIMG from "../../components/LanguageSwitcher";
@@ -13,44 +28,60 @@ import AvatarMenu from "./AvatarMenu";
 
 const SidebarPrimary = () => {
   const navigate = useNavigate();
-  const { folders } = useContext(UserContext);
+  const { folders, createFolder, fetchFolders } = useContext(UserContext);
 
-  // Placeholder handlers
-  const handleOpenChat = () => console.log("Open support chat");
-  const handleOpenAccountModal = () => console.log("Open account modal");
+  const [open, setOpen] = useState(false);
+  const [folderName, setFolderName] = useState("");
+
+  // Handlers
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => {
+    setOpen(false);
+    setFolderName("");
+  };
+
+  // Create the folder, then refresh the list
+  const handleCreateFolderSubmit = async () => {
+    await createFolder(folderName);
+    await fetchFolders();
+    handleClose();
+  };
+
   const handleOpenGoProModal = () => console.log("Open Go Pro modal");
-  const handleCreateFolder = () => console.log("Create new folder");
 
   return (
-    <Stack
-      direction="column"
-      alignItems="center"
-      spacing={2}
-      sx={{ py: 2, height: "100%" }}
-    >
-      {/* Home Icon */}
-      <Tooltip title="Home" placement="right">
-        <IconButton
-          size="large"
-          onClick={() => navigate("/create-resource")}
-          sx={{
-            "&:hover": {
-              color: "primary.main",
-            },
-          }}
-        >
-          <HomeIcon />
-        </IconButton>
-      </Tooltip>
-
-      <Divider sx={{ width: "50%" }} />
-
-      {/* Folders List */}
-      {folders?.map((folder) => (
-        <Tooltip key={folder.id} title={folder.folderName} placement="right">
+    <>
+      <Stack
+        direction="column"
+        alignItems="center"
+        spacing={2}
+        sx={{ height: "100%" }}
+      >
+        {/* Home Icon */}
+        <Tooltip title="Home" placement="right">
           <IconButton
             size="large"
-            onClick={() => navigate(`/${folder.id}/home`)}
+            onClick={() => navigate("/create")}
+            sx={{
+              "&:hover": {
+                color: "primary.main",
+              },
+            }}
+          >
+            <HomeIcon />
+          </IconButton>
+        </Tooltip>
+
+        <Divider sx={{ width: "50%" }} />
+
+        {/* "No Folder" item:
+          - Not in the DB, so we just hard-code an additional FolderIcon
+          - Direct the user to '/null/home' 
+        */}
+        <Tooltip title="No Folder" placement="right">
+          <IconButton
+            size="large"
+            onClick={() => navigate("/null/create")}
             sx={{
               "&:hover": {
                 color: "primary.main",
@@ -60,61 +91,100 @@ const SidebarPrimary = () => {
             <FolderIcon />
           </IconButton>
         </Tooltip>
-      ))}
+        {/* Folders List */}
+        {folders?.map((folder) => (
+          <Tooltip key={folder.id} title={folder.folderName} placement="right">
+            <IconButton
+              size="large"
+              onClick={() => navigate(`/${folder.id}/create`)}
+              sx={{
+                "&:hover": {
+                  color: "primary.main",
+                },
+              }}
+            >
+              <FolderIcon />
+            </IconButton>
+          </Tooltip>
+        ))}
 
-      {/* Create Folder */}
-      <Tooltip title="Create Folder" placement="right">
-        <IconButton
-          size="large"
-          onClick={handleCreateFolder}
-          sx={{
-            "&:hover": {
-              color: "primary.main",
-            },
-          }}
-        >
-          <AddIcon />
-        </IconButton>
-      </Tooltip>
+        {/* Create Folder */}
+        <Tooltip title="Create Folder" placement="right">
+          <IconButton
+            size="large"
+            onClick={handleOpen}
+            sx={{
+              "&:hover": {
+                color: "primary.main",
+              },
+            }}
+          >
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
 
-      {/* Space Between */}
-      <div style={{ flexGrow: 1 }} />
+        {/* Space Between */}
+        <div style={{ flexGrow: 1 }} />
 
-      {/* Language Switcher 
-          Wrap in <span> or <Box> so Tooltip can attach its ref properly. */}
-      <Tooltip title="Language" placement="right">
-        <Box>
-          <LanguageSwitcherIMG />
-        </Box>
-      </Tooltip>
+        {/* Request Feature */}
+        <Tooltip title="Request Feature" placement="right">
+          <Box>
+            <RequestFeature />
+          </Box>
+        </Tooltip>
 
-      {/* Request Feature: also wrap with a span or div */}
-      <Tooltip title="Request Feature" placement="right">
-        <Box>
-          <RequestFeature />
-        </Box>
-      </Tooltip>
+        {/* Language Switcher */}
+        <Tooltip title="Language" placement="right">
+          <Box>
+            <LanguageSwitcherIMG size="small"/>
+          </Box>
+        </Tooltip>
 
-      {/* Go Pro */}
-      <Tooltip title="Go Pro" placement="right">
-        <IconButton
-          size="large"
-          onClick={handleOpenGoProModal}
-          sx={{
-            "&:hover": {
-              color: "primary.main",
-            },
-          }}
-        >
-          <WorkspacePremiumIcon />
-        </IconButton>
-      </Tooltip>
+        {/* Go Pro */}
+        <Tooltip title="Go Pro" placement="right">
+          <IconButton
+            size="large"
+            onClick={handleOpenGoProModal}
+            sx={{
+              "&:hover": {
+                color: "primary.main",
+              },
+            }}
+          >
+            <WorkspacePremiumIcon />
+          </IconButton>
+        </Tooltip>
 
-      <Box sx={{height: 50}} />
+        <Box sx={{ height: 70 }} />
 
-      {/* Account (Avatar menu) */}
-      <AvatarMenu />
-    </Stack>
+        {/* Account (Avatar menu) */}
+        <AvatarMenu />
+      </Stack>
+
+      {/* Create Folder Dialog */}
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>New Folder</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Folder Name"
+            type="text"
+            onChange={(e) => setFolderName(e.target.value)}
+            value={folderName}
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button color="error" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="contained" onClick={handleCreateFolderSubmit}>
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
