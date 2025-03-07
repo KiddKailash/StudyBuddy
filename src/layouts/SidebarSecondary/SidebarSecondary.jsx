@@ -1,19 +1,22 @@
-import React, { useState } from "react";
-
-// MUI
+import React, { useState, useContext } from "react";
+import { useParams } from "react-router-dom";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
-
-// Local Imports
 import SidebarContent from "./SidebarContent";
+import { UserContext } from "../../contexts/UserContext";
 
 const SidebarSecondary = () => {
   const [isExpanded, setIsExpanded] = useState(true);
-
   const FULL_WIDTH = 260;
   const COLLAPSED_WIDTH = 70;
+  const { folderID } = useParams();
+  const { folders } = useContext(UserContext);
+
+  // Find the current folder (if any)
+  const folder = folders.find((f) => f.id === folderID);
 
   const toggleExpand = () => {
     setIsExpanded((prev) => !prev);
@@ -23,14 +26,14 @@ const SidebarSecondary = () => {
     <Box
       sx={{
         width: isExpanded ? FULL_WIDTH : COLLAPSED_WIDTH,
-        transition: "width 0s ease-in-out",
+        transition: "width 0.3s ease-in-out",
         borderRight: 1,
         borderRightColor: "divider",
         overflowY: "auto",
       }}
     >
-      {/* Move the toggle button into normal flow at the top */}
-      <Box sx={{ p: 1 }}>
+      {/* Top header: expand/collapse button and folder name (only when expanded) */}
+      <Box sx={{ p: 1, display: "flex", alignItems: "center", gap: 1 }}>
         <IconButton
           onClick={toggleExpand}
           size="small"
@@ -42,9 +45,14 @@ const SidebarSecondary = () => {
         >
           {isExpanded ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
         </IconButton>
+        {isExpanded && (
+          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+            {folder ? folder.folderName : "Unfoldered"}
+          </Typography>
+        )}
       </Box>
 
-      {/* Sidebar content (menu items, etc.) - pass isExpanded as a prop */}
+      {/* Sidebar content containing the new study resource button and the study resources */}
       <SidebarContent isExpanded={isExpanded} />
     </Box>
   );

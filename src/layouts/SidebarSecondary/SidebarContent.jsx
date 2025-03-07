@@ -8,7 +8,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
 
 // Local Imports
 import SessionItem from "./SessionItem";
@@ -18,14 +18,13 @@ import useSidebar from "./sidebarUtils";
 import { UserContext } from "../../contexts/UserContext";
 
 const SidebarContent = ({ isExpanded }) => {
-  // 1) Get folderID from URL
   const { folderID } = useParams();
   const location = useLocation();
 
-  // 2) Get sidebar utilities
-  const { theme, t, handleMenuOpen, ...etc } = useSidebar();
+  // Sidebar utilities
+  const { t, handleMenuOpen, ...etc } = useSidebar();
 
-  // 3) Get resource arrays safely from context
+  // Retrieve arrays safely from context
   const {
     folders = [],
     flashcardSessions = [],
@@ -34,16 +33,16 @@ const SidebarContent = ({ isExpanded }) => {
     aiChats = [],
   } = useContext(UserContext);
 
-  // 4) Determine folder value for filtering (convert "null" to actual null)
+  // Determine folder value for filtering
   const folderValue = folderID === "null" ? null : folderID;
 
-  // 5) Use fallback arrays for filtering
-  const foldersArr = folders || [];
+  // Fallback arrays
   const flashcardsArr = flashcardSessions || [];
   const mcqArr = multipleChoiceQuizzes || [];
   const summariesArr = summaries || [];
   const aiChatsArr = aiChats || [];
 
+  // Filter study resource arrays based on folder
   const filteredFlashcards = flashcardsArr.filter(
     (s) => s.folderID === folderValue
   );
@@ -55,14 +54,13 @@ const SidebarContent = ({ isExpanded }) => {
     (chat) => chat.folderID === folderValue
   );
 
-  // 6) Get the current folder object (if it exists)
-  const folder = foldersArr.find((f) => f.id === folderID);
-
-  // 7) Helper: check if a route is active
-  const isActiveRoute = (path) => location.pathname === path;
-
-  // Optional: You can add a guard if any of these arrays are not loaded
-  if (!folders || !flashcardSessions || !multipleChoiceQuizzes || !summaries || !aiChats) {
+  // Guard: show loader if resources aren’t loaded yet
+  if (
+    !flashcardSessions ||
+    !multipleChoiceQuizzes ||
+    !summaries ||
+    !aiChats
+  ) {
     return (
       <List component="nav">
         <ListItem sx={{ justifyContent: "center" }}>
@@ -76,24 +74,7 @@ const SidebarContent = ({ isExpanded }) => {
     <Box sx={{ width: "100%" }}>
       <List component="nav">
         <Stack direction="column" spacing={1}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-            {folder ? folder.folderName : "Unfoldered"}
-          </Typography>
-
-          {/* Brand item */}
-          <SessionItem
-            session={{
-              id: "brand",
-              studySession: "StudyBuddy.ai",
-            }}
-            resourceType="brand"
-            isActive={false}
-            routePath=""
-            handleMenuOpen={null}
-            isExpanded={isExpanded}
-          />
-
-          {/* Create Session item */}
+          {/* New Study Resource Button */}
           <SessionItem
             session={{
               id: "create-session",
@@ -106,52 +87,51 @@ const SidebarContent = ({ isExpanded }) => {
             isExpanded={isExpanded}
           />
 
-          {/* Flashcard sessions */}
+          <Divider />
+
+          {/* Study Resources */}
           {filteredFlashcards.map((s) => (
             <SessionItem
               key={s.id}
               session={s}
               resourceType="flashcard"
-              isActive={isActiveRoute(`/${folderID}/flashcards/${s.id}`)}
+              isActive={location.pathname === `/${folderID}/flashcards/${s.id}`}
               routePath={`/${folderID}/flashcards/${s.id}`}
               handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
             />
           ))}
 
-          {/* Multiple Choice Quizzes */}
           {filteredMcqs.map((q) => (
             <SessionItem
               key={q.id}
               session={q}
               resourceType="quiz"
-              isActive={isActiveRoute(`/${folderID}/mcq/${q.id}`)}
+              isActive={location.pathname === `/${folderID}/mcq/${q.id}`}
               routePath={`/${folderID}/mcq/${q.id}`}
               handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
             />
           ))}
 
-          {/* Summaries */}
           {filteredSummaries.map((summary) => (
             <SessionItem
               key={summary.id}
               session={summary}
               resourceType="summary"
-              isActive={isActiveRoute(`/${folderID}/summary/${summary.id}`)}
+              isActive={location.pathname === `/${folderID}/summary/${summary.id}`}
               routePath={`/${folderID}/summary/${summary.id}`}
               handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
             />
           ))}
 
-          {/* AI Chats */}
           {filteredAiChats.map((chat) => (
             <SessionItem
               key={chat.id}
               session={chat}
               resourceType="chat"
-              isActive={isActiveRoute(`/${folderID}/chat/${chat.id}`)}
+              isActive={location.pathname === `/${folderID}/chat/${chat.id}`}
               routePath={`/${folderID}/chat/${chat.id}`}
               handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
@@ -160,7 +140,7 @@ const SidebarContent = ({ isExpanded }) => {
         </Stack>
       </List>
 
-      {/* Dropdown menu & Confirmation Dialog */}
+      {/* Dropdown Menu & Confirmation Dialog */}
       <DropdownMenu
         anchorEl={etc.menuAnchorEl}
         isOpen={Boolean(etc.menuAnchorEl)}
