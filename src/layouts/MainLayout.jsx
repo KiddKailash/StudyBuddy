@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 
@@ -13,6 +13,15 @@ import SidebarSecondary from "./SidebarSecondary/SidebarSecondary";
 const MainLayout = () => {
   const PRIMARY_SIDEBAR_WIDTH = 80;
 
+  const location = useLocation();
+
+  const isLoginPage = location.pathname === "/login";
+  const isLandingPage = location.pathname === "/landing-page";
+  const isTOSorPrivacy =
+    location.pathname === "/terms" || location.pathname === "/privacy";
+  const noActiveFolder =
+    location.pathname === "/" || location.pathname === "/create";
+
   return (
     <Box
       sx={{
@@ -24,15 +33,17 @@ const MainLayout = () => {
       }}
     >
       {/* PRIMARY SIDEBAR */}
-      <Box
-        sx={{
-          width: PRIMARY_SIDEBAR_WIDTH,
-          flexShrink: 0,
-          overflow: "hidden",
-        }}
-      >
-        <SidebarPrimary />
-      </Box>
+      {!isLoginPage && !isLandingPage && !isTOSorPrivacy && (
+        <Box
+          sx={{
+            width: PRIMARY_SIDEBAR_WIDTH,
+            flexShrink: 0,
+            overflow: "hidden",
+          }}
+        >
+          <SidebarPrimary />
+        </Box>
+      )}
 
       {/* Outer box that holds secondary sidebar + main content */}
       <Box
@@ -44,19 +55,23 @@ const MainLayout = () => {
         }}
       >
         {/* SECONDARY SIDEBAR */}
-        <SidebarSecondary />
+
+        {!isLoginPage &&
+          !isLandingPage &&
+          !isTOSorPrivacy &&
+          !noActiveFolder && <SidebarSecondary />}
 
         {/* MAIN CONTENT AREA */}
         <Box
           sx={{
-            flexGrow: 1,          // again, fill remaining horizontal space
-            overflowY: "auto",    // scroll if content is too tall
-            display: "flex",      // we use a flex container to position the <Container>
+            flexGrow: 1, // again, fill remaining horizontal space
+            overflowY: "auto", // scroll if content is too tall
+            display: "flex", // we use a flex container to position the <Container>
           }}
         >
           <Container
             maxWidth="md"
-            // "fullWidth" isn't a standard MUI Container prop, so it has no effect. 
+            // "fullWidth" isn't a standard MUI Container prop, so it has no effect.
             // We can leave it or remove it.
             sx={{
               p: 4,
