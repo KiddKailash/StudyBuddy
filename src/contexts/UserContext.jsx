@@ -417,7 +417,7 @@ export const UserProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${localToken}` } }
       );
       const newFlashcardSession = createResp.data.data;
-      setFlashcardSessions((prev) => [...prev, newFlashcardSession]); // HERE!
+      setFlashcardSessions((prev) => [...prev, newFlashcardSession]);
       return newFlashcardSession;
     } catch (err) {
       console.error("createFlashcardsFromUpload error:", err);
@@ -813,6 +813,81 @@ export const UserProvider = ({ children }) => {
     return response.data;
   };
 
+  // Fetch AI Chat by folder
+  const fetchAiChatsByFolder = async (folderID) => {
+    try {
+      const localToken = localStorage.getItem("token");
+      if (!localToken) throw new Error("User is not authenticated.");
+
+      const res = await axios.get(`${BACKEND}/api/aichats/folder/${folderID}`, {
+        headers: { Authorization: `Bearer ${localToken}` },
+      });
+
+      return res.data.chats; // The array of chats
+    } catch (error) {
+      console.error("fetchAiChatsByFolder error:", error);
+      throw error;
+    }
+  };
+
+  // Fetch Flashcards by folder
+  const fetchFlashcardsByFolder = async (folderID) => {
+    try {
+      const localToken = localStorage.getItem("token");
+      if (!localToken) throw new Error("User is not authenticated.");
+
+      const res = await axios.get(
+        `${BACKEND}/api/flashcards/folder/${folderID}`,
+        {
+          headers: { Authorization: `Bearer ${localToken}` },
+        }
+      );
+
+      return res.data.data; // The array of flashcard sessions
+    } catch (error) {
+      console.error("fetchFlashcardsByFolder error:", error);
+      throw error;
+    }
+  };
+
+  // Fetch MCQ by folder
+  const fetchQuizzesByFolder = async (folderID) => {
+    try {
+      const localToken = localStorage.getItem("token");
+      if (!localToken) throw new Error("User is not authenticated.");
+
+      const res = await axios.get(
+        `${BACKEND}/api/multiple-choice-quizzes/folder/${folderID}`,
+        {
+          headers: { Authorization: `Bearer ${localToken}` },
+        }
+      );
+      return res.data.data; // The array of quizzes
+    } catch (error) {
+      console.error("fetchQuizzesByFolder error:", error);
+      throw error;
+    }
+  };
+
+  // Fetch Summaries by folder
+  const fetchSummariesByFolder = async (folderID) => {
+    try {
+      const localToken = localStorage.getItem("token");
+      if (!localToken) throw new Error("User is not authenticated.");
+
+      const res = await axios.get(
+        `${BACKEND}/api/summaries/folder/${folderID}`,
+        {
+          headers: { Authorization: `Bearer ${localToken}` },
+        }
+      );
+      return res.data.data; // The array of summaries
+    } catch (error) {
+      console.error("fetchSummariesByFolder error:", error);
+      throw error;
+    }
+  };
+
   // --------------------------------------------------
   // PROVIDER RETURN
   // --------------------------------------------------
@@ -898,6 +973,12 @@ export const UserProvider = ({ children }) => {
         loginUser,
         registerUser,
         googleLoginUser,
+
+        // Fetch by folder
+        fetchAiChatsByFolder,
+        fetchFlashcardsByFolder,
+        fetchQuizzesByFolder,
+        fetchSummariesByFolder,
       }}
     >
       {children}
