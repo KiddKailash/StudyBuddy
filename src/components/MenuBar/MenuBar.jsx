@@ -7,7 +7,7 @@ import { UserContext } from "../../contexts/UserContext";
 import MobileMenu from "./MobileMenu";
 import UpgradeButton from "./UpgradeButton";
 import AvatarMenu from "./AvatarMenu";
-import { LanguageSwitcherIMG } from "../LanguageSwitcher";
+import LanguageSwitcherIMG from "../LanguageSwitcher";
 
 import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
@@ -56,7 +56,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
           }}
         >
           {user && <MobileMenu handleDrawerToggle={handleDrawerToggle} />}
-          <LanguageSwitcherIMG />
+          <LanguageSwitcherIMG size="large"/>
           {user && user.accountType !== "paid" && !isCheckoutPage && (
             <UpgradeButton />
           )}
