@@ -1,177 +1,182 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
+import { useParams, useLocation } from "react-router-dom";
 
 // MUI
-import useMediaQuery from "@mui/material/useMediaQuery";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
 
 // Local Imports
-import useSidebar from "./sidebarUtils";
 import SessionItem from "./SessionItem";
 import DropdownMenu from "./DropdownMenu";
 import ConfirmationDialog from "./ConfirmationDialog";
+import useSidebar from "./sidebarUtils";
+import { UserContext } from "../../contexts/UserContext";
 
-/**
- * Renders sidebar content:
- *  - Brand row ("StudyBuddy.ai") using SessionItem with resourceType="brand"
- *  - "Create Session" using SessionItem with resourceType="create"
- *  - Mapped session items for flashcards/quizzes/summaries/chats
- *  - Everything uses the same SessionItem pattern
- */
 const SidebarContent = ({ isExpanded }) => {
+  // 1) Get folderID from URL
+  const { folderID } = useParams();
+  const location = useLocation();
+
+  // 2) Get sidebar utilities
+  const { theme, t, handleMenuOpen, ...etc } = useSidebar();
+
+  // 3) Get resource arrays safely from context
   const {
-    theme,
-    t,
-    location,
-    flashcardSessions,
-    localSessions,
-    loadingSessions,
-    multipleChoiceQuizzes,
-    summaries,
-    aiChats,
-    isCreateSessionActive,
-    menuAnchorEl,
-    dialogState,
-    newSessionName,
-    setNewSessionName,
-    handleMenuOpen,
-    handleMenuClose,
-    handleDialogOpen,
-    handleDialogClose,
-    handleConfirmAction,
-  } = useSidebar();
+    folders = [],
+    flashcardSessions = [],
+    multipleChoiceQuizzes = [],
+    summaries = [],
+    aiChats = [],
+  } = useContext(UserContext);
 
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  // 4) Determine folder value for filtering (convert "null" to actual null)
+  const folderValue = folderID === "null" ? null : folderID;
 
-  /**
-   * Just a helper to see if a given route is active
-   */
+  // 5) Use fallback arrays for filtering
+  const foldersArr = folders || [];
+  const flashcardsArr = flashcardSessions || [];
+  const mcqArr = multipleChoiceQuizzes || [];
+  const summariesArr = summaries || [];
+  const aiChatsArr = aiChats || [];
+
+  const filteredFlashcards = flashcardsArr.filter(
+    (s) => s.folderID === folderValue
+  );
+  const filteredMcqs = mcqArr.filter((q) => q.folderID === folderValue);
+  const filteredSummaries = summariesArr.filter(
+    (s) => s.folderID === folderValue
+  );
+  const filteredAiChats = aiChatsArr.filter(
+    (chat) => chat.folderID === folderValue
+  );
+
+  // 6) Get the current folder object (if it exists)
+  const folder = foldersArr.find((f) => f.id === folderID);
+
+  // 7) Helper: check if a route is active
   const isActiveRoute = (path) => location.pathname === path;
+
+  // Optional: You can add a guard if any of these arrays are not loaded
+  if (!folders || !flashcardSessions || !multipleChoiceQuizzes || !summaries || !aiChats) {
+    return (
+      <List component="nav">
+        <ListItem sx={{ justifyContent: "center" }}>
+          <CircularProgress color="inherit" />
+        </ListItem>
+      </List>
+    );
+  }
 
   return (
     <Box sx={{ width: "100%" }}>
       <List component="nav">
-        {/* Show spinner if loading */}
-        {loadingSessions ? (
-          <ListItem sx={{ justifyContent: "center" }}>
-            <CircularProgress color="inherit" />
-          </ListItem>
-        ) : (
-          <Stack direction="column" spacing={1}>
-            {/* 1) BRAND (StudyBuddy.ai) */}
+        <Stack direction="column" spacing={1}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+            {folder ? folder.folderName : "Unfoldered"}
+          </Typography>
+
+          {/* Brand item */}
+          <SessionItem
+            session={{
+              id: "brand",
+              studySession: "StudyBuddy.ai",
+            }}
+            resourceType="brand"
+            isActive={false}
+            routePath=""
+            handleMenuOpen={null}
+            isExpanded={isExpanded}
+          />
+
+          {/* Create Session item */}
+          <SessionItem
+            session={{
+              id: "create-session",
+              studySession: t("create_study_session"),
+            }}
+            resourceType="create"
+            isActive={false}
+            routePath={`/${folderID}/create`}
+            handleMenuOpen={null}
+            isExpanded={isExpanded}
+          />
+
+          {/* Flashcard sessions */}
+          {filteredFlashcards.map((s) => (
             <SessionItem
-              session={{
-                // 'studySession' used as the display text in SessionItem
-                id: "brand",
-                studySession: "StudyBuddy.ai",
-              }}
-              resourceType="brand"
-              isActive={false}
-              routePath="" // no route for brand
-              handleMenuOpen={null}
+              key={s.id}
+              session={s}
+              resourceType="flashcard"
+              isActive={isActiveRoute(`/${folderID}/flashcards/${s.id}`)}
+              routePath={`/${folderID}/flashcards/${s.id}`}
+              handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
             />
+          ))}
 
-            {/* 2) CREATE SESSION */}
+          {/* Multiple Choice Quizzes */}
+          {filteredMcqs.map((q) => (
             <SessionItem
-              session={{
-                id: "create-session",
-                studySession: t("create_study_session"),
-              }}
-              resourceType="create"
-              isActive={isCreateSessionActive}
-              routePath="/create-resource"
-              handleMenuOpen={null}
+              key={q.id}
+              session={q}
+              resourceType="quiz"
+              isActive={isActiveRoute(`/${folderID}/mcq/${q.id}`)}
+              routePath={`/${folderID}/mcq/${q.id}`}
+              handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
             />
+          ))}
 
-            {/* 3) FLASHCARD SESSIONS */}
-            {flashcardSessions.map((s) => (
-              <SessionItem
-                key={s.id}
-                session={s}
-                resourceType="flashcard"
-                isActive={isActiveRoute(`/flashcards/${s.id}`)}
-                routePath={`/flashcards/${s.id}`}
-                handleMenuOpen={handleMenuOpen}
-                isExpanded={isExpanded}
-              />
-            ))}
-            {localSessions.map((s) => (
-              <SessionItem
-                key={s.id}
-                session={s}
-                resourceType="flashcard"
-                isActive={isActiveRoute(`/flashcards-local/${s.id}`)}
-                routePath={`/flashcards-local/${s.id}`}
-                handleMenuOpen={handleMenuOpen}
-                isExpanded={isExpanded}
-              />
-            ))}
+          {/* Summaries */}
+          {filteredSummaries.map((summary) => (
+            <SessionItem
+              key={summary.id}
+              session={summary}
+              resourceType="summary"
+              isActive={isActiveRoute(`/${folderID}/summary/${summary.id}`)}
+              routePath={`/${folderID}/summary/${summary.id}`}
+              handleMenuOpen={handleMenuOpen}
+              isExpanded={isExpanded}
+            />
+          ))}
 
-            {/* 4) MULTIPLE CHOICE QUIZZES */}
-            {multipleChoiceQuizzes.map((q) => (
-              <SessionItem
-                key={q.id}
-                session={q}
-                resourceType="quiz"
-                isActive={isActiveRoute(`/mcq/${q.id}`)}
-                routePath={`/mcq/${q.id}`}
-                handleMenuOpen={handleMenuOpen}
-                isExpanded={isExpanded}
-              />
-            ))}
-
-            {/* 5) SUMMARIES */}
-            {summaries.map((summary) => (
-              <SessionItem
-                key={summary.id}
-                session={summary}
-                resourceType="summary"
-                isActive={isActiveRoute(`/summary/${summary.id}`)}
-                routePath={`/summary/${summary.id}`}
-                handleMenuOpen={handleMenuOpen}
-                isExpanded={isExpanded}
-              />
-            ))}
-
-            {/* 6) AI CHATS */}
-            {aiChats.map((chat) => (
-              <SessionItem
-                key={chat.id}
-                session={chat}
-                resourceType="chat"
-                isActive={isActiveRoute(`/chat/${chat.id}`)}
-                routePath={`/chat/${chat.id}`}
-                handleMenuOpen={handleMenuOpen}
-                isExpanded={isExpanded}
-              />
-            ))}
-          </Stack>
-        )}
+          {/* AI Chats */}
+          {filteredAiChats.map((chat) => (
+            <SessionItem
+              key={chat.id}
+              session={chat}
+              resourceType="chat"
+              isActive={isActiveRoute(`/${folderID}/chat/${chat.id}`)}
+              routePath={`/${folderID}/chat/${chat.id}`}
+              handleMenuOpen={handleMenuOpen}
+              isExpanded={isExpanded}
+            />
+          ))}
+        </Stack>
       </List>
 
-      {/* Additional features: dropdown & dialogs */}
+      {/* Dropdown menu & Confirmation Dialog */}
       <DropdownMenu
-        anchorEl={menuAnchorEl}
-        isOpen={Boolean(menuAnchorEl)}
-        onClose={handleMenuClose}
-        onDeleteClick={() => handleDialogOpen("delete")}
-        onRenameClick={() => handleDialogOpen("rename")}
+        anchorEl={etc.menuAnchorEl}
+        isOpen={Boolean(etc.menuAnchorEl)}
+        onClose={etc.handleMenuClose}
+        onDeleteClick={() => etc.handleDialogOpen("delete")}
+        onRenameClick={() => etc.handleDialogOpen("rename")}
         t={t}
       />
 
       <ConfirmationDialog
-        open={dialogState.open}
-        type={dialogState.type}
-        onClose={handleDialogClose}
-        onConfirm={handleConfirmAction}
-        newSessionName={newSessionName}
-        setNewSessionName={setNewSessionName}
+        open={etc.dialogState.open}
+        type={etc.dialogState.type}
+        onClose={etc.handleDialogClose}
+        onConfirm={etc.handleConfirmAction}
+        newSessionName={etc.newSessionName}
+        setNewSessionName={etc.setNewSessionName}
         t={t}
       />
     </Box>
