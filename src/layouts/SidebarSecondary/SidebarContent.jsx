@@ -55,12 +55,7 @@ const SidebarContent = ({ isExpanded }) => {
   );
 
   // Guard: show loader if resources aren’t loaded yet
-  if (
-    !flashcardSessions ||
-    !multipleChoiceQuizzes ||
-    !summaries ||
-    !aiChats
-  ) {
+  if (!flashcardSessions || !multipleChoiceQuizzes || !summaries || !aiChats) {
     return (
       <List component="nav">
         <ListItem sx={{ justifyContent: "center" }}>
@@ -73,7 +68,19 @@ const SidebarContent = ({ isExpanded }) => {
   return (
     <Box sx={{ width: "100%" }}>
       <List component="nav">
-        <Stack direction="column" spacing={1}>
+        <Stack direction="column"  spacing={1}>
+          {/* Manage Understanding */}
+          <SessionItem
+            session={{
+              id: "understanding",
+              studySession: "Manage Understanding",
+            }}
+            resourceType="understanding"
+            isActive={false}
+            handleMenuOpen={null}
+            isExpanded={isExpanded}
+          />
+
           {/* New Study Resource Button */}
           <SessionItem
             session={{
@@ -87,7 +94,7 @@ const SidebarContent = ({ isExpanded }) => {
             isExpanded={isExpanded}
           />
 
-          <Divider />
+          <Divider  fullwidth sx={{ color: "background.paper" }} />
 
           {/* Study Resources */}
           {filteredFlashcards.map((s) => (
@@ -119,7 +126,9 @@ const SidebarContent = ({ isExpanded }) => {
               key={summary.id}
               session={summary}
               resourceType="summary"
-              isActive={location.pathname === `/${folderID}/summary/${summary.id}`}
+              isActive={
+                location.pathname === `/${folderID}/summary/${summary.id}`
+              }
               routePath={`/${folderID}/summary/${summary.id}`}
               handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
