@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { UserContext } from "../contexts/UserContext";
-import { SnackbarContext } from "../contexts/SnackbarContext";
+import { UserContext } from "../../contexts/UserContext";
+import { SnackbarContext } from "../../contexts/SnackbarContext";
 
 // MUI imports
 import Container from "@mui/material/Container";
@@ -28,8 +28,8 @@ import IconButton from "@mui/material/IconButton";
 import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
 
 // Custom components
-import Flashcard from "../components/Flashcard";
-import Footer from "../components/Footer";
+import Flashcard from "../../components/Flashcard";
+import Footer from "../../components/Footer";
 
 // i18n
 import { useTranslation, Trans } from "react-i18next";

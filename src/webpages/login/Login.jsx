@@ -3,8 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useTranslation, Trans } from "react-i18next";
 
-import { UserContext } from "../contexts/UserContext";
-import { SnackbarContext } from "../contexts/SnackbarContext";
+import { UserContext } from "../../contexts/UserContext";
+import { SnackbarContext } from "../../contexts/SnackbarContext";
 
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";

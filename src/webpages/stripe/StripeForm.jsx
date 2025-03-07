@@ -7,7 +7,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
-import UserContext from "../contexts/UserContext";
+import UserContext from "../../contexts/UserContext";
 
 // MUI Components
 import Box from "@mui/material/Box";

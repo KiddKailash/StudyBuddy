@@ -5,21 +5,21 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import MainLayout from "./MainLayout";
 
 // Example Pages
-import FlashcardSession from "../webpages/FlashcardSession";
+import FlashcardSession from "../webpages/study-resources/FlashcardSession";
 import CreateStudySession from "../webpages/CreateStudySession";
-import LoginPage from "../webpages/Login";
+import LoginPage from "../webpages/login/Login";
 import PageNotFound from "../webpages/PageNotFound";
 import SettingsPage from "../webpages/Settings";
-import Success from "../webpages/Success";
-import Cancel from "../webpages/Cancel";
-import PrivacyPolicy from "../webpages/PrivacyPolicy";
-import TermsOfService from "../webpages/TermsOfService";
+import Success from "../webpages/stripe/Success";
+import Cancel from "../webpages/stripe/Cancel";
+import PrivacyPolicy from "../webpages/login/PrivacyPolicy";
+import TermsOfService from "../webpages/login/TermsOfService";
 import LandingPage from "../webpages/LandingPage";
-import { CheckoutForm, Return } from "../webpages/StripeForm";
+import { CheckoutForm, Return } from "../webpages/stripe/StripeForm";
 import CreateStudyResource from "../webpages/CreateStudyResource";
-import MCQSession from "../webpages/MCQSession";
-import SummaryPage from "../webpages/SummaryPage";
-import AIChatPage from "../webpages/AIChatPage";
+import MCQSession from "../webpages/study-resources/MCQSession";
+import SummaryPage from "../webpages/study-resources/SummaryPage";
+import AIChatPage from "../webpages/study-resources/AIChatPage";
 
 function App() {
   // Define all your routes as objects:
