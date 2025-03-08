@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
 // Contexts
@@ -11,12 +11,10 @@ import { useDropzone } from "react-dropzone";
 
 // MUI Components
 import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 
@@ -35,7 +33,11 @@ const UploadResource = ({ resourceType }) => {
     createFlashcardsFromUpload,
   } = useContext(UserContext);
 
+  const { folderID } = useParams();
   const { showSnackbar } = useContext(SnackbarContext);
+
+  const convertNullFolderID = folderID === "null" ? null : folderID;
+
   const navigate = useNavigate();
 
   // Current selected upload ID from the existing uploads list
@@ -126,26 +128,26 @@ const UploadResource = ({ resourceType }) => {
     try {
       switch (resourceType) {
         case "mcq": {
-          const quiz = await createQuiz(selectedUploadId);
-          navigate(`/mcq/${quiz.id}`);
+          const quiz = await createQuiz(selectedUploadId, convertNullFolderID);
+          navigate(`/${quiz.folderID}/mcq/${quiz.id}`);
           break;
         }
         case "flashcards": {
-          const newSession = await createFlashcardsFromUpload(selectedUploadId);
+          const newSession = await createFlashcardsFromUpload(selectedUploadId, convertNullFolderID);
           showSnackbar("Flashcards created!", "success");
-          navigate(`/flashcards/${newSession.id}`);
+          navigate(`/${newSession.folderID}/flashcards/${newSession.id}`);
           break;
         }
         case "summary": {
-          const sum = await createSummary(selectedUploadId, userMessage);
+          const sum = await createSummary(selectedUploadId, userMessage, convertNullFolderID);
           showSnackbar("Summary created!", "success");
-          navigate(`/summary/${sum.id}`);
+          navigate(`/${sum.folderID}/summary/${sum.id}`);
           break;
         }
         case "chat": {
-          const chat = await createChat(selectedUploadId, userMessage);
+          const chat = await createChat(selectedUploadId, userMessage, convertNullFolderID);
           showSnackbar("Chat created!", "success");
-          navigate(`/chat/${chat.id}`);
+          navigate(`/${chat.folderID}/chat/${chat.id}`);
           break;
         }
         default:
