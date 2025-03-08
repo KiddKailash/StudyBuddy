@@ -361,7 +361,7 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const createFlashcards = async (uploadId, sessionName, studyCards = []) => {
+  const createFlashcards = async (uploadId, folderID, sessionName, studyCards = []) => {
     const localToken = localStorage.getItem("token");
     if (!localToken) throw new Error("User not authenticated.");
 
@@ -370,6 +370,7 @@ export const UserProvider = ({ children }) => {
         `${BACKEND}/api/flashcards`,
         {
           uploadId,
+          folderID,
           sessionName,
           studyCards,
         },
@@ -386,7 +387,7 @@ export const UserProvider = ({ children }) => {
   };
 
   // Create flashcards from an existing upload's transcript
-  const createFlashcardsFromUpload = async (uploadId) => {
+  const createFlashcardsFromUpload = async (uploadId, folderID) => {
     try {
       const localToken = localStorage.getItem("token");
       if (!localToken) throw new Error("User is not authenticated.");
@@ -411,6 +412,7 @@ export const UserProvider = ({ children }) => {
         `${BACKEND}/api/flashcards`,
         {
           uploadId,
+          folderID,
           sessionName: autoSessionName || "Auto Flashcards",
           studyCards: generatedCards,
         },
@@ -508,12 +510,12 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const createQuiz = async (uploadId) => {
+  const createQuiz = async (uploadId, folderID) => {
     const localToken = localStorage.getItem("token");
     if (!localToken) throw new Error("User is not authenticated.");
     const resp = await axios.post(
       `${BACKEND}/api/multiple-choice-quizzes`,
-      { uploadId },
+      { uploadId, folderID },
       { headers: { Authorization: `Bearer ${localToken}` } }
     );
     // The server returns { data: { id, ... } }
@@ -571,12 +573,12 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const createSummary = async (uploadId, userMessage) => {
+  const createSummary = async (uploadId, userMessage, folderID) => {
     const localToken = localStorage.getItem("token");
     if (!localToken) throw new Error("User is not authenticated.");
     const resp = await axios.post(
       `${BACKEND}/api/summaries`,
-      { uploadId, userMessage },
+      { uploadId, userMessage, folderID },
       { headers: { Authorization: `Bearer ${localToken}` } }
     );
     // The server returns { summary: { id, ... } }
@@ -634,12 +636,12 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const createChat = async (uploadId, userMessage) => {
+  const createChat = async (uploadId, userMessage, folderID) => {
     const localToken = localStorage.getItem("token");
     if (!localToken) throw new Error("User is not authenticated.");
     const resp = await axios.post(
       `${BACKEND}/api/aichats`,
-      { uploadId, userMessage },
+      { uploadId, userMessage, folderID },
       { headers: { Authorization: `Bearer ${localToken}` } }
     );
     // The server returns { chat: { id, ... } }
