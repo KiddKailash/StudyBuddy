@@ -44,7 +44,6 @@ const RequestFeature = () => {
         onClick={openDialog}
         size="large"
         sx={{
-          borderRadius: 2,
           "&:hover": {
             color: "primary.main",
           },
