@@ -13,12 +13,12 @@ import Box from "@mui/material/Box";
 // MUI Icons
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded"; // flashcards
-import QuizIcon from "@mui/icons-material/Quiz"; // quizzes
-import ArticleIcon from "@mui/icons-material/Article"; // summaries
 import ChatIcon from "@mui/icons-material/Chat"; // AI chats
 import Avatar from "@mui/material/Avatar";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
+import CheckBoxRoundedIcon from "@mui/icons-material/CheckBoxRounded";
+import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
 /**
  * Returns an icon component (or avatar) based on the resourceType.
  * We unify brand, create, flashcard, quiz, summary, chat, etc.
@@ -39,9 +39,9 @@ function getResourceIcon(resourceType, session) {
     case "flashcard":
       return <ViewCarouselRoundedIcon color="action" />;
     case "quiz":
-      return <QuizIcon color="action" />;
+      return <CheckBoxRoundedIcon color="action" />;
     case "summary":
-      return <ArticleIcon color="action" />;
+      return <AutoStoriesRoundedIcon color="action" />;
     case "chat":
       return <ChatIcon color="action" />;
     case "understanding":
