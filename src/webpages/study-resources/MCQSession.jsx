@@ -181,9 +181,7 @@ const MCQSession = () => {
   // 4) LAYOUT WITH LEFT SIDEBAR + MAIN CONTENT
   // ----------------------------
   return (
-    <Box
-      sx={{ display: "flex", height: "100%", flexGrow: 1}}
-    >
+    <Box sx={{ display: "flex", height: "100%", flexGrow: 1 }}>
       {/* Left Sidebar: question list */}
       <Box
         sx={{
@@ -192,10 +190,10 @@ const MCQSession = () => {
           px: 1.5,
           borderRight: "1px solid",
           borderColor: "divider",
-          flexShrink: 0
+          flexShrink: 0,
         }}
       >
-        <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
           {quiz.studySession}
         </Typography>
         {questionsArray.map((q, i) => {
