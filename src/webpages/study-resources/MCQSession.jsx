@@ -187,7 +187,7 @@ const MCQSession = () => {
       {/* Left Sidebar: question list */}
       <Box
         sx={{
-          maxWidth: 200,
+          maxWidth: 180,
           py: 3.5,
           px: 1.5,
           borderRight: "1px solid",
