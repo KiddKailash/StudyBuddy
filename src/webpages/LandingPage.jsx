@@ -70,7 +70,7 @@ const LandingPage = () => {
   const reviews = t("reviews", { returnObjects: true });
 
   return (
-    <>
+    <Box sx={{width: "100%", mx: 'auto'}}>
       {/* Hero Section */}
       <Container maxWidth="lg">
         <MenuBar />
@@ -268,7 +268,7 @@ const LandingPage = () => {
           </Masonry>
         </Container>
       </Box>
-    </>
+    </Box>
   );
 };
 

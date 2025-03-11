@@ -5,6 +5,7 @@ import { useTranslation, Trans } from "react-i18next";
 
 import { UserContext } from "../../contexts/UserContext";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
+import PageWrapper from "../../components/PageWrapper";
 
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -19,7 +20,6 @@ import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import Divider from "@mui/material/Divider";
 
 const LoginPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -218,223 +218,237 @@ const LoginPage = () => {
   };
 
   return (
-    <Container
-      maxWidth="xs"
-      sx={{
-        border: "1px solid #e0e0e0",
-        borderRadius: 2,
-        p: 4,
-        mt: 3,
-      }}
-    >
-      <Box textAlign="center" sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}>
-        <Typography variant="h4" color="primary">
-          StudyBuddy.ai
-        </Typography>
-        <Typography
-          variant="h5"
-          color="textPrimary"
-          sx={{ mt: 1, pr: 6, pl: 6, fontWeight: 600 }}
+    <PageWrapper>
+      <Container
+        maxWidth="xs"
+        sx={{
+          border: "1px solid #e0e0e0",
+          borderRadius: 2,
+          p: 4,
+        }}
+      >
+        <Box
+          textAlign="center"
+          sx={{ transition: "all 0.3s ease-in-out", mb: 2 }}
         >
-          {authMode === "create"
-            ? t("create_study_cards_from_resource")
-            : t("login_to_your_account")}
-        </Typography>
-        <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 1 }}>
-          <Trans
-            i18nKey={
-              authMode === "create"
-                ? "create_mode_description"
-                : "login_mode_description"
-            }
-            components={[
-              <Link
-                key="0"
-                component="span"
-                variant="body1"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setAuthMode(authMode === "create" ? "login" : "create");
-                }}
-              />,
-            ]}
-          />
-        </Typography>
-      </Box>
-
-      <Box component="form" onSubmit={handleSubmit}>
-        <Grid container rowSpacing={1.5} columnSpacing={1}>
-          {authMode === "create" && (
-            <>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  label={t("first_name")}
-                  variant="outlined"
-                  value={firstName}
-                  onChange={(e) => handleFieldChange("firstName", e.target.value)}
-                  error={!!errors.firstName}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  label={t("last_name")}
-                  variant="outlined"
-                  value={lastName}
-                  onChange={(e) => handleFieldChange("lastName", e.target.value)}
-                  error={!!errors.lastName}
-                />
-              </Grid>
-            </>
-          )}
-
-          <Grid size={12}>
-            <TextField
-              fullWidth
-              label={t("email")}
-              type="email"
-              variant="outlined"
-              value={email}
-              onChange={(e) => handleFieldChange("email", e.target.value)}
-              error={!!errors.email}
-            />
-          </Grid>
-          <Grid size={12}>
-            <TextField
-              label={t("password")}
-              fullWidth
-              type={showPassword ? "text" : "password"}
-              variant="outlined"
-              value={password}
-              onChange={(e) => handleFieldChange("password", e.target.value)}
-              error={!!errors.password}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end" sx={{ mr: 1 }}>
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                        edge="end"
-                        sx={{
-                          fontSize: "small",
-                          opacity: 0.5,
-                          "&:hover": {
-                            opacity: 0.7,
-                          },
-                          color: "text.secondary",
-                        }}
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-          </Grid>
-          {authMode === "create" && (
-            <>
-              <Grid size={12}>
-                <TextField
-                  fullWidth
-                  label={t("re_enter_password")}
-                  type={showConfirmPassword ? "text" : "password"}
-                  variant="outlined"
-                  value={confirmPassword}
-                  onChange={(e) => handleFieldChange("confirmPassword", e.target.value)}
-                  error={!!errors.confirmPassword}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end" sx={{ mr: 1 }}>
-                          <IconButton
-                            aria-label="toggle confirm password visibility"
-                            onClick={handleClickShowConfirmPassword}
-                            onMouseDown={handleMouseDownPassword}
-                            edge="end"
-                            sx={{
-                              opacity: 0.5,
-                              "&:hover": {
-                                opacity: 0.7,
-                              },
-                              color: "text.secondary",
-                            }}
-                          >
-                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
+          <Typography variant="h4" color="primary">
+            StudyBuddy.ai
+          </Typography>
+          <Typography
+            variant="h5"
+            color="textPrimary"
+            sx={{ mt: 1, pr: 6, pl: 6, fontWeight: 600 }}
+          >
+            {authMode === "create"
+              ? t("create_study_cards_from_resource")
+              : t("login_to_your_account")}
+          </Typography>
+          <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 1 }}>
+            <Trans
+              i18nKey={
+                authMode === "create"
+                  ? "create_mode_description"
+                  : "login_mode_description"
+              }
+              components={[
+                <Link
+                  key="0"
+                  component="span"
+                  variant="body1"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setAuthMode(authMode === "create" ? "login" : "create");
                   }}
-                />
-              </Grid>
-              <Grid size={12} sx={{ textAlign: "left" }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      color="primary"
-                      checked={tosChecked}
-                      onChange={(e) => {
-                        setTosChecked(e.target.checked);
-                        if (errors.tos) {
-                          setErrors((prev) => {
-                            const newErrors = { ...prev };
-                            delete newErrors.tos;
-                            return newErrors;
-                          });
-                        }
-                      }}
-                    />
-                  }
-                  label={
-                    <Trans
-                      i18nKey="agree_to_terms"
-                      components={[
-                        <Link
-                          component="span"
-                          onClick={() => {
-                            navigate("/terms");
-                          }}
-                          key="0"
-                        />,
-                        <Link
-                          component="span"
-                          onClick={() => {
-                            navigate("/privacy");
-                          }}
-                          key="1"
-                        />,
-                      ]}
-                    />
-                  }
-                />
-              </Grid>
-            </>
-          )}
+                />,
+              ]}
+            />
+          </Typography>
+        </Box>
 
-          <Grid size={12}>
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              type="submit"
-              disabled={loading}
-            >
-              {loading
-                ? authMode === "create"
-                  ? t("creating_account")
-                  : t("logging_in")
-                : authMode === "create"
-                ? t("create_your_clipcard_account")
-                : t("login")}
-            </Button>
+        <Box component="form" onSubmit={handleSubmit}>
+          <Grid container rowSpacing={1.5} columnSpacing={1}>
+            {authMode === "create" && (
+              <>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label={t("first_name")}
+                    variant="outlined"
+                    value={firstName}
+                    onChange={(e) =>
+                      handleFieldChange("firstName", e.target.value)
+                    }
+                    error={!!errors.firstName}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label={t("last_name")}
+                    variant="outlined"
+                    value={lastName}
+                    onChange={(e) =>
+                      handleFieldChange("lastName", e.target.value)
+                    }
+                    error={!!errors.lastName}
+                  />
+                </Grid>
+              </>
+            )}
+
+            <Grid size={12}>
+              <TextField
+                fullWidth
+                label={t("email")}
+                type="email"
+                variant="outlined"
+                value={email}
+                onChange={(e) => handleFieldChange("email", e.target.value)}
+                error={!!errors.email}
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                label={t("password")}
+                fullWidth
+                type={showPassword ? "text" : "password"}
+                variant="outlined"
+                value={password}
+                onChange={(e) => handleFieldChange("password", e.target.value)}
+                error={!!errors.password}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end" sx={{ mr: 1 }}>
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                          sx={{
+                            fontSize: "small",
+                            opacity: 0.5,
+                            "&:hover": {
+                              opacity: 0.7,
+                            },
+                            color: "text.secondary",
+                          }}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </Grid>
+            {authMode === "create" && (
+              <>
+                <Grid size={12}>
+                  <TextField
+                    fullWidth
+                    label={t("re_enter_password")}
+                    type={showConfirmPassword ? "text" : "password"}
+                    variant="outlined"
+                    value={confirmPassword}
+                    onChange={(e) =>
+                      handleFieldChange("confirmPassword", e.target.value)
+                    }
+                    error={!!errors.confirmPassword}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end" sx={{ mr: 1 }}>
+                            <IconButton
+                              aria-label="toggle confirm password visibility"
+                              onClick={handleClickShowConfirmPassword}
+                              onMouseDown={handleMouseDownPassword}
+                              edge="end"
+                              sx={{
+                                opacity: 0.5,
+                                "&:hover": {
+                                  opacity: 0.7,
+                                },
+                                color: "text.secondary",
+                              }}
+                            >
+                              {showConfirmPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid size={12} sx={{ textAlign: "left" }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        color="primary"
+                        checked={tosChecked}
+                        onChange={(e) => {
+                          setTosChecked(e.target.checked);
+                          if (errors.tos) {
+                            setErrors((prev) => {
+                              const newErrors = { ...prev };
+                              delete newErrors.tos;
+                              return newErrors;
+                            });
+                          }
+                        }}
+                      />
+                    }
+                    label={
+                      <Trans
+                        i18nKey="agree_to_terms"
+                        components={[
+                          <Link
+                            component="span"
+                            onClick={() => {
+                              navigate("/terms");
+                            }}
+                            key="0"
+                          />,
+                          <Link
+                            component="span"
+                            onClick={() => {
+                              navigate("/privacy");
+                            }}
+                            key="1"
+                          />,
+                        ]}
+                      />
+                    }
+                  />
+                </Grid>
+              </>
+            )}
+
+            <Grid size={12}>
+              <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                type="submit"
+                disabled={loading}
+              >
+                {loading
+                  ? authMode === "create"
+                    ? t("creating_account")
+                    : t("logging_in")
+                  : authMode === "create"
+                  ? t("create_your_clipcard_account")
+                  : t("login")}
+              </Button>
+            </Grid>
           </Grid>
-        </Grid>
-      </Box>
-    </Container>
+        </Box>
+      </Container>
+    </PageWrapper>
   );
 };
 

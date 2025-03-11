@@ -1,13 +1,17 @@
 import React from "react";
-import { Container, Typography, Box } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import PageWrapper from "../../components/PageWrapper";
+
+// MUI
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 
 const TermsOfService = () => {
   const { t } = useTranslation();
   const sections = t("termsOfService.sections", { returnObjects: true });
 
   return (
-    <>
+    <PageWrapper>
       <Typography variant="h4" gutterBottom>
         {t("termsOfService.title")}
       </Typography>
@@ -35,7 +39,7 @@ const TermsOfService = () => {
           </React.Fragment>
         ))}
       </Box>
-    </>
+    </PageWrapper>
   );
 };
 

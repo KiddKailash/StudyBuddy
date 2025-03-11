@@ -1,13 +1,14 @@
 import React from "react";
 import { Container, Typography, Box } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import PageWrapper from "../../components/PageWrapper";
 
 const PrivacyPolicy = () => {
   const { t } = useTranslation();
   const sections = t("privacyPolicy.sections", { returnObjects: true });
 
   return (
-    <Container maxWidth="md" sx={{ py: 4, textAlign: "left" }}>
+    <PageWrapper>
       <Typography variant="h4" gutterBottom>
         {t("privacyPolicy.title")}
       </Typography>
@@ -35,7 +36,7 @@ const PrivacyPolicy = () => {
           </React.Fragment>
         ))}
       </Box>
-    </Container>
+    </PageWrapper>
   );
 };
 
