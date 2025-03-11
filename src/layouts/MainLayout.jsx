@@ -70,15 +70,10 @@ const MainLayout = () => {
           }}
         >
           <Container
-            maxWidth="md"
-            // "fullWidth" isn't a standard MUI Container prop, so it has no effect.
-            // We can leave it or remove it.
+            fullWidth
             sx={{
-              p: 4,
-              // Remove my: "auto" and mx: "auto" so it fills space
               width: "100%",
               height: "100%",
-              overflowY: "auto",
             }}
           >
             {/* Renders whatever route/page is active */}
