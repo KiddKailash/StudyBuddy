@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../../contexts/UserContext";
+import PageWrapper from "../../components/PageWrapper";
 
 // MUI
 import Typography from "@mui/material/Typography";
@@ -102,7 +103,7 @@ const AIChatPage = () => {
   }
 
   return (
-    <>
+    <PageWrapper>
       <Typography variant="h4" gutterBottom>
         AI Chat
       </Typography>
@@ -131,7 +132,7 @@ const AIChatPage = () => {
           Send
         </Button>
       </Box>
-    </>
+    </PageWrapper>
   );
 };
 

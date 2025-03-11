@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../../contexts/UserContext";
+import PageWrapper from "../../components/PageWrapper";
 
 // MUI
 import Typography from "@mui/material/Typography";
@@ -92,12 +93,12 @@ const SummaryPage = () => {
   }
 
   return (
-    <>
+    <PageWrapper>
       <Typography variant="h4" gutterBottom>
         Summary
       </Typography>
       <Typography sx={{ mt: 2 }}>{summary.summary}</Typography>
-    </>
+    </PageWrapper>
   );
 };
 

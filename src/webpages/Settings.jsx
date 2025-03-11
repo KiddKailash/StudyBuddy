@@ -18,6 +18,7 @@ import Checkbox from "@mui/material/Checkbox";
 
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
+import PageWrapper from "../components/PageWrapper";
 
 const SettingsPage = () => {
   const {
@@ -124,7 +125,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <>
+    <PageWrapper>
       {/* Account Information Form */}
       <Typography variant="h4" gutterBottom>
         {t("account_settings")}
@@ -270,7 +271,7 @@ const SettingsPage = () => {
           </Dialog>
         </Box>
       )}
-    </>
+    </PageWrapper>
   );
 };
 

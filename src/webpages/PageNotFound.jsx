@@ -8,6 +8,7 @@ import Button from "@mui/material/Button";
 
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
+import PageWrapper from "../components/PageWrapper";
 
 const PageNotFound = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const PageNotFound = () => {
   const { t } = useTranslation();
 
   return (
-    <>
+    <PageWrapper>
       <Typography variant="body1" color="error">
         {t("404_page_not_found")}
       </Typography>
@@ -31,7 +32,7 @@ const PageNotFound = () => {
       >
         {t("go_to_landing_page")}
       </Button>
-    </>
+    </PageWrapper>
   );
 };
 

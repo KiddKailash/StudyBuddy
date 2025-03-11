@@ -18,6 +18,7 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 
 // Context
 import { UserContext } from "../../contexts/UserContext";
+import PageWrapper from "../../components/PageWrapper";
 
 const MCQSession = () => {
   const { id } = useParams();
@@ -84,6 +85,7 @@ const MCQSession = () => {
   if (loading) {
     return (
       <Box
+        fullWidth
         sx={{
           display: "flex",
           height: "100%",
@@ -158,15 +160,20 @@ const MCQSession = () => {
   const getSidebarIcon = (questionIndex) => {
     const answerIdx = userAnswers[questionIndex];
     if (answerIdx === null) {
-      return <RadioButtonUncheckedIcon fontSize="small" sx={{ color: "text.disabled" }} />;
+      return (
+        <RadioButtonUncheckedIcon
+          fontSize="small"
+          sx={{ color: "text.disabled" }}
+        />
+      );
     }
     // If answered, check correctness
     const letter = String.fromCharCode(65 + answerIdx);
     const correct = letter === questionsArray[questionIndex].answer;
     return correct ? (
-      <CheckCircleRoundedIcon fontSize="small" color="success" />
+      <CheckCircleRoundedIcon fontSize="small" color="success.light" />
     ) : (
-      <CancelRoundedIcon fontSize="small" color="error" />
+      <CancelRoundedIcon fontSize="small" color="error.light" />
     );
   };
 
@@ -174,15 +181,14 @@ const MCQSession = () => {
   // 4) LAYOUT WITH LEFT SIDEBAR + MAIN CONTENT
   // ----------------------------
   return (
-    <Box sx={{ display: "flex", height: "100%" }}>
+    <Box fullWidth sx={{ display: "flex", height: "100%" }}>
       {/* Left Sidebar: question list */}
       <Box
         sx={{
-          width: 250,
-          minWidth: 250,
+          py: 4,
           borderRight: "1px solid",
           borderColor: "divider",
-          p: 2,
+          px: 2,
         }}
       >
         <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
@@ -209,7 +215,7 @@ const MCQSession = () => {
               <Stack direction="row" spacing={1} alignItems="center">
                 {getSidebarIcon(i)}
                 <Typography
-                  variant="subtitle1"
+                  variant="subtitle2"
                   sx={{ fontWeight: isActive ? 600 : 400 }}
                 >
                   Question {i + 1}
@@ -220,8 +226,8 @@ const MCQSession = () => {
         })}
       </Box>
 
-      {/* Main Content Area */}
-      <Box sx={{ flex: 1, p: 3, overflowY: "auto" }}>
+      <PageWrapper>
+        {/* Main Content Area */}
         {/* Question Title */}
         <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
           {currentQ.question}
@@ -286,21 +292,6 @@ const MCQSession = () => {
             </Typography>
           </Box>
         )}
-        {selectedIdx !== null && isCorrect && (
-          <Box
-            sx={{
-              mt: 2,
-              p: 2,
-              border: "2px solid",
-              borderColor: "success.light",
-              borderRadius: 2,
-            }}
-          >
-            <Typography variant="body1" color="success.main">
-              Correct!
-            </Typography>
-          </Box>
-        )}
 
         {/* Bottom Navigation */}
         <Stack
@@ -326,7 +317,7 @@ const MCQSession = () => {
             Next
           </Button>
         </Stack>
-      </Box>
+      </PageWrapper>
     </Box>
   );
 };

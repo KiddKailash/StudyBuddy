@@ -30,6 +30,7 @@ import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
 // Custom components
 import Flashcard from "../../components/Flashcard";
 import Footer from "../../components/Footer";
+import PageWrapper from "../../components/PageWrapper";
 
 // i18n
 import { useTranslation, Trans } from "react-i18next";
@@ -188,7 +189,7 @@ const FlashcardSession = () => {
   });
 
   return (
-    <>
+    <PageWrapper>
       <Typography
         variant="h5"
         gutterBottom
@@ -429,7 +430,7 @@ const FlashcardSession = () => {
       )}
 
       <Footer />
-    </>
+    </PageWrapper>
   );
 };
 

@@ -12,6 +12,7 @@ import DialogContent from "@mui/material/DialogContent";
 import Button from "@mui/material/Button";
 import DialogTitle from "@mui/material/DialogTitle";
 import Stack from "@mui/material/Stack";
+import Container from "@mui/material/Container";
 
 // Icons
 import CheckBoxRoundedIcon from "@mui/icons-material/CheckBoxRounded";
@@ -92,7 +93,7 @@ const CreateStudyResource = () => {
   };
 
   return (
-    <>
+    <Container maxWidth="lg" sx={{m:4}}>
       <Stack direction="column" spacing={4} sx={{ mt: 2 }}>
         <Typography variant="h3">What are you studying?</Typography>
         <Box>
@@ -250,7 +251,7 @@ const CreateStudyResource = () => {
           </DialogActions>
         </Box>
       </Dialog>
-    </>
+    </Container>
   );
 };
 
