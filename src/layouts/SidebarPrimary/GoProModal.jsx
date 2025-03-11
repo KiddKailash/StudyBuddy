@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 // MUI
@@ -17,6 +17,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 // Local Import
 import { CheckoutForm } from "../../webpages/stripe/StripeForm";
+import { DialogTitle } from "@mui/material";
 
 const GoProModal = ({ open, onClose }) => {
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
@@ -34,16 +35,11 @@ const GoProModal = ({ open, onClose }) => {
   };
 
   const handleCloseModal = () => {
-    // If you want to reset everything each time the modal closes:
-    setShowCheckoutForm(false);
-    setBillingPeriod("yearly");
-    setAccountType("paid-yearly");
-
-    onClose(); // call parent’s onClose
+    onClose();
   };
 
   return (
-    <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth="md">
+    <Dialog open={open} onClose={handleCloseModal} maxWidth="md">
       {!showCheckoutForm ? (
         <>
           <DialogContent sx={{ p: 0 }}>
@@ -54,9 +50,11 @@ const GoProModal = ({ open, onClose }) => {
                   bgcolor: "background.default",
                   p: 5,
                   flexGrow: 1,
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
-                <Box sx={{ my: 5 }}>
+                <Box sx={{ my: 8 }}>
                   <Typography
                     variant="h4"
                     gutterBottom
@@ -69,8 +67,29 @@ const GoProModal = ({ open, onClose }) => {
                   </Typography>
                 </Box>
 
-                <Box sx={{ flexGrow: 1 }} />
-
+                <div style={{ flexGrow: 1 }} />
+                <Box
+                  sx={{
+                    bgcolor:
+                      billingPeriod === "yearly"
+                        ? "success.light"
+                        : "text.disabled",
+                    borderRadius: 0.5,
+                    width: 100,
+                    ml: 2,
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "background.default",
+                      fontWeight: 600,
+                      ml: 1,
+                    }}
+                  >
+                    30% Cheaper
+                  </Typography>
+                </Box>
                 {/* Billing Period Options */}
                 <Stack direction="row" spacing={1}>
                   {/* Yearly Plan */}
@@ -80,44 +99,31 @@ const GoProModal = ({ open, onClose }) => {
                       p: 2,
                       border: 2,
                       borderColor:
-                        billingPeriod === "yearly" ? "action" : "grey.300",
+                        billingPeriod === "yearly"
+                          ? "success.light"
+                          : "text.disabled",
                       borderRadius: 2,
                       textAlign: "left",
                       cursor: "pointer",
                       flexGrow: 1,
+                      "&:hover": {
+                        backgroundColor: "action.hover",
+                      },
                     }}
                   >
                     <Typography variant="body2" color="text.secondary">
                       Yearly
                     </Typography>
                     <Typography variant="h5" fontWeight="bold">
-                      $4.08/mo
+                      $3.15/mo
                     </Typography>
                     <Typography
-                      variant="body2"
+                      variant="subtitle1"
                       color="text.secondary"
                       sx={{ textDecoration: "line-through" }}
                     >
-                      $5.83
+                      $4.10/mo
                     </Typography>
-                    <Box
-                      sx={{
-                        bgcolor: "success.light",
-                        opacity: 0.7,
-                        borderRadius: 0.5,
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: "background.default",
-                          fontWeight: 600,
-                          ml: 1,
-                        }}
-                      >
-                        64% Cheaper
-                      </Typography>
-                    </Box>
                   </Box>
 
                   {/* Monthly Plan */}
@@ -127,26 +133,31 @@ const GoProModal = ({ open, onClose }) => {
                       p: 2,
                       border: 2,
                       borderColor:
-                        billingPeriod === "monthly" ? "action" : "grey.300",
+                        billingPeriod === "monthly"
+                          ? "success.light"
+                          : "text.disabled",
                       borderRadius: 2,
                       textAlign: "left",
                       cursor: "pointer",
                       minWidth: 100,
                       flexGrow: 1,
+                      "&:hover": {
+                        backgroundColor: "action.hover",
+                      },
                     }}
                   >
                     <Typography variant="body2" color="text.secondary">
                       Monthly
                     </Typography>
                     <Typography variant="h5" fontWeight="bold">
-                      $11.19/mo
+                      $3.95/mo
                     </Typography>
                     <Typography
                       variant="body2"
                       color="text.secondary"
                       sx={{ textDecoration: "line-through" }}
                     >
-                      $15.99
+                      $5.15 /mo
                     </Typography>
                   </Box>
                 </Stack>
@@ -155,7 +166,7 @@ const GoProModal = ({ open, onClose }) => {
                   variant="contained"
                   fullWidth
                   onClick={handleUpgradeNow}
-                  sx={{ mt: 1, borderRadius: 2 }}
+                  sx={{ mt: 2, borderRadius: 1 }}
                 >
                   Upgrade Now
                 </Button>
@@ -252,15 +263,22 @@ const GoProModal = ({ open, onClose }) => {
                     <Box
                       sx={{
                         bgcolor: "background.default",
-                        p: 2,
+                        p: 3,
                         borderRadius: 2,
                         flexGrow: 1,
+                        display: "flex",
+                        flexDirection: "column",
                       }}
                     >
-                      <Typography gutterBottom variant="h4" sx={{ mt: 1 }}>
-                        4.9
-                      </Typography>
-                      <Typography variant="subtitle2">★★★★★</Typography>
+                      <div style={{ flexGrow: 1 }} />
+                      <Box sx={{}}>
+                        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                          4.9
+                        </Typography>
+                        <Typography variant="subtitle2" color="warning.light">
+                          ★★★★★
+                        </Typography>
+                      </Box>
                     </Box>
                   </Stack>
                 </Stack>
@@ -270,26 +288,25 @@ const GoProModal = ({ open, onClose }) => {
         </>
       ) : (
         <>
+          <DialogTitle sx={{ fontWeight: 600 }}>
+            Welcome to StudyBuddy Pro!
+          </DialogTitle>
           <DialogContent>
             {/* The embedded Stripe form: */}
-            <CheckoutForm accountType={accountType} />
-            <Box
-              sx={{
-                display: "flex",
-                height: "100%",
-                width: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <CircularProgress color="inherit" sx={{}} />
+            <Box sx={{ px: 2 }}>
+              <CheckoutForm accountType={accountType} />
             </Box>
           </DialogContent>
 
           <DialogActions>
-            <Button onClick={handleCloseModal} color="inherit">
-              Close
+            <Button
+              onClick={() => setShowCheckoutForm(false)}
+              color="inherit"
+              sx={{ ml: 1 }}
+            >
+              Back
             </Button>
+            <div style={{ flexGrow: 1 }} />
           </DialogActions>
         </>
       )}
