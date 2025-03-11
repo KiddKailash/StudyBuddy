@@ -31,7 +31,7 @@ const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
  * Renders the embedded Stripe Checkout form.
  * Requires the user to be authenticated and sends the accountType to the backend.
  */
-export const CheckoutForm = ({ accountType = "paid", showSnackbar }) => {
+export const CheckoutForm = ({ accountType = "paid-yearly", showSnackbar }) => {
   /**
    * Fetches the client secret from the backend to initiate the embedded Checkout.
    */
@@ -45,7 +45,7 @@ export const CheckoutForm = ({ accountType = "paid", showSnackbar }) => {
       // POST to your create-checkout-session endpoint using Axios
       const response = await axios.post(
         `${BACKEND}/api/checkout/create-checkout-session`,
-        { accountType }, // e.g., { accountType: "paid" }
+        { accountType }, // e.g., { accountType: "paid-yearly" or "paid-monthly" }
         {
           headers: {
             Authorization: `Bearer ${token}`, // Important for authMiddleware
