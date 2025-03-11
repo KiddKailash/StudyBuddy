@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
 
 const PageWrapper = ({ children }) => (
-  <Box maxWidth="md" sx={{ mx: "auto", p: 3.5, width: '100%'}}>
+  <Box maxWidth="md" sx={{ mx: "auto", p: 3.5, width: '100%', textAlign: "left" }}>
     {children}
   </Box>
 );
