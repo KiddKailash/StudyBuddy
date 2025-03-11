@@ -67,18 +67,12 @@ const MainLayout = () => {
             flexGrow: 1, // again, fill remaining horizontal space
             overflowY: "auto", // scroll if content is too tall
             display: "flex", // we use a flex container to position the <Container>
+            width: "100%",
+            height: "100%",
           }}
         >
-          <Container
-            fullWidth
-            sx={{
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            {/* Renders whatever route/page is active */}
-            <Outlet />
-          </Container>
+          {/* Renders whatever route/page is active */}
+          <Outlet />
         </Box>
       </Box>
     </Box>
