@@ -85,10 +85,10 @@ const MCQSession = () => {
   if (loading) {
     return (
       <Box
-        fullWidth
         sx={{
           display: "flex",
           height: "100%",
+          width: "100%",
           alignItems: "center",
           justifyContent: "center",
         }}
@@ -171,9 +171,9 @@ const MCQSession = () => {
     const letter = String.fromCharCode(65 + answerIdx);
     const correct = letter === questionsArray[questionIndex].answer;
     return correct ? (
-      <CheckCircleRoundedIcon fontSize="small" color="success.light" />
+      <CheckCircleRoundedIcon fontSize="small" color="success" />
     ) : (
-      <CancelRoundedIcon fontSize="small" color="error.light" />
+      <CancelRoundedIcon fontSize="small" color="error" />
     );
   };
 
@@ -181,14 +181,18 @@ const MCQSession = () => {
   // 4) LAYOUT WITH LEFT SIDEBAR + MAIN CONTENT
   // ----------------------------
   return (
-    <Box fullWidth sx={{ display: "flex", height: "100%" }}>
+    <Box
+      sx={{ display: "flex", height: "100%", flexGrow: 1}}
+    >
       {/* Left Sidebar: question list */}
       <Box
         sx={{
-          py: 4,
+          maxWidth: 200,
+          py: 3.5,
+          px: 1.5,
           borderRight: "1px solid",
           borderColor: "divider",
-          px: 2,
+          flexShrink: 0
         }}
       >
         <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
@@ -229,7 +233,7 @@ const MCQSession = () => {
       <PageWrapper>
         {/* Main Content Area */}
         {/* Question Title */}
-        <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
           {currentQ.question}
         </Typography>
 
