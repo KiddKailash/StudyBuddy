@@ -62,11 +62,9 @@ function App() {
     "/landing-page",
     "/terms",
     "/privacy",
-    "/success",
-    "/cancel",
-    "/checkout",
     "/return",
     "/create-resource",
+    "/:folderID/create"
   ];
   // For ephemeral routes, treat them as public
   const ephemeralPrefixes = [
