@@ -38,7 +38,7 @@ const SidebarSecondary = () => {
       <Stack
         direction="row"
         spacing={2}
-        sx={{ px: 2, pt: 3, display: "flex", alignItems: "center" }}
+        sx={{ px: 2, pt: 3.5, display: "flex", alignItems: "center" }}
       >
         <IconButton
           onClick={toggleExpand}

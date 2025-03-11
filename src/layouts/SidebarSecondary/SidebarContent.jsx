@@ -68,7 +68,7 @@ const SidebarContent = ({ isExpanded }) => {
   return (
     <Box sx={{ width: "100%" }}>
       <List component="nav">
-        <Stack direction="column"  spacing={1}>
+        <Stack direction="column" spacing={1}>
           {/* Manage Understanding */}
           <SessionItem
             session={{
@@ -94,7 +94,7 @@ const SidebarContent = ({ isExpanded }) => {
             isExpanded={isExpanded}
           />
 
-          <Divider  fullwidth sx={{ color: "background.paper" }} />
+          <Divider sx={{ border: 1, borderColor: "background.paper", width: "100%",  }} />
 
           {/* Study Resources */}
           {filteredFlashcards.map((s) => (
