@@ -271,7 +271,14 @@ const SidebarPrimary = () => {
             <DialogContent sx={{ p: 0 }}>
               <Stack direction="row" spacing={2}>
                 {/* LEFT SIDE */}
-                <Box sx={{ bgcolor: "background.default", p: 5, m: 2, flexGrow:1 }}>
+                <Box
+                  sx={{
+                    bgcolor: "background.default",
+                    p: 5,
+                    m: 2,
+                    flexGrow: 1,
+                  }}
+                >
                   <Box sx={{ my: 5 }}>
                     <Typography
                       variant="h4"
@@ -303,7 +310,6 @@ const SidebarPrimary = () => {
                         flexGrow: 1,
                       }}
                     >
-
                       <Typography variant="body2" color="text.secondary">
                         Yearly
                       </Typography>
@@ -371,14 +377,16 @@ const SidebarPrimary = () => {
                     variant="contained"
                     fullWidth
                     onClick={handleUpgradeNow}
-                    sx={{ mt: 1, borderRadius: 2}}
+                    sx={{ mt: 1, borderRadius: 2 }}
                   >
                     Upgrade Now
                   </Button>
                 </Box>
 
                 {/*  RIGHT SIDE */}
-                <Box sx={{ bgcolor: "background.paper", p: 5, m: 2, flexGrow:1 }}>
+                <Box
+                  sx={{ bgcolor: "background.paper", p: 5, m: 2, flexGrow: 1 }}
+                >
                   <Stack spacing={2} direction="column">
                     <Box
                       sx={{
@@ -503,10 +511,16 @@ const SidebarPrimary = () => {
                 so your backend can create the correct Stripe Checkout session.
               */}
               <CheckoutForm accountType={accountType} />
-              <Box mt={2} display="flex" justifyContent="center">
+              <Box
+                sx={{
+                  display: "flex",
+                  height: "20%",
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <CircularProgress color="inherit" sx={{ display: "none" }} />
-                {/* You can remove or show a spinner if needed. 
-                    The EmbeddedCheckout handles its own loading states. */}
               </Box>
             </DialogContent>
             <DialogActions>
