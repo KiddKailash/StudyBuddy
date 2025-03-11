@@ -12,7 +12,7 @@ import { UserContext } from "../../contexts/UserContext";
 const SidebarSecondary = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const FULL_WIDTH = 260;
-  const COLLAPSED_WIDTH = 70;
+  const COLLAPSED_WIDTH = 72;
   const { folderID } = useParams();
   const { folders } = useContext(UserContext);
 
@@ -27,6 +27,7 @@ const SidebarSecondary = () => {
     <Box
       sx={{
         width: isExpanded ? FULL_WIDTH : COLLAPSED_WIDTH,
+        minWidth: isExpanded ? FULL_WIDTH : COLLAPSED_WIDTH,
         transition: "width 0s ease-in-out",
         borderRight: 2,
         borderRightColor: "background.paper",
