@@ -2,6 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+// Contexts
+import { UserContext } from "../../contexts/UserContext";
+import PageWrapper from "../../components/PageWrapper";
+
 // MUI
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -15,10 +19,6 @@ import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-
-// Contexts
-import { UserContext } from "../../contexts/UserContext";
-import PageWrapper from "../../components/PageWrapper";
 
 const MCQSession = () => {
   const { id } = useParams();
