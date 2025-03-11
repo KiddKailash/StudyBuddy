@@ -2,6 +2,13 @@ import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { useParams, useLocation } from "react-router-dom";
 
+// Local Imports
+import SessionItem from "./SessionItem";
+import DropdownMenu from "./DropdownMenu";
+import ConfirmationDialog from "./ConfirmationDialog";
+import useSidebar from "./sidebarUtils";
+import { UserContext } from "../../contexts/UserContext";
+
 // MUI
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
@@ -9,13 +16,6 @@ import ListItem from "@mui/material/ListItem";
 import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
-
-// Local Imports
-import SessionItem from "./SessionItem";
-import DropdownMenu from "./DropdownMenu";
-import ConfirmationDialog from "./ConfirmationDialog";
-import useSidebar from "./sidebarUtils";
-import { UserContext } from "../../contexts/UserContext";
 
 const SidebarContent = ({ isExpanded }) => {
   const { folderID } = useParams();

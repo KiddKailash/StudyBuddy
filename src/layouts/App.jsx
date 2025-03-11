@@ -1,12 +1,12 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import ProtectedRoute from "../components/ProtectedRoute";
 
+// Local Imports
+import ProtectedRoute from "../components/ProtectedRoute";
 import MainLayout from "./MainLayout";
 
-// Example Pages
+// Web Pages
 import FlashcardSession from "../webpages/study-resources/FlashcardSession";
-import CreateStudySession from "../webpages/CreateStudySession";
 import LoginPage from "../webpages/login/Login";
 import PageNotFound from "../webpages/PageNotFound";
 import SettingsPage from "../webpages/Settings";

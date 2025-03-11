@@ -1,12 +1,16 @@
 import React, { useCallback, useEffect, useState, useContext } from "react";
+import { Navigate } from "react-router-dom";
+import axios from "axios";
 import PropTypes from "prop-types";
+
+// Stripe
 import { loadStripe } from "@stripe/stripe-js";
 import {
   EmbeddedCheckoutProvider,
   EmbeddedCheckout,
 } from "@stripe/react-stripe-js";
-import { Navigate } from "react-router-dom";
-import axios from "axios";
+
+// Contexts
 import UserContext from "../../contexts/UserContext";
 
 // MUI Components

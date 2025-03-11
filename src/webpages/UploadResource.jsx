@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
+import { useDropzone } from "react-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -6,10 +7,7 @@ import PropTypes from "prop-types";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 import { UserContext } from "../contexts/UserContext";
 
-// Dropzone
-import { useDropzone } from "react-dropzone";
-
-// MUI Components
+// MUI
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";

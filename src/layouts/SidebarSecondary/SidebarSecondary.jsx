@@ -1,13 +1,21 @@
 import React, { useState, useContext } from "react";
 import { useParams } from "react-router-dom";
+
+// Contexts
+import { UserContext } from "../../contexts/UserContext";
+
+// Local Imports
+import SidebarContent from "./SidebarContent";
+
+// MUI
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+
+// MUI Icons
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
-import Stack from "@mui/material/Stack";
-import SidebarContent from "./SidebarContent";
-import { UserContext } from "../../contexts/UserContext";
 
 const SidebarSecondary = () => {
   const [isExpanded, setIsExpanded] = useState(true);

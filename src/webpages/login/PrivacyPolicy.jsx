@@ -1,7 +1,12 @@
 import React from "react";
-import { Container, Typography, Box } from "@mui/material";
 import { useTranslation } from "react-i18next";
+
+// Local Imports
 import PageWrapper from "../../components/PageWrapper";
+
+// MUI
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 
 const PrivacyPolicy = () => {
   const { t } = useTranslation();

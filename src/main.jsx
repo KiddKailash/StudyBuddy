@@ -9,7 +9,6 @@ import { SnackbarProvider } from "./contexts/SnackbarContext.jsx";
 
 // Localization, global styles
 import "./i18n.js";
-import "./index.css";
 
 // Main App
 import App from "./layouts/App.jsx";

@@ -1,12 +1,15 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useTranslation, Trans } from "react-i18next";
 
+// Contexts
 import { UserContext } from "../../contexts/UserContext";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
+
+// Local Imports
 import PageWrapper from "../../components/PageWrapper";
 
+// MUI
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -18,6 +21,8 @@ import Grid from "@mui/material/Grid2";
 import Link from "@mui/material/Link";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
+
+// MUI Icons
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 

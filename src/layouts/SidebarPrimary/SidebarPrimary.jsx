@@ -1,6 +1,13 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Local Imports
+import { UserContext } from "../../contexts/UserContext";
+import RequestFeature from "../../components/RequestFeature/RequestFeature";
+import LanguageSwitcherIMG from "../../components/LanguageSwitcher";
+import AvatarMenu from "./AvatarMenu";
+import { CheckoutForm } from "../../webpages/stripe/StripeForm";
+
 // MUI Imports
 import Stack from "@mui/material/Stack";
 import IconButton from "@mui/material/IconButton";
@@ -17,19 +24,11 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 
 // MUI Icons
-import HomeIcon from "@mui/icons-material/Home";
 import FolderIcon from "@mui/icons-material/Folder";
 import AddIcon from "@mui/icons-material/Add";
 import ClearAllRoundedIcon from "@mui/icons-material/ClearAllRounded";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
-
-// Local Imports
-import { UserContext } from "../../contexts/UserContext";
-import RequestFeature from "../../components/RequestFeature/RequestFeature";
-import LanguageSwitcherIMG from "../../components/LanguageSwitcher";
-import AvatarMenu from "./AvatarMenu";
-import { CheckoutForm } from "../../webpages/stripe/StripeForm";
 
 /**
  * Sidebar that shows:

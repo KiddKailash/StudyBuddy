@@ -2,8 +2,13 @@ import React, { useState, useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 
-// MUI Component Imports
-import Container from "@mui/material/Container";
+// Context(s)
+import { useTranslation } from "react-i18next";
+
+// Local Imports
+import PageWrapper from "../components/PageWrapper";
+
+// MUI
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
@@ -13,12 +18,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 
-// Import the useTranslation hook
-import { useTranslation } from "react-i18next";
-import PageWrapper from "../components/PageWrapper";
+
 
 const SettingsPage = () => {
   const {

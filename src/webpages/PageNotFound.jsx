@@ -1,14 +1,15 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-// MUI Component Imports
-import Box from "@mui/material/Box";
+// Contexts
+import { useTranslation } from "react-i18next";
+
+// Local Imports
+import PageWrapper from "../components/PageWrapper";
+
+// MUI 
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-
-// Import the useTranslation hook
-import { useTranslation } from "react-i18next";
-import PageWrapper from "../components/PageWrapper";
 
 const PageNotFound = () => {
   const navigate = useNavigate();

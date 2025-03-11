@@ -1,10 +1,11 @@
 import React, { createContext, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 
-// MUI Component Imports
+// MUIs
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
+//eslint-disable-next-line
 export const SnackbarContext = createContext();
 
 export const SnackbarProvider = ({ children }) => {

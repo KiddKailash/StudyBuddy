@@ -1,12 +1,12 @@
 import React, { useState, useContext } from "react";
 import { useTranslation } from "react-i18next";
 
+// Components
+import RequestFeatureDialog from "./RequestFeatureDialog";
+
 // MUI Components
 import IconButton from "@mui/material/IconButton";
 import BiotechRoundedIcon from "@mui/icons-material/BiotechRounded";
-
-// Components
-import RequestFeatureDialog from "./RequestFeatureDialog";
 
 // Contexts
 import { SnackbarContext } from "../../contexts/SnackbarContext";

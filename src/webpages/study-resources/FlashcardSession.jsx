@@ -1,10 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { UserContext } from "../../contexts/UserContext";
-import { SnackbarContext } from "../../contexts/SnackbarContext";
 
-// MUI imports
-import Container from "@mui/material/Container";
+// Contexts
+import { SnackbarContext } from "../../contexts/SnackbarContext";
+import { UserContext } from "../../contexts/UserContext";
+import { useTranslation, Trans } from "react-i18next";
+
+// Local Components
+import Flashcard from "../../components/Flashcard";
+import Footer from "../../components/Footer";
+import PageWrapper from "../../components/PageWrapper";
+
+// MUI
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -17,7 +24,7 @@ import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import { useTheme } from "@mui/material/styles";
 
-// Icons
+// MUI Icons
 import SearchIcon from "@mui/icons-material/Search";
 import ShuffleRoundedIcon from "@mui/icons-material/ShuffleRounded";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
@@ -26,14 +33,6 @@ import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import IconButton from "@mui/material/IconButton";
 import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
-
-// Custom components
-import Flashcard from "../../components/Flashcard";
-import Footer from "../../components/Footer";
-import PageWrapper from "../../components/PageWrapper";
-
-// i18n
-import { useTranslation, Trans } from "react-i18next";
 
 const FlashcardSession = () => {
   const theme = useTheme();

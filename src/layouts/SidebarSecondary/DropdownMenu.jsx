@@ -5,10 +5,9 @@ import PropTypes from "prop-types";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-// Icons
+// MUI Icons
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
-import PrintRoundedIcon from "@mui/icons-material/PrintRounded";
 
 /**
  * DropdownMenu for session actions: delete, rename, etc.
@@ -19,7 +18,6 @@ const DropdownMenu = ({
   onClose,
   onDeleteClick,
   onRenameClick,
-  onPrintClick,
   t,
 }) => {
   return (
@@ -38,11 +36,6 @@ const DropdownMenu = ({
         <EditRoundedIcon fontSize="small" sx={{ mr: 1 }} />
         {t("rename")}
       </MenuItem>
-
-      {/* <MenuItem onClick={onPrintClick}>
-        <PrintRoundedIcon fontSize="small" sx={{ mr: 1 }} />
-        {t("print")}
-      </MenuItem> */}
     </Menu>
   );
 };

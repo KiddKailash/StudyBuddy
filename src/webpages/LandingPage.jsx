@@ -1,5 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+// Contexts
 import { useTranslation } from "react-i18next";
 import { UserContext } from "../contexts/UserContext";
 
@@ -16,7 +18,7 @@ import NYU from "/assets/universities/nyu.png";
 import Penn from "/assets/universities/penn.png";
 import USC from "/assets/universities/usc.png";
 
-// MUI components
+// MUI
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -25,7 +27,7 @@ import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Masonry from "@mui/lab/Masonry";
 
-// Icons
+// MUI Icons
 import BookIcon from "@mui/icons-material/Book";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";

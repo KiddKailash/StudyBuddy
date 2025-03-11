@@ -1,14 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-// MUI Component Imports
+// Contexts
+import { useTranslation } from "react-i18next";
+
+// Local Imports
+import PageWrapper from "../../components/PageWrapper";
+
+// MUI
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-
-// Import the useTranslation hook
-import PageWrapper from "../../components/PageWrapper";
-import { useTranslation } from "react-i18next";
 
 const Cancel = () => {
   const navigate = useNavigate();

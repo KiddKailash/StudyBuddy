@@ -1,7 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
+
+// MUI
+import Typography from "@mui/material/Typography";
 
 /**
  * AccountInfo component displays the user's account type.

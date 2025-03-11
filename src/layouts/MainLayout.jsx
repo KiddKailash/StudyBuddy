@@ -1,10 +1,12 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
 
+// Local Imports
 import SidebarPrimary from "./SidebarPrimary/SidebarPrimary";
 import SidebarSecondary from "./SidebarSecondary/SidebarSecondary";
+
+// MUI
+import Box from "@mui/material/Box";
 
 /**
  * Layout:

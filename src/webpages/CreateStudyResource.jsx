@@ -1,11 +1,16 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Local Imports
+import UploadResource from "./UploadResource";
+
+// Contexts
+import { UserContext } from "../contexts/UserContext";
+
 // MUI
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
-import { useTheme } from "@mui/material/styles";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -13,8 +18,9 @@ import Button from "@mui/material/Button";
 import DialogTitle from "@mui/material/DialogTitle";
 import Stack from "@mui/material/Stack";
 import Container from "@mui/material/Container";
+import { useTheme } from "@mui/material/styles";
 
-// Icons
+// MUI Icons
 import CheckBoxRoundedIcon from "@mui/icons-material/CheckBoxRounded";
 import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded";
 import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
@@ -22,10 +28,6 @@ import NotesRoundedIcon from "@mui/icons-material/NotesRounded";
 import ChatIcon from "@mui/icons-material/Chat";
 import RestoreRoundedIcon from "@mui/icons-material/RestoreRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
-
-// Child component
-import UploadResource from "./UploadResource";
-import { UserContext } from "../contexts/UserContext";
 
 const CreateStudyResource = () => {
   const navigate = useNavigate();

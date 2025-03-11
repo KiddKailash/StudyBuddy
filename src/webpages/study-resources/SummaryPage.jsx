@@ -1,7 +1,11 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+
+// Contexts 
 import { UserContext } from "../../contexts/UserContext";
+
+// Local Imports
 import PageWrapper from "../../components/PageWrapper";
 
 // MUI

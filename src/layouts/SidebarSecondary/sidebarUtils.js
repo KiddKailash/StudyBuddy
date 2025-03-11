@@ -1,10 +1,13 @@
 import { useState, useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 
+// Contexts
 import { UserContext } from "../../contexts/UserContext";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
+
+// MUI
+import { useTheme } from "@mui/material/styles";
 
 export default function useSidebar() {
   // All hooks are called unconditionally at the top

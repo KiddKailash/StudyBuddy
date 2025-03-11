@@ -12,13 +12,14 @@ import Box from "@mui/material/Box";
 
 // MUI Icons
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
-import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded"; // flashcards
-import ChatIcon from "@mui/icons-material/Chat"; // AI chats
+import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded";
+import ChatIcon from "@mui/icons-material/Chat";
 import Avatar from "@mui/material/Avatar";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
 import CheckBoxRoundedIcon from "@mui/icons-material/CheckBoxRounded";
 import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
+
 /**
  * Returns an icon component (or avatar) based on the resourceType.
  * We unify brand, create, flashcard, quiz, summary, chat, etc.
