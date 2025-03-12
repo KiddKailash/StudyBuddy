@@ -228,11 +228,15 @@ export const UserProvider = ({ children }) => {
       fetchAllAiChats();
       // Folders
       fetchFolders();
+      // Uploads
+      fetchUploads();
     } else {
       setFlashcardSessions([]);
       setMultipleChoiceQuizzes([]);
       setSummaries([]);
       setAiChats([]);
+      setFolders([]);
+      setUploads([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
