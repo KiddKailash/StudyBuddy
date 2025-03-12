@@ -74,17 +74,8 @@ const FlashcardSession = () => {
   const fetchSession = async () => {
     setLoading(true);
     try {
-      if (isLocalSession) {
-        const localSessions = JSON.parse(
-          localStorage.getItem("localSessions") || "[]"
-        );
-        const found = localSessions.find((s) => s.id === id);
-        setSession(found || null);
-      } else {
-        // Use the context helper function to fetch the session
-        const response = await fetchFlashcardSession(id);
-        setSession(response.data);
-      }
+      const flashcardSession = flashcardSessions.filter((f) => f.id === id)[0];
+      setSession(flashcardSession);
     } catch (error) {
       console.error("Error fetching session:", error);
       showSnackbar(

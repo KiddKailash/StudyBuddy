@@ -23,7 +23,7 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 const MCQSession = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isLoggedIn } = useContext(UserContext);
+  const { isLoggedIn, multipleChoiceQuizzes } = useContext(UserContext);
 
   // Quiz state
   const [quiz, setQuiz] = useState(null);
@@ -46,21 +46,9 @@ const MCQSession = () => {
     }
 
     const fetchQuizById = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const localToken = localStorage.getItem("token");
-        if (!localToken) {
-          setErrorMessage("No access token found. Please log in again.");
-          setLoading(false);
-          return;
-        }
-
-        const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
-        const response = await axios.get(
-          `${BACKEND}/api/multiple-choice-quizzes/${id}`,
-          { headers: { Authorization: `Bearer ${localToken}` } }
-        );
-        const fetchedQuiz = response.data.data;
+        const fetchedQuiz = multipleChoiceQuizzes.filter((q) => q.id === id)[0]
         setQuiz(fetchedQuiz);
 
         // Initialize userAnswers array with null for each question
@@ -79,7 +67,7 @@ const MCQSession = () => {
     };
 
     fetchQuizById();
-  }, [id, isLoggedIn]);
+  }, [id, isLoggedIn, multipleChoiceQuizzes]);
 
   // Loading / Error states
   if (loading) {

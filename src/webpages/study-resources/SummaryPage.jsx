@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// Contexts 
+// Contexts
 import { UserContext } from "../../contexts/UserContext";
 
 // Local Imports
@@ -16,7 +16,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 const SummaryPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isLoggedIn } = useContext(UserContext);
+  const { isLoggedIn, summaries } = useContext(UserContext);
 
   // Local state
   const [summary, setSummary] = useState(null);
@@ -32,24 +32,9 @@ const SummaryPage = () => {
     }
 
     const fetchSummary = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const localToken = localStorage.getItem("token");
-        if (!localToken) {
-          setErrorMessage("No access token found. Please log in again.");
-          setLoading(false);
-          return;
-        }
-
-        const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
-        const response = await axios.get(`${BACKEND}/api/summaries/${id}`, {
-          headers: { Authorization: `Bearer ${localToken}` },
-        });
-
-        // The server might return { summary: {...} }, e.g.:
-        // const fetchedSummary = response.data.summary;
-        // Adjust to your actual response shape:
-        const fetchedSummary = response.data.data;
+        const fetchedSummary = summaries.map((s) => s.id === id)[0];
         setSummary(fetchedSummary);
       } catch (error) {
         console.error("Error fetching summary:", error);
@@ -63,7 +48,7 @@ const SummaryPage = () => {
     };
 
     fetchSummary();
-  }, [id, isLoggedIn]);
+  }, [id, isLoggedIn, summaries]);
 
   if (loading) {
     return (

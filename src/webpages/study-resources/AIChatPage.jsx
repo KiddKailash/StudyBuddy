@@ -16,7 +16,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 const AIChatPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isLoggedIn } = useContext(UserContext);
+  const { isLoggedIn, aiChats } = useContext(UserContext);
 
   // Local state
   const [chat, setChat] = useState(null);
@@ -33,24 +33,9 @@ const AIChatPage = () => {
     }
 
     const fetchChat = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const localToken = localStorage.getItem("token");
-        if (!localToken) {
-          setErrorMessage("No access token found. Please log in again.");
-          setLoading(false);
-          return;
-        }
-
-        const BACKEND = import.meta.env.VITE_DIGITAL_OCEAN_URI;
-        const response = await axios.get(`${BACKEND}/api/aichats/${id}`, {
-          headers: { Authorization: `Bearer ${localToken}` },
-        });
-
-        // The server might return { chat: {...} } or { data: {...} },
-        // depending on your controller. Adjust accordingly:
-        // For example: const fetchedChat = response.data.chat;
-        const fetchedChat = response.data.chat;
+        const fetchedChat = aiChats.filter((a) => a.id === id)[0];
         setChat(fetchedChat);
       } catch (error) {
         console.error("Error fetching AI chat:", error);
@@ -64,7 +49,7 @@ const AIChatPage = () => {
     };
 
     fetchChat();
-  }, [id, isLoggedIn]);
+  }, [id, isLoggedIn, aiChats]);
 
   const handleSend = () => {
     // Optionally call an API to add a new message to this chat
