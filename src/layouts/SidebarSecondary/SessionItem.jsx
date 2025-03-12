@@ -9,13 +9,11 @@ import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Box from "@mui/material/Box";
-
-// MUI Icons
+import Avatar from "@mui/material/Avatar";
+import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded";
 import ChatIcon from "@mui/icons-material/Chat";
-import Avatar from "@mui/material/Avatar";
-import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
 import CheckBoxRoundedIcon from "@mui/icons-material/CheckBoxRounded";
 import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
@@ -64,6 +62,7 @@ const SessionItem = ({
   handleMenuOpen,
   routePath,
   isExpanded,
+  onClick, // <-- Make sure we destructure onClick
 }) => {
   // This is the text that displays in expanded mode, or in the tooltip
   const textLabel = session?.studySession || "Untitled";
@@ -71,14 +70,17 @@ const SessionItem = ({
   // Get the correct icon (or avatar)
   const iconElement = getResourceIcon(resourceType, session);
 
-  // If there's no route, we can skip making this clickable
-  const clickableProps = routePath
-    ? {
-        component: Link,
-        to: routePath,
-        selected: isActive,
-      }
-    : {};
+  // Build props for the clickable element
+  // 1) If there's a routePath, we treat this as a Link.
+  // 2) Else if there's an onClick, we attach it.
+  const clickableProps = {};
+  if (routePath) {
+    clickableProps.component = Link;
+    clickableProps.to = routePath;
+    clickableProps.selected = isActive;
+  } else if (onClick) {
+    clickableProps.onClick = onClick;
+  }
 
   return (
     <ListItem disablePadding>
@@ -165,6 +167,7 @@ SessionItem.propTypes = {
    * If collapsed => show icon only (tooltip)
    */
   isExpanded: PropTypes.bool.isRequired,
+  onClick: PropTypes.func, // <-- Add this prop type
 };
 
 export default SessionItem;

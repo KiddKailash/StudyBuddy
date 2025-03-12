@@ -1,12 +1,12 @@
 import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 // Local Imports
 import { UserContext } from "../../contexts/UserContext";
 import RequestFeature from "../../components/RequestFeature/RequestFeature";
 import LanguageSwitcherIMG from "../../components/LanguageSwitcher";
 import AvatarMenu from "./AvatarMenu";
-import GoPro from "./GoPro"; // <--- new import
+import GoPro from "./GoPro";
 
 // MUI Imports
 import Stack from "@mui/material/Stack";
@@ -19,27 +19,37 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
 
 // MUI Icons
 import FolderIcon from "@mui/icons-material/Folder";
 import AddIcon from "@mui/icons-material/Add";
 import ClearAllRoundedIcon from "@mui/icons-material/ClearAllRounded";
+import HomeIcon from "@mui/icons-material/Home";
 
 /**
- * Sidebar that shows:
- *  - GoProButton (if user not paid)
- *  - Home icon
- *  - Folders list
- *  - Create Folder button
- *  - Request Feature
- *  - Language Switcher
- *  - Avatar / Account
+ * Helper style object that returns the pseudo-element
+ * to draw a 2px line offset from the right edge.
  */
+const activeLine = {
+  position: "relative",
+  "&::before": {
+    content: '""',
+    borderRadius: 1,
+    position: "absolute",
+    right: -15,
+    top: "4px",
+    bottom: "4px",
+    width: "2px",
+    backgroundColor: (theme) => theme.palette.primary.dark,
+  },
+};
+
 const SidebarPrimary = () => {
   const navigate = useNavigate();
+  const { folderID } = useParams();
   const { user, folders, createFolder, fetchFolders } = useContext(UserContext);
 
-  // Track folder creation
   const [openFolderDialog, setOpenFolderDialog] = useState(false);
   const [folderName, setFolderName] = useState("");
 
@@ -63,24 +73,37 @@ const SidebarPrimary = () => {
       <Stack
         direction="column"
         alignItems="center"
-        spacing={2}
+        spacing={1}
         sx={{ height: "100%", pt: 2 }}
       >
-        {/* 
-          1) “Go Pro” button, extracted into its own component. 
-             If the user is paid, it returns null.
-        */}
-        <GoPro isPaidUser={isPaidUser} />
+        {/* 1) “Go Pro” button (if user not paid) */}
+        {user && <GoPro isPaidUser={isPaidUser} />}
 
-        {/* 
-          2) Example "No Folder" item
-        */}
-        <Tooltip title="No Folder" placement="right">
+        {/* 2) Home Icon */}
+        <Tooltip title="Home" placement="right">
+          <IconButton
+            size="large"
+            onClick={() => navigate("/")}
+            sx={{
+              borderRadius: 2,
+              ...(folderID === undefined && activeLine),
+              "&:hover": {
+                color: "primary.main",
+              },
+            }}
+          >
+            <HomeIcon sx={{ borderRadius: 2 }} />
+          </IconButton>
+        </Tooltip>
+
+        {/* 3) Unfoldered icon */}
+        <Tooltip title="Unfoldered" placement="right">
           <IconButton
             size="large"
             onClick={() => navigate("/null/create")}
             sx={{
               borderRadius: 2,
+              ...(folderID === "null" && activeLine),
               "&:hover": {
                 color: "primary.main",
               },
@@ -90,9 +113,7 @@ const SidebarPrimary = () => {
           </IconButton>
         </Tooltip>
 
-        {/* 
-          3) Folders List
-        */}
+        {/* 4) Folders List */}
         {folders?.map((folder) => (
           <Tooltip key={folder.id} title={folder.folderName} placement="right">
             <IconButton
@@ -100,6 +121,7 @@ const SidebarPrimary = () => {
               onClick={() => navigate(`/${folder.id}/create`)}
               sx={{
                 borderRadius: 2,
+                ...(folderID === folder.id && activeLine),
                 "&:hover": {
                   color: "primary.main",
                 },
@@ -110,9 +132,7 @@ const SidebarPrimary = () => {
           </Tooltip>
         ))}
 
-        {/* 
-          4) Create Folder Button 
-        */}
+        {/* 5) Create Folder Button */}
         <Tooltip title="Create Folder" placement="right">
           <IconButton
             size="large"
@@ -128,42 +148,41 @@ const SidebarPrimary = () => {
           </IconButton>
         </Tooltip>
 
-        {/* 
-          5) Space Filler 
-        */}
+        {/* 6) Space Filler */}
         <div style={{ flexGrow: 1 }} />
 
-        {/* 
-          6) Request Feature 
-        */}
+        {/* 7) Request Feature */}
         <Tooltip title="Request Feature" placement="right">
           <Box>
             <RequestFeature />
           </Box>
         </Tooltip>
 
-        {/* 
-          7) Language Switcher
-        */}
+        {/* 8) Language Switcher */}
         <Tooltip title="Language" placement="right">
           <Box>
             <LanguageSwitcherIMG size="small" />
           </Box>
         </Tooltip>
 
-        {/* 
-          8) Bottom Spacing
-        */}
+        {/* 9) Bottom Spacing */}
         <Box sx={{ height: 75 }} />
 
-        {/* 
-          9) Avatar / Account Menu 
-        */}
+        {/* 10) Avatar / Account Menu */}
         <AvatarMenu />
       </Stack>
 
       {/* =============== Create Folder Dialog =============== */}
-      <Dialog open={openFolderDialog} onClose={handleCloseFolderDialog}>
+      <Dialog
+        open={openFolderDialog}
+        onClose={handleCloseFolderDialog}
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            p: 2,
+          },
+        }}
+      >
         <DialogTitle>New Folder</DialogTitle>
         <DialogContent>
           <TextField

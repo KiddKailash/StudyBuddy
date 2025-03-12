@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 
 // MUI
@@ -9,7 +9,6 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
 
 // MUI Icons
 import CheckIcon from "@mui/icons-material/Check";
@@ -39,7 +38,17 @@ const GoProModal = ({ open, onClose }) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleCloseModal} maxWidth="md">
+    <Dialog
+      open={open}
+      onClose={handleCloseModal}
+      maxWidth="md"
+      PaperProps={{
+        sx: {
+          borderRadius: "12px",
+          p: 2,
+        },
+      }}
+    >
       {!showCheckoutForm ? (
         <>
           <DialogContent sx={{ p: 0 }}>
@@ -313,6 +322,7 @@ const GoProModal = ({ open, onClose }) => {
     </Dialog>
   );
 };
+
 GoProModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,

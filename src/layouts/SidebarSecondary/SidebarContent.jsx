@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import PropTypes from "prop-types";
 import { useParams, useLocation } from "react-router-dom";
 
-// Local Imports
 import SessionItem from "./SessionItem";
 import DropdownMenu from "./DropdownMenu";
 import ConfirmationDialog from "./ConfirmationDialog";
+import CreateStudyResource from "../../webpages/CreateStudyResource"; // <-- import the component
 import useSidebar from "./sidebarUtils";
 import { UserContext } from "../../contexts/UserContext";
 
@@ -16,6 +16,9 @@ import ListItem from "@mui/material/ListItem";
 import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
+// Dialog Components
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
 
 const SidebarContent = ({ isExpanded }) => {
   const { folderID } = useParams();
@@ -33,24 +36,21 @@ const SidebarContent = ({ isExpanded }) => {
     aiChats = [],
   } = useContext(UserContext);
 
-  // Determine folder value for filtering
+  // State for controlling the CreateStudyResource modal
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
   const folderValue = folderID === "null" ? null : folderID;
 
-  // Fallback arrays
-  const flashcardsArr = flashcardSessions || [];
-  const mcqArr = multipleChoiceQuizzes || [];
-  const summariesArr = summaries || [];
-  const aiChatsArr = aiChats || [];
-
-  // Filter study resource arrays based on folder
-  const filteredFlashcards = flashcardsArr.filter(
+  const filteredFlashcards = flashcardSessions.filter(
     (s) => s.folderID === folderValue
   );
-  const filteredMcqs = mcqArr.filter((q) => q.folderID === folderValue);
-  const filteredSummaries = summariesArr.filter(
+  const filteredMcqs = multipleChoiceQuizzes.filter(
+    (q) => q.folderID === folderValue
+  );
+  const filteredSummaries = summaries.filter(
     (s) => s.folderID === folderValue
   );
-  const filteredAiChats = aiChatsArr.filter(
+  const filteredAiChats = aiChats.filter(
     (chat) => chat.folderID === folderValue
   );
 
@@ -68,7 +68,7 @@ const SidebarContent = ({ isExpanded }) => {
   return (
     <Box sx={{ width: "100%" }}>
       <List component="nav">
-        <Stack direction="column" spacing={1}>
+        <Stack direction="column" spacing={0.4}>
           {/* Manage Understanding */}
           <SessionItem
             session={{
@@ -89,12 +89,18 @@ const SidebarContent = ({ isExpanded }) => {
             }}
             resourceType="create"
             isActive={false}
-            routePath={`/${folderID}/create`}
+            onClick={() => setIsCreateModalOpen(true)}
             handleMenuOpen={null}
             isExpanded={isExpanded}
           />
 
-          <Divider sx={{ border: 1, borderColor: "background.paper", width: "100%",  }} />
+          <Divider
+            sx={{
+              border: 1,
+              borderColor: "background.paper",
+              width: "100%",
+            }}
+          />
 
           {/* Study Resources */}
           {filteredFlashcards.map((s) => (
@@ -148,6 +154,26 @@ const SidebarContent = ({ isExpanded }) => {
           ))}
         </Stack>
       </List>
+
+      {/* CreateStudyResource Modal */}
+      <Dialog
+        open={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        fullWidth
+        maxWidth="md"
+        sx={{ p: 0 }}
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            p: 2,
+          },
+        }}
+      >
+        <DialogContent sx={{ p: 0 }}>
+          {/* Render your form or any logic here */}
+          <CreateStudyResource onClose={() => setIsCreateModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
 
       {/* Dropdown Menu & Confirmation Dialog */}
       <DropdownMenu

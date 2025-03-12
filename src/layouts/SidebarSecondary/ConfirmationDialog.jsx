@@ -37,6 +37,12 @@ const ConfirmationDialog = ({
     onClose={onClose}
     aria-labelledby="confirm-dialog-title"
     sx={{ textAlign: "center" }}
+    PaperProps={{
+      sx: {
+        borderRadius: "12px",
+        p: 2,
+      },
+    }}
   >
     <DialogTitle id="confirm-dialog-title">
       {type === "delete"

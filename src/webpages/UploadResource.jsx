@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
@@ -15,9 +15,12 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
+import Menu from "@mui/material/Menu";
+// import MenuItem from "@mui/material/MenuItem";
 
 // MUI Icons
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const UploadResource = ({ resourceType }) => {
   const {
@@ -48,24 +51,20 @@ const UploadResource = ({ resourceType }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // For “summary” or “chat” resource types that accept a user prompt
+  // For "summary" or "chat" resource types that accept a user prompt
   const [userMessage, setUserMessage] = useState("");
 
-  // On mount, fetch existing uploads if logged in
-  useEffect(() => {
-    if (isLoggedIn) {
-      fetchUploads().catch((err) =>
-        console.error("Error fetching uploads:", err)
-      );
-    }
-  }, [isLoggedIn, fetchUploads]);
+  // For dropdown menu
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
   // Dropzone setup
-  const { getRootProps, getInputProps, isDragActive, fileRejections } =
+  const { getRootProps, getInputProps, fileRejections } =
     useDropzone({
       onDrop: (acceptedFiles) => {
         if (acceptedFiles && acceptedFiles[0]) {
           setSelectedFile(acceptedFiles[0]);
+          handleAddDocument(acceptedFiles[0]);
         }
       },
       accept: {
@@ -78,19 +77,31 @@ const UploadResource = ({ resourceType }) => {
       maxFiles: 1,
     });
 
-  // Handle uploading a new file to “Uploads” (does NOT generate a resource)
-  const handleAddDocument = async () => {
+  const handleOpenUploadMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseUploadMenu = () => {
+    setAnchorEl(null);
+  };
+
+  // Handle uploading a new file to "Uploads" (does NOT generate a resource)
+  const handleAddDocument = async (fileToUpload = null) => {
     if (!isLoggedIn) {
       showSnackbar("You must be logged in to upload documents.", "error");
       return;
     }
-    if (!selectedFile) {
+    
+    const fileToProcess = fileToUpload || selectedFile;
+    
+    if (!fileToProcess) {
       showSnackbar("Please select a file first.", "warning");
       return;
     }
+    
     try {
       setIsUploading(true);
-      const result = await uploadDocumentTranscript(selectedFile);
+      const result = await uploadDocumentTranscript(fileToProcess);
       if (result?.id) {
         showSnackbar("Document uploaded successfully!", "success");
         // Refresh the uploads so the new file appears in the list
@@ -108,6 +119,7 @@ const UploadResource = ({ resourceType }) => {
       );
     } finally {
       setIsUploading(false);
+      handleCloseUploadMenu();
     }
   };
 
@@ -169,9 +181,48 @@ const UploadResource = ({ resourceType }) => {
   return (
     <>
       <Stack direction="column" spacing={2}>
-        <Typography variant="h5" sx={{ mt: 2 }}>
-          Uploaded Documents
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+          <Typography variant="h5">
+            Uploaded Documents
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={handleOpenUploadMenu}
+            endIcon={<ExpandMoreIcon />}
+            disabled={isUploading}
+          >
+            {isUploading ? <CircularProgress size={24} /> : "Upload File"}
+          </Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleCloseUploadMenu}
+          >
+            <Box
+              {...getRootProps()}
+              sx={{
+                p: 2,
+                width: 300,
+                textAlign: "center",
+                cursor: "pointer",
+              }}
+            >
+              <input {...getInputProps()} />
+              <CloudUploadIcon color="primary" sx={{ fontSize: 48 }} />
+              <Typography>Drag & drop or click to select file</Typography>
+              {fileRejections.length > 0 && (
+                <Typography color="error" variant="caption">
+                  Invalid file type or too many files.
+                </Typography>
+              )}
+              {selectedFile && (
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {selectedFile.name}
+                </Typography>
+              )}
+            </Box>
+          </Menu>
+        </Box>
 
         {/* Scrollable box for existing uploads */}
         <Box
@@ -184,7 +235,7 @@ const UploadResource = ({ resourceType }) => {
           }}
         >
           <Stack direction="row" flexWrap="wrap" gap={1}>
-            {uploads.map((u) => (
+            {uploads.filter((u)=>u.folderID === convertNullFolderID).map((u) => (
               <Box
                 key={u.id}
                 onClick={() => {
@@ -196,8 +247,8 @@ const UploadResource = ({ resourceType }) => {
                   cursor: "pointer",
                   backgroundColor:
                     selectedUploadId === u.id
-                      ? "primary.light"
-                      : "background.paper",
+                      ? "primary.main"
+                      : "grey.300",
                 }}
               >
                 <Typography>{u.fileName}</Typography>
@@ -205,42 +256,6 @@ const UploadResource = ({ resourceType }) => {
             ))}
           </Stack>
         </Box>
-
-        <Divider />
-
-        <Typography variant="h6">Add Document to Uploads</Typography>
-        <Box
-          {...getRootProps()}
-          sx={{
-            p: 3,
-            textAlign: "center",
-            backgroundColor: isDragActive ? "grey.200" : "background.paper",
-            border: "2px dashed",
-            borderColor: isDragActive ? "primary.main" : "grey.400",
-            cursor: "pointer",
-          }}
-        >
-          <input {...getInputProps()} />
-          <CloudUploadIcon color="primary" sx={{ fontSize: 48 }} />
-          {selectedFile ? (
-            <Typography>{selectedFile.name}</Typography>
-          ) : (
-            <Typography>Drag &amp; drop or click to select file</Typography>
-          )}
-        </Box>
-        {fileRejections.length > 0 && (
-          <Typography color="error">
-            Invalid file type or too many files.
-          </Typography>
-        )}
-
-        <Button
-          variant="contained"
-          onClick={handleAddDocument}
-          disabled={isUploading || !selectedFile}
-        >
-          {isUploading ? <CircularProgress size={24} /> : "Add to Uploads"}
-        </Button>
 
         {(resourceType === "chat" || resourceType === "summary") && (
           <TextField

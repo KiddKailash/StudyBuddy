@@ -1,260 +1,280 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
+import { SnackbarContext } from "../contexts/SnackbarContext";
+import { useTranslation } from "react-i18next";
 
 // Local Imports
-import UploadResource from "./UploadResource";
-
-// Contexts
-import { UserContext } from "../contexts/UserContext";
+import PageWrapper from "../components/PageWrapper";
 
 // MUI
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid2";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
+import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
-import Stack from "@mui/material/Stack";
-import Container from "@mui/material/Container";
-import { useTheme } from "@mui/material/styles";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 
-// MUI Icons
-import CheckBoxRoundedIcon from "@mui/icons-material/CheckBoxRounded";
-import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded";
-import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
-import NotesRoundedIcon from "@mui/icons-material/NotesRounded";
-import ChatIcon from "@mui/icons-material/Chat";
-import RestoreRoundedIcon from "@mui/icons-material/RestoreRounded";
-import AddRoundedIcon from "@mui/icons-material/AddRounded";
-
-const CreateStudyResource = () => {
-  const navigate = useNavigate();
-
-  const theme = useTheme();
-  const [open, setOpen] = useState(false);
-  const [selectedResourceType, setSelectedResourceType] = useState(null);
-
+const SettingsPage = () => {
   const {
-    flashcardSessions = [],
-    multipleChoiceQuizzes = [],
-    summaries = [],
-    aiChats = [],
+    user,
+    setUser,
+    updateAccountInfo,
+    changePassword,
+    cancelSubscription,
   } = useContext(UserContext);
+  const { showSnackbar } = useContext(SnackbarContext);
+  const { t } = useTranslation();
 
-  // Helper function: for each resource, use updatedDate if it exists; otherwise, fallback to createdAt.
-  const getResourceTimestamp = (resource) =>
-    resource.updatedDate
-      ? new Date(resource.updatedDate)
-      : new Date(resource.createdAt);
+  // State for Account Information
+  const [firstName, setFirstName] = useState(user?.firstName || "");
+  const [lastName, setLastName] = useState(user?.lastName || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [company, setCompany] = useState(user?.company || "");
 
-  // Fallback arrays
-  const flashcardsArr = flashcardSessions || [];
-  const mcqArr = multipleChoiceQuizzes || [];
-  const summariesArr = summaries || [];
-  const aiChatsArr = aiChats || [];
+  // State for Password Change
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Combine all the resources with their type added.
-  const allResources = [
-    ...flashcardsArr.map((item) => ({ ...item, resourceType: "flashcards" })),
-    ...mcqArr.map((item) => ({ ...item, resourceType: "mcq" })),
-    ...summariesArr.map((item) => ({ ...item, resourceType: "summary" })),
-    ...aiChatsArr.map((item) => ({ ...item, resourceType: "chat" })),
-  ];
+  // Individual Loading States for each update
+  const [accountLoading, setAccountLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [preferencesLoading, setPreferencesLoading] = useState(false);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
 
-  // Sort resources by the most recent timestamp (updatedDate when available, or createdAt otherwise)
-  const sortedResources = allResources.sort(
-    (a, b) => getResourceTimestamp(b) - getResourceTimestamp(a)
-  );
+  // Dialog State for Cancel Subscription Confirmation
+  const [openDialog, setOpenDialog] = useState(false);
 
-  // Grab the top three most recent resources.
-  const mostRecentResources = sortedResources.slice(0, 3);
-
-  const cardStyle = {
-    bgcolor: theme.palette.background.default,
-    borderRadius: 2,
-    p: 2,
-    textAlign: "left",
-    cursor: "pointer",
-    minHeight: 120,
-    flex: 1,
-    "&:hover": {
-      color: theme.palette.primary.main,
-    },
+  /**
+   * Handles account information submission.
+   */
+  const handleAccountInfoSubmit = async (e) => {
+    e.preventDefault();
+    setAccountLoading(true);
+    const payload = { firstName, lastName, email, company };
+    try {
+      const updatedUser = await updateAccountInfo(payload);
+      setUser(updatedUser);
+      showSnackbar(t("account_info_updated_success"), "success");
+    } catch (err) {
+      console.error("Error updating account information:", err);
+      showSnackbar(
+        err.response?.data?.error || t("failed_to_update_account_info"),
+        "error"
+      );
+    } finally {
+      setAccountLoading(false);
+    }
   };
 
-  const handleOpenDialog = (resourceType) => {
-    setSelectedResourceType(resourceType);
-    setOpen(true);
+  /**
+   * Handles password change submission.
+   */
+  const handlePasswordChangeSubmit = async (e) => {
+    e.preventDefault();
+    setPasswordLoading(true);
+    if (newPassword !== confirmPassword) {
+      showSnackbar(t("password_mismatch"), "error");
+      setPasswordLoading(false);
+      return;
+    }
+    const payload = { currentPassword, newPassword };
+    try {
+      await changePassword(payload);
+      showSnackbar(t("password_changed_success"), "success");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      console.error("Error changing password:", err);
+      showSnackbar(
+        err.response?.data?.error || t("failed_to_change_password"),
+        "error"
+      );
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
-  const handleDialogClose = () => {
-    setOpen(false);
-    setSelectedResourceType(null);
+  /**
+   * Handles direct subscription cancellation.
+   */
+  const handleCancelSubscription = async () => {
+    setSubscriptionLoading(true);
+    try {
+      const updatedUser = await cancelSubscription();
+      setUser(updatedUser);
+      showSnackbar(t("subscription_canceled_successfully"), "success");
+    } catch (err) {
+      console.error("Error canceling subscription:", err);
+      showSnackbar(
+        err.response?.data?.error || t("failed_to_cancel_subscription"),
+        "error"
+      );
+    } finally {
+      setSubscriptionLoading(false);
+      setOpenDialog(false);
+    }
   };
 
   return (
-    <Container maxWidth="lg" sx={{m:4}}>
-      <Stack direction="column" spacing={4} sx={{ mt: 2 }}>
-        <Typography variant="h3">What are you studying?</Typography>
-        <Box>
-          <Typography
-            variant="body2"
-            color="text.secondary.dark"
-            sx={{
-              fontWeight: 600,
-              ml: 2,
-              mb: 1,
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <RestoreRoundedIcon sx={{ mr: 1 }}/> Recent Study Resources
+    <PageWrapper>
+      {/* Account Information Form */}
+      <Typography variant="h4" gutterBottom>
+        {t("account_settings")}
+      </Typography>
+      <Box component="form" onSubmit={handleAccountInfoSubmit} sx={{ mb: 2 }}>
+        <Typography variant="h6" gutterBottom>
+          {t("account_information")}
+        </Typography>
+        <TextField
+          label={t("first_name")}
+          variant="outlined"
+          fullWidth
+          sx={{ mb: 2 }}
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          required
+        />
+        <TextField
+          label={t("last_name")}
+          variant="outlined"
+          fullWidth
+          sx={{ mb: 2 }}
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          required
+        />
+        <TextField
+          label={t("email")}
+          type="email"
+          variant="outlined"
+          fullWidth
+          sx={{ mb: 2 }}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <TextField
+          label={t("company")}
+          variant="outlined"
+          fullWidth
+          sx={{ mb: 2 }}
+          value={company}
+          onChange={(e) => setCompany(e.target.value)}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          disabled={accountLoading}
+        >
+          {accountLoading ? t("updating") : t("update_account_information")}
+        </Button>
+      </Box>
+
+      {/* Password Change Form */}
+      <Box
+        component="form"
+        onSubmit={handlePasswordChangeSubmit}
+        sx={{ mb: 2 }}
+      >
+        <Typography variant="h6" gutterBottom>
+          {t("change_password")}
+        </Typography>
+        <TextField
+          label={t("current_password")}
+          type="password"
+          variant="outlined"
+          fullWidth
+          sx={{ mb: 2 }}
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          required
+        />
+        <TextField
+          label={t("new_password")}
+          type="password"
+          variant="outlined"
+          fullWidth
+          sx={{ mb: 2 }}
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          required
+        />
+        <TextField
+          label={t("confirm_new_password")}
+          type="password"
+          variant="outlined"
+          fullWidth
+          sx={{ mb: 2 }}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          disabled={passwordLoading}
+        >
+          {passwordLoading ? t("changing_password") : t("change_password")}
+        </Button>
+      </Box>
+
+      {/* Subscription Management Section */}
+      {user?.accountType === "paid" && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            {t("subscription_management")}
           </Typography>
-          <Box
-            sx={{
-              bgcolor: theme.palette.background.paper,
-              p: 4,
-              borderRadius: 4,
+          <Button variant="contained" onClick={() => setOpenDialog(true)}>
+            {t("cancel_subscription")}
+          </Button>
+
+          {/* Confirmation Dialog */}
+          <Dialog
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+            sx={{ textAlign: "center" }}
+            PaperProps={{
+              sx: {
+                borderRadius: "12px",
+                p: 2,
+              },
             }}
           >
-            <Stack direction="row" spacing={2}>
-              {mostRecentResources.map((resource) => (
-                <Box
-                  key={resource.id}
-                  sx={cardStyle}
-                  onClick={() =>
-                    navigate(
-                      `/${resource.folderID}/${resource.resourceType}/${resource.id}`
-                    )
-                  }
-                >
-                 <RestoreRoundedIcon />
-                  <Typography variant="subtitle1">{resource.studySession}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {resource.resourceType.toUpperCase()}
-                  </Typography>
-                </Box>
-              ))}
-            </Stack>
-            {/* e.g. show recently generated resources */}
-          </Box>
+            <DialogTitle sx={{ pb: 1 }}>
+              {t("confirm_cancel_subscription")}
+            </DialogTitle>
+            <DialogContent sx={{ pb: 1 }}>
+              <DialogContentText>
+                {t("cancel_subscription_warning")}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions sx={{ justifyContent: "center" }}>
+              <Button onClick={() => setOpenDialog(false)} color="primary">
+                {t("cancel")}
+              </Button>
+              <Button
+                variant="text"
+                color="error"
+                onClick={handleCancelSubscription}
+                disabled={subscriptionLoading}
+              >
+                {subscriptionLoading
+                  ? t("cancelling_subscription")
+                  : t("confirm_cancel")}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
-
-        <Box>
-          <Typography
-            variant="body2"
-            color="text.secondary.dark"
-            sx={{
-              fontWeight: 600,
-              ml: 2,
-              mb: 1,
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <AddRoundedIcon sx={{ mr: 1 }} />
-            New Study Resource
-          </Typography>
-
-          <Box
-            sx={{
-              bgcolor: theme.palette.background.paper,
-              p: 4,
-              borderRadius: 4,
-            }}
-          >
-            {/* Studying section */}
-            <Typography variant="body2" sx={{ fontWeight: 700, mb: 1 }}>
-              Studying
-            </Typography>
-            <Grid container spacing={2} mb={4}>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Box sx={cardStyle} onClick={() => handleOpenDialog("mcq")}>
-                  <CheckBoxRoundedIcon />
-                  <Typography variant="subtitle1">
-                    Practice quiz (MCQ)
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Test your knowledge
-                  </Typography>
-                </Box>
-              </Grid>
-
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Box
-                  sx={cardStyle}
-                  onClick={() => handleOpenDialog("flashcards")}
-                >
-                  <ViewCarouselRoundedIcon />
-                  <Typography variant="subtitle1">Flashcards</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Bite-sized studying
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Box sx={cardStyle} onClick={() => handleOpenDialog("summary")}>
-                  <AutoStoriesRoundedIcon />
-                  <Typography variant="subtitle1">Summarise</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Read any document in seconds
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
-
-            {/* Homework section */}
-            <Typography variant="body2" sx={{ fontWeight: 700, mb: 1 }}>
-              Homework
-            </Typography>
-            <Grid container spacing={2} mb={4}>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Box sx={cardStyle}>
-                  <NotesRoundedIcon />
-                  <Typography variant="subtitle1">Proofread</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Improve your writing
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Box sx={cardStyle} onClick={() => handleOpenDialog("chat")}>
-                  <ChatIcon />
-                  <Typography variant="subtitle1">AI Chat</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Ask questions about your document
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Stack>
-
-      {/* ------------- DIALOG ------------- */}
-      <Dialog open={open} onClose={handleDialogClose} maxWidth="sm" fullWidth>
-        <Box sx={{ p: 2 }}>
-          <DialogTitle variant="h6" sx={{ fontWeight: 600 }}>
-            Create a {selectedResourceType}
-          </DialogTitle>
-          <DialogContent>
-            {selectedResourceType && (
-              <UploadResource resourceType={selectedResourceType} />
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDialogClose} color="error">
-              Cancel
-            </Button>
-          </DialogActions>
-        </Box>
-      </Dialog>
-    </Container>
+      )}
+    </PageWrapper>
   );
 };
 
-export default CreateStudyResource;
+export default SettingsPage;
