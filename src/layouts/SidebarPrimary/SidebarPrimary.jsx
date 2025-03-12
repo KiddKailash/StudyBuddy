@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 // Local Imports
 import { UserContext } from "../../contexts/UserContext";
@@ -19,7 +19,6 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import Divider from "@mui/material/Divider";
 
 // MUI Icons
 import FolderIcon from "@mui/icons-material/Folder";
@@ -46,6 +45,7 @@ const activeLine = {
 };
 
 const SidebarPrimary = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const { folderID } = useParams();
   const { user, folders, createFolder, fetchFolders } = useContext(UserContext);
@@ -54,6 +54,7 @@ const SidebarPrimary = () => {
   const [folderName, setFolderName] = useState("");
 
   const isPaidUser = user?.accountType === "paid";
+  const isHomePage = location.pathname === "/";
 
   // Folder creation handlers
   const handleOpenFolderDialog = () => setOpenFolderDialog(true);
@@ -74,7 +75,7 @@ const SidebarPrimary = () => {
         direction="column"
         alignItems="center"
         spacing={1}
-        sx={{ height: "100%", pt: 2 }}
+        sx={{ height: "100%", pt: 2, overflowY: "scroll" }}
       >
         {/* 1) “Go Pro” button (if user not paid) */}
         {user && <GoPro isPaidUser={isPaidUser} />}
@@ -86,7 +87,7 @@ const SidebarPrimary = () => {
             onClick={() => navigate("/")}
             sx={{
               borderRadius: 2,
-              ...(folderID === undefined && activeLine),
+              ...(isHomePage && activeLine),
               "&:hover": {
                 color: "primary.main",
               },
@@ -166,7 +167,7 @@ const SidebarPrimary = () => {
         </Tooltip>
 
         {/* 9) Bottom Spacing */}
-        <Box sx={{ height: 75 }} />
+        <Box sx={{ pb: 10 }} />
 
         {/* 10) Avatar / Account Menu */}
         <AvatarMenu />

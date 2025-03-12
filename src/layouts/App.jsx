@@ -58,6 +58,7 @@ function App() {
   // Distinguish public vs. protected
   const publicPaths = [
     "/",
+    "/create",
     "/login",
     "/landing-page",
     "/terms",

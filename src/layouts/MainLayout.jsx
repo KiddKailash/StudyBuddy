@@ -23,6 +23,7 @@ const MainLayout = () => {
     location.pathname === "/terms" || location.pathname === "/privacy";
   const noActiveFolder =
     location.pathname === "/" || location.pathname === "/create";
+  const isSettings = location.pathname === "/settings";
 
   return (
     <Box
@@ -61,7 +62,8 @@ const MainLayout = () => {
         {!isLoginPage &&
           !isLandingPage &&
           !isTOSorPrivacy &&
-          !noActiveFolder && <SidebarSecondary />}
+          !noActiveFolder &&
+          !isSettings && <SidebarSecondary />}
 
         {/* MAIN CONTENT AREA */}
         <Box
