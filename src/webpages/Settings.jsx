@@ -1,8 +1,6 @@
 import React, { useState, useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 import { SnackbarContext } from "../contexts/SnackbarContext";
-
-// Context(s)
 import { useTranslation } from "react-i18next";
 
 // Local Imports
@@ -18,8 +16,6 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
-
-
 
 const SettingsPage = () => {
   const {
@@ -245,6 +241,12 @@ const SettingsPage = () => {
             open={openDialog}
             onClose={() => setOpenDialog(false)}
             sx={{ textAlign: "center" }}
+            PaperProps={{
+              sx: {
+                borderRadius: "12px",
+                p: 2,
+              },
+            }}
           >
             <DialogTitle sx={{ pb: 1 }}>
               {t("confirm_cancel_subscription")}
