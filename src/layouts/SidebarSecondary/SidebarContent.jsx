@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useParams, useLocation } from "react-router-dom";
 
@@ -16,7 +16,6 @@ import ListItem from "@mui/material/ListItem";
 import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
-// Dialog Components
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 
@@ -29,7 +28,6 @@ const SidebarContent = ({ isExpanded }) => {
 
   // Retrieve arrays safely from context
   const {
-    folders = [],
     flashcardSessions = [],
     multipleChoiceQuizzes = [],
     summaries = [],
@@ -39,20 +37,48 @@ const SidebarContent = ({ isExpanded }) => {
   // State for controlling the CreateStudyResource modal
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  const folderValue = folderID === "null" ? null : folderID;
+  // Local states to store the filtered resources
+  const [filteredFlashcards, setFilteredFlashcards] = useState([]);
+  const [filteredMcqs, setFilteredMcqs] = useState([]);
+  const [filteredSummaries, setFilteredSummaries] = useState([]);
+  const [filteredAiChats, setFilteredAiChats] = useState([]);
 
-  const filteredFlashcards = flashcardSessions.filter(
-    (s) => s.folderID === folderValue
-  );
-  const filteredMcqs = multipleChoiceQuizzes.filter(
-    (q) => q.folderID === folderValue
-  );
-  const filteredSummaries = summaries.filter(
-    (s) => s.folderID === folderValue
-  );
-  const filteredAiChats = aiChats.filter(
-    (chat) => chat.folderID === folderValue
-  );
+  // Track the active path in state instead of using location.pathname directly
+  const [activePath, setActivePath] = useState(location.pathname);
+
+  // Wrap the filtering logic AND the location update in a useEffect
+  useEffect(() => {
+    // 2) Convert "null" folderID to actual null
+    const folderValue = folderID === "null" ? null : folderID;
+
+    // 3) Filter the resources
+    setFilteredFlashcards(
+      flashcardSessions.filter(
+        (s) => String(s.folderID) === String(folderValue)
+      )
+    );
+    setFilteredMcqs(
+      multipleChoiceQuizzes.filter(
+        (q) => String(q.folderID) === String(folderValue)
+      )
+    );
+    setFilteredSummaries(
+      summaries.filter((s) => String(s.folderID) === String(folderValue))
+    );
+    setFilteredAiChats(
+      aiChats.filter((chat) => String(chat.folderID) === String(folderValue))
+    );
+
+    // 4) Update the active path
+    setActivePath(location.pathname);
+  }, [
+    folderID,
+    location.pathname,
+    flashcardSessions,
+    multipleChoiceQuizzes,
+    summaries,
+    aiChats,
+  ]);
 
   // Guard: show loader if resources aren’t loaded yet
   if (!flashcardSessions || !multipleChoiceQuizzes || !summaries || !aiChats) {
@@ -108,7 +134,7 @@ const SidebarContent = ({ isExpanded }) => {
               key={s.id}
               session={s}
               resourceType="flashcard"
-              isActive={location.pathname === `/${folderID}/flashcards/${s.id}`}
+              isActive={activePath === `/${folderID}/flashcards/${s.id}`}
               routePath={`/${folderID}/flashcards/${s.id}`}
               handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
@@ -120,7 +146,7 @@ const SidebarContent = ({ isExpanded }) => {
               key={q.id}
               session={q}
               resourceType="quiz"
-              isActive={location.pathname === `/${folderID}/mcq/${q.id}`}
+              isActive={activePath === `/${folderID}/mcq/${q.id}`}
               routePath={`/${folderID}/mcq/${q.id}`}
               handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
@@ -132,9 +158,7 @@ const SidebarContent = ({ isExpanded }) => {
               key={summary.id}
               session={summary}
               resourceType="summary"
-              isActive={
-                location.pathname === `/${folderID}/summary/${summary.id}`
-              }
+              isActive={activePath === `/${folderID}/summary/${summary.id}`}
               routePath={`/${folderID}/summary/${summary.id}`}
               handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
@@ -146,7 +170,7 @@ const SidebarContent = ({ isExpanded }) => {
               key={chat.id}
               session={chat}
               resourceType="chat"
-              isActive={location.pathname === `/${folderID}/chat/${chat.id}`}
+              isActive={activePath === `/${folderID}/chat/${chat.id}`}
               routePath={`/${folderID}/chat/${chat.id}`}
               handleMenuOpen={handleMenuOpen}
               isExpanded={isExpanded}
