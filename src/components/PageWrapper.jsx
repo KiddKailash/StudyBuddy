@@ -4,14 +4,15 @@ import PropTypes from "prop-types";
 // MUI
 import Box from "@mui/material/Box";
 
-const PageWrapper = ({ children }) => (
-  <Box maxWidth="md" sx={{ mx: "auto", p: 3.5, width: '100%', textAlign: "left" }}>
+const PageWrapper = ({ width = "md", children }) => (
+  <Box maxWidth={width} sx={{ mx: "auto", p: 3.5, width: '100%', textAlign: "left" }}>
     {children}
   </Box>
 );
 
 PageWrapper.propTypes = {
-    children: PropTypes.node.isRequired,
+  width: PropTypes.string,
+  children: PropTypes.node.isRequired,
 };
 
 export default PageWrapper;
