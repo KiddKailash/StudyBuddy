@@ -45,7 +45,6 @@ const GoProModal = ({ open, onClose }) => {
       PaperProps={{
         sx: {
           borderRadius: "12px",
-          p: 2,
         },
       }}
     >
