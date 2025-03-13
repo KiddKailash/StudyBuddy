@@ -8,6 +8,7 @@ import { UserContext } from "../contexts/UserContext";
 // Components
 import ReviewCard from "../components/ReviewCard";
 import MenuBar from "../components/MenuBar/MenuBar";
+import PageWrapper from "../components/PageWrapper";
 
 // Assets
 import HeroImage from "/assets/branded-images/student.svg";
@@ -72,7 +73,7 @@ const LandingPage = () => {
   const reviews = t("reviews", { returnObjects: true });
 
   return (
-    <Box sx={{width: "100%", mx: 'auto'}}>
+    <PageWrapper width="lg">
       {/* Hero Section */}
       <Container maxWidth="lg">
         <MenuBar />
@@ -152,7 +153,8 @@ const LandingPage = () => {
         maxWidth="md"
         sx={{
           borderRadius: 2,
-          margin: "auto",
+          my: 6,
+          mx: "auto",
           boxShadow: 20,
           width: "100%",
           overflow: "hidden",
@@ -171,7 +173,17 @@ const LandingPage = () => {
       </Box>
 
       {/* Anywhere, Anytime, from Anything */}
-      <Container maxWidth="lg" sx={{ p: 4, borderRadius: 2 }}>
+      <Container
+        maxWidth="lg"
+        sx={{
+          p: 4,
+          borderRadius: 2,
+          bgcolor: "background.paper",
+          alignItems: "center",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <Typography variant="h6" color="primary.main">
           {t("section.reviseTitle")}
         </Typography>
@@ -182,7 +194,7 @@ const LandingPage = () => {
         <Stack
           direction={{ xs: "column", sm: "row" }}
           spacing={4}
-          sx={{ mt: 4 }}
+          sx={{ my: 2 }}
         >
           {/* Feature 1: Create Q&A Flashcards */}
           <Box
@@ -270,7 +282,7 @@ const LandingPage = () => {
           </Masonry>
         </Container>
       </Box>
-    </Box>
+    </PageWrapper>
   );
 };
 
