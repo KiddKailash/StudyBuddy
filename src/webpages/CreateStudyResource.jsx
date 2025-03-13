@@ -16,7 +16,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import Button from "@mui/material/Button";
-import DialogTitle from "@mui/material/DialogTitle";
 import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material/styles";
 
@@ -99,53 +98,55 @@ const CreateStudyResource = () => {
     <PageWrapper>
       <Stack direction="column" spacing={4} sx={{ mt: 2 }}>
         <Typography variant="h3">What are you studying?</Typography>
-        <Box>
-          <Typography
-            variant="body2"
-            color="text.secondary.dark"
-            sx={{
-              fontWeight: 600,
-              ml: 2,
-              mb: 1,
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <RestoreRoundedIcon sx={{ mr: 1 }} />
-            Recent Study Resources
-          </Typography>
-          <Box
-            sx={{
-              bgcolor: theme.palette.background.paper,
-              p: 4,
-              borderRadius: 4,
-            }}
-          >
-            <Stack direction="row" spacing={2}>
-              {mostRecentResources.map((resource) => (
-                <Box
-                  key={resource.id}
-                  sx={cardStyle}
-                  onClick={() =>
-                    navigate(
-                      `/${resource.folderID}/${resource.resourceType}/${resource.id}`
-                    )
-                  }
-                >
-                  <RestoreRoundedIcon />
-                  <Typography variant="subtitle1">
-                    {resource.studySession}
-                  </Typography>
-                  <div style={{ flexGrow: 1 }} />
-                  <Typography variant="body2" color="text.secondary">
-                    {resource.resourceType.toUpperCase()}
-                  </Typography>
-                </Box>
-              ))}
-            </Stack>
+        {allResources.length > 0 && (
+          <Box>
+            <Typography
+              variant="body2"
+              color="text.secondary.dark"
+              sx={{
+                fontWeight: 600,
+                ml: 2,
+                mb: 1,
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <RestoreRoundedIcon sx={{ mr: 1 }} />
+              Recent Study Resources
+            </Typography>
+            <Box
+              sx={{
+                bgcolor: theme.palette.background.paper,
+                p: 4,
+                borderRadius: 4,
+              }}
+            >
+              <Stack direction="row" spacing={2}>
+                {mostRecentResources.map((resource) => (
+                  <Box
+                    key={resource.id}
+                    sx={cardStyle}
+                    onClick={() =>
+                      navigate(
+                        `/${resource.folderID}/${resource.resourceType}/${resource.id}`
+                      )
+                    }
+                  >
+                    <RestoreRoundedIcon />
+                    <Typography variant="subtitle1">
+                      {resource.studySession}
+                    </Typography>
+                    <div style={{ flexGrow: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      {resource.resourceType.toUpperCase()}
+                    </Typography>
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
           </Box>
-        </Box>
+        )}
 
         <Box>
           <Typography
@@ -253,9 +254,6 @@ const CreateStudyResource = () => {
         }}
       >
         <Box sx={{ p: 2 }}>
-          <DialogTitle variant="h6" sx={{ fontWeight: 600 }}>
-            Create a {selectedResourceType}
-          </DialogTitle>
           <DialogContent>
             {selectedResourceType && (
               <UploadResource resourceType={selectedResourceType} />
