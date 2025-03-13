@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
@@ -16,7 +16,6 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Menu from "@mui/material/Menu";
-// import MenuItem from "@mui/material/MenuItem";
 
 // MUI Icons
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -32,11 +31,16 @@ const UploadResource = ({ resourceType }) => {
     createSummary,
     createChat,
     createFlashcardsFromUpload,
+    setFlashcardSessions,
+    setAiChats,
+    setSummaries,
+    setMultipleChoiceQuizzes,
   } = useContext(UserContext);
 
   const { folderID } = useParams();
   const { showSnackbar } = useContext(SnackbarContext);
 
+  // If folderID is "null", treat it as null in the DB.
   const convertNullFolderID = folderID === "null" ? null : folderID;
 
   const navigate = useNavigate();
@@ -44,7 +48,7 @@ const UploadResource = ({ resourceType }) => {
   // Current selected upload ID from the existing uploads list
   const [selectedUploadId, setSelectedUploadId] = useState("");
 
-  // For managing dropzone selected file
+  // For managing the selected file before actually uploading
   const [selectedFile, setSelectedFile] = useState(null);
 
   // Track loading states
@@ -59,50 +63,56 @@ const UploadResource = ({ resourceType }) => {
   const open = Boolean(anchorEl);
 
   // Dropzone setup
-  const { getRootProps, getInputProps, fileRejections } =
-    useDropzone({
-      onDrop: (acceptedFiles) => {
-        if (acceptedFiles && acceptedFiles[0]) {
-          setSelectedFile(acceptedFiles[0]);
-          handleAddDocument(acceptedFiles[0]);
-        }
-      },
-      accept: {
-        "application/pdf": [".pdf"],
-        "application/msword": [".doc"],
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-          [".docx"],
-        "text/plain": [".txt"],
-      },
-      maxFiles: 1,
-    });
+  const onDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      setSelectedFile(acceptedFiles[0]);
+    }
+  }, []);
+
+  const {
+    getRootProps,
+    getInputProps,
+    fileRejections,
+    isDragActive,
+    acceptedFiles,
+  } = useDropzone({
+    onDrop,
+    accept: {
+      "application/pdf": [".pdf"],
+      "application/msword": [".doc"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
+      "text/plain": [".txt"],
+    },
+    maxFiles: 1,
+  });
 
   const handleOpenUploadMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
   const handleCloseUploadMenu = () => {
+    // Clear out any selected file if user closes menu without confirming
+    setSelectedFile(null);
     setAnchorEl(null);
   };
 
-  // Handle uploading a new file to "Uploads" (does NOT generate a resource)
-  const handleAddDocument = async (fileToUpload = null) => {
+  // Actually upload the file to "Uploads" (does NOT generate a resource)
+  const handleAddDocument = async () => {
     if (!isLoggedIn) {
       showSnackbar("You must be logged in to upload documents.", "error");
       return;
     }
-    
-    const fileToProcess = fileToUpload || selectedFile;
-    
-    if (!fileToProcess) {
-      showSnackbar("Please select a file first.", "warning");
+
+    if (!selectedFile) {
+      showSnackbar("No file selected to upload.", "warning");
       return;
     }
-    
+
     try {
       setIsUploading(true);
-      const result = await uploadDocumentTranscript(fileToProcess);
-      if (result?.id) {
+      const result = await uploadDocumentTranscript(selectedFile);
+      if (result?.id || result?.transcript) {
         showSnackbar("Document uploaded successfully!", "success");
         // Refresh the uploads so the new file appears in the list
         fetchUploads();
@@ -119,6 +129,7 @@ const UploadResource = ({ resourceType }) => {
       );
     } finally {
       setIsUploading(false);
+      // Close menu after upload
       handleCloseUploadMenu();
     }
   };
@@ -139,25 +150,41 @@ const UploadResource = ({ resourceType }) => {
       switch (resourceType) {
         case "mcq": {
           const quiz = await createQuiz(selectedUploadId, convertNullFolderID);
-          navigate(`/${quiz.folderID}/mcq/${quiz.id}`);
+          setMultipleChoiceQuizzes((prev) => [...prev, quiz]);
+          showSnackbar("Quiz created!", "success");
+          navigate(`/${quiz.folderID ?? "null"}/mcq/${quiz.id}`);
           break;
         }
         case "flashcards": {
-          const newSession = await createFlashcardsFromUpload(selectedUploadId, convertNullFolderID);
+          const newSession = await createFlashcardsFromUpload(
+            selectedUploadId,
+            convertNullFolderID
+          );
+          setFlashcardSessions((prev) => [...prev, newSession]);
           showSnackbar("Flashcards created!", "success");
-          navigate(`/${newSession.folderID}/flashcards/${newSession.id}`);
+          navigate(`/${newSession.folderID ?? "null"}/flashcards/${newSession.id}`);
           break;
         }
         case "summary": {
-          const sum = await createSummary(selectedUploadId, userMessage, convertNullFolderID);
+          const sum = await createSummary(
+            selectedUploadId,
+            userMessage,
+            convertNullFolderID
+          );
+          setSummaries((prev) => [...prev, sum]);
           showSnackbar("Summary created!", "success");
-          navigate(`/${sum.folderID}/summary/${sum.id}`);
+          navigate(`/${sum.folderID ?? "null"}/summary/${sum.id}`);
           break;
         }
         case "chat": {
-          const chat = await createChat(selectedUploadId, userMessage, convertNullFolderID);
+          const chat = await createChat(
+            selectedUploadId,
+            userMessage,
+            convertNullFolderID
+          );
+          setAiChats((prev) => [...prev, chat]);
           showSnackbar("Chat created!", "success");
-          navigate(`/${chat.folderID}/chat/${chat.id}`);
+          navigate(`/${chat.folderID ?? "null"}/chat/${chat.id}`);
           break;
         }
         default:
@@ -170,7 +197,7 @@ const UploadResource = ({ resourceType }) => {
     } catch (err) {
       console.error("Error generating resource:", err);
       showSnackbar(
-        err.response?.data?.error || err.message || "Error generating resource",
+        err?.response?.data?.error || err.message || "Error generating resource",
         "error"
       );
     } finally {
@@ -178,110 +205,149 @@ const UploadResource = ({ resourceType }) => {
     }
   };
 
-  return (
-    <>
-      <Stack direction="column" spacing={2}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-          <Typography variant="h5">
-            Uploaded Documents
-          </Typography>
-          <Button 
-            variant="contained" 
-            onClick={handleOpenUploadMenu}
-            endIcon={<ExpandMoreIcon />}
-            disabled={isUploading}
-          >
-            {isUploading ? <CircularProgress size={24} /> : "Upload File"}
-          </Button>
-          <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleCloseUploadMenu}
-          >
-            <Box
-              {...getRootProps()}
-              sx={{
-                p: 2,
-                width: 300,
-                textAlign: "center",
-                cursor: "pointer",
-              }}
-            >
-              <input {...getInputProps()} />
-              <CloudUploadIcon color="primary" sx={{ fontSize: 48 }} />
-              <Typography>Drag & drop or click to select file</Typography>
-              {fileRejections.length > 0 && (
-                <Typography color="error" variant="caption">
-                  Invalid file type or too many files.
-                </Typography>
-              )}
-              {selectedFile && (
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                  {selectedFile.name}
-                </Typography>
-              )}
-            </Box>
-          </Menu>
-        </Box>
+  // Filter uploads by folderID
+  const filteredUploads = uploads.filter(
+    (u) => u.folderID === convertNullFolderID
+  );
 
-        {/* Scrollable box for existing uploads */}
-        <Box
-          sx={{
-            border: "1px solid #ccc",
-            borderRadius: 1,
-            p: 1,
-            maxHeight: 150,
-            overflowY: "scroll",
-          }}
+  return (
+    <Stack direction="column" spacing={2}>
+      {/* Header and the main "Upload File" button */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mt: 2,
+        }}
+      >
+        <Typography variant="h5">Uploaded Documents</Typography>
+        <Button
+          variant="contained"
+          onClick={handleOpenUploadMenu}
+          endIcon={<ExpandMoreIcon />}
+          disabled={isUploading}
         >
+          {isUploading ? <CircularProgress size={24} /> : "Upload File"}
+        </Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleCloseUploadMenu}
+          keepMounted
+        >
+          <Box
+            {...getRootProps()}
+            sx={{
+              p: 2,
+              width: 300,
+              textAlign: "center",
+              cursor: "pointer",
+              border: "1px dashed",
+              borderColor: isDragActive ? "primary.main" : "grey.400",
+              borderRadius: 2,
+              m: 2,
+            }}
+          >
+            <input {...getInputProps()} />
+            <CloudUploadIcon color="primary" sx={{ fontSize: 48 }} />
+            <Typography>
+              {isDragActive
+                ? "Drop the file here ..."
+                : "Drag & drop or click to select file"}
+            </Typography>
+
+            {fileRejections.length > 0 && (
+              <Typography color="error" variant="caption">
+                Invalid file type or too many files.
+              </Typography>
+            )}
+
+            {selectedFile && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                {selectedFile.name}
+              </Typography>
+            )}
+          </Box>
+
+          {/* Confirm Upload button (only shows if a file is selected) */}
+          {selectedFile && (
+            <Button
+              onClick={handleAddDocument}
+              variant="contained"
+              sx={{ m: 2 }}
+              disabled={isUploading}
+            >
+              {isUploading ? <CircularProgress size={24} /> : "Confirm Upload"}
+            </Button>
+          )}
+        </Menu>
+      </Box>
+
+      {/* Scrollable box or a prompt if no uploads exist */}
+      <Box
+        sx={{
+          border: "1px solid #ccc",
+          borderRadius: 1,
+          p: 1,
+          maxHeight: 150,
+          overflowY: "auto",
+        }}
+      >
+        {filteredUploads.length === 0 ? (
+          <Box sx={{ textAlign: "center", p: 2 }}>
+            <Typography sx={{ mb: 1 }}>
+              No documents have been uploaded yet.
+            </Typography>
+          </Box>
+        ) : (
           <Stack direction="row" flexWrap="wrap" gap={1}>
-            {uploads.filter((u)=>u.folderID === convertNullFolderID).map((u) => (
+            {filteredUploads.map((u) => (
               <Box
                 key={u.id}
                 onClick={() => {
-                  setSelectedUploadId((prev) => (prev === u.id ? "" : u.id));
+                  setSelectedUploadId((prev) =>
+                    prev === u.id ? "" : u.id
+                  );
                 }}
                 sx={{
                   p: 1,
                   borderRadius: 1,
                   cursor: "pointer",
                   backgroundColor:
-                    selectedUploadId === u.id
-                      ? "primary.main"
-                      : "grey.300",
+                    selectedUploadId === u.id ? "primary.main" : "grey.300",
                 }}
               >
                 <Typography>{u.fileName}</Typography>
               </Box>
             ))}
           </Stack>
-        </Box>
-
-        {(resourceType === "chat" || resourceType === "summary") && (
-          <TextField
-            fullWidth
-            value={userMessage}
-            onChange={(e) => setUserMessage(e.target.value)}
-            label="Optional Prompt / Question"
-          />
         )}
+      </Box>
 
-        <Divider />
+      {/* Optional user prompt for summary/chat */}
+      {(resourceType === "chat" || resourceType === "summary") && (
+        <TextField
+          fullWidth
+          value={userMessage}
+          onChange={(e) => setUserMessage(e.target.value)}
+          label="Optional Prompt / Question"
+        />
+      )}
 
-        <Button
-          variant="contained"
-          color="primary"
-          disabled={isGenerating}
-          onClick={handleGenerate}
-        >
-          {isGenerating ? (
-            <CircularProgress size={24} />
-          ) : (
-            `Generate ${resourceType.toUpperCase()}`
-          )}
-        </Button>
-      </Stack>
-    </>
+      <Button
+        variant="contained"
+        color="primary"
+        disabled={isGenerating}
+        onClick={handleGenerate}
+      >
+        {isGenerating ? (
+          <CircularProgress size={24} />
+        ) : (
+          `Generate ${resourceType.toUpperCase()}`
+        )}
+      </Button>
+    </Stack>
   );
 };
 
