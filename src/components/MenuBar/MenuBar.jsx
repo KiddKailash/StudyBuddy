@@ -24,6 +24,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
   const { t } = useTranslation();
 
   const isCheckoutPage = location.pathname.startsWith("/checkout");
+  const isLandingPage = location.pathname === "/landing-page";
 
   const handleLogout = () => {
     logout();
@@ -55,7 +56,7 @@ const MenuBar = ({ handleDrawerToggle }) => {
             display: { xs: "flex", sm: "none" },
           }}
         >
-          {user && <MobileMenu handleDrawerToggle={handleDrawerToggle} />}
+          {!isLandingPage && <MobileMenu handleDrawerToggle={handleDrawerToggle} />}
           <LanguageSwitcherIMG />
           {user && user.accountType !== "paid" && !isCheckoutPage && (
             <UpgradeButton />
