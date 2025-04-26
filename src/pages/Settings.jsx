@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { UserContext } from "../contexts/UserContext";
+import { UserContext } from "../contexts/User";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 import { useTranslation } from "react-i18next";
 

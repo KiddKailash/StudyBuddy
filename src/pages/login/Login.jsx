@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation, Trans } from "react-i18next";
 
 // Contexts
-import { UserContext } from "../../contexts/UserContext";
+import { UserContext } from "../../contexts/User";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
 
 // Local Imports

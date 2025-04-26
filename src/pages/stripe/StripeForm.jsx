@@ -11,7 +11,7 @@ import {
 } from "@stripe/react-stripe-js";
 
 // Contexts
-import UserContext from "../../contexts/UserContext";
+import UserContext from "../../contexts/User";
 
 // MUI Components
 import Box from "@mui/material/Box";

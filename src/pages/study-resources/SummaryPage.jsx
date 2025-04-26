@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 // Contexts
-import { UserContext } from "../../contexts/UserContext";
+import { UserContext } from "../../contexts/User";
 
 // Local Imports
 import PageWrapper from "../../components/PageWrapper";

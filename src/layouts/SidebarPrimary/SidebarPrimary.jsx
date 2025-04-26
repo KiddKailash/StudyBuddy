@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import PropTypes from 'prop-types';
 
 // Local Imports
-import { UserContext } from "../../contexts/UserContext";
+import { UserContext } from "../../contexts/User";
 import RequestFeature from "../../components/RequestFeature/RequestFeature";
 import LanguageSwitcherIMG from "../../components/LanguageSwitcher";
 import AvatarMenu from "./AvatarMenu";

@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 
 // Contexts
 import { SnackbarContext } from "../contexts/SnackbarContext";
-import { UserContext } from "../contexts/UserContext";
+import { UserContext } from "../contexts/User";
 
 // MUI
 import Box from "@mui/material/Box";

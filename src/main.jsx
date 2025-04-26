@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 // Context Providers
 import ThemeProvider from "./contexts/ThemeProvider";
-import { UserProvider } from "./contexts/UserContext";
+import { UserProvider } from "./contexts/User.jsx";
 import { SnackbarProvider } from "./contexts/SnackbarContext.jsx";
 
 // Localization, global styles

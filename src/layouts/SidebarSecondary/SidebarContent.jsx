@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 
 // Contexts
-import { UserContext } from "../../contexts/UserContext";
+import { UserContext } from "../../contexts/User";
 
 // MUI
 import List from "@mui/material/List";
@@ -420,20 +420,7 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
           </IconButton>
         </Tooltip>
         
-        <Tooltip title="Upload Document">
-          <IconButton 
-            size="medium"
-            onClick={handleOpenUploadDialog}
-            sx={{ 
-              borderRadius: 2,
-              "&:hover": {
-                backgroundColor: "action.hover",
-              }
-            }}
-          >
-            <FileUploadRoundedIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+      
       </Stack>
       
       <Divider sx={{ mb: 2 }} />

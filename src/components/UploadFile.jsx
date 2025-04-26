@@ -4,7 +4,7 @@ import { useDropzone } from "react-dropzone";
 import PropTypes from "prop-types";
 
 // Contexts
-import { UserContext } from "../contexts/UserContext";
+import { UserContext } from "../contexts/User";
 import { SnackbarContext } from "../contexts/SnackbarContext";
 
 // MUI

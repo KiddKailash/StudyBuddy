@@ -10,7 +10,7 @@ import BiotechRoundedIcon from "@mui/icons-material/BiotechRounded";
 
 // Contexts
 import { SnackbarContext } from "../../contexts/SnackbarContext";
-import { UserContext } from "../../contexts/UserContext";
+import { UserContext } from "../../contexts/User";
 
 const RequestFeature = () => {
   // Snackbar context for success/error

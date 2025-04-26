@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import PropTypes from 'prop-types';
 
 // Contexts
-import { UserContext } from "../../contexts/UserContext";
+import { UserContext } from "../../contexts/User";
 
 // Local Imports
 import SidebarContent from "./SidebarContent";

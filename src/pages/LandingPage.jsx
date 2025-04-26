@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 // Contexts
 import { useTranslation } from "react-i18next";
-import { UserContext } from "../contexts/UserContext";
+import { UserContext } from "../contexts/User";
 
 // Components
 import ReviewCard from "../components/ReviewCard";
