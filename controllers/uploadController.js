@@ -2,6 +2,8 @@ const multer = require("multer");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const mammoth = require("mammoth");
+const { getDB } = require("../database/db");
+const { ObjectId } = require("mongodb");
 
 /**
  * Configure multer for file uploads.
@@ -79,4 +81,57 @@ exports.uploadFile = (req, res) => {
       res.status(500).json({ error: "Failed to process the file." });
     }
   });
+};
+
+/**
+ * Handles file deletion request.
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+exports.deleteFile = async (req, res) => {
+  const { filename } = req.params;
+  const userId = req.user.id;
+  
+  try {
+    const db = getDB();
+    const uploadsCollection = db.collection("uploads");
+    
+    // Try to interpret the filename parameter as an ObjectId
+    let query;
+    
+    try {
+      // If the filename looks like an ObjectId, use it as ID
+      if (ObjectId.isValid(filename)) {
+        query = { _id: new ObjectId(filename), userId: new ObjectId(userId) };
+      } else {
+        // Otherwise, search by fileName
+        query = { fileName: filename, userId: new ObjectId(userId) };
+      }
+    } catch (error) {
+      // If it's not a valid ObjectId, search by fileName
+      query = { fileName: filename, userId: new ObjectId(userId) };
+    }
+    
+    // Find the upload document
+    const found = await uploadsCollection.findOne(query);
+    
+    if (!found) {
+      return res.status(404).json({ error: "File not found" });
+    }
+    
+    // Delete from database
+    await uploadsCollection.deleteOne({ _id: found._id });
+    
+    // Also delete physical file if it exists
+    const filePath = `uploads/${filename}`;
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    
+    return res.status(200).json({ message: "File deleted successfully" });
+  } catch (error) {
+    console.error("File Deletion Error:", error);
+    return res.status(500).json({ error: "Failed to delete the file" });
+  }
 };

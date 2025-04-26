@@ -25,7 +25,6 @@ const webhookHandler = require("./routes/webhookRoutes");
 const websiteTranscriptRoutes = require("./routes/websiteTranscriptRoutes");
 const foldersRoutes = require("./routes/foldersRoutes");
 // Additional routes
-// const uploadsRoutes = require("./routes/uploadsRoutes"); // File doesn't exist
 const multipleChoiceQuizRoutes = require("./routes/multipleChoiceQuizRoutes");
 const aiChatRoutes = require("./routes/aiChatRoutes");
 const summaryRoutes = require("./routes/summaryRoutes");
@@ -96,14 +95,17 @@ connectDB()
     app.use("/api/flashcards", flashcardsRoutes);
     app.use("/api/checkout", checkoutRoutes);
     app.use("/api/upload", uploadRoutes);
+    app.use("/api/uploads", uploadRoutes);
     app.use("/api/folders", foldersRoutes);
     app.use("/api/users", userRoutes);
     app.use("/api/notion", notionRoutes);
     app.use("/api/feature-request", featureRequestRoutes);
     app.use("/api/website-transcript", websiteTranscriptRoutes);
-    // app.use("/api/uploads", uploadsRoutes); // Comment out as file doesn't exist
+    app.use("/api/multiple-choice-quiz", multipleChoiceQuizRoutes);
     app.use("/api/multiple-choice-quizzes", multipleChoiceQuizRoutes);
+    app.use("/api/aichat", aiChatRoutes);
     app.use("/api/aichats", aiChatRoutes);
+    app.use("/api/summary", summaryRoutes);
     app.use("/api/summaries", summaryRoutes);
 
     // Global error handler
