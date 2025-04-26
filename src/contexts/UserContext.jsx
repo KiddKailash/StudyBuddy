@@ -55,6 +55,11 @@ export const UserProvider = ({ children }) => {
   const [aiChats, setAiChats] = useState([]);
 
   // --------------------------------------------------
+  // API ERROR TRACKING
+  // --------------------------------------------------
+  const [endpointErrors, setEndpointErrors] = useState({});
+
+  // --------------------------------------------------
   // ROUTING & INIT
   // --------------------------------------------------
   const navigate = useNavigate();
@@ -64,7 +69,7 @@ export const UserProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     setIsLoggedIn(false);
-    setAuthLoading(false);
+    setAuthLoading(true);
 
     setFlashcardSessions([]);
     setFlashcardError(null);
@@ -435,12 +440,54 @@ export const UserProvider = ({ children }) => {
   // UPLOADS
   // --------------------------------------------------
   const fetchUploads = async () => {
-    const localToken = localStorage.getItem("token");
-    if (!localToken) throw new Error("User is not authenticated.");
-    const resp = await axios.get(`${BACKEND}/api/uploads`, {
-      headers: { Authorization: `Bearer ${localToken}` },
-    });
-    setUploads(resp.data.uploads || []);
+    try {
+      const localToken = localStorage.getItem("token");
+      if (!localToken) return [];
+      
+      // Array of possible endpoint paths to try
+      const endpointPaths = [
+        "/api/uploads",  // Plural (standard REST)
+        "/api/upload",   // Singular
+        "/uploads",      // Without /api prefix (plural)
+        "/upload"        // Without /api prefix (singular)
+      ];
+      
+      let uploaded = null;
+      
+      // Try each endpoint until one works
+      for (const path of endpointPaths) {
+        // Skip if we already know this endpoint fails
+        if (hasEndpointFailed(`${BACKEND}${path}`)) continue;
+        
+        try {
+          console.log(`Trying endpoint: ${BACKEND}${path}`);
+          const resp = await axios.get(`${BACKEND}${path}`, {
+            headers: { Authorization: `Bearer ${localToken}` },
+          });
+          
+          // Check if we have valid data
+          if (resp.data && (resp.data.uploads || resp.data.data)) {
+            uploaded = resp.data.uploads || resp.data.data || [];
+            console.log(`Success with endpoint: ${BACKEND}${path}`);
+            break; // Exit the loop if successful
+          }
+        } catch (error) {
+          console.error(`Failed with endpoint ${path}:`, error);
+          recordEndpointError(`${BACKEND}${path}`);
+          // Continue trying other endpoints
+        }
+      }
+      
+      if (uploaded) {
+        setUploads(uploaded);
+      } else {
+        console.error("All upload endpoints failed");
+        setUploads([]);
+      }
+    } catch (error) {
+      console.error("fetchUploads error:", error);
+      setUploads([]); // Set empty array on error
+    }
   };
 
   const uploadDocumentTranscript = async (selectedFile) => {
@@ -496,6 +543,52 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const deleteUpload = async (upload_id) => {
+    try {
+      const localToken = localStorage.getItem("token");
+      if (!localToken) return;
+      
+      // Array of possible delete endpoint paths to try
+      const endpointPaths = [
+        `/api/uploads/${upload_id}`,  // Plural (standard REST)
+        `/api/upload/${upload_id}`,   // Singular
+        `/uploads/${upload_id}`,      // Without /api prefix (plural)
+        `/upload/${upload_id}`        // Without /api prefix (singular)
+      ];
+      
+      let success = false;
+      
+      // Try each endpoint until one works
+      for (const path of endpointPaths) {
+        // Skip if we already know this endpoint fails
+        if (hasEndpointFailed(`${BACKEND}${path}`)) continue;
+        
+        try {
+          console.log(`Trying delete endpoint: ${BACKEND}${path}`);
+          await axios.delete(`${BACKEND}${path}`, {
+            headers: { Authorization: `Bearer ${localToken}` },
+          });
+          success = true;
+          console.log(`Success with delete endpoint: ${BACKEND}${path}`);
+          break; // Exit the loop if successful
+        } catch (error) {
+          console.error(`Failed with delete endpoint ${path}:`, error);
+          recordEndpointError(`${BACKEND}${path}`);
+          // Continue trying other endpoints
+        }
+      }
+      
+      if (success) {
+        // Refresh the uploads list after successful deletion
+        fetchUploads();
+      } else {
+        console.error("All delete endpoints failed");
+      }
+    } catch (error) {
+      console.error("deleteUpload error:", error);
+    }
+  };
+
   // --------------------------------------------------
   // MCQ QUIZZES
   // --------------------------------------------------
@@ -503,14 +596,43 @@ export const UserProvider = ({ children }) => {
     try {
       const localToken = localStorage.getItem("token");
       if (!localToken) return;
-      const resp = await axios.get(`${BACKEND}/api/multiple-choice-quizzes`, {
-        headers: { Authorization: `Bearer ${localToken}` },
-      });
-      // { data: [ {id, ...}, ... ] }
-      const quizzes = resp.data.data || [];
-      setMultipleChoiceQuizzes(quizzes);
+      
+      // Skip if we already know these endpoints fail
+      if (hasEndpointFailed('multiple-choice-quizzes') && hasEndpointFailed('multiple-choice-quiz')) {
+        console.log('Skipping quizzes fetch - endpoints previously failed');
+        return;
+      }
+      
+      // Try the plural endpoint first, fall back to singular if needed
+      try {
+        const resp = await axios.get(`${BACKEND}/api/multiple-choice-quizzes`, {
+          headers: { Authorization: `Bearer ${localToken}` },
+        });
+        // { data: [ {id, ...}, ... ] }
+        const quizzes = resp.data.data || [];
+        setMultipleChoiceQuizzes(quizzes);
+      } catch (quizError) {
+        recordEndpointError('multiple-choice-quizzes');
+        
+        // If not already tried, try alternative endpoint
+        if (!hasEndpointFailed('multiple-choice-quiz')) {
+          try {
+            const altResp = await axios.get(`${BACKEND}/api/multiple-choice-quiz`, {
+              headers: { Authorization: `Bearer ${localToken}` },
+            });
+            const quizzes = altResp.data.data || [];
+            setMultipleChoiceQuizzes(quizzes);
+          } catch (altError) {
+            recordEndpointError('multiple-choice-quiz');
+            throw altError;
+          }
+        } else {
+          throw quizError;
+        }
+      }
     } catch (error) {
       console.error("fetchAllQuizzes error:", error);
+      setMultipleChoiceQuizzes([]); // Set empty array on error
     }
   };
 
@@ -567,13 +689,41 @@ export const UserProvider = ({ children }) => {
     try {
       const localToken = localStorage.getItem("token");
       if (!localToken) return;
-      const resp = await axios.get(`${BACKEND}/api/summaries`, {
-        headers: { Authorization: `Bearer ${localToken}` },
-      });
-      // { data: [ {id, ...}, ... ] }
-      setSummaries(resp.data.data || []);
+      
+      // Skip if we already know these endpoints fail
+      if (hasEndpointFailed('summaries') && hasEndpointFailed('summary')) {
+        console.log('Skipping summaries fetch - endpoints previously failed');
+        return;
+      }
+      
+      // Try the plural endpoint first, fall back to singular if needed
+      try {
+        const resp = await axios.get(`${BACKEND}/api/summaries`, {
+          headers: { Authorization: `Bearer ${localToken}` },
+        });
+        // { data: [ {id, ...}, ... ] }
+        setSummaries(resp.data.data || []);
+      } catch (summaryError) {
+        recordEndpointError('summaries');
+        
+        // If not already tried, try alternative endpoint
+        if (!hasEndpointFailed('summary')) {
+          try {
+            const altResp = await axios.get(`${BACKEND}/api/summary`, {
+              headers: { Authorization: `Bearer ${localToken}` },
+            });
+            setSummaries(altResp.data.data || []);
+          } catch (altError) {
+            recordEndpointError('summary');
+            throw altError;
+          }
+        } else {
+          throw summaryError;
+        }
+      }
     } catch (error) {
       console.error("fetchAllSummaries error:", error);
+      setSummaries([]); // Set empty array on error
     }
   };
 
@@ -630,13 +780,34 @@ export const UserProvider = ({ children }) => {
     try {
       const localToken = localStorage.getItem("token");
       if (!localToken) return;
-      const resp = await axios.get(`${BACKEND}/api/aichats`, {
-        headers: { Authorization: `Bearer ${localToken}` },
-      });
-      // The controller returns { chats: [ {id, ...}, ... ] }
-      setAiChats(resp.data.chats || []);
+      
+      // Skip if we already know these endpoints fail
+      if (hasEndpointFailed('aichats') && hasEndpointFailed('aichat')) {
+        console.log('Skipping AI chats fetch - endpoints previously failed');
+        return;
+      }
+      
+      // Try the plural endpoint first, fall back to singular if needed
+      try {
+        const resp = await axios.get(`${BACKEND}/api/aichats`, {
+          headers: { Authorization: `Bearer ${localToken}` },
+        });
+        // The controller returns { chats: [ {id, ...}, ... ] }
+        setAiChats(resp.data.chats || []);
+      } catch (chatError) {
+        // If 404, try alternative endpoint
+        if (chatError.response && chatError.response.status === 404) {
+          const altResp = await axios.get(`${BACKEND}/api/aichat`, {
+            headers: { Authorization: `Bearer ${localToken}` },
+          });
+          setAiChats(altResp.data.chats || []);
+        } else {
+          throw chatError; // Rethrow if it's not a 404
+        }
+      }
     } catch (error) {
       console.error("fetchAllAiChats error:", error);
+      setAiChats([]); // Set empty array on error
     }
   };
 
@@ -894,6 +1065,24 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  // Track failed endpoints to avoid repeated calls
+  const recordEndpointError = (endpoint) => {
+    setEndpointErrors((prev) => ({
+      ...prev,
+      [endpoint]: true
+    }));
+  };
+
+  // Check if an endpoint has already failed
+  const hasEndpointFailed = (endpoint) => {
+    return endpointErrors[endpoint] === true;
+  };
+
+  // Reset endpoint errors (e.g., after environment change)
+  const resetEndpointErrors = () => {
+    setEndpointErrors({});
+  };
+
   // --------------------------------------------------
   // PROVIDER RETURN
   // --------------------------------------------------
@@ -937,6 +1126,7 @@ export const UserProvider = ({ children }) => {
         uploadDocumentTranscript,
         createUploadFromText,
         getWebsiteTranscript,
+        deleteUpload,
 
         // Folders
         folders,
