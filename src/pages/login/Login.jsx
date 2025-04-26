@@ -167,8 +167,7 @@ const LoginPage = () => {
           : t("login_successful"),
         "success"
       );
-      // Optionally navigate home:
-      // navigate("/");
+      navigate("/create");
     } catch (err) {
       console.error(err);
       showSnackbar(

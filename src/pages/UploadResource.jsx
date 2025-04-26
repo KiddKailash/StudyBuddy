@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback } from "react";
+import React, { useState, useContext, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
@@ -13,7 +13,6 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Menu from "@mui/material/Menu";
 
@@ -21,7 +20,7 @@ import Menu from "@mui/material/Menu";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-const UploadResource = ({ resourceType }) => {
+const UploadResource = ({ resourceType, folderID: propFolderID }) => {
   const {
     isLoggedIn,
     uploads,
@@ -37,8 +36,12 @@ const UploadResource = ({ resourceType }) => {
     setMultipleChoiceQuizzes,
   } = useContext(UserContext);
 
-  const { folderID } = useParams();
+  const paramsObj = useParams();
+  const { folderID: paramsFolderID } = paramsObj;
   const { showSnackbar } = useContext(SnackbarContext);
+
+  // Use folderID prop if provided, otherwise use from URL params
+  const folderID = propFolderID || paramsFolderID || "null";
 
   // If folderID is "null", treat it as null in the DB.
   const convertNullFolderID = folderID === "null" ? null : folderID;
@@ -54,6 +57,7 @@ const UploadResource = ({ resourceType }) => {
   // Track loading states
   const [isUploading, setIsUploading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoadingUploads, setIsLoadingUploads] = useState(false);
 
   // For "summary" or "chat" resource types that accept a user prompt
   const [userMessage, setUserMessage] = useState("");
@@ -61,6 +65,24 @@ const UploadResource = ({ resourceType }) => {
   // For dropdown menu
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
+  // Fetch uploads on component mount
+  useEffect(() => {
+    if (isLoggedIn) {
+      setIsLoadingUploads(true);
+      fetchUploads()
+        .then(() => {
+          console.log("Uploads fetched successfully");
+        })
+        .catch(err => {
+          console.error("Error fetching uploads:", err);
+          showSnackbar("Failed to load your uploaded documents", "error");
+        })
+        .finally(() => {
+          setIsLoadingUploads(false);
+        });
+    }
+  }, [isLoggedIn]);
 
   // Dropzone setup
   const onDrop = useCallback((acceptedFiles) => {
@@ -111,11 +133,12 @@ const UploadResource = ({ resourceType }) => {
 
     try {
       setIsUploading(true);
-      const result = await uploadDocumentTranscript(selectedFile);
+      console.log("Uploading document with folderID:", convertNullFolderID);
+      const result = await uploadDocumentTranscript(selectedFile, convertNullFolderID);
       if (result?.id || result?.transcript) {
         showSnackbar("Document uploaded successfully!", "success");
         // Refresh the uploads so the new file appears in the list
-        fetchUploads();
+        await fetchUploads();
         // Clear the selected file
         setSelectedFile(null);
       } else {
@@ -152,7 +175,7 @@ const UploadResource = ({ resourceType }) => {
           const quiz = await createQuiz(selectedUploadId, convertNullFolderID);
           setMultipleChoiceQuizzes((prev) => [...prev, quiz]);
           showSnackbar("Quiz created!", "success");
-          navigate(`/${quiz.folderID ?? "null"}/mcq/${quiz.id}`);
+          navigate(`/${folderID}/mcq/${quiz.id}`);
           break;
         }
         case "flashcards": {
@@ -162,7 +185,7 @@ const UploadResource = ({ resourceType }) => {
           );
           setFlashcardSessions((prev) => [...prev, newSession]);
           showSnackbar("Flashcards created!", "success");
-          navigate(`/${newSession.folderID ?? "null"}/flashcards/${newSession.id}`);
+          navigate(`/${folderID}/flashcards/${newSession.id}`);
           break;
         }
         case "summary": {
@@ -173,7 +196,7 @@ const UploadResource = ({ resourceType }) => {
           );
           setSummaries((prev) => [...prev, sum]);
           showSnackbar("Summary created!", "success");
-          navigate(`/${sum.folderID ?? "null"}/summary/${sum.id}`);
+          navigate(`/${folderID}/summary/${sum.id}`);
           break;
         }
         case "chat": {
@@ -184,7 +207,7 @@ const UploadResource = ({ resourceType }) => {
           );
           setAiChats((prev) => [...prev, chat]);
           showSnackbar("Chat created!", "success");
-          navigate(`/${chat.folderID ?? "null"}/chat/${chat.id}`);
+          navigate(`/${folderID}/chat/${chat.id}`);
           break;
         }
         default:
@@ -206,9 +229,24 @@ const UploadResource = ({ resourceType }) => {
   };
 
   // Filter uploads by folderID
-  const filteredUploads = uploads.filter(
-    (u) => u.folderID === convertNullFolderID
-  );
+  console.log("All uploads:", uploads);
+  console.log("Current folderID:", folderID);
+  console.log("Converted folderID for comparison:", convertNullFolderID);
+  
+  const filteredUploads = uploads.filter((u) => {
+    const uploadFolderID = u.folderID === undefined || u.folderID === "undefined" ? null : u.folderID;
+    const isMatch = 
+      // Both are null
+      (uploadFolderID === null && convertNullFolderID === null) ||
+      // Both are the same value
+      (uploadFolderID === convertNullFolderID) ||
+      // One is null and one is "null" string
+      (uploadFolderID === null && convertNullFolderID === "null") ||
+      (uploadFolderID === "null" && convertNullFolderID === null);
+    
+    console.log(`Upload ${u.id} (${u.fileName}) has folderID: ${u.folderID} (normalized: ${uploadFolderID}), match: ${isMatch}`);
+    return isMatch;
+  });
 
   return (
     <Stack direction="column" spacing={2}>
@@ -294,7 +332,12 @@ const UploadResource = ({ resourceType }) => {
           overflowY: "auto",
         }}
       >
-        {filteredUploads.length === 0 ? (
+        {isLoadingUploads ? (
+          <Box sx={{ textAlign: "center", p: 2 }}>
+            <CircularProgress size={24} />
+            <Typography sx={{ mt: 1 }}>Loading your documents...</Typography>
+          </Box>
+        ) : filteredUploads.length === 0 ? (
           <Box sx={{ textAlign: "center", p: 2 }}>
             <Typography sx={{ mb: 1 }}>
               No documents have been uploaded yet.
@@ -316,6 +359,7 @@ const UploadResource = ({ resourceType }) => {
                   cursor: "pointer",
                   backgroundColor:
                     selectedUploadId === u.id ? "primary.main" : "grey.300",
+                  color: selectedUploadId === u.id ? "white" : "inherit",
                 }}
               >
                 <Typography>{u.fileName}</Typography>
@@ -338,7 +382,7 @@ const UploadResource = ({ resourceType }) => {
       <Button
         variant="contained"
         color="primary"
-        disabled={isGenerating}
+        disabled={isGenerating || !selectedUploadId}
         onClick={handleGenerate}
       >
         {isGenerating ? (
@@ -353,6 +397,11 @@ const UploadResource = ({ resourceType }) => {
 
 UploadResource.propTypes = {
   resourceType: PropTypes.string.isRequired,
+  folderID: PropTypes.string,
+};
+
+UploadResource.defaultProps = {
+  folderID: null,
 };
 
 export default UploadResource;

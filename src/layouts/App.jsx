@@ -6,20 +6,20 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import MainLayout from "./MainLayout";
 
 // Web Pages
-import FlashcardSession from "../webpages/study-resources/FlashcardSession";
-import LoginPage from "../webpages/login/Login";
-import PageNotFound from "../webpages/PageNotFound";
-import SettingsPage from "../webpages/Settings";
-import Success from "../webpages/stripe/Success";
-import Cancel from "../webpages/stripe/Cancel";
-import PrivacyPolicy from "../webpages/login/PrivacyPolicy";
-import TermsOfService from "../webpages/login/TermsOfService";
-import LandingPage from "../webpages/LandingPage";
-import { CheckoutForm, Return } from "../webpages/stripe/StripeForm";
-import CreateStudyResource from "../webpages/CreateStudyResource";
-import MCQSession from "../webpages/study-resources/MCQSession";
-import SummaryPage from "../webpages/study-resources/SummaryPage";
-import AIChatPage from "../webpages/study-resources/AIChatPage";
+import FlashcardSession from "../pages/study-resources/FlashcardSession";
+import LoginPage from "../pages/login/Login";
+import PageNotFound from "../pages/PageNotFound";
+import SettingsPage from "../pages/Settings";
+import Success from "../pages/stripe/Success";
+import Cancel from "../pages/stripe/Cancel";
+import PrivacyPolicy from "../pages/login/PrivacyPolicy";
+import TermsOfService from "../pages/login/TermsOfService";
+import LandingPage from "../pages/LandingPage";
+import { CheckoutForm, Return } from "../pages/stripe/StripeForm";
+import CreateStudyResource from "../pages/CreateStudyResource";
+import MCQSession from "../pages/study-resources/MCQSession";
+import SummaryPage from "../pages/study-resources/SummaryPage";
+import AIChatPage from "../pages/study-resources/AIChatPage";
 
 function App() {
   // Define all your routes as objects:
@@ -65,7 +65,7 @@ function App() {
     "/privacy",
     "/return",
     "/create-resource",
-    "/:folderID/create"
+    "/:folderID/create",
   ];
   // For ephemeral routes, treat them as public
   const ephemeralPrefixes = [

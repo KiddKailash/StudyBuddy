@@ -15,7 +15,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 
 // Local Import
-import { CheckoutForm } from "../../webpages/stripe/StripeForm";
+import { CheckoutForm } from "../../pages/stripe/StripeForm";
 import { DialogTitle } from "@mui/material";
 
 const GoProModal = ({ open, onClose }) => {

@@ -8,6 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 // MUI Icons
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import DriveFileMoveRoundedIcon from "@mui/icons-material/DriveFileMoveRounded";
 
 /**
  * DropdownMenu for session actions: delete, rename, etc.
@@ -18,6 +19,7 @@ const DropdownMenu = ({
   onClose,
   onDeleteClick,
   onRenameClick,
+  onMoveClick,
   t,
 }) => {
   return (
@@ -36,6 +38,10 @@ const DropdownMenu = ({
         <EditRoundedIcon fontSize="small" sx={{ mr: 1 }} />
         {t("rename")}
       </MenuItem>
+      <MenuItem onClick={onMoveClick}>
+        <DriveFileMoveRoundedIcon fontSize="small" sx={{ mr: 1 }} />
+        {t("move")}
+      </MenuItem>
     </Menu>
   );
 };
@@ -46,6 +52,7 @@ DropdownMenu.propTypes = {
   onClose: PropTypes.func.isRequired,
   onDeleteClick: PropTypes.func.isRequired,
   onRenameClick: PropTypes.func.isRequired,
+  onMoveClick: PropTypes.func.isRequired,
   onPrintClick: PropTypes.func,
   t: PropTypes.func.isRequired,
 };

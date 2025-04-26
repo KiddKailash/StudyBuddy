@@ -223,6 +223,7 @@ export const UserProvider = ({ children }) => {
   // --------------------------------------------------
   useEffect(() => {
     if (user) {
+      console.log("User logged in, loading all resources...");
       // Flashcards
       loadFlashcardSessions();
       // Quizzes
@@ -235,6 +236,16 @@ export const UserProvider = ({ children }) => {
       fetchFolders();
       // Uploads
       fetchUploads();
+      
+      // Log loading status after a short delay
+      setTimeout(() => {
+        console.log("Resource loading complete:");
+        console.log("- Flashcards:", flashcardSessions.length);
+        console.log("- Quizzes:", multipleChoiceQuizzes.length);
+        console.log("- Summaries:", summaries.length);
+        console.log("- AI Chats:", aiChats.length);
+        console.log("- Folders:", folders.length);
+      }, 2000);
     } else {
       setFlashcardSessions([]);
       setMultipleChoiceQuizzes([]);
@@ -444,56 +455,55 @@ export const UserProvider = ({ children }) => {
       const localToken = localStorage.getItem("token");
       if (!localToken) return [];
       
-      // Array of possible endpoint paths to try
-      const endpointPaths = [
-        "/api/uploads",  // Plural (standard REST)
-        "/api/upload",   // Singular
-        "/uploads",      // Without /api prefix (plural)
-        "/upload"        // Without /api prefix (singular)
-      ];
+      console.log("Fetching uploads...");
+      const resp = await axios.get(`${BACKEND}/api/upload`, {
+        headers: { Authorization: `Bearer ${localToken}` },
+      });
       
-      let uploaded = null;
+      // Check the response structure
+      console.log("Upload response:", resp.data);
       
-      // Try each endpoint until one works
-      for (const path of endpointPaths) {
-        // Skip if we already know this endpoint fails
-        if (hasEndpointFailed(`${BACKEND}${path}`)) continue;
-        
-        try {
-          console.log(`Trying endpoint: ${BACKEND}${path}`);
-          const resp = await axios.get(`${BACKEND}${path}`, {
-            headers: { Authorization: `Bearer ${localToken}` },
-          });
-          
-          // Check if we have valid data
-          if (resp.data && (resp.data.uploads || resp.data.data)) {
-            uploaded = resp.data.uploads || resp.data.data || [];
-            console.log(`Success with endpoint: ${BACKEND}${path}`);
-            break; // Exit the loop if successful
-          }
-        } catch (error) {
-          console.error(`Failed with endpoint ${path}:`, error);
-          recordEndpointError(`${BACKEND}${path}`);
-          // Continue trying other endpoints
-        }
-      }
+      // Extract uploads from the response, handling different possible structures
+      const uploaded = resp.data.uploads || resp.data.data || [];
+      console.log("Extracted uploads:", uploaded);
       
-      if (uploaded) {
-        setUploads(uploaded);
-      } else {
-        console.error("All upload endpoints failed");
-        setUploads([]);
-      }
+      setUploads(uploaded);
+      return uploaded;
     } catch (error) {
       console.error("fetchUploads error:", error);
-      setUploads([]); // Set empty array on error
+      
+      // Try fallback endpoint if first one failed
+      try {
+        console.log("Trying fallback endpoint /api/uploads...");
+        const localToken = localStorage.getItem("token");
+        const fallbackResp = await axios.get(`${BACKEND}/api/uploads`, {
+          headers: { Authorization: `Bearer ${localToken}` },
+        });
+        
+        console.log("Fallback response:", fallbackResp.data);
+        const uploaded = fallbackResp.data.uploads || fallbackResp.data.data || [];
+        setUploads(uploaded);
+        return uploaded;
+      } catch (fallbackError) {
+        console.error("Fallback fetchUploads error:", fallbackError);
+        setUploads([]); // Set empty array on error
+        return [];
+      }
     }
   };
 
-  const uploadDocumentTranscript = async (selectedFile) => {
+  const uploadDocumentTranscript = async (selectedFile, folderID = null) => {
     const localToken = localStorage.getItem("token");
     const formData = new FormData();
     formData.append("file", selectedFile);
+    
+    // Add folder ID to the form data if it's provided
+    if (folderID !== null && folderID !== undefined && folderID !== "null") {
+      formData.append("folderID", folderID);
+    }
+    
+    console.log("Uploading file with folderID:", folderID);
+    
     if (!localToken) {
       // ephemeral
       const resp = await axios.post(`${BACKEND}/api/upload-public`, formData);
@@ -898,7 +908,96 @@ export const UserProvider = ({ children }) => {
       { folderID },
       { headers: { Authorization: `Bearer ${localToken}` } }
     );
+    
+    // Update local state
+    setFlashcardSessions((prev) =>
+      prev.map((session) =>
+        session.id === sessionId ? { ...session, folderID } : session
+      )
+    );
+    
     return response.data;
+  };
+
+  // New function for assigning folders to quizzes
+  const assignQuizToFolder = async (quizId, folderID) => {
+    const localToken = localStorage.getItem("token");
+    if (!localToken) throw new Error("User is not authenticated.");
+    
+    try {
+      // Make API call to the backend endpoint
+      const response = await axios.put(
+        `${BACKEND}/api/multiple-choice-quizzes/${quizId}/assign-folder`,
+        { folderID },
+        { headers: { Authorization: `Bearer ${localToken}` } }
+      );
+      
+      // Update local state
+      setMultipleChoiceQuizzes((prev) =>
+        prev.map((quiz) =>
+          quiz.id === quizId ? { ...quiz, folderID } : quiz
+        )
+      );
+      
+      return response.data;
+    } catch (error) {
+      console.error("assignQuizToFolder error:", error);
+      throw error;
+    }
+  };
+  
+  // New function for assigning folders to summaries
+  const assignSummaryToFolder = async (summaryId, folderID) => {
+    const localToken = localStorage.getItem("token");
+    if (!localToken) throw new Error("User is not authenticated.");
+    
+    try {
+      // Make API call to the backend endpoint
+      const response = await axios.put(
+        `${BACKEND}/api/summaries/${summaryId}/assign-folder`,
+        { folderID },
+        { headers: { Authorization: `Bearer ${localToken}` } }
+      );
+      
+      // Update local state
+      setSummaries((prev) =>
+        prev.map((summary) =>
+          summary.id === summaryId ? { ...summary, folderID } : summary
+        )
+      );
+      
+      return response.data;
+    } catch (error) {
+      console.error("assignSummaryToFolder error:", error);
+      throw error;
+    }
+  };
+  
+  // New function for assigning folders to AI chats
+  const assignAiChatToFolder = async (chatId, folderID) => {
+    const localToken = localStorage.getItem("token");
+    if (!localToken) throw new Error("User is not authenticated.");
+    
+    try {
+      // Make API call to the backend endpoint
+      const response = await axios.put(
+        `${BACKEND}/api/aichats/${chatId}/assign-folder`,
+        { folderID },
+        { headers: { Authorization: `Bearer ${localToken}` } }
+      );
+      
+      // Update local state
+      setAiChats((prev) =>
+        prev.map((chat) =>
+          chat.id === chatId ? { ...chat, folderID } : chat
+        )
+      );
+      
+      return response.data;
+    } catch (error) {
+      console.error("assignAiChatToFolder error:", error);
+      throw error;
+    }
   };
 
   const renameFolder = async (folderId, newName) => {
@@ -1083,6 +1182,27 @@ export const UserProvider = ({ children }) => {
     setEndpointErrors({});
   };
 
+  // Generate flashcards from transcript text
+  const generateFlashcardsFromTranscript = async (transcriptText) => {
+    try {
+      const localToken = localStorage.getItem("token");
+      const headers = localToken 
+        ? { Authorization: `Bearer ${localToken}` }
+        : {};
+      
+      const response = await axios.post(
+        `${BACKEND}/api/flashcards/generate-from-transcript`,
+        { transcript: transcriptText },
+        { headers }
+      );
+      
+      return [response.data.sessionName, response.data.flashcards];
+    } catch (error) {
+      console.error("Error generating flashcards from transcript:", error);
+      throw error;
+    }
+  };
+
   // --------------------------------------------------
   // PROVIDER RETURN
   // --------------------------------------------------
@@ -1133,6 +1253,9 @@ export const UserProvider = ({ children }) => {
         fetchFolders,
         createFolder,
         assignSessionToFolder,
+        assignQuizToFolder,
+        assignSummaryToFolder,
+        assignAiChatToFolder,
         renameFolder,
 
         // MCQ Quizzes
@@ -1175,6 +1298,9 @@ export const UserProvider = ({ children }) => {
         fetchFlashcardsByFolder,
         fetchQuizzesByFolder,
         fetchSummariesByFolder,
+
+        // New functions
+        generateFlashcardsFromTranscript,
       }}
     >
       {children}

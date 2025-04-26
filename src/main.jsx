@@ -8,7 +8,7 @@ import { UserProvider } from "./contexts/UserContext";
 import { SnackbarProvider } from "./contexts/SnackbarContext.jsx";
 
 // Localization, global styles
-import "./i18n.js";
+import "./translation/i18n.js";
 
 // Main App
 import App from "./layouts/App.jsx";

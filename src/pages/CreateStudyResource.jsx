@@ -129,7 +129,7 @@ const CreateStudyResource = () => {
                     sx={cardStyle}
                     onClick={() =>
                       navigate(
-                        `/${resource.folderID}/${resource.resourceType}/${resource.id}`
+                        `/${resource.folderID === undefined ? null : resource.folderID}/${resource.resourceType}/${resource.id}`
                       )
                     }
                   >
@@ -176,7 +176,7 @@ const CreateStudyResource = () => {
             <Typography variant="body2" sx={{ fontWeight: 700, mb: 1 }}>
               Studying
             </Typography>
-            <Grid container spacing={2} mb={4}>
+            <Grid container spacing={2}>
               <Grid size={{ xs: 12, md: 4 }}>
                 <Box sx={cardStyle} onClick={() => handleOpenDialog("mcq")}>
                   <CheckBoxRoundedIcon />
@@ -207,31 +207,6 @@ const CreateStudyResource = () => {
                   <Typography variant="subtitle1">Summarise</Typography>
                   <Typography variant="body2" color="text.secondary">
                     Read any document in seconds
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
-
-            {/* Homework section */}
-            <Typography variant="body2" sx={{ fontWeight: 700, mb: 1 }}>
-              Homework
-            </Typography>
-            <Grid container spacing={2} mb={4}>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Box sx={cardStyle}>
-                  <NotesRoundedIcon />
-                  <Typography variant="subtitle1">Proofread</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Improve your writing
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Box sx={cardStyle} onClick={() => handleOpenDialog("chat")}>
-                  <ChatIcon />
-                  <Typography variant="subtitle1">AI Chat</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Ask questions about your document
                   </Typography>
                 </Box>
               </Grid>
