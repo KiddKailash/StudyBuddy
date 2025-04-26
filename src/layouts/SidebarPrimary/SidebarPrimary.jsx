@@ -62,7 +62,7 @@ const SafeComponent = ({ children, fallback }) => {
   }
 };
 
-const SidebarPrimary = ({ mobileMode }) => {
+const SidebarPrimary = ({ mobileMode = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { folderID } = useParams();
@@ -394,10 +394,6 @@ const SidebarPrimary = ({ mobileMode }) => {
 
 SidebarPrimary.propTypes = {
   mobileMode: PropTypes.bool
-};
-
-SidebarPrimary.defaultProps = {
-  mobileMode: false
 };
 
 export default SidebarPrimary;

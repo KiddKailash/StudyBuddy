@@ -98,55 +98,7 @@ const CreateStudyResource = () => {
     <PageWrapper>
       <Stack direction="column" spacing={4} sx={{ mt: 2 }}>
         <Typography variant="h3">What are you studying?</Typography>
-        {allResources.length > 0 && (
-          <Box>
-            <Typography
-              variant="body2"
-              color="text.secondary.dark"
-              sx={{
-                fontWeight: 600,
-                ml: 2,
-                mb: 1,
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <RestoreRoundedIcon sx={{ mr: 1 }} />
-              Recent Study Resources
-            </Typography>
-            <Box
-              sx={{
-                bgcolor: theme.palette.background.paper,
-                p: 4,
-                borderRadius: 4,
-              }}
-            >
-              <Stack direction="row" spacing={2}>
-                {mostRecentResources.map((resource) => (
-                  <Box
-                    key={resource.id}
-                    sx={cardStyle}
-                    onClick={() =>
-                      navigate(
-                        `/${resource.folderID === undefined ? null : resource.folderID}/${resource.resourceType}/${resource.id}`
-                      )
-                    }
-                  >
-                    <RestoreRoundedIcon />
-                    <Typography variant="subtitle1">
-                      {resource.studySession}
-                    </Typography>
-                    <div style={{ flexGrow: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {resource.resourceType.toUpperCase()}
-                    </Typography>
-                  </Box>
-                ))}
-              </Stack>
-            </Box>
-          </Box>
-        )}
+        
 
         <Box>
           <Typography
@@ -213,7 +165,59 @@ const CreateStudyResource = () => {
             </Grid>
           </Box>
         </Box>
+
+        {allResources.length > 0 && (
+          <Box>
+            <Typography
+              variant="body2"
+              color="text.secondary.dark"
+              sx={{
+                fontWeight: 600,
+                ml: 2,
+                mb: 1,
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <RestoreRoundedIcon sx={{ mr: 1 }} />
+              Recent Study Resources
+            </Typography>
+            <Box
+              sx={{
+                bgcolor: theme.palette.background.paper,
+                p: 4,
+                borderRadius: 4,
+              }}
+            >
+              <Stack direction="row" spacing={2}>
+                {mostRecentResources.map((resource) => (
+                  <Box
+                    key={resource.id}
+                    sx={cardStyle}
+                    onClick={() =>
+                      navigate(
+                        `/${resource.folderID === undefined ? null : resource.folderID}/${resource.resourceType}/${resource.id}`
+                      )
+                    }
+                  >
+                    <RestoreRoundedIcon />
+                    <Typography variant="subtitle1">
+                      {resource.studySession}
+                    </Typography>
+                    <div style={{ flexGrow: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      {resource.resourceType.toUpperCase()}
+                    </Typography>
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
+          </Box>
+        )}
       </Stack>
+
+      
 
       {/* ------------- DIALOG ------------- */}
       <Dialog

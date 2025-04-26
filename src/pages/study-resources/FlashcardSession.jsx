@@ -48,6 +48,7 @@ const FlashcardSession = () => {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [fetchAttempted, setFetchAttempted] = useState(false);
 
   // Practice mode states
   const [practiceMode, setPracticeMode] = useState(false);
@@ -60,6 +61,7 @@ const FlashcardSession = () => {
     fetchFlashcardSession,
     generateAdditionalFlashcards,
     flashcardSessions,
+    dataLoading,
   } = useContext(UserContext);
   const { showSnackbar } = useContext(SnackbarContext);
   const accountType = user?.accountType || "free";
@@ -67,15 +69,28 @@ const FlashcardSession = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    fetchSession();
+    // Only fetch if not currently loading data from context
+    if (!dataLoading) {
+      fetchSession();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, flashcardSessions]);
+  }, [id, flashcardSessions, dataLoading]);
 
-  const fetchSession = async () => {
+  // Modify the navigation useEffect to check if fetch was attempted
+  useEffect(() => {
+    // Only navigate if loading is complete, session is null, AND we've attempted to fetch
+    if (!loading && !session && fetchAttempted && !dataLoading) {
+      navigate("/create");
+    }
+  }, [loading, session, navigate, fetchAttempted, dataLoading]);
+
+  const fetchSession = () => {
     setLoading(true);
     try {
-      const flashcardSession = flashcardSessions.filter((f) => f.id === id)[0];
+      // Directly use the data from the context instead of fetching
+      const flashcardSession = flashcardSessions.find(f => f.id === id);
       setSession(flashcardSession);
+      console.log('Found flashcard session:', flashcardSession);
     } catch (error) {
       console.error("Error fetching session:", error);
       showSnackbar(
@@ -86,6 +101,7 @@ const FlashcardSession = () => {
       );
     } finally {
       setLoading(false);
+      setFetchAttempted(true);
     }
   };
 
@@ -165,8 +181,6 @@ const FlashcardSession = () => {
   }
 
   if (!session) {
-    // If no session found, redirect home
-    navigate("/create");
     return null;
   }
 

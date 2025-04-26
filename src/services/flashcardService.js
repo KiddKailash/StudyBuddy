@@ -11,6 +11,29 @@ export const fetchFlashcardSessions = async () => {
     const resp = await axios.get(`${BACKEND}/api/flashcards`, { headers });
     // The response returns { data: [ {id, ...}, ... ] }
     const loaded = resp.data.flashcards || resp.data.data || [];
+    
+    // Check for duplicate IDs before returning
+    const ids = loaded.map(s => s.id);
+    const uniqueIds = new Set(ids);
+    if (ids.length !== uniqueIds.size) {
+      console.warn('Duplicate flashcard session IDs detected');
+      
+      // Return only unique sessions
+      const uniqueSessions = [];
+      const seenIds = new Set();
+      for (const session of loaded) {
+        if (!seenIds.has(session.id)) {
+          uniqueSessions.push({
+            ...session,
+            sessionType: "db",
+          });
+          seenIds.add(session.id);
+        }
+      }
+      console.log(`Removed ${loaded.length - uniqueSessions.length} duplicate flashcard sessions`);
+      return uniqueSessions;
+    }
+    
     const loadedDbSessions = loaded.map((s) => ({
       ...s,
       sessionType: "db",
@@ -71,7 +94,7 @@ export const createFlashcards = async (uploadId, folderID, sessionName, studyCar
       { headers }
     );
 
-    return resp.data.data;
+    return resp.data.flashcard;
   } catch (err) {
     console.error("createFlashcards error:", err);
     throw err;
@@ -89,12 +112,13 @@ export const createFlashcardsFromUpload = async (uploadId, folderID) => {
 
     // 2) Generate flashcards
     const genResp = await axios.post(
-      `${BACKEND}/api/flashcards/generate-flashcards`,
+      `${BACKEND}/api/flashcards/generate-from-transcript`,
       { transcript },
       { headers }
     );
-    // The response is [sessionName, [ {question, answer}... ] ]
-    const [autoSessionName, generatedCards] = genResp.data.flashcards;
+    
+    // The response format is now { sessionName, flashcards } instead of [sessionName, flashcards]
+    const { sessionName: autoSessionName, flashcards: generatedCards } = genResp.data;
 
     // 3) Create (save) a new flashcards session
     const createResp = await axios.post(
@@ -103,12 +127,13 @@ export const createFlashcardsFromUpload = async (uploadId, folderID) => {
         uploadId,
         folderID,
         sessionName: autoSessionName || "Auto Flashcards",
-        studyCards: generatedCards,
+        studyCards: generatedCards || [], // Ensure studyCards is always an array
       },
       { headers }
     );
     
-    return createResp.data.data;
+    // The backend returns data in the 'flashcard' field, not 'data'
+    return createResp.data.flashcard;
   } catch (err) {
     console.error("createFlashcardsFromUpload error:", err);
     throw err;
@@ -192,7 +217,9 @@ export const generateFlashcardsFromTranscript = async (transcriptText) => {
       { headers }
     );
     
-    return [response.data.sessionName, response.data.flashcards];
+    // Return in the format expected by the caller (sessionName and flashcards array)
+    const { sessionName, flashcards } = response.data;
+    return [sessionName, flashcards || []]; // Ensure flashcards is always an array
   } catch (error) {
     console.error("Error generating flashcards from transcript:", error);
     throw error;

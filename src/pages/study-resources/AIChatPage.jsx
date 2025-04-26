@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 // Local Imports
 import { UserContext } from "../../contexts/User";
@@ -35,7 +34,8 @@ const AIChatPage = () => {
     const fetchChat = async () => {
       setLoading(true);
       try {
-        const fetchedChat = aiChats.filter((a) => a.id === id)[0];
+        // Directly use the data from the context instead of fetching
+        const fetchedChat = aiChats.find(a => a.id === id);
         setChat(fetchedChat);
       } catch (error) {
         console.error("Error fetching AI chat:", error);

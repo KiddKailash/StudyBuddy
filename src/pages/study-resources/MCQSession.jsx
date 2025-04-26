@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 // Contexts
 import { UserContext } from "../../contexts/User";
@@ -23,7 +22,7 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 const MCQSession = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isLoggedIn, multipleChoiceQuizzes } = useContext(UserContext);
+  const { isLoggedIn, multipleChoiceQuizzes, dataLoading } = useContext(UserContext);
 
   // Quiz state
   const [quiz, setQuiz] = useState(null);
@@ -45,32 +44,37 @@ const MCQSession = () => {
       return;
     }
 
-    const fetchQuizById = async () => {
-      setLoading(true);
-      try {
-        const fetchedQuiz = multipleChoiceQuizzes.filter((q) => q.id === id)[0]
-        setQuiz(fetchedQuiz);
+    // Only fetch if not currently loading data from context
+    if (!dataLoading) {
+      fetchQuizById();
+    }
+  }, [id, dataLoading, isLoggedIn, multipleChoiceQuizzes]);
 
-        // Initialize userAnswers array with null for each question
-        if (fetchedQuiz?.questionsJSON) {
-          setUserAnswers(Array(fetchedQuiz.questionsJSON.length).fill(null));
-        }
-      } catch (error) {
-        console.error("Error fetching MCQ quiz:", error);
-        setErrorMessage(
-          error.response?.data?.error ||
-            "Error fetching quiz. Please try again."
-        );
-      } finally {
-        setLoading(false);
+  const fetchQuizById = () => {
+    setLoading(true);
+    try {
+      // Directly use the data from the context instead of fetching
+      const fetchedQuiz = multipleChoiceQuizzes.find(q => q.id === id);
+      setQuiz(fetchedQuiz);
+      console.log('Found quiz:', fetchedQuiz);
+
+      // Initialize userAnswers array with null for each question
+      if (fetchedQuiz?.questionsJSON) {
+        setUserAnswers(Array(fetchedQuiz.questionsJSON.length).fill(null));
       }
-    };
-
-    fetchQuizById();
-  }, [id, isLoggedIn, multipleChoiceQuizzes]);
+    } catch (error) {
+      console.error("Error fetching MCQ quiz:", error);
+      setErrorMessage(
+        error.response?.data?.error ||
+          "Error fetching quiz. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Loading / Error states
-  if (loading) {
+  if (loading || dataLoading) {
     return (
       <Box
         sx={{

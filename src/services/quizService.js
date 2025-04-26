@@ -6,37 +6,54 @@ const BACKEND = getBackendUrl();
 export const fetchAllQuizzes = async () => {
   try {
     const headers = getAuthHeaders();
-    if (!headers.Authorization) return [];
-    
-    // Skip if we already know these endpoints fail
-    if (hasEndpointFailed('multiple-choice-quizzes') && hasEndpointFailed('multiple-choice-quiz')) {
-      console.log('Skipping quizzes fetch - endpoints previously failed');
+    if (!headers.Authorization) {
+      console.log('quizService: No auth token available');
       return [];
     }
     
-    // Try the plural endpoint first, fall back to singular if needed
+    console.log('quizService: Fetching all quizzes from API');
+    
+    // Always use the plural endpoint
     try {
       const resp = await axios.get(`${BACKEND}/api/multiple-choice-quizzes`, { headers });
-      // { data: [ {id, ...}, ... ] }
-      return resp.data.data || [];
-    } catch (quizError) {
-      recordEndpointError('multiple-choice-quizzes');
+      console.log('quizService: Quiz response received', resp.status);
       
-      // If not already tried, try alternative endpoint
-      if (!hasEndpointFailed('multiple-choice-quiz')) {
-        try {
-          const altResp = await axios.get(`${BACKEND}/api/multiple-choice-quiz`, { headers });
-          return altResp.data.data || [];
-        } catch (altError) {
-          recordEndpointError('multiple-choice-quiz');
-          throw altError;
+      const quizzesData = resp.data.quizzes || resp.data.data || [];
+      console.log('quizService: Raw quizzes data', {
+        hasQuizzesField: !!resp.data.quizzes,
+        hasDataField: !!resp.data.data,
+        resultLength: quizzesData.length,
+        responseKeys: Object.keys(resp.data)
+      });
+      
+      // Check for duplicate IDs
+      const ids = quizzesData.map(q => q.id);
+      const uniqueIds = new Set(ids);
+      if (ids.length !== uniqueIds.size) {
+        console.warn('Duplicate quiz IDs detected');
+        
+        // Return only unique quizzes
+        const uniqueQuizzes = [];
+        const seenIds = new Set();
+        for (const quiz of quizzesData) {
+          if (!seenIds.has(quiz.id)) {
+            uniqueQuizzes.push(quiz);
+            seenIds.add(quiz.id);
+          }
         }
-      } else {
-        throw quizError;
+        console.log(`Removed ${quizzesData.length - uniqueQuizzes.length} duplicate quizzes`);
+        return uniqueQuizzes;
       }
+      
+      return quizzesData;
+    } catch (error) {
+      console.error("quizService: fetchAllQuizzes request error:", error);
+      console.error("quizService: Error status:", error.response?.status);
+      console.error("quizService: Error details:", error.response?.data || 'No response data');
+      return []; // Return empty array on error
     }
   } catch (error) {
-    console.error("fetchAllQuizzes error:", error);
+    console.error("quizService: fetchAllQuizzes general error:", error);
     return []; // Return empty array on error
   }
 };

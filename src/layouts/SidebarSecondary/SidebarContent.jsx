@@ -5,6 +5,14 @@ import PropTypes from "prop-types";
 // Contexts
 import { UserContext } from "../../contexts/User";
 
+// Local Components
+import SessionItem from "./SessionItem";
+import DropdownMenu from "./DropdownMenu";
+import ConfirmationDialog from "./ConfirmationDialog";
+import MoveDialog from "./MoveDialog";
+import ResourceTypeMenu from "../../components/ResourceTypeMenu";
+import UploadResource from "../../pages/UploadResource";
+
 // MUI
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -21,19 +29,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import Button from "@mui/material/Button";
 
-// Local Components
-import SessionItem from "./SessionItem";
-import DropdownMenu from "./DropdownMenu";
-import ConfirmationDialog from "./ConfirmationDialog";
-import MoveDialog from "./MoveDialog";
-import ResourceTypeMenu from "../../components/ResourceTypeMenu";
-import UploadFile from "../../components/UploadFile";
-import UploadResource from "../../pages/UploadResource";
-
 // MUI Icons
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
-import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 
 // Translation utility (simplified for this example)
 const t = (key) => {
@@ -58,7 +56,7 @@ const t = (key) => {
 /**
  * SidebarContent component that displays the folder's study resources
  */
-const SidebarContent = ({ isExpanded, mobileMode }) => {
+const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
   const navigate = useNavigate();
   const { folderID } = useParams();
   const location = useLocation();
@@ -85,6 +83,8 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
     assignQuizToFolder,
     assignSummaryToFolder,
     assignAiChatToFolder,
+    getResourcesByFolder,
+    dataLoading
   } = useContext(UserContext);
 
   // State for dropdown menu
@@ -127,33 +127,21 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
     }
   }, [resourceDialogOpen, isLoggedIn, fetchUploads]);
 
-  // Filter resources by the current folder
-  // Need to handle different folderID formats: undefined, "null", actual ID
+  // Get current folder information
   const isNullFolder = folderID === "null" || folderID === undefined;
-
-  const filteredFlashcards = isNullFolder
-    ? flashcardSessions.filter((s) => !s.folderID || s.folderID === "null")
-    : flashcardSessions.filter((s) => s.folderID === folderID);
-
-  const filteredMcqs = isNullFolder
-    ? multipleChoiceQuizzes.filter((q) => !q.folderID || q.folderID === "null")
-    : multipleChoiceQuizzes.filter((q) => q.folderID === folderID);
-
-  const filteredSummaries = isNullFolder
-    ? summaries.filter((s) => !s.folderID || s.folderID === "null")
-    : summaries.filter((s) => s.folderID === folderID);
-
-  const filteredAiChats = isNullFolder
-    ? aiChats.filter((c) => !c.folderID || c.folderID === "null")
-    : aiChats.filter((c) => c.folderID === folderID);
-
-  // For debugging
-  console.log("folderID:", folderID);
-  console.log("Total flashcards:", flashcardSessions.length);
-  console.log("Filtered flashcards:", filteredFlashcards.length);
+  const normalizedFolderID = isNullFolder ? "null" : folderID;
+  
+  // Get folder resources from the already organized data in context
+  const folderResources = getResourcesByFolder(normalizedFolderID);
+  
+  // Resources for this folder
+  const filteredFlashcards = folderResources.flashcards || [];
+  const filteredMcqs = folderResources.quizzes || [];
+  const filteredSummaries = folderResources.summaries || [];
+  const filteredAiChats = folderResources.chats || [];
 
   // Guard: show loader if resources aren't loaded yet
-  if (!flashcardSessions || !multipleChoiceQuizzes || !summaries || !aiChats) {
+  if (dataLoading) {
     return (
       <Box sx={{ p: 2, textAlign: "center" }}>
         <CircularProgress size={24} />
@@ -167,6 +155,26 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
     // If in mobile mode, close drawer by clicking outside
     if (mobileMode) {
       document.body.click();
+    }
+  };
+
+  // Helper to get correct path with proper folder context
+  const getResourcePath = (resourceType, resourceId, resourceFolderID) => {
+    // Use the resource's own folderID rather than the current folderID
+    // This ensures we navigate to the correct folder context
+    const contextFolderID = resourceFolderID || "null";
+    
+    switch(resourceType) {
+      case "flashcard":
+        return `/${contextFolderID}/flashcards/${resourceId}`;
+      case "quiz":
+        return `/${contextFolderID}/mcq/${resourceId}`;
+      case "summary":
+        return `/${contextFolderID}/summary/${resourceId}`;
+      case "chat":
+        return `/${contextFolderID}/chat/${resourceId}`;
+      default:
+        return `/${contextFolderID}`;
     }
   };
 
@@ -294,22 +302,23 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
   };
 
   // Handle confirming the move action
-  const handleMoveConfirm = () => {
+  const handleMoveConfirm = async () => {
     const newFolderId = selectedFolderId === "null" ? null : selectedFolderId;
 
     try {
+      // Wait for the database update to complete before proceeding
       switch (selectedItemType) {
         case "flashcard":
-          assignSessionToFolder(selectedItem, newFolderId);
+          await assignSessionToFolder(selectedItem, newFolderId);
           break;
         case "quiz":
-          assignQuizToFolder(selectedItem, newFolderId);
+          await assignQuizToFolder(selectedItem, newFolderId);
           break;
         case "summary":
-          assignSummaryToFolder(selectedItem, newFolderId);
+          await assignSummaryToFolder(selectedItem, newFolderId);
           break;
         case "chat":
-          assignAiChatToFolder(selectedItem, newFolderId);
+          await assignAiChatToFolder(selectedItem, newFolderId);
           break;
         default:
           break;
@@ -319,26 +328,9 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
       // navigate to the corresponding new folder
       if (folderID !== newFolderId && folderID !== "null") {
         const folderId = newFolderId || "null";
-        
-        // Navigate to the appropriate page based on the item type
-        switch (selectedItemType) {
-          case "flashcard":
-            navigate(`/${folderId}/flashcards/${selectedItem}`);
-            break;
-          case "quiz":
-            navigate(`/${folderId}/mcq/${selectedItem}`);
-            break;
-          case "summary":
-            navigate(`/${folderId}/summary/${selectedItem}`);
-            break;
-          case "chat":
-            navigate(`/${folderId}/chat/${selectedItem}`);
-            break;
-          default:
-            // Just navigate to the folder if we don't know the type
-            navigate(`/${folderId}`);
-            break;
-        }
+        // Use our helper function to generate the correct path
+        const newPath = getResourcePath(selectedItemType, selectedItem, folderId);
+        navigate(newPath);
       }
       
       setMoveDialogOpen(false);
@@ -393,7 +385,7 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
         <Tooltip title="Home">
           <IconButton 
             size="medium"
-            onClick={() => handleNavigate(`/${folderID}/create`)}
+            onClick={() => handleNavigate("/create-resource")}
             sx={{ 
               borderRadius: 2,
               "&:hover": {
@@ -468,8 +460,8 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
               key={s.id}
               session={s}
               resourceType="flashcard"
-              isActive={activePath === `/${folderID}/flashcards/${s.id}`}
-              onClick={() => handleNavigate(`/${folderID}/flashcards/${s.id}`)}
+              isActive={activePath === getResourcePath("flashcard", s.id, s.folderID)}
+              onClick={() => handleNavigate(getResourcePath("flashcard", s.id, s.folderID))}
               isExpanded={isExpanded}
               handleMenuOpen={handleMenuOpen}
             />
@@ -486,8 +478,8 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
               key={q.id}
               session={q}
               resourceType="quiz"
-              isActive={activePath === `/${folderID}/mcq/${q.id}`}
-              onClick={() => handleNavigate(`/${folderID}/mcq/${q.id}`)}
+              isActive={activePath === getResourcePath("quiz", q.id, q.folderID)}
+              onClick={() => handleNavigate(getResourcePath("quiz", q.id, q.folderID))}
               isExpanded={isExpanded}
               handleMenuOpen={handleMenuOpen}
             />
@@ -504,10 +496,8 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
               key={summary.id}
               session={summary}
               resourceType="summary"
-              isActive={activePath === `/${folderID}/summary/${summary.id}`}
-              onClick={() =>
-                handleNavigate(`/${folderID}/summary/${summary.id}`)
-              }
+              isActive={activePath === getResourcePath("summary", summary.id, summary.folderID)}
+              onClick={() => handleNavigate(getResourcePath("summary", summary.id, summary.folderID))}
               isExpanded={isExpanded}
               handleMenuOpen={handleMenuOpen}
             />
@@ -519,8 +509,8 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
               key={chat.id}
               session={chat}
               resourceType="chat"
-              isActive={activePath === `/${folderID}/chat/${chat.id}`}
-              onClick={() => handleNavigate(`/${folderID}/chat/${chat.id}`)}
+              isActive={activePath === getResourcePath("chat", chat.id, chat.folderID)}
+              onClick={() => handleNavigate(getResourcePath("chat", chat.id, chat.folderID))}
               isExpanded={isExpanded}
               handleMenuOpen={handleMenuOpen}
             />
@@ -574,12 +564,6 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
         folderID={folderID}
       />
 
-      {/* Upload File Dialog */}
-      <UploadFile
-        open={uploadDialogOpen}
-        onClose={handleCloseUploadDialog}
-        folderID={folderID}
-      />
 
       {/* Resource Dialog */}
       <Dialog
@@ -616,12 +600,7 @@ const SidebarContent = ({ isExpanded, mobileMode }) => {
 
 SidebarContent.propTypes = {
   isExpanded: PropTypes.bool,
-  mobileMode: PropTypes.bool,
-};
-
-SidebarContent.defaultProps = {
-  isExpanded: true,
-  mobileMode: false,
+  mobileMode: PropTypes.bool
 };
 
 export default SidebarContent;

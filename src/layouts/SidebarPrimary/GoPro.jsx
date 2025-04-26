@@ -10,7 +10,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 
-const GoPro = ({ isPaidUser }) => {
+const GoPro = ({ isPaidUser = false }) => {
   const [openGoProModal, setOpenGoProModal] = useState(false);
 
   const handleOpenGoProModal = () => {
@@ -65,13 +65,8 @@ const GoPro = ({ isPaidUser }) => {
 };
 
 // PropTypes validation
-
 GoPro.propTypes = {
     isPaidUser: PropTypes.bool
-};
-
-GoPro.defaultProps = {
-    isPaidUser: false
 };
 
 export default GoPro;

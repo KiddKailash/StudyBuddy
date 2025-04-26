@@ -13,7 +13,7 @@ import CheckBoxRoundedIcon from "@mui/icons-material/CheckBoxRounded";
 import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded";
 import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
 
-const ResourceTypeMenu = ({ anchorEl, open, onClose, onSelect, folderID }) => {
+const ResourceTypeMenu = ({ anchorEl, open, onClose, onSelect, folderID = "null" }) => {
   const navigate = useNavigate();
 
   const handleSelect = (resourceType) => {
@@ -52,7 +52,7 @@ const ResourceTypeMenu = ({ anchorEl, open, onClose, onSelect, folderID }) => {
         <ListItemIcon>
           <CheckBoxRoundedIcon fontSize="small" />
         </ListItemIcon>
-        <ListItemText>Practice Quiz (MCQ)</ListItemText>
+        <ListItemText>Practice Quiz</ListItemText>
       </MenuItem>
       <MenuItem onClick={() => handleSelect("flashcards")}>
         <ListItemIcon>
@@ -76,10 +76,6 @@ ResourceTypeMenu.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSelect: PropTypes.func.isRequired,
   folderID: PropTypes.string,
-};
-
-ResourceTypeMenu.defaultProps = {
-  folderID: "null",
 };
 
 export default ResourceTypeMenu; 

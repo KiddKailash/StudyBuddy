@@ -19,11 +19,16 @@ export function useFlashcards() {
     setLoadingSessions(true);
     setFlashcardError(null);
     try {
+      console.log('loadFlashcardSessions called, fetching sessions from API');
       const loadedDbSessions = await services.flashcards.fetchFlashcardSessions();
+      console.log('Flashcard sessions loaded:', loadedDbSessions.length);
       setFlashcardSessions(loadedDbSessions);
+      return loadedDbSessions;
     } catch (error) {
       console.error("loadFlashcardSessions error:", error);
+      console.error("Error details:", error.response?.data || 'No response data');
       setFlashcardError("Failed to load DB sessions.");
+      return [];
     } finally {
       setLoadingSessions(false);
     }
@@ -142,19 +147,44 @@ export function useFlashcards() {
   };
 
   // Fetch flashcards by folder
-  const fetchFlashcardsByFolder = (folderID) => {
-    return services.flashcards.fetchFlashcardsByFolder(folderID);
+  const fetchFlashcardsByFolder = async (folderID) => {
+    try {
+      const sessions = await services.flashcards.fetchFlashcardsByFolder(folderID);
+            
+      // Update the flashcardSessions state with the returned data
+      if (Array.isArray(sessions)) {
+        const formattedSessions = sessions.map(session => ({
+          ...session,
+          sessionType: "db"
+        }));
+        
+        setFlashcardSessions(formattedSessions);
+      } else {
+        console.warn(`Unexpected response from fetchFlashcardsByFolder: not an array:`, sessions);
+      }
+      
+      return sessions;
+    } catch (error) {
+      console.error(`Error fetching flashcards for folder ${folderID}:`, error);
+      return [];
+    }
   };
 
   // Assign session to folder
   const assignSessionToFolder = async (sessionId, folderID) => {
     try {
+      // Call the API to update the folder
       await services.flashcards.assignSessionToFolder(sessionId, folderID);
+      
+      // Update the local state immediately to show change in UI
       setFlashcardSessions((prev) =>
         prev.map((session) =>
           session.id === sessionId ? { ...session, folderID } : session
         )
       );
+      
+      // Reload all flashcard sessions to ensure data consistency
+      await loadFlashcardSessions();
     } catch (error) {
       console.error("assignSessionToFolder error:", error);
       throw error;

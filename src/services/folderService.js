@@ -65,9 +65,27 @@ export const renameFolder = async (folderId, newName) => {
   }
 };
 
+export const deleteFolder = async (folderId) => {
+  try {
+    const headers = getAuthHeaders();
+    if (!headers.Authorization) throw new Error("User is not authenticated.");
+    
+    await axios.delete(
+      `${BACKEND}/api/folders/${folderId}`,
+      { headers }
+    );
+    
+    return true;
+  } catch (error) {
+    console.error("deleteFolder error:", error);
+    return false;
+  }
+};
+
 export default {
   fetchFolders,
   getFolders,
   createFolder,
-  renameFolder
+  renameFolder,
+  deleteFolder
 }; 

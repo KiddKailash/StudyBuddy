@@ -34,16 +34,28 @@ export const googleLoginUser = async (tokenId) => {
 export const fetchCurrentUser = async () => {
   const localToken = getToken();
   if (!localToken) {
+    console.log('authService: No token found in localStorage');
     return null;
   }
   
   try {
+    console.log('authService: Fetching current user with token');
     const resp = await axios.get(`${BACKEND}/api/auth/me`, {
       headers: { Authorization: `Bearer ${localToken}` },
     });
+    
+    console.log('authService: User fetch successful');
     return resp.data.user;
   } catch (err) {
-    console.error("fetchCurrentUser error:", err);
+    console.error("authService: fetchCurrentUser error:", err);
+    console.error("authService: Error status:", err.response?.status);
+    console.error("authService: Error details:", err.response?.data || 'No response data');
+    
+    // Check if the token might be invalid
+    if (err.response?.status === 401) {
+      console.error("authService: Unauthorized - token may be invalid or expired");
+    }
+    
     return null;
   }
 };

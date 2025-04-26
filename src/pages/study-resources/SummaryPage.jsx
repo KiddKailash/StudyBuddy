@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 // Contexts
 import { UserContext } from "../../contexts/User";
@@ -16,7 +15,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 const SummaryPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isLoggedIn, summaries } = useContext(UserContext);
+  const { isLoggedIn, summaries, dataLoading } = useContext(UserContext);
 
   // Local state
   const [summary, setSummary] = useState(null);
@@ -31,26 +30,31 @@ const SummaryPage = () => {
       return;
     }
 
-    const fetchSummary = async () => {
-      setLoading(true);
-      try {
-        const fetchedSummary = summaries.map((s) => s.id === id)[0];
-        setSummary(fetchedSummary);
-      } catch (error) {
-        console.error("Error fetching summary:", error);
-        setErrorMessage(
-          error.response?.data?.error ||
-            "Error fetching summary. Please try again."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Only fetch if not currently loading data from context
+    if (!dataLoading) {
+      fetchSummary();
+    }
+  }, [id, isLoggedIn, summaries, dataLoading]);
 
-    fetchSummary();
-  }, [id, isLoggedIn, summaries]);
+  const fetchSummary = () => {
+    setLoading(true);
+    try {
+      // Directly use the data from the context instead of fetching
+      const fetchedSummary = summaries.find(s => s.id === id);
+      setSummary(fetchedSummary);
+      console.log('Found summary:', fetchedSummary);
+    } catch (error) {
+      console.error("Error fetching summary:", error);
+      setErrorMessage(
+        error.response?.data?.error ||
+          "Error fetching summary. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (loading) {
+  if (loading || dataLoading) {
     return (
       <Box
         sx={{

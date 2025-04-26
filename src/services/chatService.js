@@ -6,37 +6,53 @@ const BACKEND = getBackendUrl();
 export const fetchAllAiChats = async () => {
   try {
     const headers = getAuthHeaders();
-    if (!headers.Authorization) return [];
-    
-    // Skip if we already know these endpoints fail
-    if (hasEndpointFailed('aichats') && hasEndpointFailed('aichat')) {
-      console.log('Skipping AI chats fetch - endpoints previously failed');
+    if (!headers.Authorization) {
+      console.log("chatService: No auth token available");
       return [];
     }
     
-    // Try the plural endpoint first, fall back to singular if needed
+    console.log("chatService: Fetching all AI chats from API");
+    
     try {
-      const resp = await axios.get(`${BACKEND}/api/aichats`, { headers });
-      // The controller returns { chats: [ {id, ...}, ... ] }
-      return resp.data.chats || [];
-    } catch (chatError) {
-      recordEndpointError('aichats');
+      const resp = await axios.get(`${BACKEND}/api/chats`, { headers });
+      console.log("chatService: Chats response received", resp.status);
       
-      // If not already tried, try alternative endpoint
-      if (!hasEndpointFailed('aichat')) {
-        try {
-          const altResp = await axios.get(`${BACKEND}/api/aichat`, { headers });
-          return altResp.data.chats || [];
-        } catch (altError) {
-          recordEndpointError('aichat');
-          throw altError;
+      const chatsData = resp.data.chats || resp.data.data || [];
+      console.log("chatService: Raw chats data", {
+        hasChatsField: !!resp.data.chats,
+        hasDataField: !!resp.data.data,
+        resultLength: chatsData.length,
+        responseKeys: Object.keys(resp.data)
+      });
+      
+      // Check for duplicate IDs
+      const ids = chatsData.map(c => c.id);
+      const uniqueIds = new Set(ids);
+      if (ids.length !== uniqueIds.size) {
+        console.warn('chatService: Duplicate chat IDs detected');
+        
+        // Return only unique chats
+        const uniqueChats = [];
+        const seenIds = new Set();
+        for (const chat of chatsData) {
+          if (!seenIds.has(chat.id)) {
+            uniqueChats.push(chat);
+            seenIds.add(chat.id);
+          }
         }
-      } else {
-        throw chatError;
+        console.log(`chatService: Removed ${chatsData.length - uniqueChats.length} duplicate chats`);
+        return uniqueChats;
       }
+      
+      return chatsData;
+    } catch (error) {
+      console.error("chatService: fetchAllAiChats request error:", error);
+      console.error("chatService: Error status:", error.response?.status);
+      console.error("chatService: Error details:", error.response?.data || 'No response data');
+      return []; // Return empty array on error
     }
   } catch (error) {
-    console.error("fetchAllAiChats error:", error);
+    console.error("chatService: fetchAllAiChats general error:", error);
     return []; // Return empty array on error
   }
 };

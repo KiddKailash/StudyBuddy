@@ -3,7 +3,9 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
 
 // Context Providers
-import ThemeProvider from "./contexts/ThemeProvider";
+import { CssBaseline } from "@mui/material";
+import { ThemeProvider } from "./contexts/ThemeContext";
+
 import { UserProvider } from "./contexts/User.jsx";
 import { SnackbarProvider } from "./contexts/SnackbarContext.jsx";
 
@@ -16,6 +18,7 @@ import App from "./layouts/App.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>
+      <CssBaseline />
       <Router>
         <UserProvider>
           <SnackbarProvider>

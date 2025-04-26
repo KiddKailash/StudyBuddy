@@ -31,7 +31,7 @@ const SafeComponent = ({ children, fallback }) => {
   }
 };
 
-const SidebarSecondary = ({ mobileMode }) => {
+const SidebarSecondary = ({ mobileMode = false }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const FULL_WIDTH = 260;
   const COLLAPSED_WIDTH = 72;
@@ -135,10 +135,6 @@ const SidebarSecondary = ({ mobileMode }) => {
 
 SidebarSecondary.propTypes = {
   mobileMode: PropTypes.bool
-};
-
-SidebarSecondary.defaultProps = {
-  mobileMode: false
 };
 
 export default SidebarSecondary;

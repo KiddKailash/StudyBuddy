@@ -20,7 +20,7 @@ import Menu from "@mui/material/Menu";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-const UploadResource = ({ resourceType, folderID: propFolderID }) => {
+const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
   const {
     isLoggedIn,
     uploads,
@@ -398,10 +398,6 @@ const UploadResource = ({ resourceType, folderID: propFolderID }) => {
 UploadResource.propTypes = {
   resourceType: PropTypes.string.isRequired,
   folderID: PropTypes.string,
-};
-
-UploadResource.defaultProps = {
-  folderID: null,
 };
 
 export default UploadResource;

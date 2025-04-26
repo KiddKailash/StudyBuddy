@@ -6,37 +6,54 @@ const BACKEND = getBackendUrl();
 export const fetchAllSummaries = async () => {
   try {
     const headers = getAuthHeaders();
-    if (!headers.Authorization) return [];
-    
-    // Skip if we already know these endpoints fail
-    if (hasEndpointFailed('summaries') && hasEndpointFailed('summary')) {
-      console.log('Skipping summaries fetch - endpoints previously failed');
+    if (!headers.Authorization) {
+      console.log("summaryService: No auth token available");
       return [];
     }
     
-    // Try the plural endpoint first, fall back to singular if needed
+    console.log("summaryService: Fetching all summaries from API");
+    
+    // Use the plural endpoint for consistency
     try {
       const resp = await axios.get(`${BACKEND}/api/summaries`, { headers });
-      // { data: [ {id, ...}, ... ] }
-      return resp.data.data || [];
-    } catch (summaryError) {
-      recordEndpointError('summaries');
+      console.log("summaryService: Summaries response received", resp.status);
       
-      // If not already tried, try alternative endpoint
-      if (!hasEndpointFailed('summary')) {
-        try {
-          const altResp = await axios.get(`${BACKEND}/api/summary`, { headers });
-          return altResp.data.data || [];
-        } catch (altError) {
-          recordEndpointError('summary');
-          throw altError;
+      const summariesData = resp.data.summaries || resp.data.data || [];
+      console.log("summaryService: Raw summaries data", {
+        hasSummariesField: !!resp.data.summaries,
+        hasDataField: !!resp.data.data,
+        resultLength: summariesData.length,
+        responseKeys: Object.keys(resp.data)
+      });
+      
+      // Check for duplicate IDs
+      const ids = summariesData.map(s => s.id);
+      const uniqueIds = new Set(ids);
+      if (ids.length !== uniqueIds.size) {
+        console.warn('summaryService: Duplicate summary IDs detected');
+        
+        // Return only unique summaries
+        const uniqueSummaries = [];
+        const seenIds = new Set();
+        for (const summary of summariesData) {
+          if (!seenIds.has(summary.id)) {
+            uniqueSummaries.push(summary);
+            seenIds.add(summary.id);
+          }
         }
-      } else {
-        throw summaryError;
+        console.log(`summaryService: Removed ${summariesData.length - uniqueSummaries.length} duplicate summaries`);
+        return uniqueSummaries;
       }
+      
+      return summariesData;
+    } catch (error) {
+      console.error("summaryService: fetchAllSummaries request error:", error);
+      console.error("summaryService: Error status:", error.response?.status);
+      console.error("summaryService: Error details:", error.response?.data || 'No response data');
+      return []; // Return empty array on error
     }
   } catch (error) {
-    console.error("fetchAllSummaries error:", error);
+    console.error("summaryService: fetchAllSummaries general error:", error);
     return []; // Return empty array on error
   }
 };
@@ -62,12 +79,34 @@ export const createSummary = async (uploadId, userMessage, folderID) => {
     const headers = getAuthHeaders();
     if (!headers.Authorization) throw new Error("User is not authenticated.");
     
+    console.log("Creating summary with parameters:", { uploadId, userMessage, folderID });
+    
+    // First, verify we can get the upload transcript
+    try {
+      const uploadResp = await axios.get(`${BACKEND}/api/uploads/${uploadId}`, { headers });
+      console.log("Upload data successfully retrieved:", uploadResp.data.id);
+    } catch (uploadError) {
+      console.error("Error fetching upload data:", uploadError);
+      throw new Error("Failed to fetch upload data: " + (uploadError.response?.data?.error || uploadError.message));
+    }
+    
+    // Now create the summary
+    console.log("Posting to summaries endpoint...");
     const resp = await axios.post(
       `${BACKEND}/api/summaries`,
       { uploadId, userMessage, folderID },
       { headers }
     );
+    
+    console.log("Summary creation response:", resp.data);
+    
     // The server returns { summary: { id, ... } }
+    // Make sure we're returning the correct object with the id property
+    if (!resp.data.summary) {
+      console.error("Unexpected response format:", resp.data);
+      throw new Error("Unexpected response format from server");
+    }
+    
     return resp.data.summary;
   } catch (error) {
     console.error("createSummary error:", error);

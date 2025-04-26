@@ -1,5 +1,11 @@
 import axios from "axios";
-import { getAuthHeaders, getBackendUrl, hasEndpointFailed, recordEndpointError } from "./apiUtils";
+import {
+  getAuthHeaders,
+  getBackendUrl,
+  hasEndpointFailed,
+  recordEndpointError,
+  getToken,
+} from "./apiUtils";
 
 const BACKEND = getBackendUrl();
 
@@ -7,62 +13,64 @@ export const fetchUploads = async () => {
   try {
     const headers = getAuthHeaders();
     if (!headers.Authorization) return [];
-    
+
     console.log("Fetching uploads...");
-    const resp = await axios.get(`${BACKEND}/api/upload`, { headers });
-    
-    // Check the response structure
-    console.log("Upload response:", resp.data);
-    
+    const resp = await axios.get(`${BACKEND}/api/uploads`, { headers });
+
     // Extract uploads from the response, handling different possible structures
     const uploaded = resp.data.uploads || resp.data.data || [];
-    console.log("Extracted uploads:", uploaded);
-    
+
     return uploaded;
   } catch (error) {
     console.error("fetchUploads error:", error);
-    
-    // Try fallback endpoint if first one failed
-    try {
-      console.log("Trying fallback endpoint /api/uploads...");
-      const headers = getAuthHeaders();
-      const fallbackResp = await axios.get(`${BACKEND}/api/uploads`, { headers });
-      
-      console.log("Fallback response:", fallbackResp.data);
-      return fallbackResp.data.uploads || fallbackResp.data.data || [];
-    } catch (fallbackError) {
-      console.error("Fallback fetchUploads error:", fallbackError);
-      return []; // Return empty array on error
-    }
+    return []; // Return empty array on error
   }
 };
 
-export const uploadDocumentTranscript = async (selectedFile, folderID = null) => {
+export const uploadDocumentTranscript = async (
+  selectedFile,
+  folderID = null
+) => {
   const formData = new FormData();
   formData.append("file", selectedFile);
-  
-  // Add folder ID to the form data if it's provided
-  if (folderID !== null && folderID !== undefined && folderID !== "null") {
+
+  // Only append folderID if it's not null
+  if (folderID !== null) {
     formData.append("folderID", folderID);
   }
-  
+
+  // Log the FormData contents
+  console.log("FormData contents:");
+  for (let [key, value] of formData.entries()) {
+    console.log(key, value);
+  }
+
   console.log("Uploading file with folderID:", folderID);
-  
-  const headers = getAuthHeaders();
-  
+
+  // Get only the Authorization header for file uploads
+  const token = getToken();
+  const headers = {
+    Authorization: token ? `Bearer ${token}` : "",
+  };
+
   if (!headers.Authorization) {
     // ephemeral
     const resp = await axios.post(`${BACKEND}/api/upload-public`, formData);
     return { id: "", transcript: resp.data.transcript };
   } else {
-    const resp = await axios.post(`${BACKEND}/api/uploads`, formData, { headers });
+    const resp = await axios.post(`${BACKEND}/api/uploads`, formData, {
+      headers,
+    });
     return resp.data.upload;
   }
 };
 
-export const createUploadFromText = async (transcriptText, fileName = "Text Input") => {
+export const createUploadFromText = async (
+  transcriptText,
+  fileName = "Text Input"
+) => {
   const headers = getAuthHeaders();
-  
+
   if (!headers.Authorization) {
     // ephemeral
     return { id: "", transcript: transcriptText, fileName };
@@ -78,7 +86,7 @@ export const createUploadFromText = async (transcriptText, fileName = "Text Inpu
 
 export const getWebsiteTranscript = async (websiteUrl) => {
   const headers = getAuthHeaders();
-  
+
   if (!headers.Authorization) {
     // ephemeral
     const resp = await axios.get(`${BACKEND}/api/website-transcript-public`, {
@@ -88,7 +96,7 @@ export const getWebsiteTranscript = async (websiteUrl) => {
   } else {
     const resp = await axios.get(`${BACKEND}/api/website-transcript`, {
       params: { url: websiteUrl.trim() },
-      headers
+      headers,
     });
     return resp.data.transcript;
   }
@@ -98,22 +106,22 @@ export const deleteUpload = async (upload_id) => {
   try {
     const headers = getAuthHeaders();
     if (!headers.Authorization) return false;
-    
+
     // Array of possible delete endpoint paths to try
     const endpointPaths = [
-      `/api/uploads/${upload_id}`,  // Plural (standard REST)
-      `/api/upload/${upload_id}`,   // Singular
-      `/uploads/${upload_id}`,      // Without /api prefix (plural)
-      `/upload/${upload_id}`        // Without /api prefix (singular)
+      `/api/uploads/${upload_id}`, // Plural (standard REST)
+      `/api/upload/${upload_id}`, // Singular
+      `/uploads/${upload_id}`, // Without /api prefix (plural)
+      `/upload/${upload_id}`, // Without /api prefix (singular)
     ];
-    
+
     let success = false;
-    
+
     // Try each endpoint until one works
     for (const path of endpointPaths) {
       // Skip if we already know this endpoint fails
       if (hasEndpointFailed(`${BACKEND}${path}`)) continue;
-      
+
       try {
         console.log(`Trying delete endpoint: ${BACKEND}${path}`);
         await axios.delete(`${BACKEND}${path}`, { headers });
@@ -126,7 +134,7 @@ export const deleteUpload = async (upload_id) => {
         // Continue trying other endpoints
       }
     }
-    
+
     return success;
   } catch (error) {
     console.error("deleteUpload error:", error);
@@ -139,5 +147,5 @@ export default {
   uploadDocumentTranscript,
   createUploadFromText,
   getWebsiteTranscript,
-  deleteUpload
-}; 
+  deleteUpload,
+};
