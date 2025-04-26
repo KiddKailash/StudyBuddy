@@ -8,6 +8,7 @@ const {
   deleteQuiz,
   renameQuiz,
   getQuizzesByFolderID,
+  assignFolderToQuiz,
 } = require("../controllers/multipleChoiceQuizController");
 
 router.post("/", authMiddleware, createQuiz);
@@ -16,5 +17,6 @@ router.get("/:id", authMiddleware, getQuizById);
 router.delete("/:id", authMiddleware, deleteQuiz);
 router.put("/:id/rename", authMiddleware, renameQuiz);
 router.get("/folder/:folderID", authMiddleware, getQuizzesByFolderID);
+router.put("/:id/assign-folder", authMiddleware, assignFolderToQuiz);
 
 module.exports = router;

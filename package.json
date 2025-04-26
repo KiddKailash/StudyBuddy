@@ -1,5 +1,5 @@
 {
-  "name": "studybuddy.ai",
+  "name": "backend",
   "version": "1.0.0",
   "description": "Backend server for studybuddy.ai, a website which creates study flashcards from a range of sources.",
   "main": "server.js",

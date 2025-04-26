@@ -8,6 +8,7 @@ const {
   deleteChat,
   renameAiChat,
   getChatsByFolderID,
+  assignFolderToChat,
 } = require("../controllers/aiChatController");
 
 router.post("/", authMiddleware, createChat);
@@ -16,5 +17,6 @@ router.get("/:id", authMiddleware, getChatById);
 router.delete("/:id", authMiddleware, deleteChat);
 router.put("/:id/rename", authMiddleware, renameAiChat);
 router.get("/folder/:folderID", authMiddleware, getChatsByFolderID);
+router.put("/:id/assign-folder", authMiddleware, assignFolderToChat);
 
 module.exports = router;

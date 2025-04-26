@@ -80,6 +80,15 @@ connectDB()
      */
     app.use(express.json({ limit: "20mb" }));
     app.use(express.urlencoded({ limit: "20mb", extended: true }));
+    
+    // Log all incoming requests (debugging)
+    app.use((req, res, next) => {
+      console.log(`${req.method} ${req.url}`);
+      if (req.method === 'POST' && (req.url.includes('/upload') || req.url.includes('/uploads'))) {
+        console.log('Upload request body:', req.body);
+      }
+      next();
+    });
 
     // PUBLIC routes for free-tier (no auth):
     app.use("/api/openai", openaiPublicRoutes);

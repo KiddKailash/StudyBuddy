@@ -299,3 +299,42 @@ exports.getQuizzesByFolderID = async (req, res) => {
       .json({ error: "Server error while retrieving quizzes by folder." });
   }
 };
+
+/**
+ * Assign a folder to a quiz
+ */
+exports.assignFolderToQuiz = async (req, res) => {
+  const { id } = req.params;
+  const { folderID } = req.body;
+  const userId = req.user.id;
+
+  if (!id) {
+    return res.status(400).json({ error: "Quiz ID is required." });
+  }
+
+  try {
+    const db = getDB();
+    const quizzesCollection = db.collection("multiple_choice_quizzes");
+
+    // Verify that the quiz exists and belongs to the user
+    const quiz = await quizzesCollection.findOne({
+      _id: new ObjectId(id),
+      userId: new ObjectId(userId),
+    });
+
+    if (!quiz) {
+      return res.status(404).json({ error: "Quiz not found." });
+    }
+
+    // Update the quiz to assign the folder
+    await quizzesCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { folderID } }
+    );
+
+    res.status(200).json({ message: "Folder assigned to quiz successfully." });
+  } catch (error) {
+    console.error("Error assigning folder to quiz:", error);
+    res.status(500).json({ error: "Server error assigning folder to quiz." });
+  }
+};

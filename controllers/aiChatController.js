@@ -322,3 +322,42 @@ exports.getChatsByFolderID = async (req, res) => {
       .json({ error: "Server error while retrieving AI chats by folder." });
   }
 };
+
+/**
+ * Assign a folder to an AI chat
+ */
+exports.assignFolderToChat = async (req, res) => {
+  const { id } = req.params;
+  const { folderID } = req.body;
+  const userId = req.user.id;
+
+  if (!id) {
+    return res.status(400).json({ error: "Chat ID is required." });
+  }
+
+  try {
+    const db = getDB();
+    const chatsCollection = db.collection("aichats");
+
+    // Verify that the chat exists and belongs to the user
+    const chat = await chatsCollection.findOne({
+      _id: new ObjectId(id),
+      userId: new ObjectId(userId),
+    });
+
+    if (!chat) {
+      return res.status(404).json({ error: "Chat not found." });
+    }
+
+    // Update the chat to assign the folder
+    await chatsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { folderID } }
+    );
+
+    res.status(200).json({ message: "Folder assigned to chat successfully." });
+  } catch (error) {
+    console.error("Error assigning folder to chat:", error);
+    res.status(500).json({ error: "Server error assigning folder to chat." });
+  }
+};

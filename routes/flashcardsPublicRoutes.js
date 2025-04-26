@@ -11,6 +11,7 @@ const {
   createEphemeralSession,
   getEphemeralSessionById,
   deleteEphemeralSession,
+  generateFlashcardsFromTranscript,
 } = require("../controllers/flashcardsPublicController");
 
 // Public endpoint: Create ephemeral session
@@ -21,5 +22,8 @@ router.get("/:id", getEphemeralSessionById);
 
 // Public endpoint: Delete ephemeral session by ID
 router.delete("/:id", deleteEphemeralSession);
+
+// Public endpoint: Generate flashcards from transcript
+router.post("/generate-from-transcript", generateFlashcardsFromTranscript);
 
 module.exports = router;

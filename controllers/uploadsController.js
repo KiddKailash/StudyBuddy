@@ -43,9 +43,18 @@ exports.uploadFile = (req, res) => {
     const filePath = req.file.path;
     const fileType = req.file.mimetype;
     const userId = req.user.id;
-    const folderID = req.folderID;
-
-    const folderIDExists = folderID ? null : folderID;
+    
+    // Extract folderID from various possible locations
+    let folderID = null;
+    if (req.folderID !== undefined) {
+      // From middleware
+      folderID = req.folderID;
+    } else if (req.body && req.body.folderID) {
+      // From form data
+      folderID = req.body.folderID;
+    }
+    
+    console.log("Processing upload with folderID:", folderID);
 
     try {
       let transcript = "";
@@ -79,7 +88,7 @@ exports.uploadFile = (req, res) => {
         filePath: null,
         transcript,
         uploadedAt: new Date(),
-        folderID: folderIDExists,
+        folderID: folderID,
       };
 
       const result = await uploadsCollection.insertOne(uploadDoc);
@@ -177,19 +186,27 @@ exports.getAllUploads = async (req, res) => {
     const db = getDB();
     const uploadsCollection = db.collection("uploads");
 
+    console.log("Getting uploads for user:", userId);
+    
     const results = await uploadsCollection
       .find({ userId: new ObjectId(userId) })
       .toArray();
 
+    console.log(`Found ${results.length} uploads for user ${userId}`);
+    
     // Return them as array with 'id'
-    const uploads = results.map((doc) => ({
-      id: doc._id.toString(),
-      fileType: doc.fileType,
-      fileName: doc.fileName,
-      transcript: doc.transcript,
-      uploadedAt: doc.uploadedAt,
-      folderID: doc.folderID,
-    }));
+    const uploads = results.map((doc) => {
+      const upload = {
+        id: doc._id.toString(),
+        fileType: doc.fileType,
+        fileName: doc.fileName,
+        transcript: doc.transcript,
+        uploadedAt: doc.uploadedAt,
+        folderID: doc.folderID,
+      };
+      console.log(`Upload ${upload.id} with folderID: ${upload.folderID}`);
+      return upload;
+    });
 
     res.status(200).json({ uploads });
   } catch (error) {

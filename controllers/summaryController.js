@@ -308,3 +308,42 @@ exports.getSummariesByFolderID = async (req, res) => {
       .json({ error: "Server error while retrieving summaries by folder." });
   }
 };
+
+/**
+ * Assign a folder to a summary
+ */
+exports.assignFolderToSummary = async (req, res) => {
+  const { id } = req.params;
+  const { folderID } = req.body;
+  const userId = req.user.id;
+
+  if (!id) {
+    return res.status(400).json({ error: "Summary ID is required." });
+  }
+
+  try {
+    const db = getDB();
+    const summariesCollection = db.collection("summaries");
+
+    // Verify that the summary exists and belongs to the user
+    const summary = await summariesCollection.findOne({
+      _id: new ObjectId(id),
+      userId: new ObjectId(userId),
+    });
+
+    if (!summary) {
+      return res.status(404).json({ error: "Summary not found." });
+    }
+
+    // Update the summary to assign the folder
+    await summariesCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { folderID } }
+    );
+
+    res.status(200).json({ message: "Folder assigned to summary successfully." });
+  } catch (error) {
+    console.error("Error assigning folder to summary:", error);
+    res.status(500).json({ error: "Server error assigning folder to summary." });
+  }
+};

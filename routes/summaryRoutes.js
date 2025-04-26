@@ -7,7 +7,8 @@ const {
   getSummaryById,
   deleteSummary,
   renameSummary,
-  getSummariesByFolderID, 
+  getSummariesByFolderID,
+  assignFolderToSummary,
 } = require("../controllers/summaryController");
 
 router.post("/", authMiddleware, createSummary);
@@ -16,5 +17,6 @@ router.get("/:id", authMiddleware, getSummaryById);
 router.delete("/:id", authMiddleware, deleteSummary);
 router.put("/:id/rename", authMiddleware, renameSummary);
 router.get("/folder/:folderID", authMiddleware, getSummariesByFolderID);
+router.put("/:id/assign-folder", authMiddleware, assignFolderToSummary);
 
 module.exports = router;

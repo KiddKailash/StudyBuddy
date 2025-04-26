@@ -12,6 +12,7 @@ const {
   assignFolderToSession,
   generateSessionFlashcards,
   getFlashcardsByFolderID,
+  generateFlashcardsFromTranscript,
 } = require("../controllers/flashcardsController");
 
 // Apply authentication middleware to all routes
@@ -65,5 +66,11 @@ router.put("/:id/assign-folder", assignFolderToSession);
  *     GET /api/flashcards/folder/:id
  */
 router.get("/folder/:folderID", getFlashcardsByFolderID);
+
+/**
+ * 11) Generate flashcards from transcript text
+ *     POST /api/flashcards/generate-from-transcript
+ */
+router.post("/generate-from-transcript", generateFlashcardsFromTranscript);
 
 module.exports = router;
