@@ -6,8 +6,17 @@ const { getDB } = require("../database/db");
 const { ObjectId } = require("mongodb");
 
 // Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+
 const upload = multer({
-  dest: "uploads/",
+  storage: storage,
   limits: {
     fileSize: 20 * 1024 * 1024, // 20 MB
   },
@@ -44,17 +53,10 @@ exports.uploadFile = (req, res) => {
     const fileType = req.file.mimetype;
     const userId = req.user.id;
     
-    // Extract folderID from various possible locations
-    let folderID = null;
-    if (req.folderID !== undefined) {
-      // From middleware
-      folderID = req.folderID;
-    } else if (req.body && req.body.folderID) {
-      // From form data
-      folderID = req.body.folderID;
-    }
-    
-    console.log("Processing upload with folderID:", folderID);
+    // Extract folderID from form data
+    console.log("Full request body:", req.body);
+    const folderID = req.body.folderID === "null" ? null : req.body.folderID;
+    console.log("Extracted folderID:", folderID);
 
     try {
       let transcript = "";
@@ -216,28 +218,51 @@ exports.getAllUploads = async (req, res) => {
 };
 
 /**
- * Delete an upload
+ * Delete an upload by ID or filename
  */
-exports.deleteUpload = async (req, res) => {
-  const { id } = req.params;
+exports.deleteFile = async (req, res) => {
+  const { filename } = req.params;
   const userId = req.user.id;
-
+  
   try {
     const db = getDB();
     const uploadsCollection = db.collection("uploads");
-
-    const found = await uploadsCollection.findOne({
-      _id: new ObjectId(id),
-      userId: new ObjectId(userId),
-    });
-    if (!found) {
-      return res.status(404).json({ error: "Upload not found" });
+    
+    // Try to interpret the filename parameter as an ObjectId
+    let query;
+    
+    try {
+      // If the filename looks like an ObjectId, use it as ID
+      if (ObjectId.isValid(filename)) {
+        query = { _id: new ObjectId(filename), userId: new ObjectId(userId) };
+      } else {
+        // Otherwise, search by fileName
+        query = { fileName: filename, userId: new ObjectId(userId) };
+      }
+    } catch (error) {
+      // If it's not a valid ObjectId, search by fileName
+      query = { fileName: filename, userId: new ObjectId(userId) };
     }
-
-    await uploadsCollection.deleteOne({ _id: new ObjectId(id) });
-    res.status(200).json({ message: "Upload deleted successfully." });
+    
+    // Find the upload document
+    const found = await uploadsCollection.findOne(query);
+    
+    if (!found) {
+      return res.status(404).json({ error: "File not found" });
+    }
+    
+    // Delete from database
+    await uploadsCollection.deleteOne({ _id: found._id });
+    
+    // Also delete physical file if it exists
+    const filePath = `uploads/${filename}`;
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    
+    return res.status(200).json({ message: "File deleted successfully" });
   } catch (error) {
-    console.error("deleteUpload error:", error);
-    res.status(500).json({ error: "Server error while deleting upload." });
+    console.error("File Deletion Error:", error);
+    return res.status(500).json({ error: "Failed to delete the file" });
   }
 };

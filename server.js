@@ -80,16 +80,8 @@ connectDB()
      */
     app.use(express.json({ limit: "20mb" }));
     app.use(express.urlencoded({ limit: "20mb", extended: true }));
+  
     
-    // Log all incoming requests (debugging)
-    app.use((req, res, next) => {
-      console.log(`${req.method} ${req.url}`);
-      if (req.method === 'POST' && (req.url.includes('/upload') || req.url.includes('/uploads'))) {
-        console.log('Upload request body:', req.body);
-      }
-      next();
-    });
-
     // PUBLIC routes for free-tier (no auth):
     app.use("/api/openai", openaiPublicRoutes);
     app.use("/api/flashcards-public", flashcardsPublicRoutes);
@@ -103,18 +95,14 @@ connectDB()
     // app.use("/api/openai", openaiRoutes);
     app.use("/api/flashcards", flashcardsRoutes);
     app.use("/api/checkout", checkoutRoutes);
-    app.use("/api/upload", uploadRoutes);
     app.use("/api/uploads", uploadRoutes);
     app.use("/api/folders", foldersRoutes);
     app.use("/api/users", userRoutes);
     app.use("/api/notion", notionRoutes);
     app.use("/api/feature-request", featureRequestRoutes);
     app.use("/api/website-transcript", websiteTranscriptRoutes);
-    app.use("/api/multiple-choice-quiz", multipleChoiceQuizRoutes);
     app.use("/api/multiple-choice-quizzes", multipleChoiceQuizRoutes);
-    app.use("/api/aichat", aiChatRoutes);
     app.use("/api/aichats", aiChatRoutes);
-    app.use("/api/summary", summaryRoutes);
     app.use("/api/summaries", summaryRoutes);
 
     // Global error handler

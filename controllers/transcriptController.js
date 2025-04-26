@@ -1,5 +1,9 @@
 const { YoutubeTranscript } = require('youtube-transcript');
 const he = require('he');
+const { getDB } = require("../database/db");
+const { ObjectId } = require("mongodb");
+const axios = require("axios");
+const cheerio = require("cheerio");
 
 /**
  * Extracts the video ID from various YouTube URL formats.
@@ -92,5 +96,117 @@ exports.fetchTranscript = async (req, res) => {
         details: error.message,
       });
     }
+  }
+};
+
+// Website transcript functions
+exports.getWebsiteTranscript = async (req, res) => {
+  const { url } = req.query;
+  const userId = req.user.id;
+
+  if (!url) {
+    return res.status(400).json({ error: "URL is required" });
+  }
+
+  try {
+    const response = await axios.get(url);
+    const $ = cheerio.load(response.data);
+    
+    // Remove script tags, style tags, and comments
+    $("script").remove();
+    $("style").remove();
+    $("noscript").remove();
+    $("iframe").remove();
+    
+    // Get text content
+    let text = $("body").text();
+    
+    // Clean up whitespace
+    text = text.replace(/\s+/g, " ").trim();
+    
+    // Store in database for authenticated users
+    const db = getDB();
+    await db.collection("websiteTranscripts").insertOne({
+      userId: new ObjectId(userId),
+      url,
+      transcript: text,
+      createdAt: new Date()
+    });
+
+    res.json({ transcript: text });
+  } catch (error) {
+    console.error("Website transcript error:", error);
+    res.status(500).json({ error: "Failed to get website content" });
+  }
+};
+
+// Public website transcript endpoint
+exports.getWebsiteTranscriptPublic = async (req, res) => {
+  const { url } = req.query;
+
+  if (!url) {
+    return res.status(400).json({ error: "URL is required" });
+  }
+
+  try {
+    const response = await axios.get(url);
+    const $ = cheerio.load(response.data);
+    
+    // Remove script tags, style tags, and comments
+    $("script").remove();
+    $("style").remove();
+    $("noscript").remove();
+    $("iframe").remove();
+    
+    // Get text content
+    let text = $("body").text();
+    
+    // Clean up whitespace
+    text = text.replace(/\s+/g, " ").trim();
+
+    res.json({ transcript: text });
+  } catch (error) {
+    console.error("Website transcript error:", error);
+    res.status(500).json({ error: "Failed to get website content" });
+  }
+};
+
+// Regular transcript functions
+exports.createTranscript = async (req, res) => {
+  const { text } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const db = getDB();
+    const result = await db.collection("transcripts").insertOne({
+      userId: new ObjectId(userId),
+      text,
+      createdAt: new Date(),
+    });
+
+    res.status(201).json({
+      message: "Transcript created successfully",
+      transcriptId: result.insertedId,
+    });
+  } catch (error) {
+    console.error("Create transcript error:", error);
+    res.status(500).json({ error: "Failed to create transcript" });
+  }
+};
+
+exports.getTranscripts = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const db = getDB();
+    const transcripts = await db
+      .collection("transcripts")
+      .find({ userId: new ObjectId(userId) })
+      .toArray();
+
+    res.json({ transcripts });
+  } catch (error) {
+    console.error("Get transcripts error:", error);
+    res.status(500).json({ error: "Failed to get transcripts" });
   }
 };

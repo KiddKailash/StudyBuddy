@@ -96,3 +96,38 @@ exports.renameFolder = async (req, res) => {
     res.status(500).json({ error: "Server error while renaming folder." });
   }
 };
+
+/**
+ * Delete a folder
+ */
+exports.deleteFolder = async (req, res) => {
+  try {
+    const { id } = req.params; // folder's id
+    const userId = req.user.id;
+
+    const db = getDB();
+    const foldersCollection = db.collection("folders");
+
+    const folder = await foldersCollection.findOne({
+      _id: new ObjectId(id),
+      userId: new ObjectId(userId),
+    });
+    if (!folder) {
+      return res.status(404).json({ error: "Folder not found." });
+    }
+
+    // Delete the folder
+    await foldersCollection.deleteOne({
+      _id: new ObjectId(id),
+      userId: new ObjectId(userId),
+    });
+
+    // Note: Resources in this folder won't be deleted, they'll just become "unfoldered"
+    // You could implement cascading deletion or resource reassignment if needed
+
+    return res.status(200).json({ message: "Folder deleted successfully." });
+  } catch (error) {
+    console.error("deleteFolder error:", error);
+    res.status(500).json({ error: "Server error while deleting folder." });
+  }
+};

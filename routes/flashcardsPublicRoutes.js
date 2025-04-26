@@ -6,24 +6,21 @@
 
 const express = require("express");
 const router = express.Router();
+const flashcardsController = require("../controllers/flashcardsController");
 
-const {
-  createEphemeralSession,
-  getEphemeralSessionById,
-  deleteEphemeralSession,
-  generateFlashcardsFromTranscript,
-} = require("../controllers/flashcardsPublicController");
+// @route   POST /api/flashcards-public
+// @desc    Create a new ephemeral flashcard session
+// @access  Public
+router.post("/", flashcardsController.createEphemeralSession);
 
-// Public endpoint: Create ephemeral session
-router.post("/", createEphemeralSession);
+// @route   GET /api/flashcards-public/:id
+// @desc    Get an ephemeral flashcard session by ID
+// @access  Public
+router.get("/:id", flashcardsController.getEphemeralSessionById);
 
-// Public endpoint: Retrieve ephemeral session by ID
-router.get("/:id", getEphemeralSessionById);
-
-// Public endpoint: Delete ephemeral session by ID
-router.delete("/:id", deleteEphemeralSession);
-
-// Public endpoint: Generate flashcards from transcript
-router.post("/generate-from-transcript", generateFlashcardsFromTranscript);
+// @route   DELETE /api/flashcards-public/:id
+// @desc    Delete an ephemeral flashcard session
+// @access  Public
+router.delete("/:id", flashcardsController.deleteEphemeralSession);
 
 module.exports = router;

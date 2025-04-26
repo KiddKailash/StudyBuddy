@@ -1,5 +1,8 @@
 const axios = require("axios");
 require("dotenv").config();
+const { getDB } = require("../database/db");
+
+const openaiApiKey = process.env.OPENAI_API_KEY;
 
 /**
  * Generates flashcards using OpenAI API based on the provided transcript.
@@ -15,7 +18,6 @@ exports.generateFlashcards = async (req, res) => {
   }
 
   try {
-    const openaiApiKey = process.env.OPENAI_API_KEY;
     if (!openaiApiKey) {
       return res
         .status(500)
@@ -124,6 +126,92 @@ exports.generateFlashcards = async (req, res) => {
       error.response?.data || error.message
     );
     res.status(500).json({ error: "Error generating flashcards via OpenAI." });
+  }
+};
+
+// Public endpoints
+exports.generatePublicResponse = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt is required" });
+    }
+
+    if (!openaiApiKey) {
+      return res.status(500).json({ error: "OpenAI API key is not configured." });
+    }
+
+    const response = await axios.post(
+      "https://api.openai.com/v1/completions",
+      {
+        model: "text-davinci-003",
+        prompt: prompt,
+        max_tokens: 2000,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiApiKey}`,
+        },
+      }
+    );
+
+    res.json({ response: response.data.choices[0].text.trim() });
+  } catch (error) {
+    console.error("OpenAI API Error:", error);
+    res.status(500).json({ error: "Failed to generate response" });
+  }
+};
+
+// Authenticated endpoints
+exports.generateResponse = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    const userId = req.user.id;
+    
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt is required" });
+    }
+
+    if (!openaiApiKey) {
+      return res.status(500).json({ error: "OpenAI API key is not configured." });
+    }
+
+    // Get user's subscription status
+    const db = getDB();
+    const user = await db.collection("users").findOne({ _id: userId });
+    
+    // Configure token limit based on subscription
+    const maxTokens = user.isPro ? 4000 : 2000;
+
+    const response = await axios.post(
+      "https://api.openai.com/v1/completions",
+      {
+        model: "text-davinci-003",
+        prompt: prompt,
+        max_tokens: maxTokens,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiApiKey}`,
+        },
+      }
+    );
+
+    // Store the interaction in history if needed
+    await db.collection("aiHistory").insertOne({
+      userId,
+      prompt,
+      response: response.data.choices[0].text,
+      timestamp: new Date(),
+    });
+
+    res.json({ response: response.data.choices[0].text.trim() });
+  } catch (error) {
+    console.error("OpenAI API Error:", error);
+    res.status(500).json({ error: "Failed to generate response" });
   }
 };
 

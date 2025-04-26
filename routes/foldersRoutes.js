@@ -6,5 +6,6 @@ const authMiddleware = require("../middleware/authMiddleware");
 router.post("/", authMiddleware, foldersController.createFolder);
 router.get("/", authMiddleware, foldersController.getFolders);
 router.put("/:id/rename", authMiddleware, foldersController.renameFolder);
+router.delete("/:id", authMiddleware, foldersController.deleteFolder);
 
 module.exports = router;
