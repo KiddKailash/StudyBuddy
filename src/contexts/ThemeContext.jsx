@@ -1,5 +1,5 @@
-import { createContext, useContext, useMemo, useState } from 'react';
-import { ThemeProvider as MUIThemeProvider } from '@mui/material';
+import { createContext, useContext, useMemo, useState, useEffect } from 'react';
+import { ThemeProvider as MUIThemeProvider, CssBaseline } from '@mui/material';
 import { getTheme } from '../styles/global';
 import PropTypes from 'prop-types';
 
@@ -13,8 +13,25 @@ export const useThemeContext = () => {
   return context;
 };
 
+// Helper function to detect system preference
+const getSystemPreference = () => {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return 'light';
+};
+
 export const ThemeProvider = ({ children }) => {
-  const [mode, setMode] = useState('light');
+  const [mode, setMode] = useState(getSystemPreference());
+
+  // Listen for system preference changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e) => setMode(e.matches ? 'dark' : 'light');
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const toggleTheme = () => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
@@ -25,12 +42,13 @@ export const ThemeProvider = ({ children }) => {
   const value = {
     mode,
     toggleTheme,
-    dispatch: toggleTheme // for backward compatibility if you were using dispatch before
+    dispatch: toggleTheme // for backward compatibility
   };
 
   return (
     <ThemeContext.Provider value={value}>
       <MUIThemeProvider theme={theme}>
+        <CssBaseline />
         {children}
       </MUIThemeProvider>
     </ThemeContext.Provider>

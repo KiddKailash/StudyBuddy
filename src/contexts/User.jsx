@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { useAuthentication, useFlashcards, useResources, useUserAccount } from "../services/hooks";
+import { useAuthentication, useFlashcards, useResources, useUserAccount } from "../services/hooks/_HOOK_EXPORTS";
 
 //eslint-disable-next-line
 export const UserContext = createContext();
