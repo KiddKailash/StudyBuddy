@@ -7,7 +7,7 @@
  * that maintain data consistency across the application.
  */
 
-import React, { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useAuthentication, useFlashcards, useResources, useUserAccount } from "../services/hooks/_HOOK_EXPORTS";
 
@@ -99,6 +99,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     flashcards.loadLocalSessions();
     auth.fetchCurrentUser();
+    //eslint-disable-next-line
   }, []);
 
   // ... (rest of the file remains unchanged)
