@@ -822,7 +822,14 @@ exports.generateFlashcardsFromTranscript = async (req, res) => {
 // Public endpoints
 /**
  * Create a new ephemeral flashcard session
- * POST /api/flashcards-public
+ * 
+ * Creates a temporary (non-persistent) flashcard session for unauthenticated users.
+ * Uses rate limiting to prevent abuse of the public endpoint.
+ * Stores session data in memory with a UUID for reference.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with session ID or error
  */
 exports.createEphemeralSession = [
   createFlashcardSessionLimiter,
@@ -862,7 +869,13 @@ exports.createEphemeralSession = [
 
 /**
  * Retrieve a single ephemeral session by ID
- * GET /api/flashcards-public/:id
+ * 
+ * Fetches a temporary flashcard session by its UUID from in-memory storage.
+ * Used by unauthenticated users to access their previously created sessions.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with session data or error
  */
 exports.getEphemeralSessionById = (req, res) => {
   const { id } = req.params;
@@ -880,7 +893,13 @@ exports.getEphemeralSessionById = (req, res) => {
 
 /**
  * Delete an ephemeral session by ID
- * DELETE /api/flashcards-public/:id
+ * 
+ * Removes a temporary flashcard session from in-memory storage.
+ * Used for cleanup when a public user is done with their session.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error
  */
 exports.deleteEphemeralSession = (req, res) => {
   const { id } = req.params;
