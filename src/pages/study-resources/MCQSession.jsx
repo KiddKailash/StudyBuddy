@@ -48,6 +48,7 @@ const MCQSession = () => {
     if (!dataLoading) {
       fetchQuizById();
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, dataLoading, isLoggedIn, multipleChoiceQuizzes]);
 
   const fetchQuizById = () => {
