@@ -235,6 +235,15 @@ exports.createTranscript = async (req, res) => {
   }
 };
 
+/**
+ * Get all transcripts for authenticated user
+ * 
+ * Retrieves all transcript entries created by the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with array of transcript objects or error
+ */
 exports.getTranscripts = async (req, res) => {
   const userId = req.user.id;
 

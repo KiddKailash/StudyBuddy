@@ -235,6 +235,12 @@ exports.getSummaryById = async (req, res) => {
 
 /**
  * Delete a summary by ID
+ * 
+ * Permanently removes a summary owned by the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error
  */
 exports.deleteSummary = async (req, res) => {
   try {
@@ -264,6 +270,12 @@ exports.deleteSummary = async (req, res) => {
 
 /**
  * Rename a summary
+ * 
+ * Updates the name of an existing summary.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error
  */
 exports.renameSummary = async (req, res) => {
   try {
@@ -301,6 +313,16 @@ exports.renameSummary = async (req, res) => {
   }
 };
 
+/**
+ * Get summaries by folder ID
+ * 
+ * Retrieves all summaries in a specific folder for the authenticated user.
+ * Handles special case where folderID is "null" to find unorganized summaries.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with array of summary objects or error
+ */
 exports.getSummariesByFolderID = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -339,6 +361,13 @@ exports.getSummariesByFolderID = async (req, res) => {
 
 /**
  * Assign a folder to a summary
+ * 
+ * Updates a summary to associate it with a specific folder.
+ * Used for organizing summary content.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error
  */
 exports.assignFolderToSummary = async (req, res) => {
   const { id } = req.params;

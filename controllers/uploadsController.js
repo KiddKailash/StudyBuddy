@@ -256,6 +256,13 @@ exports.getAllUploads = async (req, res) => {
 
 /**
  * Delete an upload by ID or filename
+ * 
+ * Removes an uploaded document from the database and file system if it exists.
+ * Supports deletion by either document ID or filename, with ID taking precedence.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error
  */
 exports.deleteFile = async (req, res) => {
   const { filename } = req.params;

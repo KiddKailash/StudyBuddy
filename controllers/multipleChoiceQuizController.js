@@ -229,6 +229,12 @@ exports.getQuizById = async (req, res) => {
 
 /**
  * Delete a quiz
+ * 
+ * Permanently removes a quiz owned by the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error
  */
 exports.deleteQuiz = async (req, res) => {
   try {
@@ -257,6 +263,12 @@ exports.deleteQuiz = async (req, res) => {
 
 /**
  * Rename a quiz
+ * 
+ * Updates the name of an existing quiz.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error
  */
 exports.renameQuiz = async (req, res) => {
   try {
@@ -291,6 +303,16 @@ exports.renameQuiz = async (req, res) => {
   }
 };
 
+/**
+ * Get quizzes by folder ID
+ * 
+ * Retrieves all quizzes in a specific folder for the authenticated user.
+ * Handles special case where folderID is "null" to find unorganized quizzes.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with array of quiz objects or error
+ */
 exports.getQuizzesByFolderID = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -329,6 +351,13 @@ exports.getQuizzesByFolderID = async (req, res) => {
 
 /**
  * Assign a folder to a quiz
+ * 
+ * Updates a quiz to associate it with a specific folder.
+ * Used for organizing quiz content.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error
  */
 exports.assignFolderToQuiz = async (req, res) => {
   const { id } = req.params;
