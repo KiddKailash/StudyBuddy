@@ -1,3 +1,11 @@
+/**
+ * AI Chat Controller
+ * 
+ * Handles AI-assisted chat interactions based on transcript context.
+ * Provides endpoints for creating new chat sessions, retrieving chat history,
+ * continuing conversations, and managing chat data.
+ * Uses OpenAI API to generate context-aware responses from transcript content.
+ */
 const axios = require("axios");
 const { getDB } = require("../database/db");
 const { ObjectId } = require("mongodb");
@@ -5,6 +13,13 @@ require("dotenv").config();
 
 /**
  * Start or continue an AI chat session with the transcript context.
+ * 
+ * Creates a new chat session based on the provided transcript and user message.
+ * Uses OpenAI to generate a response and chat session name.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with created chat or error
  */
 exports.createChat = async (req, res) => {
   const userId = req.user.id;
@@ -154,6 +169,12 @@ exports.createChat = async (req, res) => {
 
 /**
  * Get all AI chats for the logged-in user
+ * 
+ * Retrieves all chat sessions belonging to the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with array of chat objects or error
  */
 exports.getAllChats = async (req, res) => {
   const userId = req.user.id;
@@ -185,6 +206,12 @@ exports.getAllChats = async (req, res) => {
 
 /**
  * Retrieve a single AI Chat by ID
+ * 
+ * Fetches a specific chat session by its ID for the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with chat data or error
  */
 exports.getChatById = async (req, res) => {
   const { id } = req.params;

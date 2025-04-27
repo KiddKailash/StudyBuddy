@@ -1,3 +1,11 @@
+/**
+ * Summary Controller
+ * 
+ * Manages the generation and retrieval of AI-powered summaries from transcripts.
+ * Uses OpenAI to create concise summaries of uploaded documents.
+ * Provides endpoints for creating new summaries, retrieving summary history,
+ * and managing summary data.
+ */
 const axios = require("axios");
 const { getDB } = require("../database/db");
 const { ObjectId } = require("mongodb");
@@ -5,6 +13,14 @@ require("dotenv").config();
 
 /**
  * Create a summary from an upload's transcript
+ * 
+ * Generates a concise summary of an uploaded document's content using OpenAI.
+ * Allows optional focus on specific topics through userMessage parameter.
+ * Stores the summary in the database for future reference.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with created summary or error
  */
 exports.createSummary = async (req, res) => {
   try {
@@ -136,6 +152,12 @@ exports.createSummary = async (req, res) => {
 
 /**
  * Get all summaries for the logged-in user
+ * 
+ * Retrieves all summaries belonging to the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with array of summary objects or error
  */
 exports.getAllSummaries = async (req, res) => {
   try {
@@ -168,6 +190,12 @@ exports.getAllSummaries = async (req, res) => {
 
 /**
  * Get a single summary by ID
+ * 
+ * Fetches a specific summary by its ID for the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with summary data or error
  */
 exports.getSummaryById = async (req, res) => {
   try {

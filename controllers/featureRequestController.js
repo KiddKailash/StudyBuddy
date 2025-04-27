@@ -1,6 +1,25 @@
+/**
+ * Feature Request Controller
+ * 
+ * Manages the submission and processing of user feature requests.
+ * Provides endpoints for users to submit feedback and feature suggestions.
+ * Handles email notification to administrators about new feature requests.
+ * Uses nodemailer to format and send detailed request information.
+ */
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
+/**
+ * Submit a feature request
+ * 
+ * Processes feature requests from authenticated users and sends them
+ * via email to administrators. Creates a formatted HTML email with
+ * user information and detailed feature descriptions.
+ * 
+ * @param {Object} req - Express request object with features array in request body
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success status or error
+ */
 exports.requestFeature = async (req, res) => {
   try {
     // The authMiddleware populates req.user

@@ -1,3 +1,10 @@
+/**
+ * Authentication Controller
+ * 
+ * Handles user authentication, registration, login, and token management.
+ * Provides endpoints for user registration, login, token refresh, and user data retrieval.
+ * Also handles subscription status management.
+ */
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { getDB } = require("../database/db");

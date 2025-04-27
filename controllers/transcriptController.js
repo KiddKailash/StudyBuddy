@@ -1,3 +1,11 @@
+/**
+ * Transcript Controller
+ * 
+ * Manages the acquisition and processing of transcripts from various sources.
+ * Provides endpoints for fetching transcripts from YouTube videos and websites.
+ * Supports storing and retrieving transcript data for authenticated users.
+ * Includes utilities for cleaning and formatting transcript text.
+ */
 const { YoutubeTranscript } = require('youtube-transcript');
 const he = require('he');
 const { getDB } = require("../database/db");
@@ -34,8 +42,13 @@ const extractVideoId = (url) => {
 /**
  * Fetches the transcript for a given YouTube URL via the backend.
  *
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
+ * Extracts video ID from different YouTube URL formats, fetches transcript,
+ * and cleans up the text by removing brackets, decoding HTML entities, and
+ * normalizing whitespace.
+ *
+ * @param {Object} req - Express request object containing 'url' query parameter
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with transcript text or error
  */
 exports.fetchTranscript = async (req, res) => {
   const videoUrl = req.query.url;
@@ -100,6 +113,16 @@ exports.fetchTranscript = async (req, res) => {
 };
 
 // Website transcript functions
+/**
+ * Extracts text content from a website URL for authenticated users.
+ *
+ * Fetches webpage content, removes script and style elements,
+ * extracts readable text, and stores it in the database.
+ *
+ * @param {Object} req - Express request object with 'url' query parameter
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with extracted text or error
+ */
 exports.getWebsiteTranscript = async (req, res) => {
   const { url } = req.query;
   const userId = req.user.id;
@@ -140,7 +163,16 @@ exports.getWebsiteTranscript = async (req, res) => {
   }
 };
 
-// Public website transcript endpoint
+/**
+ * Public endpoint to extract text content from a website URL.
+ *
+ * Similar to getWebsiteTranscript but doesn't require authentication
+ * and doesn't store results in the database.
+ *
+ * @param {Object} req - Express request object with 'url' query parameter
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with extracted text or error
+ */
 exports.getWebsiteTranscriptPublic = async (req, res) => {
   const { url } = req.query;
 
@@ -172,6 +204,15 @@ exports.getWebsiteTranscriptPublic = async (req, res) => {
 };
 
 // Regular transcript functions
+/**
+ * Creates a new transcript entry from provided text.
+ *
+ * Stores user-provided transcript text in the database.
+ *
+ * @param {Object} req - Express request object with text in request body
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error
+ */
 exports.createTranscript = async (req, res) => {
   const { text } = req.body;
   const userId = req.user.id;

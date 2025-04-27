@@ -1,3 +1,11 @@
+/**
+ * Uploads Controller
+ * 
+ * Manages the uploading, storage, and retrieval of study materials (documents).
+ * Handles file uploads (PDF, Word, text) and processes them to extract text content.
+ * Provides endpoints for creating, retrieving, updating, and deleting uploads.
+ * Supports organization of uploads through folder structure.
+ */
 const multer = require("multer");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
@@ -8,9 +16,11 @@ const { ObjectId } = require("mongodb");
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    // Specify upload directory
     cb(null, 'uploads/');
   },
   filename: function (req, file, cb) {
+    // Use original filename
     cb(null, file.originalname);
   }
 });
@@ -18,9 +28,10 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 20 * 1024 * 1024, // 20 MB
+    fileSize: 20 * 1024 * 1024, // 20 MB size limit
   },
   fileFilter: (req, file, cb) => {
+    // Filter for supported file types
     const allowedTypes = [
       "application/pdf",
       "application/msword",
@@ -37,6 +48,13 @@ const upload = multer({
 
 /**
  * Upload a file and store record in the 'uploads' collection.
+ * 
+ * Handles file uploads, extracts text content from PDF, Word, or text files,
+ * and stores the content in the database.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with upload details or error
  */
 exports.uploadFile = (req, res) => {
   upload(req, res, async (err) => {
@@ -109,6 +127,13 @@ exports.uploadFile = (req, res) => {
 
 /**
  * Create a new upload from raw text (pasted or website transcript).
+ * 
+ * Creates a new upload entry directly from text input rather than a file.
+ * Useful for pasted content or imported text from other sources.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with created upload or error
  */
 exports.createUploadFromText = async (req, res) => {
   const userId = req.user.id;
@@ -142,6 +167,12 @@ exports.createUploadFromText = async (req, res) => {
 
 /**
  * Retrieve a single upload by ID
+ * 
+ * Fetches upload details for a specific document owned by the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with upload data or error
  */
 exports.getUploadById = async (req, res) => {
   const { id } = req.params;
@@ -181,6 +212,12 @@ exports.getUploadById = async (req, res) => {
 
 /**
  * Get all uploads for the user
+ * 
+ * Retrieves all document uploads belonging to the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with array of upload objects or error
  */
 exports.getAllUploads = async (req, res) => {
   const userId = req.user.id;

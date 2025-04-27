@@ -1,3 +1,11 @@
+/**
+ * Flashcards Controller
+ * 
+ * Manages the creation, retrieval, and manipulation of flashcard study sessions.
+ * Provides endpoints for generating AI-powered flashcards from transcripts,
+ * managing flashcard sets, and tracking user study progress.
+ * Supports both authenticated users and ephemeral (unauthenticated) sessions.
+ */
 const { getDB } = require("../database/db");
 const { ObjectId } = require("mongodb");
 const axios = require("axios");
@@ -20,6 +28,13 @@ const ephemeralSessions = {};
 
 /**
  * Create a new flashcard session
+ * 
+ * Creates a new flashcard study session for the authenticated user.
+ * Enforces session limits for free users.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with created session or error
  */
 exports.createFlashcardSession = async (req, res) => {
   try {
@@ -88,8 +103,12 @@ exports.createFlashcardSession = async (req, res) => {
 /**
  * Generate flashcards from a transcript
  * 
- * Returns a 2-element JSON array:
- *   [ sessionName, [ { question, answer }, ... ] ]
+ * Uses OpenAI to generate study flashcards from a provided transcript.
+ * Returns a 2-element JSON array: [sessionName, [{question, answer}, ...]]
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with generated flashcards or error
  */
 exports.generateSessionFlashcards = async (req, res) => {
   const { transcript } = req.body;
@@ -209,6 +228,12 @@ exports.generateSessionFlashcards = async (req, res) => {
 
 /**
  * Add flashcards to an existing session
+ * 
+ * Appends new flashcards to a user's existing flashcard session.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error
  */
 exports.addFlashcardsToSession = async (req, res) => {
   const { id } = req.params;

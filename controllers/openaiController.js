@@ -1,3 +1,11 @@
+/**
+ * OpenAI Controller
+ * 
+ * Provides endpoints for interacting with the OpenAI API.
+ * Handles flashcard generation, question answering, and text completion.
+ * Supports both authenticated and public endpoints with different usage limits.
+ * Manages API interactions and response parsing for OpenAI services.
+ */
 const axios = require("axios");
 require("dotenv").config();
 const { getDB } = require("../database/db");
@@ -6,9 +14,13 @@ const openaiApiKey = process.env.OPENAI_API_KEY;
 
 /**
  * Generates flashcards using OpenAI API based on the provided transcript.
+ * 
+ * Creates a set of study flashcards with questions and answers from transcript content.
+ * Returns a structured JSON response with session name and flashcard array.
  *
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
+ * @param {Object} req - Express request object with transcript in request body
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with flashcards array or error
  */
 exports.generateFlashcards = async (req, res) => {
   const { transcript } = req.body;
@@ -129,7 +141,16 @@ exports.generateFlashcards = async (req, res) => {
   }
 };
 
-// Public endpoints
+/**
+ * Public endpoint for generating text responses from OpenAI.
+ * 
+ * Available without authentication for limited usage.
+ * Uses OpenAI completions API with the text-davinci-003 model.
+ * 
+ * @param {Object} req - Express request object with prompt in request body
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with AI-generated text or error
+ */
 exports.generatePublicResponse = async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -164,7 +185,16 @@ exports.generatePublicResponse = async (req, res) => {
   }
 };
 
-// Authenticated endpoints
+/**
+ * Authenticated endpoint for generating text responses from OpenAI.
+ * 
+ * Provides different token limits based on user subscription status.
+ * Uses OpenAI completions API with the text-davinci-003 model.
+ * 
+ * @param {Object} req - Express request object with prompt in request body
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with AI-generated text or error
+ */
 exports.generateResponse = async (req, res) => {
   try {
     const { prompt } = req.body;

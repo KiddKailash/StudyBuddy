@@ -1,3 +1,11 @@
+/**
+ * Multiple Choice Quiz Controller
+ * 
+ * Manages the generation and retrieval of AI-powered multiple-choice quizzes.
+ * Uses OpenAI to analyze transcripts and create educational quiz questions.
+ * Provides endpoints for quiz creation, retrieval, and management.
+ * Supports various quiz formats with detailed explanations for answers.
+ */
 const axios = require("axios");
 const { getDB } = require("../database/db");
 const { ObjectId } = require("mongodb");
@@ -5,6 +13,13 @@ require("dotenv").config();
 
 /**
  * Create a new multiple-choice quiz for a given uploadId.
+ * 
+ * Generates a multiple-choice quiz based on the content of an uploaded document.
+ * Uses OpenAI to analyze the transcript and create varied questions with options.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with created quiz or error
  */
 exports.createQuiz = async (req, res) => {
   try {
@@ -131,6 +146,12 @@ exports.createQuiz = async (req, res) => {
 
 /**
  * Get all quizzes for the logged in user
+ * 
+ * Retrieves all quizzes belonging to the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with array of quiz objects or error
  */
 exports.getAllQuizzes = async (req, res) => {
   try {
@@ -163,6 +184,12 @@ exports.getAllQuizzes = async (req, res) => {
 
 /**
  * Retrieve a single quiz by ID
+ * 
+ * Fetches a specific quiz by its ID for the authenticated user.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with quiz data or error
  */
 exports.getQuizById = async (req, res) => {
   try {
