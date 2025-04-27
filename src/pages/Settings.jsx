@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { UserContext } from "../contexts/User";
-import { SnackbarContext } from "../contexts/SnackbarContext";
+import { SnackbarContext } from "../contexts/Snackbar";
 import { useTranslation } from "react-i18next";
 
 // Local Imports

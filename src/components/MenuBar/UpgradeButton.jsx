@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { SnackbarContext } from "../../contexts/SnackbarContext";
+import { SnackbarContext } from "../../contexts/Snackbar";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 

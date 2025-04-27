@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 // Contexts
-import { SnackbarContext } from "../../contexts/SnackbarContext";
+import { SnackbarContext } from "../../contexts/Snackbar";
 import { UserContext } from "../../contexts/User";
 import { useTranslation, Trans } from "react-i18next";
 

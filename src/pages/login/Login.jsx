@@ -4,7 +4,7 @@ import { useTranslation, Trans } from "react-i18next";
 
 // Contexts
 import { UserContext } from "../../contexts/User";
-import { SnackbarContext } from "../../contexts/SnackbarContext";
+import { SnackbarContext } from "../../contexts/Snackbar";
 
 // Local Imports
 import PageWrapper from "../../components/PageWrapper";

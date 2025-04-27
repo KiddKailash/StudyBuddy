@@ -9,7 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import BiotechRoundedIcon from "@mui/icons-material/BiotechRounded";
 
 // Contexts
-import { SnackbarContext } from "../../contexts/SnackbarContext";
+import { SnackbarContext } from "../../contexts/Snackbar";
 import { UserContext } from "../../contexts/User";
 
 const RequestFeature = () => {
