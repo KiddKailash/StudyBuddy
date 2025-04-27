@@ -482,9 +482,13 @@ exports.assignFolderToSession = async (req, res) => {
 
 /**
  * Generate additional flashcards for an existing session
- *
+ * 
+ * Creates additional flashcards for an existing session, ensuring they
+ * don't duplicate existing questions and cover new content.
+ * 
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
+ * @returns {Object} JSON response with newly generated flashcards or error
  */
 exports.generateAdditionalFlashcards = async (req, res) => {
   const { id } = req.params;
@@ -538,7 +542,17 @@ exports.generateAdditionalFlashcards = async (req, res) => {
   }
 };
 
-// Helper
+/**
+ * Helper function to generate flashcards using OpenAI API
+ * 
+ * Generates flashcards based on a transcript while avoiding duplication
+ * with existing questions. Uses prompt engineering to ensure varied content.
+ * 
+ * @param {string} transcript - Text content to generate flashcards from
+ * @param {Array<string>} existingQuestions - Array of existing questions to avoid duplicating
+ * @returns {Array<Object>} Array of flashcard objects with question and answer properties
+ * @throws {Error} If OpenAI API is not configured or response parsing fails
+ */
 async function generateFlashcardsHelper(transcript, existingQuestions) {
   const openaiApiKey = process.env.OPENAI_API_KEY;
   if (!openaiApiKey) {
@@ -624,6 +638,16 @@ async function generateFlashcardsHelper(transcript, existingQuestions) {
   return flashcards;
 }
 
+/**
+ * Get flashcards by folder ID
+ * 
+ * Retrieves all flashcard sessions in a specific folder for the authenticated user.
+ * Handles special case where folderID is "null" to find unorganized flashcards.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with flashcard sessions or error
+ */
 exports.getFlashcardsByFolderID = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -664,8 +688,13 @@ exports.getFlashcardsByFolderID = async (req, res) => {
 
 /**
  * Generate flashcards from a transcript text directly
- * Similar to generateSessionFlashcards but returns the session name and flashcards
- * in the format expected by the frontend
+ * 
+ * Creates flashcards from a raw transcript without requiring an upload.
+ * Returns data in the format expected by the frontend with session name and flashcards.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with generated session name and flashcards or error
  */
 exports.generateFlashcardsFromTranscript = async (req, res) => {
   const { transcript } = req.body;
