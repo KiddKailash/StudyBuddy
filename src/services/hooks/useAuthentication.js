@@ -1,10 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import services from '../index';
+import services from '../_SERVICE_EXPORTS';
 
 /**
  * Custom hook for handling authentication state and related operations
+ * 
+ * This hook manages user authentication state including login, logout, token management,
+ * and automatic token refresh. It provides functionality to handle user sessions securely
+ * while exposing a clean API for components to interact with authentication features.
+ * 
+ * @returns {Object} Authentication state and methods to manage authentication
+ * @property {Object|null} user - Current authenticated user data or null if not logged in
+ * @property {Function} setUser - Function to update user data
+ * @property {string|null} token - Current JWT token or null if not authenticated
+ * @property {boolean} isLoggedIn - Whether a user is currently authenticated
+ * @property {Function} setIsLoggedIn - Function to update login state
+ * @property {boolean} authLoading - Whether authentication operations are in progress
+ * @property {Function} resetAuth - Function to reset authentication state
+ * @property {Function} logout - Function to log out the current user
+ * @property {Function} fetchCurrentUser - Function to fetch the current user based on stored token
+ * @property {Function} loginUser - Function to log in a user with credentials
+ * @property {Function} registerUser - Function to register a new user
+ * @property {Function} googleLoginUser - Function to authenticate with Google
  */
 export function useAuthentication() {
   const [user, setUser] = useState(null);
@@ -13,7 +31,9 @@ export function useAuthentication() {
   const [authLoading, setAuthLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Reset authentication state
+  /**
+   * Resets all authentication state and removes stored token
+   */
   const resetAuth = () => {
     setUser(null);
     setToken(null);
@@ -22,13 +42,18 @@ export function useAuthentication() {
     services.storage.removeItem("token");
   };
 
-  // Handle user logout
+  /**
+   * Logs out the current user and redirects to login page
+   */
   const logout = () => {
     resetAuth();
     navigate("/login?mode=login", { replace: true });
   };
 
-  // Fetch current user on mount
+  /**
+   * Fetches the current user based on token in local storage
+   * Sets user and authentication state if successful
+   */
   const fetchCurrentUser = async () => {
     const localToken = services.storage.getToken();
     console.log('fetchCurrentUser: token available:', !!localToken);
@@ -61,16 +86,21 @@ export function useAuthentication() {
     }
   };
 
-  // Setup token refresh interceptor
+  /**
+   * Sets up an Axios interceptor to handle token refresh and expiration
+   * Automatically refreshes tokens before they expire or logs out if expired
+   */
   useEffect(() => {
     const interceptor = axios.interceptors.request.use(
       async (config) => {
         const localToken = services.storage.getToken();
         if (localToken) {
           try {
+            // Check how much time is left before token expires
             const timeLeft = services.auth.getTimeUntilExpiry(localToken);
             const oneDay = 24 * 60 * 60 * 1000;
             
+            // If token expires within 24 hours but is still valid, refresh it
             if (timeLeft < oneDay && timeLeft > 0) {
               const newToken = await services.auth.refreshToken(localToken);
               if (newToken) {
@@ -81,9 +111,11 @@ export function useAuthentication() {
                 return Promise.reject("Token refresh failed");
               }
             } else if (timeLeft <= 0) {
+              // Token has already expired, log out
               logout();
               return Promise.reject("Token is expired");
             } else {
+              // Token is still valid, use it
               config.headers.Authorization = `Bearer ${localToken}`;
               return config;
             }
@@ -98,13 +130,17 @@ export function useAuthentication() {
       (error) => Promise.reject(error)
     );
 
+    // Clean up interceptor on unmount
     return () => {
       axios.interceptors.request.eject(interceptor);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto logout on token expiry
+  /**
+   * Sets up automatic logout when token expires
+   * Calculates time until expiry and sets up a timer
+   */
   useEffect(() => {
     let tokenExpiryTimeout;
     if (token) {
@@ -126,7 +162,12 @@ export function useAuthentication() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  // Login methods
+  /**
+   * Logs in a user with provided credentials
+   * @param {Object} payload - Login credentials (email/password)
+   * @returns {Promise<Object>} User data on successful login
+   * @throws {Error} If login fails
+   */
   const loginUser = async (payload) => {
     try {
       const data = await services.auth.loginUser(payload);
@@ -138,6 +179,12 @@ export function useAuthentication() {
     }
   };
 
+  /**
+   * Registers a new user
+   * @param {Object} payload - Registration information
+   * @returns {Promise<Object>} User data on successful registration
+   * @throws {Error} If registration fails
+   */
   const registerUser = async (payload) => {
     try {
       const data = await services.auth.registerUser(payload);
@@ -149,6 +196,12 @@ export function useAuthentication() {
     }
   };
 
+  /**
+   * Authenticates user with Google
+   * @param {string} tokenId - Google OAuth token ID
+   * @returns {Promise<Object>} User data on successful login
+   * @throws {Error} If Google login fails
+   */
   const googleLoginUser = async (tokenId) => {
     try {
       const data = await services.auth.googleLoginUser(tokenId);

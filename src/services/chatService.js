@@ -1,8 +1,23 @@
+/**
+ * Chat Service Module
+ * 
+ * Provides functionality for managing AI chat interactions, including:
+ * - Fetching chat history
+ * - Creating new chats
+ * - Deleting and renaming chats
+ * - Organizing chats into folders
+ */
+
 import axios from "axios";
 import { getAuthHeaders, getBackendUrl, hasEndpointFailed, recordEndpointError } from "./apiUtils";
 
 const BACKEND = getBackendUrl();
 
+/**
+ * Fetch all AI chats for the current user
+ * 
+ * @returns {Array} - List of chat objects
+ */
 export const fetchAllAiChats = async () => {
   try {
     const headers = getAuthHeaders();
@@ -25,7 +40,7 @@ export const fetchAllAiChats = async () => {
         responseKeys: Object.keys(resp.data)
       });
       
-      // Check for duplicate IDs
+      // Check for duplicate IDs and remove them
       const ids = chatsData.map(c => c.id);
       const uniqueIds = new Set(ids);
       if (ids.length !== uniqueIds.size) {
@@ -57,6 +72,12 @@ export const fetchAllAiChats = async () => {
   }
 };
 
+/**
+ * Fetch AI chats belonging to a specific folder
+ * 
+ * @param {string} folderID - ID of the folder to fetch chats from
+ * @returns {Array} - List of chat objects in the folder
+ */
 export const fetchAiChatsByFolder = async (folderID) => {
   try {
     const headers = getAuthHeaders();
@@ -70,6 +91,14 @@ export const fetchAiChatsByFolder = async (folderID) => {
   }
 };
 
+/**
+ * Create a new AI chat
+ * 
+ * @param {string} uploadId - ID of the uploaded document to chat about
+ * @param {string} userMessage - Initial user message
+ * @param {string} folderID - ID of the folder to place the chat in (optional)
+ * @returns {Object} - The created chat object
+ */
 export const createChat = async (uploadId, userMessage, folderID) => {
   try {
     const headers = getAuthHeaders();
@@ -88,6 +117,12 @@ export const createChat = async (uploadId, userMessage, folderID) => {
   }
 };
 
+/**
+ * Delete an AI chat
+ * 
+ * @param {string} chatId - ID of the chat to delete
+ * @returns {boolean} - True if deletion was successful
+ */
 export const deleteAiChat = async (chatId) => {
   try {
     const headers = getAuthHeaders();
@@ -101,6 +136,13 @@ export const deleteAiChat = async (chatId) => {
   }
 };
 
+/**
+ * Rename an AI chat
+ * 
+ * @param {string} chatId - ID of the chat to rename
+ * @param {string} newName - New name for the chat
+ * @returns {boolean} - True if renaming was successful
+ */
 export const renameAiChat = async (chatId, newName) => {
   try {
     const headers = getAuthHeaders();
@@ -119,6 +161,13 @@ export const renameAiChat = async (chatId, newName) => {
   }
 };
 
+/**
+ * Assign an AI chat to a folder
+ * 
+ * @param {string} chatId - ID of the chat to move
+ * @param {string} folderID - ID of the destination folder
+ * @returns {Object} - Updated chat data
+ */
 export const assignAiChatToFolder = async (chatId, folderID) => {
   try {
     const headers = getAuthHeaders();

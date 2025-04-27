@@ -1,8 +1,23 @@
+/**
+ * Quiz Service Module
+ * 
+ * Provides functionality for managing multiple-choice quizzes, including:
+ * - Fetching all quizzes and quizzes by folder
+ * - Creating new quizzes based on uploads
+ * - Renaming and deleting quizzes
+ * - Organizing quizzes into folders
+ */
+
 import axios from "axios";
 import { getAuthHeaders, getBackendUrl, hasEndpointFailed, recordEndpointError } from "./apiUtils";
 
 const BACKEND = getBackendUrl();
 
+/**
+ * Fetch all quizzes for the current user
+ * 
+ * @returns {Array} - List of quiz objects
+ */
 export const fetchAllQuizzes = async () => {
   try {
     const headers = getAuthHeaders();
@@ -26,13 +41,13 @@ export const fetchAllQuizzes = async () => {
         responseKeys: Object.keys(resp.data)
       });
       
-      // Check for duplicate IDs
+      // Check for duplicate IDs and filter them out
       const ids = quizzesData.map(q => q.id);
       const uniqueIds = new Set(ids);
       if (ids.length !== uniqueIds.size) {
         console.warn('Duplicate quiz IDs detected');
         
-        // Return only unique quizzes
+        // Return only unique quizzes by keeping first occurrence of each ID
         const uniqueQuizzes = [];
         const seenIds = new Set();
         for (const quiz of quizzesData) {
@@ -58,6 +73,12 @@ export const fetchAllQuizzes = async () => {
   }
 };
 
+/**
+ * Fetch quizzes belonging to a specific folder
+ * 
+ * @param {string} folderID - ID of the folder to fetch quizzes from
+ * @returns {Array} - List of quiz objects in the folder
+ */
 export const fetchQuizzesByFolder = async (folderID) => {
   try {
     const headers = getAuthHeaders();
@@ -74,6 +95,13 @@ export const fetchQuizzesByFolder = async (folderID) => {
   }
 };
 
+/**
+ * Create a new quiz from an uploaded document
+ * 
+ * @param {string} uploadId - ID of the uploaded document to create quiz from
+ * @param {string} folderID - ID of the folder to place the quiz in (optional)
+ * @returns {Object} - The created quiz object
+ */
 export const createQuiz = async (uploadId, folderID) => {
   try {
     const headers = getAuthHeaders();
@@ -92,6 +120,13 @@ export const createQuiz = async (uploadId, folderID) => {
   }
 };
 
+/**
+ * Rename a quiz
+ * 
+ * @param {string} quizId - ID of the quiz to rename
+ * @param {string} newName - New name for the quiz
+ * @returns {boolean} - True if rename was successful
+ */
 export const renameQuiz = async (quizId, newName) => {
   try {
     const headers = getAuthHeaders();
@@ -110,6 +145,12 @@ export const renameQuiz = async (quizId, newName) => {
   }
 };
 
+/**
+ * Delete a quiz
+ * 
+ * @param {string} quizID - ID of the quiz to delete
+ * @returns {boolean} - True if deletion was successful
+ */
 export const deleteQuiz = async (quizID) => {
   try {
     const headers = getAuthHeaders();
@@ -123,6 +164,13 @@ export const deleteQuiz = async (quizID) => {
   }
 };
 
+/**
+ * Assign a quiz to a folder
+ * 
+ * @param {string} quizId - ID of the quiz to move
+ * @param {string} folderID - ID of the destination folder
+ * @returns {Object} - Updated quiz data
+ */
 export const assignQuizToFolder = async (quizId, folderID) => {
   try {
     const headers = getAuthHeaders();

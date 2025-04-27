@@ -1,8 +1,25 @@
+/**
+ * User Service Module
+ * 
+ * Provides functionality for managing user account information, including:
+ * - Updating user profile information
+ * - Changing passwords
+ * - Managing user preferences
+ * - Subscription management
+ * - Feature requests
+ */
+
 import axios from "axios";
 import { getAuthHeaders, getBackendUrl } from "./apiUtils";
 
 const BACKEND = getBackendUrl();
 
+/**
+ * Update user account information
+ * 
+ * @param {Object} payload - User data to update (name, email, etc.)
+ * @returns {Object} - Updated user object
+ */
 export const updateAccountInfo = async (payload) => {
   try {
     const headers = getAuthHeaders();
@@ -16,6 +33,12 @@ export const updateAccountInfo = async (payload) => {
   }
 };
 
+/**
+ * Change user password
+ * 
+ * @param {Object} payload - Contains currentPassword and newPassword
+ * @returns {boolean} - True if password change was successful
+ */
 export const changePassword = async (payload) => {
   try {
     const headers = getAuthHeaders();
@@ -29,6 +52,12 @@ export const changePassword = async (payload) => {
   }
 };
 
+/**
+ * Update user preferences
+ * 
+ * @param {Object} payload - Preference settings to update
+ * @returns {Object} - Updated user object with new preferences
+ */
 export const updatePreferences = async (payload) => {
   try {
     const headers = getAuthHeaders();
@@ -47,17 +76,24 @@ export const updatePreferences = async (payload) => {
   }
 };
 
+/**
+ * Cancel user's subscription
+ * 
+ * @returns {Object} - Updated user object with subscription status changed
+ */
 export const cancelSubscription = async () => {
   try {
     const headers = getAuthHeaders();
     if (!headers.Authorization) throw new Error("User is not authenticated.");
     
+    // First, request subscription cancellation
     await axios.post(
       `${BACKEND}/api/checkout/cancel-subscription`,
       {},
       { headers }
     );
     
+    // Then fetch the updated user data to confirm changes
     const updatedUserResponse = await axios.get(`${BACKEND}/api/auth/me`, { headers });
     return updatedUserResponse.data.user;
   } catch (error) {
@@ -66,6 +102,12 @@ export const cancelSubscription = async () => {
   }
 };
 
+/**
+ * Submit feature requests from users
+ * 
+ * @param {Array|string} features - Feature request(s) to submit
+ * @returns {Object} - Server response confirming request receipt
+ */
 export const requestFeature = async (features) => {
   try {
     const headers = getAuthHeaders();

@@ -1,9 +1,38 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import services from "../index";
+import services from "../_SERVICE_EXPORTS";
 
 /**
  * Custom hook for managing application resources
+ * 
+ * This hook provides comprehensive functionality for managing all resource types
+ * in the application, including uploads, folders, multiple choice quizzes, summaries,
+ * and AI chats. It handles CRUD operations for each resource type and provides methods
+ * for organizing resources into folders.
+ * 
+ * @returns {Object} Resource management methods and state
+ * @property {Array} uploads - Array of user's uploaded documents
+ * @property {Array} folders - Array of user's folders
+ * @property {Array} multipleChoiceQuizzes - Array of user's multiple choice quizzes
+ * @property {Array} summaries - Array of user's document summaries
+ * @property {Array} aiChats - Array of user's AI chat sessions
+ * @property {Function} resetResources - Function to reset all resource states
+ * @property {Function} loadAllResources - Function to load all resource types at once
+ * @property {Function} fetchUploads - Function to fetch user's uploads
+ * @property {Function} uploadDocumentTranscript - Function to upload a document
+ * @property {Function} createUploadFromText - Function to create an upload from text input
+ * @property {Function} getWebsiteTranscript - Function to extract text from a website
+ * @property {Function} deleteUpload - Function to delete an upload
+ * @property {Function} fetchFolders - Function to fetch user's folders
+ * @property {Function} createFolder - Function to create a new folder
+ * @property {Function} renameFolder - Function to rename a folder
+ * @property {Function} deleteFolder - Function to delete a folder
+ * @property {Function} fetchAllQuizzes - Function to fetch user's quizzes
+ * @property {Function} createQuiz - Function to create a new quiz
+ * @property {Function} renameQuiz - Function to rename a quiz
+ * @property {Function} deleteQuiz - Function to delete a quiz
+ * @property {Function} assignQuizToFolder - Function to assign a quiz to a folder
+ * @property {Function} fetchQuizzesByFolder - Function to fetch quizzes by folder
  */
 export function useResources() {
   // Resource states
@@ -15,7 +44,9 @@ export function useResources() {
 
   const navigate = useNavigate();
 
-  // Reset all resource states
+  /**
+   * Resets all resource states to empty arrays
+   */
   const resetResources = () => {
     setUploads([]);
     setFolders([]);
@@ -25,6 +56,11 @@ export function useResources() {
   };
 
   // ------------------- UPLOADS -------------------
+  /**
+   * Fetches all uploads for the current user
+   * 
+   * @returns {Promise<Array>} Array of user's uploaded documents
+   */
   const fetchUploads = async () => {
     try {
       const uploadedFiles = await services.uploads.fetchUploads();
@@ -37,6 +73,14 @@ export function useResources() {
     }
   };
 
+  /**
+   * Uploads a document and creates a transcript
+   * 
+   * @param {File} selectedFile - The file object to upload
+   * @param {string|null} folderID - Optional folder ID to assign the upload to
+   * @returns {Promise<Object>} The created upload object
+   * @throws {Error} If upload fails
+   */
   const uploadDocumentTranscript = async (selectedFile, folderID = null) => {
     try {
       const upload = await services.uploads.uploadDocumentTranscript(
@@ -53,6 +97,14 @@ export function useResources() {
     }
   };
 
+  /**
+   * Creates an upload from raw text input
+   * 
+   * @param {string} transcriptText - Raw text content
+   * @param {string} fileName - Name for the created file
+   * @returns {Promise<Object>} The created upload object
+   * @throws {Error} If creation fails
+   */
   const createUploadFromText = async (
     transcriptText,
     fileName = "Text Input"
@@ -72,10 +124,22 @@ export function useResources() {
     }
   };
 
+  /**
+   * Extracts text content from a website URL
+   * 
+   * @param {string} websiteUrl - URL to extract content from
+   * @returns {Promise<string>} Extracted text content
+   */
   const getWebsiteTranscript = (websiteUrl) => {
     return services.uploads.getWebsiteTranscript(websiteUrl);
   };
 
+  /**
+   * Deletes an uploaded document
+   * 
+   * @param {string} upload_id - ID of the upload to delete
+   * @returns {Promise<void>}
+   */
   const deleteUpload = async (upload_id) => {
     try {
       const success = await services.uploads.deleteUpload(upload_id);
@@ -88,6 +152,11 @@ export function useResources() {
   };
 
   // ------------------- FOLDERS -------------------
+  /**
+   * Fetches all folders for the current user
+   * 
+   * @returns {Promise<Array>} Array of user's folders
+   */
   const fetchFolders = async () => {
     try {
       const foldersData = await services.folders.fetchFolders();
@@ -98,8 +167,20 @@ export function useResources() {
     }
   };
 
+  /**
+   * Gets folders synchronously from service
+   * 
+   * @returns {Array} Array of user's folders
+   */
   const getFolders = () => services.folders.getFolders();
 
+  /**
+   * Creates a new folder
+   * 
+   * @param {string} folderName - Name for the new folder
+   * @returns {Promise<Object>} The created folder object
+   * @throws {Error} If creation fails
+   */
   const createFolder = async (folderName) => {
     try {
       const newFolder = await services.folders.createFolder(folderName);
@@ -111,6 +192,13 @@ export function useResources() {
     }
   };
 
+  /**
+   * Renames an existing folder
+   * 
+   * @param {string} folderId - ID of the folder to rename
+   * @param {string} newName - New name for the folder
+   * @returns {Promise<void>}
+   */
   const renameFolder = async (folderId, newName) => {
     try {
       const success = await services.folders.renameFolder(folderId, newName);
@@ -126,6 +214,12 @@ export function useResources() {
     }
   };
 
+  /**
+   * Deletes a folder
+   * 
+   * @param {string} folderId - ID of the folder to delete
+   * @returns {Promise<boolean>} True if deletion was successful
+   */
   const deleteFolder = async (folderId) => {
     try {
       const success = await services.folders.deleteFolder(folderId);
@@ -140,6 +234,12 @@ export function useResources() {
   };
 
   // ------------------- QUIZZES -------------------
+  /**
+   * Fetches all multiple choice quizzes for the current user
+   * Removes any duplicate quizzes based on ID
+   * 
+   * @returns {Promise<Array>} Array of user's quizzes
+   */
   const fetchAllQuizzes = async () => {
     try {
       const quizzes = await services.quizzes.fetchAllQuizzes();
@@ -163,6 +263,14 @@ export function useResources() {
     }
   };
 
+  /**
+   * Creates a new quiz from an uploaded document
+   * 
+   * @param {string} uploadId - ID of the upload to create the quiz from
+   * @param {string|null} folderID - Optional folder ID to assign the quiz to
+   * @returns {Promise<Object>} The created quiz object
+   * @throws {Error} If creation fails
+   */
   const createQuiz = async (uploadId, folderID) => {
     try {
       const newQuiz = await services.quizzes.createQuiz(uploadId, folderID);
@@ -185,6 +293,13 @@ export function useResources() {
     }
   };
 
+  /**
+   * Renames an existing quiz
+   * 
+   * @param {string} quizId - ID of the quiz to rename
+   * @param {string} newName - New name for the quiz
+   * @returns {Promise<void>}
+   */
   const renameQuiz = async (quizId, newName) => {
     try {
       const success = await services.quizzes.renameQuiz(quizId, newName);
@@ -200,6 +315,13 @@ export function useResources() {
     }
   };
 
+  /**
+   * Deletes a quiz
+   * Navigates away if the user is currently viewing the deleted quiz
+   * 
+   * @param {string} quizID - ID of the quiz to delete
+   * @returns {Promise<void>}
+   */
   const deleteQuiz = async (quizID) => {
     if (location.pathname === `/mcq/${quizID}`) {
       navigate("/create-resource");
@@ -214,6 +336,14 @@ export function useResources() {
     }
   };
 
+  /**
+   * Assigns a quiz to a folder
+   * 
+   * @param {string} quizId - ID of the quiz to assign
+   * @param {string} folderID - ID of the folder to assign to
+   * @returns {Promise<void>}
+   * @throws {Error} If assignment fails
+   */
   const assignQuizToFolder = async (quizId, folderID) => {
     try {
       // Call the API to update the folder
@@ -232,6 +362,12 @@ export function useResources() {
     }
   };
 
+  /**
+   * Fetches all quizzes in a specific folder
+   * 
+   * @param {string} folderID - ID of the folder to fetch quizzes from
+   * @returns {Promise<Array>} Quizzes in the specified folder
+   */
   const fetchQuizzesByFolder = async (folderID) => {
     try {
       const quizzes = await services.quizzes.fetchQuizzesByFolder(folderID);
@@ -249,6 +385,12 @@ export function useResources() {
   };
 
   // ------------------- SUMMARIES -------------------
+  /**
+   * Fetches all summaries for the current user
+   * Removes any duplicate summaries based on ID
+   * 
+   * @returns {Promise<Array>} Array of user's summaries
+   */
   const fetchAllSummaries = async () => {
     try {
       const summariesData = await services.summaries.fetchAllSummaries();
@@ -272,6 +414,15 @@ export function useResources() {
     }
   };
 
+  /**
+   * Creates a new summary from an uploaded document
+   * 
+   * @param {string} uploadId - ID of the upload to create the summary from
+   * @param {string} userMessage - User message or prompt for the summary
+   * @param {string|null} folderID - Optional folder ID to assign the summary to
+   * @returns {Promise<Object>} The created summary object
+   * @throws {Error} If creation fails
+   */
   const createSummary = async (uploadId, userMessage, folderID) => {
     try {
       const newSummary = await services.summaries.createSummary(
@@ -298,6 +449,13 @@ export function useResources() {
     }
   };
 
+  /**
+   * Deletes a summary
+   * Navigates away if the user is currently viewing the deleted summary
+   * 
+   * @param {string} summaryId - ID of the summary to delete
+   * @returns {Promise<void>}
+   */
   const deleteSummary = async (summaryId) => {
     if (location.pathname === `/summary/${summaryId}`) {
       navigate("/create-resource");
@@ -312,6 +470,13 @@ export function useResources() {
     }
   };
 
+  /**
+   * Renames an existing summary
+   * 
+   * @param {string} summaryId - ID of the summary to rename
+   * @param {string} newName - New name for the summary
+   * @returns {Promise<void>}
+   */
   const renameSummary = async (summaryId, newName) => {
     try {
       const success = await services.summaries.renameSummary(
@@ -330,6 +495,14 @@ export function useResources() {
     }
   };
 
+  /**
+   * Assigns a summary to a folder
+   * 
+   * @param {string} summaryId - ID of the summary to assign
+   * @param {string} folderID - ID of the folder to assign to
+   * @returns {Promise<void>}
+   * @throws {Error} If assignment fails
+   */
   const assignSummaryToFolder = async (summaryId, folderID) => {
     try {
       // Call the API to update the folder
@@ -350,6 +523,12 @@ export function useResources() {
     }
   };
 
+  /**
+   * Fetches all summaries in a specific folder
+   * 
+   * @param {string} folderID - ID of the folder to fetch summaries from
+   * @returns {Promise<Array>} Summaries in the specified folder
+   */
   const fetchSummariesByFolder = async (folderID) => {
     try {
       const summaries = await services.summaries.fetchSummariesByFolder(
@@ -369,6 +548,12 @@ export function useResources() {
   };
 
   // ------------------- AI CHATS -------------------
+  /**
+   * Fetches all AI chats for the current user
+   * Removes any duplicate chats based on ID
+   * 
+   * @returns {Promise<Array>} Array of user's AI chats
+   */
   const fetchAllAiChats = async () => {
     try {
       const chats = await services.chats.fetchAllAiChats();
@@ -392,6 +577,15 @@ export function useResources() {
     }
   };
 
+  /**
+   * Creates a new AI chat from an uploaded document
+   * 
+   * @param {string} uploadId - ID of the upload to create the chat from
+   * @param {string} userMessage - Initial user message for the chat
+   * @param {string|null} folderID - Optional folder ID to assign the chat to
+   * @returns {Promise<Object>} The created chat object
+   * @throws {Error} If creation fails
+   */
   const createChat = async (uploadId, userMessage, folderID) => {
     try {
       const newChat = await services.chats.createChat(
@@ -418,6 +612,13 @@ export function useResources() {
     }
   };
 
+  /**
+   * Deletes an AI chat
+   * Navigates away if the user is currently viewing the deleted chat
+   * 
+   * @param {string} chatId - ID of the chat to delete
+   * @returns {Promise<void>}
+   */
   const deleteAiChat = async (chatId) => {
     if (location.pathname === `/chat/${chatId}`) {
       navigate("/create-resource");
@@ -432,6 +633,13 @@ export function useResources() {
     }
   };
 
+  /**
+   * Renames an existing AI chat
+   * 
+   * @param {string} chatId - ID of the chat to rename
+   * @param {string} newName - New name for the chat
+   * @returns {Promise<void>}
+   */
   const renameAiChat = async (chatId, newName) => {
     try {
       const success = await services.chats.renameAiChat(chatId, newName);
@@ -447,6 +655,14 @@ export function useResources() {
     }
   };
 
+  /**
+   * Assigns an AI chat to a folder
+   * 
+   * @param {string} chatId - ID of the chat to assign
+   * @param {string} folderID - ID of the folder to assign to
+   * @returns {Promise<void>}
+   * @throws {Error} If assignment fails
+   */
   const assignAiChatToFolder = async (chatId, folderID) => {
     try {
       // Call the API to update the folder
@@ -465,6 +681,12 @@ export function useResources() {
     }
   };
 
+  /**
+   * Fetches all AI chats in a specific folder
+   * 
+   * @param {string} folderID - ID of the folder to fetch chats from
+   * @returns {Promise<Array>} AI chats in the specified folder
+   */
   const fetchAiChatsByFolder = async (folderID) => {
     try {
       const chats = await services.chats.fetchAiChatsByFolder(folderID);
@@ -481,7 +703,13 @@ export function useResources() {
     }
   };
 
-  // Load all resources
+  /**
+   * Loads all resources for the current user
+   * Includes uploads, folders, quizzes, summaries, and AI chats
+   * Handles errors for each resource type independently
+   * 
+   * @returns {Promise<Object>} Object containing all loaded resource types
+   */
   const loadAllResources = async () => {
     console.log('loadAllResources called, starting to fetch all resources');
     try {
@@ -546,7 +774,13 @@ export function useResources() {
     }
   };
 
-  // Helper function to remove duplicates by a key
+  /**
+   * Helper function to remove duplicate items from an array based on a key
+   * 
+   * @param {Array} array - Array to remove duplicates from
+   * @param {string} key - Object key to use for uniqueness check
+   * @returns {Array} Array with duplicates removed
+   */
   const removeDuplicates = (array, key) => {
     const uniqueItems = [];
     const seenKeys = new Set();

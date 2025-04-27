@@ -1,3 +1,10 @@
+/**
+ * Authentication Service Module
+ * 
+ * Handles user authentication, registration, token management, and user sessions.
+ * Provides functions for login, registration, token validation, and user profile fetching.
+ */
+
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { getAuthHeaders, getBackendUrl } from "./apiUtils";
@@ -5,6 +12,12 @@ import { getToken, setToken } from "./localStorageService";
 
 const BACKEND = getBackendUrl();
 
+/**
+ * Authenticates a user with email/password
+ * 
+ * @param {Object} payload - User credentials (email and password)
+ * @returns {Object} - User data and authentication token
+ */
 export const loginUser = async (payload) => {
   const response = await axios.post(`${BACKEND}/api/auth/login`, payload);
   if (response.data.token) {
@@ -13,6 +26,12 @@ export const loginUser = async (payload) => {
   return response.data;
 };
 
+/**
+ * Registers a new user
+ * 
+ * @param {Object} payload - User registration data (name, email, password)
+ * @returns {Object} - Created user and authentication token
+ */
 export const registerUser = async (payload) => {
   const response = await axios.post(`${BACKEND}/api/auth/register`, payload);
   if (response.data.token) {
@@ -21,6 +40,12 @@ export const registerUser = async (payload) => {
   return response.data;
 };
 
+/**
+ * Authenticate user with Google OAuth
+ * 
+ * @param {string} tokenId - Google OAuth token ID
+ * @returns {Object} - User data and authentication token
+ */
 export const googleLoginUser = async (tokenId) => {
   const response = await axios.post(`${BACKEND}/api/auth/google`, {
     token: tokenId,
@@ -31,6 +56,11 @@ export const googleLoginUser = async (tokenId) => {
   return response.data;
 };
 
+/**
+ * Fetch current user profile from token
+ * 
+ * @returns {Object|null} - Current user data or null if not authenticated
+ */
 export const fetchCurrentUser = async () => {
   const localToken = getToken();
   if (!localToken) {
@@ -60,6 +90,12 @@ export const fetchCurrentUser = async () => {
   }
 };
 
+/**
+ * Refresh the authentication token
+ * 
+ * @param {string} oldToken - Current token to refresh
+ * @returns {string|null} - New token or null if refresh failed
+ */
 export const refreshToken = async (oldToken) => {
   try {
     const response = await axios.post(
@@ -78,10 +114,16 @@ export const refreshToken = async (oldToken) => {
   }
 };
 
+/**
+ * Check if a token is expired
+ * 
+ * @param {string} token - JWT token to check
+ * @returns {boolean} - True if token is expired, false otherwise
+ */
 export const isTokenExpired = (token) => {
   try {
     const decoded = jwtDecode(token);
-    const expiryTimestamp = decoded.exp * 1000;
+    const expiryTimestamp = decoded.exp * 1000; // Convert to milliseconds
     return expiryTimestamp <= Date.now();
   } catch (error) {
     console.error("Error decoding token:", error);
@@ -89,10 +131,16 @@ export const isTokenExpired = (token) => {
   }
 };
 
+/**
+ * Calculate time until token expiry
+ * 
+ * @param {string} token - JWT token to check
+ * @returns {number} - Milliseconds until expiry, -1 if error
+ */
 export const getTimeUntilExpiry = (token) => {
   try {
     const decoded = jwtDecode(token);
-    const expiryTimestamp = decoded.exp * 1000;
+    const expiryTimestamp = decoded.exp * 1000; // Convert to milliseconds
     return expiryTimestamp - Date.now();
   } catch (error) {
     console.error("Error decoding token:", error);
@@ -100,6 +148,9 @@ export const getTimeUntilExpiry = (token) => {
   }
 };
 
+/**
+ * Log out current user by removing token
+ */
 export const logout = () => {
   setToken(null);
 };

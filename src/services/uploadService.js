@@ -1,3 +1,16 @@
+/**
+ * Upload Service Module
+ * 
+ * Provides functionality for managing document uploads and transcripts, including:
+ * - Fetching all uploads
+ * - Uploading new documents
+ * - Creating uploads from text input
+ * - Getting transcripts from websites
+ * - Deleting uploads
+ * 
+ * Supports both authenticated and unauthenticated (ephemeral) uploads.
+ */
+
 import axios from "axios";
 import {
   getAuthHeaders,
@@ -9,6 +22,11 @@ import {
 
 const BACKEND = getBackendUrl();
 
+/**
+ * Fetch all uploads for the current user
+ * 
+ * @returns {Array} - List of upload objects
+ */
 export const fetchUploads = async () => {
   try {
     const headers = getAuthHeaders();
@@ -27,10 +45,18 @@ export const fetchUploads = async () => {
   }
 };
 
+/**
+ * Upload a document file and get its transcript
+ * 
+ * @param {File} selectedFile - The file object to upload
+ * @param {string|null} folderID - ID of the folder to place the upload in (optional)
+ * @returns {Object} - The created upload object with transcript
+ */
 export const uploadDocumentTranscript = async (
   selectedFile,
   folderID = null
 ) => {
+  // Create FormData for file upload
   const formData = new FormData();
   formData.append("file", selectedFile);
 
@@ -39,7 +65,7 @@ export const uploadDocumentTranscript = async (
     formData.append("folderID", folderID);
   }
 
-  // Log the FormData contents
+  // Log the FormData contents for debugging
   console.log("FormData contents:");
   for (let [key, value] of formData.entries()) {
     console.log(key, value);
@@ -53,11 +79,13 @@ export const uploadDocumentTranscript = async (
     Authorization: token ? `Bearer ${token}` : "",
   };
 
+  // Handle either authenticated or ephemeral (public) uploads
   if (!headers.Authorization) {
-    // ephemeral
+    // For ephemeral use (no auth), use public endpoint
     const resp = await axios.post(`${BACKEND}/api/upload-public`, formData);
     return { id: "", transcript: resp.data.transcript };
   } else {
+    // For authenticated users, use standard endpoint
     const resp = await axios.post(`${BACKEND}/api/uploads`, formData, {
       headers,
     });
@@ -65,6 +93,13 @@ export const uploadDocumentTranscript = async (
   }
 };
 
+/**
+ * Create an upload from text input instead of a file
+ * 
+ * @param {string} transcriptText - The text content to use as transcript
+ * @param {string} fileName - Name to give the text upload
+ * @returns {Object} - The created upload object
+ */
 export const createUploadFromText = async (
   transcriptText,
   fileName = "Text Input"
@@ -72,9 +107,10 @@ export const createUploadFromText = async (
   const headers = getAuthHeaders();
 
   if (!headers.Authorization) {
-    // ephemeral
+    // For ephemeral use (no auth)
     return { id: "", transcript: transcriptText, fileName };
   } else {
+    // For authenticated users
     const resp = await axios.post(
       `${BACKEND}/api/uploads/from-text`,
       { transcript: transcriptText, fileName },
@@ -84,16 +120,23 @@ export const createUploadFromText = async (
   }
 };
 
+/**
+ * Extract and process transcript from a website URL
+ * 
+ * @param {string} websiteUrl - URL of the website to extract content from
+ * @returns {string} - The extracted transcript text
+ */
 export const getWebsiteTranscript = async (websiteUrl) => {
   const headers = getAuthHeaders();
 
   if (!headers.Authorization) {
-    // ephemeral
+    // For ephemeral use (no auth), use public endpoint
     const resp = await axios.get(`${BACKEND}/api/website-transcript-public`, {
       params: { url: websiteUrl.trim() },
     });
     return resp.data.transcript;
   } else {
+    // For authenticated users, use standard endpoint
     const resp = await axios.get(`${BACKEND}/api/website-transcript`, {
       params: { url: websiteUrl.trim() },
       headers,
@@ -102,12 +145,19 @@ export const getWebsiteTranscript = async (websiteUrl) => {
   }
 };
 
+/**
+ * Delete an upload
+ * 
+ * @param {string} upload_id - ID of the upload to delete
+ * @returns {boolean} - True if deletion was successful
+ */
 export const deleteUpload = async (upload_id) => {
   try {
     const headers = getAuthHeaders();
     if (!headers.Authorization) return false;
 
     // Array of possible delete endpoint paths to try
+    // This handles potential API inconsistencies
     const endpointPaths = [
       `/api/uploads/${upload_id}`, // Plural (standard REST)
       `/api/upload/${upload_id}`, // Singular

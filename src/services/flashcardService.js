@@ -1,8 +1,23 @@
+/**
+ * Flashcard Service Module
+ * 
+ * Provides functionality for managing flashcard study sessions, including:
+ * - Fetching, creating, and updating flashcard sessions
+ * - Organizing flashcards into folders
+ * - Generating flashcards from transcripts or uploads
+ * - Managing flashcard study data
+ */
+
 import axios from "axios";
 import { getAuthHeaders, getBackendUrl } from "./apiUtils";
 
 const BACKEND = getBackendUrl();
 
+/**
+ * Fetch all flashcard sessions for the current user
+ * 
+ * @returns {Array} - List of flashcard session objects
+ */
 export const fetchFlashcardSessions = async () => {
   try {
     const headers = getAuthHeaders();
@@ -18,7 +33,7 @@ export const fetchFlashcardSessions = async () => {
     if (ids.length !== uniqueIds.size) {
       console.warn('Duplicate flashcard session IDs detected');
       
-      // Return only unique sessions
+      // Filter out duplicate sessions by keeping only the first occurrence of each ID
       const uniqueSessions = [];
       const seenIds = new Set();
       for (const session of loaded) {
@@ -34,6 +49,7 @@ export const fetchFlashcardSessions = async () => {
       return uniqueSessions;
     }
     
+    // Mark sessions as database-stored (as opposed to locally generated)
     const loadedDbSessions = loaded.map((s) => ({
       ...s,
       sessionType: "db",
@@ -45,6 +61,12 @@ export const fetchFlashcardSessions = async () => {
   }
 };
 
+/**
+ * Fetch a specific flashcard session by ID
+ * 
+ * @param {string} sessionId - ID of the flashcard session to fetch
+ * @returns {Object|null} - Flashcard session object or null if not found
+ */
 export const fetchFlashcardSession = async (sessionId) => {
   try {
     const headers = getAuthHeaders();
@@ -61,6 +83,12 @@ export const fetchFlashcardSession = async (sessionId) => {
   }
 };
 
+/**
+ * Fetch flashcard sessions belonging to a specific folder
+ * 
+ * @param {string} folderID - ID of the folder to fetch flashcards from
+ * @returns {Array} - List of flashcard session objects in the folder
+ */
 export const fetchFlashcardsByFolder = async (folderID) => {
   try {
     const headers = getAuthHeaders();
@@ -78,6 +106,15 @@ export const fetchFlashcardsByFolder = async (folderID) => {
   }
 };
 
+/**
+ * Create a new flashcard session with specified cards
+ * 
+ * @param {string} uploadId - ID of the document the flashcards are based on
+ * @param {string} folderID - ID of the folder to place the session in
+ * @param {string} sessionName - Name for the flashcard session
+ * @param {Array} studyCards - Array of flashcard objects to include in the session
+ * @returns {Object} - The created flashcard session
+ */
 export const createFlashcards = async (uploadId, folderID, sessionName, studyCards = []) => {
   try {
     const headers = getAuthHeaders();
@@ -101,26 +138,33 @@ export const createFlashcards = async (uploadId, folderID, sessionName, studyCar
   }
 };
 
+/**
+ * Create flashcards automatically from an uploaded document
+ * 
+ * @param {string} uploadId - ID of the uploaded document
+ * @param {string} folderID - ID of the folder to place the session in
+ * @returns {Object} - The created flashcard session
+ */
 export const createFlashcardsFromUpload = async (uploadId, folderID) => {
   try {
     const headers = getAuthHeaders();
     if (!headers.Authorization) throw new Error("User is not authenticated.");
 
-    // 1) Retrieve the transcript from /api/uploads/:id
+    // 1) Retrieve the transcript from the upload
     const uploadResp = await axios.get(`${BACKEND}/api/uploads/${uploadId}`, { headers });
     const { transcript } = uploadResp.data;
 
-    // 2) Generate flashcards
+    // 2) Generate flashcards from the transcript text
     const genResp = await axios.post(
       `${BACKEND}/api/flashcards/generate-from-transcript`,
       { transcript },
       { headers }
     );
     
-    // The response format is now { sessionName, flashcards } instead of [sessionName, flashcards]
+    // Extract session name and generated cards from response
     const { sessionName: autoSessionName, flashcards: generatedCards } = genResp.data;
 
-    // 3) Create (save) a new flashcards session
+    // 3) Create and save a new flashcards session
     const createResp = await axios.post(
       `${BACKEND}/api/flashcards`,
       {
@@ -132,7 +176,7 @@ export const createFlashcardsFromUpload = async (uploadId, folderID) => {
       { headers }
     );
     
-    // The backend returns data in the 'flashcard' field, not 'data'
+    // Return the newly created flashcard session
     return createResp.data.flashcard;
   } catch (err) {
     console.error("createFlashcardsFromUpload error:", err);
@@ -140,6 +184,12 @@ export const createFlashcardsFromUpload = async (uploadId, folderID) => {
   }
 };
 
+/**
+ * Generate additional flashcards for an existing session
+ * 
+ * @param {string} sessionId - ID of the session to add cards to
+ * @returns {boolean} - True if generation was successful
+ */
 export const generateAdditionalFlashcards = async (sessionId) => {
   try {
     const headers = getAuthHeaders();
@@ -158,6 +208,12 @@ export const generateAdditionalFlashcards = async (sessionId) => {
   }
 };
 
+/**
+ * Delete a flashcard session
+ * 
+ * @param {string} sessionId - ID of the session to delete
+ * @returns {boolean} - True if deletion was successful
+ */
 export const deleteFlashcardSession = async (sessionId) => {
   try {
     const headers = getAuthHeaders();
@@ -171,6 +227,13 @@ export const deleteFlashcardSession = async (sessionId) => {
   }
 };
 
+/**
+ * Update the name of a flashcard session
+ * 
+ * @param {string} sessionId - ID of the session to rename
+ * @param {string} newName - New name for the session
+ * @returns {boolean} - True if update was successful
+ */
 export const updateFlashcardSessionName = async (sessionId, newName) => {
   try {
     const headers = getAuthHeaders();
@@ -189,6 +252,13 @@ export const updateFlashcardSessionName = async (sessionId, newName) => {
   }
 };
 
+/**
+ * Assign a flashcard session to a folder
+ * 
+ * @param {string} sessionId - ID of the session to move
+ * @param {string} folderID - ID of the destination folder
+ * @returns {Object} - Updated session data
+ */
 export const assignSessionToFolder = async (sessionId, folderID) => {
   try {
     const headers = getAuthHeaders();
@@ -207,6 +277,12 @@ export const assignSessionToFolder = async (sessionId, folderID) => {
   }
 };
 
+/**
+ * Generate flashcards from a transcript text
+ * 
+ * @param {string} transcriptText - Text content to generate flashcards from
+ * @returns {Array} - Array containing session name and flashcards array
+ */
 export const generateFlashcardsFromTranscript = async (transcriptText) => {
   try {
     const headers = getAuthHeaders();
@@ -217,7 +293,7 @@ export const generateFlashcardsFromTranscript = async (transcriptText) => {
       { headers }
     );
     
-    // Return in the format expected by the caller (sessionName and flashcards array)
+    // Return in the format expected by the caller
     const { sessionName, flashcards } = response.data;
     return [sessionName, flashcards || []]; // Ensure flashcards is always an array
   } catch (error) {

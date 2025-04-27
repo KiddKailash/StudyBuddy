@@ -1,8 +1,25 @@
+/**
+ * Summary Service Module
+ * 
+ * Provides functionality for managing AI-generated summaries, including:
+ * - Fetching all summaries and summaries by folder
+ * - Creating new summaries from uploads
+ * - Renaming and deleting summaries
+ * - Organizing summaries into folders
+ * 
+ * Summaries are AI-generated condensed versions of uploaded content.
+ */
+
 import axios from "axios";
 import { getAuthHeaders, getBackendUrl, hasEndpointFailed, recordEndpointError } from "./apiUtils";
 
 const BACKEND = getBackendUrl();
 
+/**
+ * Fetch all summaries for the current user
+ * 
+ * @returns {Array} - List of summary objects
+ */
 export const fetchAllSummaries = async () => {
   try {
     const headers = getAuthHeaders();
@@ -26,13 +43,13 @@ export const fetchAllSummaries = async () => {
         responseKeys: Object.keys(resp.data)
       });
       
-      // Check for duplicate IDs
+      // Check for duplicate IDs and filter them out
       const ids = summariesData.map(s => s.id);
       const uniqueIds = new Set(ids);
       if (ids.length !== uniqueIds.size) {
         console.warn('summaryService: Duplicate summary IDs detected');
         
-        // Return only unique summaries
+        // Return only unique summaries by keeping first occurrence of each ID
         const uniqueSummaries = [];
         const seenIds = new Set();
         for (const summary of summariesData) {
@@ -58,6 +75,12 @@ export const fetchAllSummaries = async () => {
   }
 };
 
+/**
+ * Fetch summaries belonging to a specific folder
+ * 
+ * @param {string} folderID - ID of the folder to fetch summaries from
+ * @returns {Array} - List of summary objects in the folder
+ */
 export const fetchSummariesByFolder = async (folderID) => {
   try {
     const headers = getAuthHeaders();
@@ -74,6 +97,14 @@ export const fetchSummariesByFolder = async (folderID) => {
   }
 };
 
+/**
+ * Create a new summary from an uploaded document
+ * 
+ * @param {string} uploadId - ID of the uploaded document to summarize
+ * @param {string} userMessage - Optional guidance for the summary generation
+ * @param {string} folderID - ID of the folder to place the summary in (optional)
+ * @returns {Object} - The created summary object
+ */
 export const createSummary = async (uploadId, userMessage, folderID) => {
   try {
     const headers = getAuthHeaders();
@@ -100,8 +131,7 @@ export const createSummary = async (uploadId, userMessage, folderID) => {
     
     console.log("Summary creation response:", resp.data);
     
-    // The server returns { summary: { id, ... } }
-    // Make sure we're returning the correct object with the id property
+    // Validate response format and ensure it has the expected structure
     if (!resp.data.summary) {
       console.error("Unexpected response format:", resp.data);
       throw new Error("Unexpected response format from server");
@@ -114,6 +144,12 @@ export const createSummary = async (uploadId, userMessage, folderID) => {
   }
 };
 
+/**
+ * Delete a summary
+ * 
+ * @param {string} summaryId - ID of the summary to delete
+ * @returns {boolean} - True if deletion was successful
+ */
 export const deleteSummary = async (summaryId) => {
   try {
     const headers = getAuthHeaders();
@@ -127,6 +163,13 @@ export const deleteSummary = async (summaryId) => {
   }
 };
 
+/**
+ * Rename a summary
+ * 
+ * @param {string} summaryId - ID of the summary to rename
+ * @param {string} newName - New name for the summary
+ * @returns {boolean} - True if rename was successful
+ */
 export const renameSummary = async (summaryId, newName) => {
   try {
     const headers = getAuthHeaders();
@@ -145,6 +188,13 @@ export const renameSummary = async (summaryId, newName) => {
   }
 };
 
+/**
+ * Assign a summary to a folder
+ * 
+ * @param {string} summaryId - ID of the summary to move
+ * @param {string} folderID - ID of the destination folder
+ * @returns {Object} - Updated summary data
+ */
 export const assignSummaryToFolder = async (summaryId, folderID) => {
   try {
     const headers = getAuthHeaders();
