@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 const ThemeContext = createContext();
 
+//eslint-disable-next-line
 export const useThemeContext = () => {
   const context = useContext(ThemeContext);
   if (!context) {
