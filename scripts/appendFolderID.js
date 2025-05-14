@@ -1,6 +1,28 @@
+/**
+ * @fileoverview Script to append a folderID field to all existing flashcard sessions in MongoDB.
+ * 
+ * This utility script updates all documents in the flashcards collection by adding
+ * a folderID field set to null (or any specified value). This is useful when
+ * implementing a folder organization feature and need to migrate existing data.
+ * 
+ * @author StudyBuddy Team
+ */
+
 const { connectDB, getDB } = require('../database/db');
 const { ObjectId } = require('mongodb');
 
+/**
+ * Updates all flashcard sessions in the database to include a folderID field.
+ * 
+ * This function:
+ * 1. Connects to the MongoDB database
+ * 2. Fetches the flashcards collection
+ * 3. Updates all documents by setting a default folderID
+ * 4. Logs the results and exits the process
+ * 
+ * @async
+ * @returns {Promise<void>}
+ */
 async function addFolderIdToSessions() {
   try {
     // Connect to the MongoDB database
@@ -28,4 +50,5 @@ async function addFolderIdToSessions() {
   }
 }
 
+// Execute the function
 addFolderIdToSessions();

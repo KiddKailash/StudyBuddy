@@ -19,48 +19,53 @@ if (!YOUR_DOMAIN) {
  * @access  Private
  */
 router.post("/create-checkout-session", authMiddleware, async (req, res) => {
+  // The front end should send accountType: "paid-monthly" OR "paid-yearly"
   const { accountType } = req.body;
 
   if (!accountType) {
-    return res.status(400).json({ error: "Account type is required." });
+    return res.status(400).json({ error: "accountType is required." });
   }
 
-  // Define your Price IDs here (from .env)
+  /**
+   *  Define your two Price IDs (from .env). 
+   *  If the user picks "paid-monthly" or "paid-yearly", we map them accordingly.
+   */
   const priceIds = {
-    paid: process.env.STRIPE_PRICE_ID_PAID,
-    // Add other account types and corresponding Price IDs if you have them
+    "paid-monthly": process.env.STRIPE_PRICE_ID_PAID_MONTHLY,
+    "paid-yearly": process.env.STRIPE_PRICE_ID_PAID_YEARLY,
   };
 
+  // Ensure the passed accountType is valid
   const selectedPriceId = priceIds[accountType];
   if (!selectedPriceId) {
-    return res.status(400).json({ error: "Invalid account type." });
+    return res.status(400).json({ error: "Invalid accountType." });
   }
 
   try {
     // Create the session for Embedded Checkout
     const session = await stripe.checkout.sessions.create({
-      mode: "subscription", // or 'payment' for one-time purchases
+      mode: "subscription", 
       payment_method_types: ["card"],
       line_items: [
         {
           price: selectedPriceId,
-          quantity: 1, // Ensure quantity is specified
+          quantity: 1,
         },
       ],
+      // Make sure you're using "embedded" if you're embedding the checkout in an iFrame
       ui_mode: "embedded",
+      // Return URL if user closes or completes checkout 
       return_url: `${YOUR_DOMAIN}/return?session_id={CHECKOUT_SESSION_ID}`,
       automatic_tax: { enabled: true },
-      customer_email: req.user.email, // Assuming authMiddleware attaches user info
+      customer_email: req.user.email, // from authMiddleware
       metadata: {
-        userId: req.user.id, // Assuming user ID is attached
-        accountType,
+        userId: req.user.id,  // your user ID 
+        accountType,          // e.g. "paid-monthly" or "paid-yearly"
       },
     });
 
     // For embedded checkout, return the client_secret for the front-end
-    res.json({
-      clientSecret: session.client_secret,
-    });
+    res.json({ clientSecret: session.client_secret });
   } catch (err) {
     console.error("Error creating embedded session:", err);
     res.status(500).json({ error: "Failed to create embedded checkout session." });
@@ -70,7 +75,7 @@ router.post("/create-checkout-session", authMiddleware, async (req, res) => {
 /**
  * @route   GET /api/checkout/session-status
  * @desc    Retrieve the status of a Stripe Checkout session
- * @access  Private (requires Auth)
+ * @access  Private
  */
 router.get("/session-status", authMiddleware, async (req, res) => {
   try {

@@ -1,3 +1,11 @@
+/**
+ * Notion Controller
+ * 
+ * Manages integration with Notion API for content import and export.
+ * Handles OAuth authentication flow, token management, and content retrieval.
+ * Provides endpoints for authorizing Notion access, checking authorization status,
+ * and fetching page content from Notion workspaces.
+ */
 const axios = require("axios");
 const { getDB } = require("../database/db");
 const { ObjectId } = require("mongodb");
@@ -13,7 +21,13 @@ const REDIRECT_URI = "https://clipcard.netlify.app/?tab=2";
 
 /**
  * Get the Notion authorization URL for the user.
- * Assumes user is already authenticated (authMiddleware ran).
+ * 
+ * Generates the OAuth authorization URL for connecting a user's Notion account.
+ * Uses the user's ID as the state parameter for security and user association.
+ * 
+ * @param {Object} req - Express request object with authenticated user
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with authorization URL or error
  */
 exports.getNotionAuthUrl = async (req, res) => {
   try {
@@ -30,9 +44,14 @@ exports.getNotionAuthUrl = async (req, res) => {
 
 
 /**
- * OAuth callback from Notion.
- * Exchanges the authorization code for an access token and associates it with the user.
- * The user id/state needs to be provided if you're managing states (not shown in this snippet).
+ * OAuth callback handler from Notion.
+ * 
+ * Processes the OAuth callback from Notion, exchanging the authorization code
+ * for an access token and storing it with the user's account.
+ * 
+ * @param {Object} req - Express request object with code and state query parameters
+ * @param {Object} res - Express response object
+ * @returns {Object} Redirect to success page or JSON error response
  */
 exports.notionCallback = async (req, res) => {
   const { code, state } = req.query;
@@ -109,6 +128,13 @@ exports.notionCallback = async (req, res) => {
 
 /**
  * Check if the currently logged-in user has authorized Notion.
+ * 
+ * Verifies whether the user has connected their Notion account
+ * by checking for a stored access token.
+ * 
+ * @param {Object} req - Express request object with authenticated user
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with authorization status or error
  */
 exports.checkNotionAuthorization = async (req, res) => {
   try {
@@ -130,7 +156,13 @@ exports.checkNotionAuthorization = async (req, res) => {
 
 /**
  * Fetch content from a specified Notion page.
- * Requires user to be authenticated and have a notionAccessToken.
+ * 
+ * Retrieves and extracts text content from a Notion page using the user's
+ * stored access token. Currently extracts content from paragraph blocks.
+ * 
+ * @param {Object} req - Express request object with pageId query parameter
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with page content or error
  */
 exports.getNotionPageContent = async (req, res) => {
   const pageId = req.query.pageId;

@@ -1,7 +1,33 @@
+/**
+ * @fileoverview User Report Generator for StudyBuddy
+ * 
+ * This script connects to the MongoDB database, retrieves user statistics,
+ * and sends a styled email report to the admin email address. The report 
+ * includes the total number of users and how many are paid subscribers.
+ * 
+ * Environment variables required:
+ * - DATABASE_URL: MongoDB connection string
+ * - GMAIL_ADDRESS: Sender email address (Gmail)
+ * - GMAIL_APP_PASS: Gmail App Password (16-character)
+ * - ADMIN_EMAIL: Recipient email address
+ * 
+ * @author StudyBuddy Team
+ */
+
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const { connectDB } = require('../database/db'); // Adjust path if needed
 
+/**
+ * Main execution function that:
+ * 1. Connects to the database
+ * 2. Retrieves user statistics
+ * 3. Formats and sends an email report
+ * 
+ * @async
+ * @function main
+ * @returns {Promise<void>}
+ */
 (async function main() {
   try {
     // 1. Connect to the database
@@ -12,7 +38,7 @@ const { connectDB } = require('../database/db'); // Adjust path if needed
     const totalUsers = await usersCollection.countDocuments();
     const paidUsers = await usersCollection.countDocuments({ accountType: 'paid' });
 
-    // 3. Create Nodemailer transporter using your Gmail + App Password
+    // 3. Create Nodemailer transporter using Gmail + App Password
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -116,9 +142,10 @@ const { connectDB } = require('../database/db'); // Adjust path if needed
     const info = await transporter.sendMail(mailOptions);
     console.log('Email sent successfully!');
 
-    // Optionally exit or close DB connection
+    // Exit process with success code
     process.exit(0);
   } catch (error) {
+    // Log any errors and exit with failure code
     console.error('Error:', error);
     process.exit(1);
   }

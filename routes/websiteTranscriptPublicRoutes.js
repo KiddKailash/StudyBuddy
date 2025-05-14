@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const websiteTranscriptController = require("../controllers/websiteTranscriptController");
+const transcriptController = require("../controllers/transcriptController");
 
 // Public route for scraping a website
-router.get("/", websiteTranscriptController.fetchWebsiteTranscript);
+router.get("/", transcriptController.getWebsiteTranscriptPublic);
 
 module.exports = router;
