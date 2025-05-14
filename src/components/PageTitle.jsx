@@ -3,8 +3,6 @@ import React from "react";
 
 // MUI Component Imports
 import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid2";
-import Divider from "@mui/material/Divider";
 
 // Import the useTranslation hook
 import { useTranslation } from "react-i18next";
@@ -18,36 +16,16 @@ import { useTranslation } from "react-i18next";
  *
  * @returns {JSX.Element} The rendered component with title and optional subtitle.
  */
-const PageTitle = ({ titleKey, subtitleKey = null }) => {
+const PageTitle = ({ titleKey }) => {
   // Initialize the translation function
   const { t } = useTranslation();
 
   return (
     <>
-      <Grid
-        size={12}
-        sx={{
-          textAlign: "left",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-      >
-        {/* Render the main title */}
-        <Typography variant="h3" gutterBottom sx={{ fontSize: 50 }}>
-          {t(titleKey)}
-        </Typography>
-
-        {/* Conditionally render the subtitle if it's provided */}
-        {subtitleKey && (
-          <Typography variant="h5" gutterBottom>
-            {t(subtitleKey)}
-          </Typography>
-        )}
-
-        {/* Divider between the title section and the rest of the content */}
-        <Divider sx={{ mb: 2 }} />
-      </Grid>
+      {/* Render the main title */}
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+        {t(titleKey)}
+      </Typography>
     </>
   );
 };

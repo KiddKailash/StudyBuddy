@@ -3,11 +3,11 @@ import PropTypes from "prop-types";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { UserContext } from "../../contexts/UserContext";
+import { UserContext } from "../../contexts/User";
 import MobileMenu from "./MobileMenu";
 import UpgradeButton from "./UpgradeButton";
 import AvatarMenu from "./AvatarMenu";
-import { LanguageSwitcherIMG } from "../LanguageSwitcher";
+import LanguageSwitcherIMG from "../LanguageSwitcher";
 
 import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
@@ -58,6 +58,8 @@ const MenuBar = ({ handleDrawerToggle }) => {
         >
           {!isLandingPage && <MobileMenu handleDrawerToggle={handleDrawerToggle} />}
           <LanguageSwitcherIMG />
+          {user && <MobileMenu handleDrawerToggle={handleDrawerToggle} />}
+          <LanguageSwitcherIMG size="large"/>
           {user && user.accountType !== "paid" && !isCheckoutPage && (
             <UpgradeButton />
           )}

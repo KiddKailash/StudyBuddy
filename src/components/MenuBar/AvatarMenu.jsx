@@ -1,51 +1,51 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+
+// MUI
 import { useTheme } from "@mui/material/styles";
-import Avatar from "@mui/material/Avatar";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
+import Avatar from "@mui/material/Avatar";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppRoundedIcon from "@mui/icons-material/ExitToAppRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 
+// Local Imports
 import { useTranslation } from "react-i18next";
-import { getAvatarColor, getUserInitials } from "./menubarUtils";
+import { UserContext } from "../../contexts/User";
+import { useThemeContext } from "../../contexts/ColourTheme";
+import {
+  getAvatarColor,
+  getUserInitials,
+} from "./MenuBarUtils";
 
-// Import your theme context hook
-// Example: import { useThemeContext } from "../theme/SetTheme";
-import { useThemeContext } from "../../contexts/ThemeProvider";
-
-const AvatarMenu = ({ user, onLogout }) => {
-  // This is the MUI theme hook, but only used for reading default theme values if needed
+const AvatarMenu = () => {
   const theme = useTheme();
+  const { user, logout } = useContext(UserContext);
 
-  // Your custom theme context to toggle between light & dark
+  // Custom theme context to toggle between light/dark
   const { dispatch, mode } = useThemeContext();
-
   const { t } = useTranslation();
 
   return (
     <SpeedDial
       ariaLabel="User Menu"
-      // Absolutely position this SpeedDial inside its parent Box
+      // Let the actions expand "up" so they remain in the sidebar
+      direction="right"
       sx={{
         position: "absolute",
-        top: -28,
-        right: 0,
-        // Keep a very high z-index so it floats over all MenuBar elements
-        zIndex: 9999,
+        zIndex: 50,
+        bottom: 30,
+        left: 27
       }}
-      // Instead of opening horizontally, open vertically
-      direction="left" // or "up"
       icon={
         <Avatar
           sx={{
-            bgcolor: getAvatarColor(user.email, theme),
+            bgcolor: getAvatarColor(user?.email, theme),
             color: "#ffffff",
-            width: 50,
-            height: 50,
+            width: 48,
+            height: 48,
           }}
         >
           {getUserInitials(user)}
@@ -59,18 +59,16 @@ const AvatarMenu = ({ user, onLogout }) => {
       <SpeedDialAction
         icon={<ExitToAppRoundedIcon color="error" />}
         tooltipTitle={t("log_out")}
-        onClick={onLogout}
+        onClick={logout}
       />
 
       {/* Toggle Light/Dark Theme */}
       <SpeedDialAction
-        icon={
-          mode === "dark" ? <LightModeRoundedIcon /> : <DarkModeRoundedIcon />
-        }
+        icon={mode === "dark" ? <LightModeRoundedIcon /> : <DarkModeRoundedIcon />}
         tooltipTitle={
           mode === "dark" ? t("switch_to_light") : t("switch_to_dark")
         }
-        onClick={dispatch} // Calls the reducer to flip between light/dark
+        onClick={dispatch}
       />
 
       {/* Settings */}
@@ -82,16 +80,6 @@ const AvatarMenu = ({ user, onLogout }) => {
       />
     </SpeedDial>
   );
-};
-
-AvatarMenu.propTypes = {
-  user: PropTypes.shape({
-    email: PropTypes.string,
-    firstName: PropTypes.string,
-    lastName: PropTypes.string,
-    accountType: PropTypes.string,
-  }).isRequired,
-  onLogout: PropTypes.func.isRequired,
 };
 
 export default AvatarMenu;

@@ -1,21 +1,24 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import ThemeProvider from "./contexts/ThemeProvider";
-import { UserProvider } from "./contexts/UserContext";
 import { BrowserRouter as Router } from "react-router-dom";
-import { SnackbarProvider } from "./contexts/SnackbarContext.jsx";
 
-import "./i18n.js";
+// Context Providers
+import { CssBaseline } from "@mui/material";
+import { ThemeProvider } from "./contexts/ColourTheme.jsx";
 
-import App from "./App.jsx";
-import "./index.css";
+import { UserProvider } from "./contexts/User.jsx";
+import { SnackbarProvider } from "./contexts/Snackbar.jsx";
 
-/**
- * Renders the application with a global theme provider wrapped around it.
- */
+// Localization, global styles
+import "./translation/i18n.js";
+
+// Main App
+import App from "./layouts/App.jsx";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>
+      <CssBaseline />
       <Router>
         <UserProvider>
           <SnackbarProvider>
