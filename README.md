@@ -89,4 +89,4 @@ This project is proprietary software. All rights reserved.
 
 ## Contact
 
-For any inquiries, please contact [your-email@example.com](mailto:your-email@example.com).
+For any inquiries, please contact [kiddkailash@gmail.com](mailto:kiddkailash@gmail.com).
