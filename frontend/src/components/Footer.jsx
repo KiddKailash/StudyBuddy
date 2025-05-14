@@ -1,11 +1,10 @@
-import Box from "@mui/material/Box";
+// Import the useTranslation hook
+import { useTranslation } from "react-i18next";
 
 // MUI Component Imports
 import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles"; // Import useTheme to access theme transitions
-
-// Import the useTranslation hook
-import { useTranslation } from "react-i18next";
 
 /**
  * Footer component that displays a notice.
@@ -21,12 +20,12 @@ const Footer = () => {
   return (
     <Box
       sx={{
-        marginTop: 3,
-        marginBottom: 0,
-        color: "text.secondary", // Use theme text color
+        py: 4,
+        width: "100%",
+        textAlign: "center",
       }}
     >
-      <Typography variant="body2">
+      <Typography variant="body2" sx={{ color: "text.secondary" }}>
         {t("footer_notice")}
       </Typography>
     </Box>

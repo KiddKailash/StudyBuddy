@@ -1,16 +1,16 @@
 import React, { useState, useContext } from "react";
 import { useTranslation } from "react-i18next";
 
+// Components
+import RequestFeatureDialog from "./RequestFeatureDialog";
+
 // MUI Components
 import IconButton from "@mui/material/IconButton";
 import BiotechRoundedIcon from "@mui/icons-material/BiotechRounded";
 
-// Components
-import RequestFeatureDialog from "./RequestFeatureDialog";
-
 // Contexts
-import { SnackbarContext } from "../../contexts/SnackbarContext";
-import { UserContext } from "../../contexts/UserContext";
+import { SnackbarContext } from "../../contexts/Snackbar";
+import { UserContext } from "../../contexts/User";
 
 const RequestFeature = () => {
   // Snackbar context for success/error
@@ -42,14 +42,9 @@ const RequestFeature = () => {
     <>
       <IconButton
         onClick={openDialog}
+        size="large"
         sx={{
-          bgcolor: "background.default",
-          position: "fixed",
-          left: "20px",
-          bottom: "20px",
-          zIndex: "5000",
           "&:hover": {
-            bgcolor: "background.default",
             color: "primary.main",
           },
         }}

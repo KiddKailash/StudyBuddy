@@ -1,7 +1,13 @@
-// src/components/ReviewCard.jsx
 import React from "react";
 import PropTypes from "prop-types";
-import { Card, CardContent, Typography, Rating } from "@mui/material";
+
+// MUI
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Rating from '@mui/material/Rating';
+
+// MUI Icons
 import StarIcon from "@mui/icons-material/Star";
 
 const ReviewCard = ({ name, country, rating, text }) => {
@@ -13,9 +19,9 @@ const ReviewCard = ({ name, country, rating, text }) => {
           name="read-only"
           value={rating}
           readOnly
-          precision={1}
+          precision={0.5}
           icon={
-            <StarIcon fontSize="inherit" sx={{ color: "primary.main", opacity: 0.6 }} />
+            <StarIcon fontSize="inherit" sx={{ color: "primary.light", opacity: 1 }} />
           }
           emptyIcon={
             <StarIcon fontSize="inherit" sx={{ color: "text: secondary" }} />
