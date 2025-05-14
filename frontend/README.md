@@ -1,71 +1,123 @@
-# Study Buddy
+# StudyBuddy Frontend
 
-Study Buddy is a flashcard generation platform that allows users to create study cards from uploaded files, and pasted text. This frontend repository connects with a backend server to process files and text into structured flashcards using the OpenAI API.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running the Project](#running-the-project)
+The StudyBuddy Frontend is a modern React application that provides an intuitive interface for creating and managing AI-powered study materials.
 
 ## Overview
 
-Study Buddy's frontend is a React-based application that serves as an intuitive interface for creating flashcards. Users can log in, upload documents, paste text, or (in the future) provide a YouTube URL to generate a flashcard session using the OpenAI API. The app's design emphasizes accessibility, ease of use, and performance.
+StudyBuddy's frontend offers a responsive and accessible user interface for:
+- Generating and managing flashcards from various content sources
+- Creating and taking multiple-choice quizzes
+- Viewing AI-generated summaries of learning materials
+- Interacting with AI assistants for content clarification
+- Managing folders and study sessions
+- Handling user authentication and subscriptions
 
 ## Features
 
-- **User Authentication**: Allows users to create accounts and securely log in.
-- **Flashcard Generation**: Generate flashcards by uploading a document or pasting text.
-- **Flashcard Management**: View, rename, or delete existing flashcard sessions.
-- **Responsive Design**: Optimized for various screen sizes and devices.
+- **User Authentication**: Secure login, registration, and password management
+- **AI-Powered Content Generation**: Create study materials from:
+  - Uploaded documents (PDF, DOCX, etc.)
+  - Pasted text
+  - Website content
+  - YouTube videos (future)
+- **Study Organization**:
+  - Folder-based organization system
+  - Rename and manage study sessions
+  - Filter and search functionality
+- **Multiple Study Formats**:
+  - Flashcards with interactive review
+  - Multiple-choice quizzes
+  - AI-generated summaries
+  - AI chat assistance
+- **User Management**:
+  - Profile settings
+  - Subscription management
+  - Theme preferences
+- **Internationalization**: Support for multiple languages via i18next
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
 
 ## Tech Stack
 
-### Frontend
-- **React** with **Vite**: Fast, modern JavaScript framework for building user interfaces.
-- **Material UI (MUI)**: React component library for a consistent, accessible, and responsive design.
-- **Axios**: For handling API requests to the backend server.
-- **React Router**: Enables navigation across different routes and tabs.
+- **React 18** with **Vite** for fast, modern development
+- **Material UI (MUI)** for a consistent, accessible component library
+- **React Router** for navigation and routing
+- **Axios** for API communication
+- **Stripe** integration for subscription payments
+- **JWT** for secure authentication
+- **React Dropzone** for file uploads
+- **i18next** for internationalization
 
-### Backend Integration
-The frontend connects to a Node.js backend server (see the backend repository for details), which manages:
-- **OpenAI API**: Processes document or text input to generate structured flashcards.
-- **Database**: Stores user sessions and flashcard data.
+## Project Structure
 
-### Database
-User information and ascociated flashcards are stored from the front end, through a backend server, and onto a MongoDB database.
+```
+frontend/
+├── public/           # Static assets
+├── src/
+│   ├── components/   # Reusable UI components
+│   ├── contexts/     # React context providers
+│   ├── layouts/      # Page layout components
+│   ├── pages/        # Page components
+│   ├── services/     # API and service integrations
+│   ├── styles/       # Global styles and themes
+│   ├── translation/  # i18n translations
+│   └── main.jsx      # Application entry point
+├── index.html        # HTML entry point
+└── package.json      # Dependencies and scripts
+```
 
 ## Getting Started
 
-To get a local copy of the project up and running, follow these steps.
-
 ### Prerequisites
-- Node.js and npm installed on your machine
-- Backend server URL (required for connecting with APIs)
+
+- Node.js (v14 or higher)
+- npm or yarn
+- Backend server (see backend README)
 
 ### Installation
 
-1. Clone the repository:
-
+1. Install dependencies:
    ```bash
-   git clone https://github.com/your-username/clipcard-frontend.git
-   cd clipcard-frontend
-    ```
-2. Install Dependencies
-    ```bash
-    npm install
-    ```
-3. Create a .env file in the root directory with the following variable:
-    ```plaintext
-    VITE_LOCAL_BACKEND_URL=<backend_server_url>
-    ```
-    Replace <backend_server_url> with the URL of your backend server.
+   npm install
+   ```
 
-### Running the Project
-```bash
-npm run dev
-```
+2. Create a `.env` file in the root directory:
+   ```
+   VITE_LOCAL_BACKEND_URL=http://localhost:8080
+   VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Build for production:
+   ```bash
+   npm run build
+   ```
+
+## Development Guidelines
+
+- Follow existing component patterns and code style
+- Use Material UI components for UI consistency
+- Maintain responsive design for all screen sizes
+- Use context providers for global state
+- Implement proper error handling for API calls
+
+## Authentication Flow
+
+The application uses JWT tokens for authentication:
+1. User logs in via email/password or social providers
+2. JWT token is stored in local storage
+3. Token is included in authorized API requests
+4. Authentication context handles token validation and refresh
+
+## Routing Structure
+
+- Public routes: landing page, login, registration
+- Protected routes: study materials, settings, subscription management
+- Local (ephemeral) routes: for non-authenticated temporary content
+
+## Contact
+
+For more information, contact the development team at [kiddkailash@gmail.com](mailto:kiddkailash@gmail.com).

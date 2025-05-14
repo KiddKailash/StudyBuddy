@@ -6,47 +6,88 @@ The StudyBuddy Backend is a robust Node.js-based REST API that powers the StudyB
 
 ## Tech Stack
 
-- **Runtime**: Node.js with Express.js framework
+- **Runtime**: Node.js (v16+) with Express.js framework
 - **Database**: 
   - Primary: MongoDB (via native driver)
   - Migration support to SQLite
 - **Authentication**: JWT-based authentication system
 - **Payment Processing**: Stripe integration for subscriptions
+- **AI Integration**: OpenAI API for content generation
 - **External Integrations**:
   - Notion API
-  - AI services for content generation
-- **Hosting**: Cloud deployment on Digital Ocean. Database hosted with MongoDB.
+  - Web content extraction
+- **File Processing**: 
+  - PDF parsing with pdf-parse
+  - DOCX parsing with mammoth
+  - CSV parsing with csv-parser
+- **Email**: Nodemailer for transactional emails
 
 ## Project Structure
 
 ```
 backend/
+├── controllers/       # Business logic for routes
 ├── database/          # Database connection and models
 ├── middleware/        # Express middleware (auth, rate limiting, etc.)
 ├── routes/            # API route definitions
 ├── scripts/           # Utility and maintenance scripts
+├── cron/              # Scheduled tasks
+├── environment/       # Environment-specific configurations
 ├── server.js          # Main application entry point
 └── .env               # Environment configuration (not in repo)
 ```
 
 ## Key Features
 
-- **Authentication System**: User registration, login, password reset
-- **Flashcards Management**: Create, update, delete, and organize flashcards
-- **Folder Organization**: Group flashcards into folders
-- **Subscription Management**: Freemium model with Stripe integration
-- **Content Extraction**: Process YouTube videos, websites, and documents
-- **AI Functionality**: Generate flashcards, summaries, and quiz questions
-- **Notion Integration**: Connect and sync with Notion workspaces
-- **User Management**: Profile updates, subscription status tracking
+- **Authentication System**: 
+  - User registration and login
+  - Password reset functionality
+  - JWT token management
+  - Rate limiting protection
+
+- **Content Management**:
+  - Flashcard creation and organization
+  - Multiple-choice quiz generation
+  - Summary generation
+  - AI chat conversations
+  - Folder organization system
+
+- **AI Integration**:
+  - Automatic flashcard generation from content
+  - Quiz question creation
+  - Content summarization
+  - Interactive AI chatbot
+
+- **Content Processing**:
+  - Document parsing (PDF, DOCX, etc.)
+  - Website content extraction
+  - Text processing and analysis
+
+- **Subscription System**:
+  - Freemium model implementation
+  - Stripe payment integration
+  - Webhook handling for payment events
+  - Subscription status tracking
+
+- **External Integrations**:
+  - Notion workspace connection
+  - Notion content synchronization
 
 ## API Routes
 
 The API is organized into logical route groups:
 
+### Public Routes (No Auth)
+- `/api/openai` - Limited AI functionality for non-authenticated users
+- `/api/flashcards-public` - Public flashcard access
+- `/api/upload-public` - File upload for public users
+- `/api/transcript-public` - Transcript processing for public users
+- `/api/website-transcript-public` - Website content extraction (public)
+
+### Protected Routes (Auth Required)
 - `/api/auth` - User authentication endpoints
-- `/api/flashcards` - Flashcard management (requires auth)
-- `/api/folders` - Folder organization for flashcards (requires auth)
+- `/api/flashcards` - Flashcard management
+- `/api/folders` - Folder organization for flashcards
 - `/api/users` - User profile management
 - `/api/checkout` - Subscription and payment management
 - `/api/uploads` - File upload handling
@@ -55,21 +96,24 @@ The API is organized into logical route groups:
 - `/api/multiple-choice-quizzes` - Quiz generation and management
 - `/api/aichats` - AI chat functionality
 - `/api/summaries` - Content summarization
+- `/api/feature-request` - User feature requests
+- `/api/transcript` - Transcript processing
 
-Public (no auth required) versions of select endpoints are available at:
-- `/api/flashcards-public`
-- `/api/upload-public`
-- `/api/transcript-public`
-- `/api/website-transcript-public`
-- `/api/openai`
+### Webhooks
+- `/api/webhook` - Stripe webhook endpoint for payment events
 
-## Utility Scripts
+## Authentication
 
-The `scripts/` directory contains maintenance utilities:
+The API uses JWT (JSON Web Token) for authentication:
+- Tokens are issued at login and include user ID and permissions
+- Protected routes require a valid token in the Authorization header
+- Tokens expire and require refresh for security
 
-- `appendFolderID.js` - Add folder organization to existing flashcards
-- `userReport.js` - Generate and email user statistics reports
-- `migrateMongoToSQLite.js` - Database migration tool
+## Rate Limiting
+
+The API implements rate limiting to prevent abuse:
+- Request limits are applied to sensitive endpoints
+- Different limits for authenticated vs. non-authenticated users
 
 ## Environment Setup
 
@@ -79,51 +123,83 @@ Create a `.env` file with the following variables:
 PORT=8080
 DATABASE_URL=mongodb+srv://...
 JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRY=24h
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+OPENAI_API_KEY=sk-...
 GMAIL_ADDRESS=your_email@gmail.com
 GMAIL_APP_PASS=your_app_password
 ADMIN_EMAIL=admin@example.com
+NOTION_CLIENT_ID=...
+NOTION_CLIENT_SECRET=...
 ```
 
 ## Getting Started
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Set up your `.env` file with required variables
-4. Start the development server: `npm run dev`
-5. For production: `npm start`
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## API Documentation
+2. Set up your `.env` file with required variables
 
-Detailed API documentation is available via:
+3. Start the development server:
+   ```bash
+   npm start
+   ```
 
-- Code comments within route files
-- Authentication using Bearer tokens in Authorization header
-- Error responses follow consistent format: `{ error: "Error message" }`
-
-## Database Architecture
-
-The application uses MongoDB with the following collections:
-
-- `users` - User accounts and profile information
-- `flashcards` - Flashcard sets and content
-- `notion_authorizations` - Notion integration tokens
-
-SQLite migration support is available for deployments requiring relational database structure.
+4. For development with auto-restart:
+   ```bash
+   npx nodemon server.js
+   ```
 
 ## Error Handling
 
-The application implements comprehensive error handling with:
-
-- Input validation
-- Authentication verification
-- Rate limiting protection
+The API implements comprehensive error handling:
+- Input validation with appropriate error messages
+- Authentication verification with proper status codes
 - Global error handler for unexpected issues
+- Consistent error response format: `{ error: "Error message" }`
 
-## Contributing
+## Database Operations
 
-1. Follow the existing code style and patterns
-2. Add appropriate documentation for new features
-3. Ensure all existing tests pass
-4. Add new tests for new functionality  
+- **MongoDB Connection**: Automatic connection management with retry logic
+- **Collections**:
+  - `users`: User accounts and profile information
+  - `flashcards`: Flashcard sets and content
+  - `folders`: Organizational structure for flashcards
+  - `quizzes`: Multiple-choice quiz questions
+  - `summaries`: Generated content summaries
+  - `aichats`: AI chat conversation history
+  - `notion_authorizations`: Notion integration tokens
+
+## Testing
+
+For manual API testing, you can use tools like:
+- Postman
+- Insomnia
+- curl commands
+
+For example:
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password123"}'
+```
+
+## Deployment
+
+The application is designed for deployment on:
+- Digital Ocean App Platform
+- MongoDB Atlas for database hosting
+
+## Maintenance
+
+The `scripts/` directory contains utilities for maintaining the application:
+- `appendFolderID.js`: Add folder organization to existing flashcards
+- `userReport.js`: Generate and email user statistics reports
+- `migrateMongoToSQLite.js`: Database migration tool
+
+## Contact
+
+For backend-related inquiries, contact [your-email@example.com](mailto:your-email@example.com)  
