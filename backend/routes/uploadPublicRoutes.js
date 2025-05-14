@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const uploadController = require("../controllers/uploadController");
+const uploadsController = require("../controllers/uploadsController");
 
 // @route   POST /api/upload-public
-// @desc    Upload a document and extract text - no auth required
+// @desc    Upload a file without authentication
 // @access  Public
-router.post("/", uploadController.uploadFile);
+router.post("/", uploadsController.uploadFile);
 
 module.exports = router;

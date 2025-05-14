@@ -23,31 +23,21 @@ const webhookHandler = async (req, res) => {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object;
-      const customerId = session.customer; // Stripe's customer ID
-      const userId = session.metadata.userId; // Your application's user ID
-
-      console.log(
-        `Checkout session completed for user ${userId} with customer ID ${customerId}`
+      const customerId = session.customer; 
+      const userId = session.metadata.userId; 
+      const chosenPlan = session.metadata.accountType; // "paid-monthly" or "paid-yearly"
+    
+      await db.collection('users').updateOne(
+        { _id: new ObjectId(userId) },
+        {
+          $set: {
+            stripeCustomerId: customerId,
+            accountType: chosenPlan,  // store the EXACT plan type
+            subscriptionStatus: 'active',
+            subscriptionId: session.subscription,
+          },
+        }
       );
-
-      // Update your database to store the stripeCustomerId and set accountType to 'paid'
-      try {
-        await db.collection('users').updateOne(
-          { _id: new ObjectId(userId) },
-          {
-            $set: {
-              stripeCustomerId: customerId,
-              accountType: 'paid', // Update accountType to 'paid'
-              subscriptionStatus: 'active', // Set initial subscription status
-              subscriptionId: session.subscription, // Store the subscription ID
-            },
-          }
-        );
-      } catch (error) {
-        console.error(`Failed to update user after checkout session:`, error);
-        return res.status(500).send('Database error');
-      }
-
       break;
     }
 

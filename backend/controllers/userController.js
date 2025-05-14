@@ -1,3 +1,11 @@
+/**
+ * User Controller
+ * 
+ * Manages user account operations and user preferences.
+ * Provides endpoints for updating account information, changing passwords,
+ * and managing user-specific settings.
+ * Handles user data operations separately from authentication processes.
+ */
 const { getDB } = require('../database/db');
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
