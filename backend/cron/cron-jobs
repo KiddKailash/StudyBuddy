@@ -1,0 +1,5 @@
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+
+# Run 'scripts/userReport.js' every Sunday at 5 PM
+0 7 * * 0 root node /app/scripts/userReport.js >> /var/log/cron.log 2>&1
