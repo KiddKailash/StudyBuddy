@@ -3,8 +3,8 @@ import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 // Contexts
-import { UserContext } from "../../contexts/UserContext";
-import { SnackbarContext } from "../../contexts/SnackbarContext";
+import { UserProvider } from "../../contexts/UserContext";
+import { SnackbarProvider } from "../../contexts/SnackbarContext";
 
 // MUI
 import { useTheme } from "@mui/material/styles";

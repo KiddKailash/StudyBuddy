@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { UserContext } from "../../contexts/User";
+import { UserProvider } from "../../contexts/User";
 import MobileMenu from "./MobileMenu";
 import UpgradeButton from "./UpgradeButton";
 import AvatarMenu from "./AvatarMenu";

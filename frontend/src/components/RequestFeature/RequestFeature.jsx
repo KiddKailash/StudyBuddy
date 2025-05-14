@@ -9,8 +9,8 @@ import IconButton from "@mui/material/IconButton";
 import BiotechRoundedIcon from "@mui/icons-material/BiotechRounded";
 
 // Contexts
-import { SnackbarContext } from "../../contexts/Snackbar";
-import { UserContext } from "../../contexts/User";
+import { SnackbarProvider } from "../../contexts/Snackbar";
+import { UserProvider } from "../../contexts/User";
 
 const RequestFeature = () => {
   // Snackbar context for success/error

@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 
 // Contexts
-import { UserContext } from "../../contexts/User";
+import { UserProvider } from "../../contexts/User";
 
 // Local Components
 import SessionItem from "./SessionItem";

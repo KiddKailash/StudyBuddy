@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
-import { UserContext } from "../contexts/UserContext";
-import { SnackbarContext } from "../contexts/SnackbarContext";
+import { UserProvider } from "../contexts/UserContext";
+import { SnackbarProvider } from "../contexts/SnackbarContext";
 import { useTranslation } from "react-i18next";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
