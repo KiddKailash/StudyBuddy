@@ -8,16 +8,24 @@
  */
 const multer = require("multer");
 const fs = require("fs");
+const path = require("path");
 const pdfParse = require("pdf-parse");
 const mammoth = require("mammoth");
 const { getDB } = require("../database/db");
 const { ObjectId } = require("mongodb");
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('Created uploads directory:', uploadsDir);
+}
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Specify upload directory
-    cb(null, 'uploads/');
+    // Specify upload directory using the verified path
+    cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
     // Use original filename
@@ -299,7 +307,7 @@ exports.deleteFile = async (req, res) => {
     await uploadsCollection.deleteOne({ _id: found._id });
     
     // Also delete physical file if it exists
-    const filePath = `uploads/${filename}`;
+    const filePath = path.join(uploadsDir, filename);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
