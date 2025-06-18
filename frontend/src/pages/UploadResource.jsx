@@ -10,17 +10,49 @@ import { UserContext } from "../contexts/User";
 // MUI
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
-import Menu from "@mui/material/Menu";
+import Alert from "@mui/material/Alert";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 // MUI Icons
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CloudUploadIcon from "@mui/icons-material/FileUploadOutlined";
 
-const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
+// Styled components for file upload
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
+
+const UploadBox = styled(Box)(({ theme }) => ({
+  border: `0.5px solid ${theme.palette.primary.main}`,
+  borderRadius: theme.shape.borderRadius * 3,
+  padding: theme.spacing(3),
+  textAlign: "center",
+  backgroundColor: theme.palette.background.default,
+  marginBottom: theme.spacing(2),
+  cursor: "pointer",
+  "&:hover": {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
+
+const UploadResource = ({ 
+  resourceType, 
+  folderID: propFolderID = null, 
+  onGenerate,
+  onGenerateStateChange 
+}) => {
   const {
     isLoggedIn,
     uploads,
@@ -30,10 +62,6 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
     createSummary,
     createChat,
     createFlashcardsFromUpload,
-    setFlashcardSessions,
-    setAiChats,
-    setSummaries,
-    setMultipleChoiceQuizzes,
   } = useContext(UserContext);
 
   const paramsObj = useParams();
@@ -47,6 +75,8 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
   const convertNullFolderID = folderID === "null" ? null : folderID;
 
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // Current selected upload ID from the existing uploads list
   const [selectedUploadId, setSelectedUploadId] = useState("");
@@ -62,16 +92,37 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
   // For "summary" or "chat" resource types that accept a user prompt
   const [userMessage, setUserMessage] = useState("");
 
-  // For dropdown menu
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  // Fetch uploads on component mount
+  // Fetch uploads on component mount and auto-select the most recent one
   useEffect(() => {
     if (isLoggedIn) {
       setIsLoadingUploads(true);
       fetchUploads()
-        .catch(err => {
+        .then((uploads) => {
+          // Auto-select the most recent upload if none is selected
+          if (uploads && uploads.length > 0 && !selectedUploadId) {
+            const filteredForFolder = uploads.filter((u) => {
+              const uploadFolderID =
+                u.folderID === undefined || u.folderID === "undefined"
+                  ? null
+                  : u.folderID;
+              return (
+                (uploadFolderID === null && convertNullFolderID === null) ||
+                uploadFolderID === convertNullFolderID ||
+                (uploadFolderID === null && convertNullFolderID === "null") ||
+                (uploadFolderID === "null" && convertNullFolderID === null)
+              );
+            });
+
+            if (filteredForFolder.length > 0) {
+              // Sort by upload date and select the most recent
+              const sortedUploads = filteredForFolder.sort(
+                (a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)
+              );
+              setSelectedUploadId(sortedUploads[0].id);
+            }
+          }
+        })
+        .catch((err) => {
           console.error("Error fetching uploads:", err);
           showSnackbar("Failed to load your uploaded documents", "error");
         })
@@ -79,14 +130,73 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
           setIsLoadingUploads(false);
         });
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, convertNullFolderID]);
 
-  // Dropzone setup
-  const onDrop = useCallback((acceptedFiles) => {
-    if (acceptedFiles && acceptedFiles.length > 0) {
-      setSelectedFile(acceptedFiles[0]);
+  // File handling functions - automatically upload when selected
+  const handleFileSelect = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length > 0) {
+      await handleAutoUpload(files[0]);
     }
-  }, []);
+  };
+
+    const handleAutoUpload = async (file) => {
+    if (!isLoggedIn) {
+      showSnackbar("You must be logged in to upload documents.", "error");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setSelectedFile(file); // Show the file being uploaded
+      
+      const result = await uploadDocumentTranscript(file, convertNullFolderID);
+      if (result?.id || result?.transcript) {
+        showSnackbar("Document uploaded successfully!", "success");
+        
+        // Refresh uploads and auto-select the new upload
+        const refreshedUploads = await fetchUploads();
+        if (result.id && refreshedUploads) {
+          setSelectedUploadId(result.id);
+        }
+        setSelectedFile(null); // Clear the preview file
+      } else {
+        showSnackbar("Upload failed", "error");
+        setSelectedFile(null);
+      }
+    } catch (err) {
+      console.error("Error uploading file:", err);
+      showSnackbar(
+        err?.response?.data?.error || err.message || "Error uploading document",
+        "error"
+      );
+      setSelectedFile(null);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Dropzone setup - automatically upload when dropped
+  const onDrop = useCallback(
+    async (acceptedFiles) => {
+      if (acceptedFiles && acceptedFiles.length > 0) {
+        await handleAutoUpload(acceptedFiles[0]);
+      }
+    },
+    [isLoggedIn, convertNullFolderID]
+  );
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = async (event) => {
+    event.preventDefault();
+    const files = Array.from(event.dataTransfer.files);
+    if (files.length > 0) {
+      await handleAutoUpload(files[0]);
+    }
+  };
 
   const {
     getRootProps,
@@ -104,54 +214,8 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
       "text/plain": [".txt"],
     },
     maxFiles: 1,
+    noClick: true, // We'll handle clicks manually
   });
-
-  const handleOpenUploadMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseUploadMenu = () => {
-    // Clear out any selected file if user closes menu without confirming
-    setSelectedFile(null);
-    setAnchorEl(null);
-  };
-
-  // Actually upload the file to "Uploads" (does NOT generate a resource)
-  const handleAddDocument = async () => {
-    if (!isLoggedIn) {
-      showSnackbar("You must be logged in to upload documents.", "error");
-      return;
-    }
-
-    if (!selectedFile) {
-      showSnackbar("No file selected to upload.", "warning");
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      const result = await uploadDocumentTranscript(selectedFile, convertNullFolderID);
-      if (result?.id || result?.transcript) {
-        showSnackbar("Document uploaded successfully!", "success");
-        // Refresh the uploads so the new file appears in the list
-        await fetchUploads();
-        // Clear the selected file
-        setSelectedFile(null);
-      } else {
-        showSnackbar("Upload failed", "error");
-      }
-    } catch (err) {
-      console.error("Error uploading file:", err);
-      showSnackbar(
-        err?.response?.data?.error || err.message || "Error uploading document",
-        "error"
-      );
-    } finally {
-      setIsUploading(false);
-      // Close menu after upload
-      handleCloseUploadMenu();
-    }
-  };
 
   // Generate the resource from the selected Upload
   const handleGenerate = async () => {
@@ -165,11 +229,12 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
     }
 
     setIsGenerating(true);
+    onGenerateStateChange?.(true);
+    
     try {
       switch (resourceType) {
         case "mcq": {
           const quiz = await createQuiz(selectedUploadId, convertNullFolderID);
-          setMultipleChoiceQuizzes((prev) => [...prev, quiz]);
           showSnackbar("Quiz created!", "success");
           navigate(`/${folderID}/mcq/${quiz.id}`);
           break;
@@ -179,7 +244,6 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
             selectedUploadId,
             convertNullFolderID
           );
-          setFlashcardSessions((prev) => [...prev, newSession]);
           showSnackbar("Flashcards created!", "success");
           navigate(`/${folderID}/flashcards/${newSession.id}`);
           break;
@@ -190,7 +254,6 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
             userMessage,
             convertNullFolderID
           );
-          setSummaries((prev) => [...prev, sum]);
           showSnackbar("Summary created!", "success");
           navigate(`/${folderID}/summary/${sum.id}`);
           break;
@@ -201,7 +264,6 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
             userMessage,
             convertNullFolderID
           );
-          setAiChats((prev) => [...prev, chat]);
           showSnackbar("Chat created!", "success");
           navigate(`/${folderID}/chat/${chat.id}`);
           break;
@@ -216,148 +278,152 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
     } catch (err) {
       console.error("Error generating resource:", err);
       showSnackbar(
-        err?.response?.data?.error || err.message || "Error generating resource",
+        err?.response?.data?.error ||
+          err.message ||
+          "Error generating resource",
         "error"
       );
     } finally {
       setIsGenerating(false);
+      onGenerateStateChange?.(false);
     }
   };
-  
+
+  // Expose the generate function to parent
+  React.useEffect(() => {
+    if (onGenerate) {
+      onGenerate.current = handleGenerate;
+    }
+  }, [handleGenerate, onGenerate]);
+
+  // Notify parent about button state
+  React.useEffect(() => {
+    const canGenerate = !isGenerating && selectedUploadId && isLoggedIn;
+    onGenerateStateChange?.({
+      canGenerate,
+      isGenerating,
+      selectedUploadId,
+      resourceType
+    });
+  }, [isGenerating, selectedUploadId, isLoggedIn, resourceType]);
+
   const filteredUploads = uploads.filter((u) => {
-    const uploadFolderID = u.folderID === undefined || u.folderID === "undefined" ? null : u.folderID;
-    const isMatch = 
+    const uploadFolderID =
+      u.folderID === undefined || u.folderID === "undefined"
+        ? null
+        : u.folderID;
+    const isMatch =
       // Both are null
       (uploadFolderID === null && convertNullFolderID === null) ||
       // Both are the same value
-      (uploadFolderID === convertNullFolderID) ||
+      uploadFolderID === convertNullFolderID ||
       // One is null and one is "null" string
       (uploadFolderID === null && convertNullFolderID === "null") ||
       (uploadFolderID === "null" && convertNullFolderID === null);
-    
+
     return isMatch;
   });
 
   return (
-    <Stack direction="column" spacing={2}>
-      {/* Header and the main "Upload File" button */}
-      <Box
+    <Stack direction="column" spacing={3} sx={{ mt: 2 }}>
+      {/* Header */}
+      <Typography
+        variant={isMobile ? "h5" : "h4"}
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mt: 2,
+          fontSize: isMobile ? "1.25rem" : "1.5rem",
+          fontWeight: "bold",
         }}
       >
-        <Typography variant="h5">Uploaded Documents</Typography>
-        <Button
-          variant="contained"
-          onClick={handleOpenUploadMenu}
-          endIcon={<ExpandMoreIcon />}
-          disabled={isUploading}
-        >
-          {isUploading ? <CircularProgress size={24} /> : "Upload File"}
-        </Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleCloseUploadMenu}
-          keepMounted
-        >
-          <Box
-            {...getRootProps()}
-            sx={{
-              p: 2,
-              width: 300,
-              textAlign: "center",
-              cursor: "pointer",
-              border: "1px dashed",
-              borderColor: isDragActive ? "primary.main" : "grey.400",
-              borderRadius: 2,
-              m: 2,
-            }}
-          >
-            <input {...getInputProps()} />
-            <CloudUploadIcon color="primary" sx={{ fontSize: 48 }} />
-            <Typography>
-              {isDragActive
-                ? "Drop the file here ..."
-                : "Drag & drop or click to select file"}
+        Upload Documents
+      </Typography>
+
+      <Typography variant="subtitle1" color="text.secondary">
+        Upload your study materials to generate{" "}
+        {resourceType === "mcq"
+          ? "multiple choice quizzes"
+          : resourceType === "flashcards"
+          ? "flashcards"
+          : resourceType === "summary"
+          ? "summaries"
+          : "AI chat sessions"}
+        .
+      </Typography>
+
+      {/* File upload area */}
+      <UploadBox
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onClick={() =>
+          !isUploading && document.getElementById("file-input").click()
+        }
+        sx={{
+          py: { md: 6, xs: 4 },
+          minHeight: isMobile ? 120 : "auto",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 1,
+          opacity: isUploading ? 0.7 : 1,
+          pointerEvents: isUploading ? "none" : "auto",
+        }}
+      >
+        {isUploading ? (
+          <>
+            <CircularProgress size={isMobile ? 40 : 60} color="primary" />
+            <Typography
+              variant={isMobile ? "body1" : "h6"}
+              color="primary"
+              sx={{ textAlign: "center" }}
+            >
+              <strong>Uploading...</strong>
             </Typography>
-
-            {fileRejections.length > 0 && (
-              <Typography color="error" variant="caption">
-                Invalid file type or too many files.
-              </Typography>
-            )}
-
             {selectedFile && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
+              <Typography variant="caption" color="text.secondary">
                 {selectedFile.name}
               </Typography>
             )}
-          </Box>
-
-          {/* Confirm Upload button (only shows if a file is selected) */}
-          {selectedFile && (
-            <Button
-              onClick={handleAddDocument}
-              variant="contained"
-              sx={{ m: 2 }}
-              disabled={isUploading}
-            >
-              {isUploading ? <CircularProgress size={24} /> : "Confirm Upload"}
-            </Button>
-          )}
-        </Menu>
-      </Box>
-
-      {/* Scrollable box or a prompt if no uploads exist */}
-      <Box
-        sx={{
-          border: "1px solid #ccc",
-          borderRadius: 1,
-          p: 1,
-          maxHeight: 150,
-          overflowY: "auto",
-        }}
-      >
-        {isLoadingUploads ? (
-          <Box sx={{ textAlign: "center", p: 2 }}>
-            <CircularProgress size={24} />
-            <Typography sx={{ mt: 1 }}>Loading your documents...</Typography>
-          </Box>
-        ) : filteredUploads.length === 0 ? (
-          <Box sx={{ textAlign: "center", p: 2 }}>
-            <Typography sx={{ mb: 1 }}>
-              No documents have been uploaded yet.
-            </Typography>
-          </Box>
+          </>
         ) : (
-          <Stack direction="row" flexWrap="wrap" gap={1}>
-            {filteredUploads.map((u) => (
-              <Box
-                key={u.id}
-                onClick={() => {
-                  setSelectedUploadId((prev) =>
-                    prev === u.id ? "" : u.id
-                  );
-                }}
-                sx={{
-                  p: 1,
-                  borderRadius: 1,
-                  cursor: "pointer",
-                  backgroundColor:
-                    selectedUploadId === u.id ? "primary.main" : "grey.300",
-                  color: selectedUploadId === u.id ? "white" : "inherit",
-                }}
-              >
-                <Typography>{u.fileName}</Typography>
-              </Box>
-            ))}
-          </Stack>
+          <>
+            <CloudUploadIcon
+              color="primary"
+              sx={{ fontSize: { md: 60, xs: 40 } }}
+            />
+            <Typography
+              variant={isMobile ? "body1" : "h6"}
+              color="primary"
+              sx={{ textAlign: "center" }}
+            >
+              <strong>Choose a file</strong> or drag it here
+            </Typography>{" "}
+          </>
         )}
-      </Box>
+        <VisuallyHiddenInput
+          id="file-input"
+          type="file"
+          onChange={handleFileSelect}
+          accept=".pdf,.docx,.doc,.txt"
+          disabled={isUploading}
+        />
+      </UploadBox>
+
+      {/* File rejections */}
+      {fileRejections.length > 0 && (
+        <Alert severity="error">
+          Invalid file type. Please upload PDF, Word, or text files only.
+        </Alert>
+      )}
+
+      {/* Current document status */}
+      {selectedUploadId && filteredUploads.length > 0 && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          <Typography variant="body2">
+            <strong>Ready to generate!</strong> Using:{" "}
+            {filteredUploads.find((u) => u.id === selectedUploadId)?.fileName}
+          </Typography>
+        </Alert>
+      )}      
 
       {/* Optional user prompt for summary/chat */}
       {(resourceType === "chat" || resourceType === "summary") && (
@@ -366,21 +432,12 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
           value={userMessage}
           onChange={(e) => setUserMessage(e.target.value)}
           label="Optional Prompt / Question"
+          multiline
+          rows={3}
+          placeholder="Enter your specific question or prompt here..."
+          variant="outlined"
         />
       )}
-
-      <Button
-        variant="contained"
-        color="primary"
-        disabled={isGenerating || !selectedUploadId}
-        onClick={handleGenerate}
-      >
-        {isGenerating ? (
-          <CircularProgress size={24} />
-        ) : (
-          `Generate ${resourceType.toUpperCase()}`
-        )}
-      </Button>
     </Stack>
   );
 };
@@ -388,6 +445,8 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
 UploadResource.propTypes = {
   resourceType: PropTypes.string.isRequired,
   folderID: PropTypes.string,
+  onGenerate: PropTypes.object, // React ref object
+  onGenerateStateChange: PropTypes.func,
 };
 
 export default UploadResource;
