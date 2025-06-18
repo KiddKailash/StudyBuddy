@@ -32,7 +32,6 @@ export const fetchUploads = async () => {
     const headers = getAuthHeaders();
     if (!headers.Authorization) return [];
 
-    console.log("Fetching uploads...");
     const resp = await axios.get(`${BACKEND}/api/uploads`, { headers });
 
     // Extract uploads from the response, handling different possible structures
@@ -64,14 +63,6 @@ export const uploadDocumentTranscript = async (
   if (folderID !== null) {
     formData.append("folderID", folderID);
   }
-
-  // Log the FormData contents for debugging
-  console.log("FormData contents:");
-  for (let [key, value] of formData.entries()) {
-    console.log(key, value);
-  }
-
-  console.log("Uploading file with folderID:", folderID);
 
   // Get only the Authorization header for file uploads
   const token = getToken();
@@ -173,10 +164,8 @@ export const deleteUpload = async (upload_id) => {
       if (hasEndpointFailed(`${BACKEND}${path}`)) continue;
 
       try {
-        console.log(`Trying delete endpoint: ${BACKEND}${path}`);
         await axios.delete(`${BACKEND}${path}`, { headers });
         success = true;
-        console.log(`Success with delete endpoint: ${BACKEND}${path}`);
         break; // Exit the loop if successful
       } catch (error) {
         console.error(`Failed with delete endpoint ${path}:`, error);

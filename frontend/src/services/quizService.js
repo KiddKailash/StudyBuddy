@@ -22,24 +22,15 @@ export const fetchAllQuizzes = async () => {
   try {
     const headers = getAuthHeaders();
     if (!headers.Authorization) {
-      console.log('quizService: No auth token available');
       return [];
     }
     
-    console.log('quizService: Fetching all quizzes from API');
     
     // Always use the plural endpoint
     try {
       const resp = await axios.get(`${BACKEND}/api/multiple-choice-quizzes`, { headers });
-      console.log('quizService: Quiz response received', resp.status);
       
       const quizzesData = resp.data.quizzes || resp.data.data || [];
-      console.log('quizService: Raw quizzes data', {
-        hasQuizzesField: !!resp.data.quizzes,
-        hasDataField: !!resp.data.data,
-        resultLength: quizzesData.length,
-        responseKeys: Object.keys(resp.data)
-      });
       
       // Check for duplicate IDs and filter them out
       const ids = quizzesData.map(q => q.id);
@@ -56,7 +47,6 @@ export const fetchAllQuizzes = async () => {
             seenIds.add(quiz.id);
           }
         }
-        console.log(`Removed ${quizzesData.length - uniqueQuizzes.length} duplicate quizzes`);
         return uniqueQuizzes;
       }
       

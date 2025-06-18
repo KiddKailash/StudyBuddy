@@ -24,24 +24,15 @@ export const fetchAllSummaries = async () => {
   try {
     const headers = getAuthHeaders();
     if (!headers.Authorization) {
-      console.log("summaryService: No auth token available");
       return [];
     }
     
-    console.log("summaryService: Fetching all summaries from API");
     
     // Use the plural endpoint for consistency
     try {
       const resp = await axios.get(`${BACKEND}/api/summaries`, { headers });
-      console.log("summaryService: Summaries response received", resp.status);
-      
+
       const summariesData = resp.data.summaries || resp.data.data || [];
-      console.log("summaryService: Raw summaries data", {
-        hasSummariesField: !!resp.data.summaries,
-        hasDataField: !!resp.data.data,
-        resultLength: summariesData.length,
-        responseKeys: Object.keys(resp.data)
-      });
       
       // Check for duplicate IDs and filter them out
       const ids = summariesData.map(s => s.id);
@@ -58,7 +49,6 @@ export const fetchAllSummaries = async () => {
             seenIds.add(summary.id);
           }
         }
-        console.log(`summaryService: Removed ${summariesData.length - uniqueSummaries.length} duplicate summaries`);
         return uniqueSummaries;
       }
       
@@ -110,26 +100,22 @@ export const createSummary = async (uploadId, userMessage, folderID) => {
     const headers = getAuthHeaders();
     if (!headers.Authorization) throw new Error("User is not authenticated.");
     
-    console.log("Creating summary with parameters:", { uploadId, userMessage, folderID });
     
     // First, verify we can get the upload transcript
     try {
       const uploadResp = await axios.get(`${BACKEND}/api/uploads/${uploadId}`, { headers });
-      console.log("Upload data successfully retrieved:", uploadResp.data.id);
     } catch (uploadError) {
       console.error("Error fetching upload data:", uploadError);
       throw new Error("Failed to fetch upload data: " + (uploadError.response?.data?.error || uploadError.message));
     }
     
     // Now create the summary
-    console.log("Posting to summaries endpoint...");
     const resp = await axios.post(
       `${BACKEND}/api/summaries`,
       { uploadId, userMessage, folderID },
       { headers }
     );
     
-    console.log("Summary creation response:", resp.data);
     
     // Validate response format and ensure it has the expected structure
     if (!resp.data.summary) {

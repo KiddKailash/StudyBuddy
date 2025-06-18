@@ -22,23 +22,14 @@ export const fetchAllAiChats = async () => {
   try {
     const headers = getAuthHeaders();
     if (!headers.Authorization) {
-      console.log("chatService: No auth token available");
       return [];
     }
     
-    console.log("chatService: Fetching all AI chats from API");
     
     try {
       const resp = await axios.get(`${BACKEND}/api/chats`, { headers });
-      console.log("chatService: Chats response received", resp.status);
       
       const chatsData = resp.data.chats || resp.data.data || [];
-      console.log("chatService: Raw chats data", {
-        hasChatsField: !!resp.data.chats,
-        hasDataField: !!resp.data.data,
-        resultLength: chatsData.length,
-        responseKeys: Object.keys(resp.data)
-      });
       
       // Check for duplicate IDs and remove them
       const ids = chatsData.map(c => c.id);
@@ -55,7 +46,6 @@ export const fetchAllAiChats = async () => {
             seenIds.add(chat.id);
           }
         }
-        console.log(`chatService: Removed ${chatsData.length - uniqueChats.length} duplicate chats`);
         return uniqueChats;
       }
       

@@ -57,7 +57,6 @@ const MCQSession = () => {
       // Directly use the data from the context instead of fetching
       const fetchedQuiz = multipleChoiceQuizzes.find(q => q.id === id);
       setQuiz(fetchedQuiz);
-      console.log('Found quiz:', fetchedQuiz);
 
       // Initialize userAnswers array with null for each question
       if (fetchedQuiz?.questionsJSON) {

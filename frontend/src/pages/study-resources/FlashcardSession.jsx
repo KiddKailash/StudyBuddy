@@ -90,7 +90,6 @@ const FlashcardSession = () => {
       // Directly use the data from the context instead of fetching
       const flashcardSession = flashcardSessions.find(f => f.id === id);
       setSession(flashcardSession);
-      console.log('Found flashcard session:', flashcardSession);
     } catch (error) {
       console.error("Error fetching session:", error);
       showSnackbar(

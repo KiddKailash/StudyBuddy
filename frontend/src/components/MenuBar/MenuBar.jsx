@@ -17,7 +17,7 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 
 const MenuBar = ({ handleDrawerToggle }) => {
-  const { user, resetUserContext, logout } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();

@@ -51,12 +51,6 @@ const AIChatPage = () => {
     fetchChat();
   }, [id, isLoggedIn, aiChats]);
 
-  const handleSend = () => {
-    // Optionally call an API to add a new message to this chat
-    // e.g. POST /api/aichats/:id/messages
-    console.log("Sending message:", userMessage);
-  };
-
   if (loading) {
     return (
       <Box

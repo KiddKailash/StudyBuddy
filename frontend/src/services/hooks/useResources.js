@@ -711,13 +711,11 @@ export function useResources() {
    * @returns {Promise<Object>} Object containing all loaded resource types
    */
   const loadAllResources = async () => {
-    console.log('loadAllResources called, starting to fetch all resources');
     try {
       // Execute each fetch individually to better track errors
       let uploads = [];
       try {
         uploads = await fetchUploads() || [];
-        console.log('Uploads loaded:', uploads.length);
       } catch (uploadErr) {
         console.error('Error fetching uploads:', uploadErr);
       }
@@ -725,7 +723,6 @@ export function useResources() {
       let folders = [];
       try {
         folders = await fetchFolders() || [];
-        console.log('Folders loaded:', folders.length);
       } catch (folderErr) {
         console.error('Error fetching folders:', folderErr);
       }
@@ -733,7 +730,6 @@ export function useResources() {
       let quizzes = [];
       try {
         quizzes = await fetchAllQuizzes() || [];
-        console.log('Quizzes loaded:', quizzes.length);
       } catch (quizErr) {
         console.error('Error fetching quizzes:', quizErr);
       }
@@ -741,7 +737,6 @@ export function useResources() {
       let summaries = [];
       try {
         summaries = await fetchAllSummaries() || [];
-        console.log('Summaries loaded:', summaries.length);
       } catch (summaryErr) {
         console.error('Error fetching summaries:', summaryErr);
       }
@@ -749,7 +744,6 @@ export function useResources() {
       let chats = [];
       try {
         chats = await fetchAllAiChats() || [];
-        console.log('Chats loaded:', chats.length);
       } catch (chatErr) {
         console.error('Error fetching chats:', chatErr);
       }

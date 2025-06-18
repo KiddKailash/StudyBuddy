@@ -56,19 +56,15 @@ export function useAuthentication() {
    */
   const fetchCurrentUser = async () => {
     const localToken = services.storage.getToken();
-    console.log('fetchCurrentUser: token available:', !!localToken);
     
     if (!localToken) {
-      console.log('No token found in local storage');
       setAuthLoading(false);
       return;
     }
     
     setToken(localToken);
     try {
-      console.log('Fetching current user with token');
       const currentUser = await services.auth.fetchCurrentUser();
-      console.log('Current user fetched:', !!currentUser);
       
       if (currentUser) {
         setUser(currentUser);

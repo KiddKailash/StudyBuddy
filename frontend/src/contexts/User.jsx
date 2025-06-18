@@ -37,15 +37,6 @@ export const UserProvider = ({ children }) => {
    * Creates a structured data object for quick access to resources within each folder
    */
   const organizeResourcesByFolder = () => {
-    console.log('Organizing resources by folder');
-    console.log('Current resource counts:', {
-      flashcards: flashcards.flashcardSessions.length,
-      quizzes: resources.multipleChoiceQuizzes.length,
-      summaries: resources.summaries.length,
-      chats: resources.aiChats.length,
-      folders: resources.folders.length
-    });
-    
     const newResourcesByFolder = {};
     
     // Initialize 'null' folder for resources without a folder
@@ -71,6 +62,22 @@ export const UserProvider = ({ children }) => {
     setResourcesByFolder(newResourcesByFolder);
   };
   
+  /**
+   * Gets resources for a specific folder
+   * @param {string} folderId - ID of the folder to get resources for
+   * @returns {Object} Object containing arrays of resources for the folder
+   */
+  const getResourcesByFolder = (folderId) => {
+    const normalizedId = folderId === "null" || folderId === undefined ? "null" : folderId;
+    return resourcesByFolder[normalizedId] || {
+      flashcards: [],
+      quizzes: [],
+      summaries: [],
+      chats: [],
+      lastUpdated: new Date().getTime()
+    };
+  };
+  
   // Wrapped functions for flashcard operations
   /**
    * Deletes a flashcard session and updates the resource organization
@@ -90,7 +97,164 @@ export const UserProvider = ({ children }) => {
    * @returns {Promise} Result of the rename operation
    */
   const wrappedUpdateFlashcardSessionName = async (sessionId, newName) => {
-    return await flashcards.updateFlashcardSessionName(sessionId, newName);
+    const result = await flashcards.updateFlashcardSessionName(sessionId, newName);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  /**
+   * Assigns a flashcard session to a folder
+   * @param {string} sessionId - ID of the session to assign
+   * @param {string} folderID - ID of the folder to assign to
+   * @returns {Promise} Result of the assign operation
+   */
+  const wrappedAssignSessionToFolder = async (sessionId, folderID) => {
+    const result = await flashcards.assignSessionToFolder(sessionId, folderID);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  // Wrapped functions for quiz operations
+  /**
+   * Renames a quiz and updates resource organization
+   * @param {string} quizId - ID of the quiz to rename
+   * @param {string} newName - New name for the quiz
+   * @returns {Promise} Result of the rename operation
+   */
+  const wrappedRenameQuiz = async (quizId, newName) => {
+    const result = await resources.renameQuiz(quizId, newName);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  /**
+   * Deletes a quiz and updates resource organization
+   * @param {string} quizId - ID of the quiz to delete
+   * @returns {Promise} Result of the delete operation
+   */
+  const wrappedDeleteQuiz = async (quizId) => {
+    const result = await resources.deleteQuiz(quizId);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  /**
+   * Assigns a quiz to a folder
+   * @param {string} quizId - ID of the quiz to assign
+   * @param {string} folderID - ID of the folder to assign to
+   * @returns {Promise} Result of the assign operation
+   */
+  const wrappedAssignQuizToFolder = async (quizId, folderID) => {
+    const result = await resources.assignQuizToFolder(quizId, folderID);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  // Wrapped functions for summary operations
+  /**
+   * Renames a summary and updates resource organization
+   * @param {string} summaryId - ID of the summary to rename
+   * @param {string} newName - New name for the summary
+   * @returns {Promise} Result of the rename operation
+   */
+  const wrappedRenameSummary = async (summaryId, newName) => {
+    const result = await resources.renameSummary(summaryId, newName);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  /**
+   * Deletes a summary and updates resource organization
+   * @param {string} summaryId - ID of the summary to delete
+   * @returns {Promise} Result of the delete operation
+   */
+  const wrappedDeleteSummary = async (summaryId) => {
+    const result = await resources.deleteSummary(summaryId);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  /**
+   * Assigns a summary to a folder
+   * @param {string} summaryId - ID of the summary to assign
+   * @param {string} folderID - ID of the folder to assign to
+   * @returns {Promise} Result of the assign operation
+   */
+  const wrappedAssignSummaryToFolder = async (summaryId, folderID) => {
+    const result = await resources.assignSummaryToFolder(summaryId, folderID);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  // Wrapped functions for AI chat operations
+  /**
+   * Renames an AI chat and updates resource organization
+   * @param {string} chatId - ID of the chat to rename
+   * @param {string} newName - New name for the chat
+   * @returns {Promise} Result of the rename operation
+   */
+  const wrappedRenameAiChat = async (chatId, newName) => {
+    const result = await resources.renameAiChat(chatId, newName);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  /**
+   * Deletes an AI chat and updates resource organization
+   * @param {string} chatId - ID of the chat to delete
+   * @returns {Promise} Result of the delete operation
+   */
+  const wrappedDeleteAiChat = async (chatId) => {
+    const result = await resources.deleteAiChat(chatId);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  /**
+   * Assigns an AI chat to a folder
+   * @param {string} chatId - ID of the chat to assign
+   * @param {string} folderID - ID of the folder to assign to
+   * @returns {Promise} Result of the assign operation
+   */
+  const wrappedAssignAiChatToFolder = async (chatId, folderID) => {
+    const result = await resources.assignAiChatToFolder(chatId, folderID);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  // Wrapped functions for folder operations
+  /**
+   * Creates a folder and updates resource organization
+   * @param {string} folderName - Name for the new folder
+   * @returns {Promise} Result of the create operation
+   */
+  const wrappedCreateFolder = async (folderName) => {
+    const result = await resources.createFolder(folderName);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  /**
+   * Renames a folder and updates resource organization
+   * @param {string} folderId - ID of the folder to rename
+   * @param {string} newName - New name for the folder
+   * @returns {Promise} Result of the rename operation
+   */
+  const wrappedRenameFolder = async (folderId, newName) => {
+    const result = await resources.renameFolder(folderId, newName);
+    organizeResourcesByFolder();
+    return result;
+  };
+  
+  /**
+   * Deletes a folder and updates resource organization
+   * @param {string} folderId - ID of the folder to delete
+   * @returns {Promise} Result of the delete operation
+   */
+  const wrappedDeleteFolder = async (folderId) => {
+    const result = await resources.deleteFolder(folderId);
+    organizeResourcesByFolder();
+    return result;
   };
   
   // Initialize user data on component mount
@@ -99,6 +263,17 @@ export const UserProvider = ({ children }) => {
     auth.fetchCurrentUser();
     //eslint-disable-next-line
   }, []);
+  
+  // Organize resources whenever they change
+  useEffect(() => {
+    organizeResourcesByFolder();
+  }, [
+    flashcards.flashcardSessions,
+    resources.multipleChoiceQuizzes,
+    resources.summaries,
+    resources.aiChats,
+    resources.folders
+  ]);
 
   // Return the context provider with all necessary values
   return (
@@ -122,6 +297,9 @@ export const UserProvider = ({ children }) => {
         flashcardSessions: flashcards.flashcardSessions,
         deleteFlashcardSession: wrappedDeleteFlashcardSession,
         updateFlashcardSessionName: wrappedUpdateFlashcardSessionName,
+        assignSessionToFolder: wrappedAssignSessionToFolder,
+        createFlashcardsFromUpload: flashcards.createFlashcardsFromUpload,
+        setFlashcardSessions: flashcards.setFlashcardSessions,
         
         // Resources
         folders: resources.folders,
@@ -129,13 +307,50 @@ export const UserProvider = ({ children }) => {
         summaries: resources.summaries,
         aiChats: resources.aiChats,
         
+        // Resource state setters
+        setMultipleChoiceQuizzes: resources.setMultipleChoiceQuizzes,
+        setSummaries: resources.setSummaries,
+        setAiChats: resources.setAiChats,
+        
+        // Upload operations
+        fetchUploads: resources.fetchUploads,
+        
+        // Folder operations
+        fetchFolders: resources.fetchFolders,
+        createFolder: wrappedCreateFolder,
+        renameFolder: wrappedRenameFolder,
+        deleteFolder: wrappedDeleteFolder,
+        
+        // Quiz operations
+        createQuiz: resources.createQuiz,
+        renameQuiz: wrappedRenameQuiz,
+        deleteQuiz: wrappedDeleteQuiz,
+        assignQuizToFolder: wrappedAssignQuizToFolder,
+        
+        // Summary operations
+        createSummary: resources.createSummary,
+        renameSummary: wrappedRenameSummary,
+        deleteSummary: wrappedDeleteSummary,
+        assignSummaryToFolder: wrappedAssignSummaryToFolder,
+        
+        // AI Chat operations
+        createChat: resources.createChat,
+        renameAiChat: wrappedRenameAiChat,
+        deleteAiChat: wrappedDeleteAiChat,
+        assignAiChatToFolder: wrappedAssignAiChatToFolder,
+        
+        // Resource loading
+        loadAllResources: resources.loadAllResources,
+        
         // Resource organization
         resourcesByFolder,
         organizeResourcesByFolder,
+        getResourcesByFolder,
         
         // User account
         updateAccountInfo: userAccount.updateAccountInfo,
         changePassword: userAccount.changePassword,
+        requestFeature: userAccount.requestFeature,
         
         // Global loading state
         dataLoading

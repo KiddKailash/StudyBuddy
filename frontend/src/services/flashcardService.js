@@ -45,7 +45,6 @@ export const fetchFlashcardSessions = async () => {
           seenIds.add(session.id);
         }
       }
-      console.log(`Removed ${loaded.length - uniqueSessions.length} duplicate flashcard sessions`);
       return uniqueSessions;
     }
     

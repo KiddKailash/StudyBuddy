@@ -64,17 +64,14 @@ export const googleLoginUser = async (tokenId) => {
 export const fetchCurrentUser = async () => {
   const localToken = getToken();
   if (!localToken) {
-    console.log('authService: No token found in localStorage');
     return null;
   }
   
   try {
-    console.log('authService: Fetching current user with token');
     const resp = await axios.get(`${BACKEND}/api/auth/me`, {
       headers: { Authorization: `Bearer ${localToken}` },
     });
     
-    console.log('authService: User fetch successful');
     return resp.data.user;
   } catch (err) {
     console.error("authService: fetchCurrentUser error:", err);

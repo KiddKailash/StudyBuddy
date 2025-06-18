@@ -111,7 +111,6 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
   // Fetch uploads when needed (when opening resource dialog)
   useEffect(() => {
     if (resourceDialogOpen && isLoggedIn && !uploadsFetchedRef.current) {
-      console.log('SidebarContent: Fetching uploads once');
       fetchUploads()
         .then(() => {
           uploadsFetchedRef.current = true;

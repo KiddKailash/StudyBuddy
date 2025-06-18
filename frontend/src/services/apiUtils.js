@@ -22,7 +22,6 @@ export { getToken };
 export const recordEndpointError = (endpoint) => {
   // Only store errors for singular endpoints that have alternatives
   // Since we standardized on plural endpoints, we don't need to record failures
-  console.log(`Not recording endpoint error for ${endpoint} as we're using standardized endpoints now`);
 };
 
 /**

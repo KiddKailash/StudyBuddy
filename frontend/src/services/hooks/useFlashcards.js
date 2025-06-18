@@ -52,9 +52,7 @@ export function useFlashcards() {
     setLoadingSessions(true);
     setFlashcardError(null);
     try {
-      console.log('loadFlashcardSessions called, fetching sessions from API');
       const loadedDbSessions = await services.flashcards.fetchFlashcardSessions();
-      console.log('Flashcard sessions loaded:', loadedDbSessions.length);
       setFlashcardSessions(loadedDbSessions);
       return loadedDbSessions;
     } catch (error) {

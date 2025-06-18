@@ -42,7 +42,6 @@ const SummaryPage = () => {
       // Directly use the data from the context instead of fetching
       const fetchedSummary = summaries.find(s => s.id === id);
       setSummary(fetchedSummary);
-      console.log('Found summary:', fetchedSummary);
     } catch (error) {
       console.error("Error fetching summary:", error);
       setErrorMessage(

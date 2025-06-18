@@ -71,9 +71,6 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
     if (isLoggedIn) {
       setIsLoadingUploads(true);
       fetchUploads()
-        .then(() => {
-          console.log("Uploads fetched successfully");
-        })
         .catch(err => {
           console.error("Error fetching uploads:", err);
           showSnackbar("Failed to load your uploaded documents", "error");
@@ -133,7 +130,6 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
 
     try {
       setIsUploading(true);
-      console.log("Uploading document with folderID:", convertNullFolderID);
       const result = await uploadDocumentTranscript(selectedFile, convertNullFolderID);
       if (result?.id || result?.transcript) {
         showSnackbar("Document uploaded successfully!", "success");
@@ -227,11 +223,6 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
       setIsGenerating(false);
     }
   };
-
-  // Filter uploads by folderID
-  console.log("All uploads:", uploads);
-  console.log("Current folderID:", folderID);
-  console.log("Converted folderID for comparison:", convertNullFolderID);
   
   const filteredUploads = uploads.filter((u) => {
     const uploadFolderID = u.folderID === undefined || u.folderID === "undefined" ? null : u.folderID;
@@ -244,7 +235,6 @@ const UploadResource = ({ resourceType, folderID: propFolderID = null }) => {
       (uploadFolderID === null && convertNullFolderID === "null") ||
       (uploadFolderID === "null" && convertNullFolderID === null);
     
-    console.log(`Upload ${u.id} (${u.fileName}) has folderID: ${u.folderID} (normalized: ${uploadFolderID}), match: ${isMatch}`);
     return isMatch;
   });
 
