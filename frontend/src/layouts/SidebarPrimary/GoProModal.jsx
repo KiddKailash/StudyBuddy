@@ -280,7 +280,7 @@ const GoProModal = ({ open, onClose }) => {
                     >
                       <div style={{ flexGrow: 1 }} />
                       <Box sx={{}}>
-                        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h3" sx={{ fontWeight: 400 }}>
                           4.9
                         </Typography>
                         <Typography variant="subtitle2" color="warning.light">
