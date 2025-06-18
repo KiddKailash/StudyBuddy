@@ -259,22 +259,43 @@ export const UserProvider = ({ children }) => {
   
   // Initialize user data on component mount
   useEffect(() => {
+    setDataLoading(true);
     flashcards.loadLocalSessions();
     auth.fetchCurrentUser();
+    setDataLoading(false);
     //eslint-disable-next-line
   }, []);
+
+  // Reset loading state when user logs out
+  useEffect(() => {
+    if (!auth.isLoggedIn) {
+      setDataLoading(false);
+    }
+  }, [auth.isLoggedIn]);
 
   // Load all resources when user is authenticated
   useEffect(() => {
     if (auth.isLoggedIn && auth.user) {
-      resources.loadAllResources();
+      const loadResources = async () => {
+        setDataLoading(true);
+        try {
+          await resources.loadAllResources();
+        } catch (error) {
+          console.error('Error loading resources:', error);
+        } finally {
+          setDataLoading(false);
+        }
+      };
+      loadResources();
     }
     //eslint-disable-next-line
   }, [auth.isLoggedIn, auth.user]);
   
   // Organize resources whenever they change
   useEffect(() => {
+    setDataLoading(true);
     organizeResourcesByFolder();
+    setDataLoading(false);
   }, [
     flashcards.flashcardSessions,
     resources.multipleChoiceQuizzes,
