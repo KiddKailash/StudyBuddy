@@ -200,11 +200,37 @@ export const assignSummaryToFolder = async (summaryId, folderID) => {
   }
 };
 
+/**
+ * Query a document based on a summary
+ * 
+ * @param {string} summaryId - ID of the summary to query its underlying document
+ * @param {string} userMessage - User's question about the document
+ * @returns {Object} - Response with answer and document title
+ */
+export const queryDocument = async (summaryId, userMessage) => {
+  try {
+    const headers = getAuthHeaders();
+    if (!headers.Authorization) throw new Error("User is not authenticated.");
+    
+    const response = await axios.post(
+      `${BACKEND}/api/summaries/query-document`,
+      { summaryId, userMessage },
+      { headers }
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error("queryDocument error:", error);
+    throw error;
+  }
+};
+
 export default {
   fetchAllSummaries,
   fetchSummariesByFolder,
   createSummary,
   deleteSummary,
   renameSummary,
-  assignSummaryToFolder
+  assignSummaryToFolder,
+  queryDocument
 }; 
