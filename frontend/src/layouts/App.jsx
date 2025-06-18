@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 
 // Local Imports
 import ProtectedRoute from "../components/ProtectedRoute";
+import GlobalLoader from "../components/GlobalLoader";
 import MainLayout from "./MainLayout";
 
 // Web Pages
@@ -76,34 +77,39 @@ function App() {
   ];
 
   return (
-    <Routes>
-      {/* Wrap everything with the MainLayout (PrimarySidebar → SecondarySidebar → Content) */}
-      <Route path="/" element={<MainLayout />}>
-        {pages.map((page, i) => {
-          // Is ephemeral?
-          const isEphemeral = ephemeralPrefixes.some((prefix) =>
-            page.path.startsWith(prefix)
-          );
-          // It's public if ephemeral or explicitly listed in publicPaths (or 404 "*")
-          const isPublic =
-            isEphemeral || publicPaths.includes(page.path) || page.path === "*";
+    <>
+      <Routes>
+        {/* Wrap everything with the MainLayout (PrimarySidebar → SecondarySidebar → Content) */}
+        <Route path="/" element={<MainLayout />}>
+          {pages.map((page, i) => {
+            // Is ephemeral?
+            const isEphemeral = ephemeralPrefixes.some((prefix) =>
+              page.path.startsWith(prefix)
+            );
+            // It's public if ephemeral or explicitly listed in publicPaths (or 404 "*")
+            const isPublic =
+              isEphemeral || publicPaths.includes(page.path) || page.path === "*";
 
-          return (
-            <Route
-              key={i}
-              path={page.path}
-              element={
-                isPublic ? (
-                  page.component
-                ) : (
-                  <ProtectedRoute>{page.component}</ProtectedRoute>
-                )
-              }
-            />
-          );
-        })}
-      </Route>
-    </Routes>
+            return (
+              <Route
+                key={i}
+                path={page.path}
+                element={
+                  isPublic ? (
+                    page.component
+                  ) : (
+                    <ProtectedRoute>{page.component}</ProtectedRoute>
+                  )
+                }
+              />
+            );
+          })}
+        </Route>
+      </Routes>
+      
+      {/* Global loading overlay */}
+      <GlobalLoader />
+    </>
   );
 }
 
