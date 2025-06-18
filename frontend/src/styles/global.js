@@ -61,10 +61,79 @@ export const getTheme = (mode = "light") => {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: mode === "light" ? basePalette.primary.main : "#0F172A",
+            backgroundColor:
+              mode === "light" ? basePalette.primary.main : "#0F172A",
+          },
+        },
+      },
+      MuiDialog: {
+        styleOverrides: {
+          root: {
+            "& .MuiBackdrop-root": {
+              backgroundColor:
+                mode === "dark" ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)",
+            },
+          },
+          paper: {
+            borderRadius: "24px",
+            padding: "15px",
+            boxShadow:
+              mode === "dark"
+                ? "0 24px 38px 3px rgba(0, 0, 0, 0.8), 0 9px 46px 8px rgba(0, 0, 0, 0.6), 0 11px 15px -7px rgba(0, 0, 0, 0.4)"
+                : "0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2)",
+            backgroundImage: "none",
+          },
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: {
+            fontSize: "1.5rem",
+            fontWeight: 600,
+            padding: "24px 24px 10px 24px",
+          },
+        },
+      },
+      MuiDialogContent: {
+        styleOverrides: {
+          root: {
+            padding: "8px 24px 20px 24px",
+            "&.MuiDialogContent-dividers": {
+              borderTop: `1px solid ${
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.12)"
+                  : "rgba(0, 0, 0, 0.12)"
+              }`,
+              borderBottom: `1px solid ${
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.12)"
+                  : "rgba(0, 0, 0, 0.12)"
+              }`,
+            },
+          },
+        },
+      },
+      MuiDialogActions: {
+        styleOverrides: {
+          root: {
+            padding: "0px 24px 24px 24px",
+            gap: "6px",
+            justifyContent: "space-between",
+            "& .MuiButton-root": {
+              borderRadius: "8px",
+              textTransform: "none",
+              fontWeight: 500,
+            },
+          },
+        },
+      },
+      Paper: {
+        styleOverrides: {
+          root: {
+            boxShadow: "0px",
           },
         },
       },
     },
   });
-}; 
+};
