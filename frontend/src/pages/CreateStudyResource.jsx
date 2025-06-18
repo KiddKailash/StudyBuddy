@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Local Imports
@@ -17,6 +17,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
+import CircularProgress from "@mui/material/CircularProgress";
 import { useTheme } from "@mui/material/styles";
 
 // MUI Icons
@@ -33,6 +34,13 @@ const CreateStudyResource = () => {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [selectedResourceType, setSelectedResourceType] = useState(null);
+  const [generateState, setGenerateState] = useState({
+    canGenerate: false,
+    isGenerating: false,
+    selectedUploadId: null,
+    resourceType: null
+  });
+  const generateRef = useRef(null);
 
   const {
     flashcardSessions = [],
@@ -92,6 +100,28 @@ const CreateStudyResource = () => {
   const handleDialogClose = () => {
     setOpen(false);
     setSelectedResourceType(null);
+    setGenerateState({
+      canGenerate: false,
+      isGenerating: false,
+      selectedUploadId: null,
+      resourceType: null
+    });
+  };
+
+  const handleGenerate = () => {
+    if (generateRef.current) {
+      generateRef.current();
+    }
+  };
+
+  const handleGenerateStateChange = (state) => {
+    if (typeof state === 'boolean') {
+      // Handle legacy boolean parameter for isGenerating
+      setGenerateState(prev => ({ ...prev, isGenerating: state }));
+    } else {
+      // Handle full state object
+      setGenerateState(state);
+    }
   };
 
   return (
@@ -235,12 +265,32 @@ const CreateStudyResource = () => {
         <Box sx={{ p: 2 }}>
           <DialogContent>
             {selectedResourceType && (
-              <UploadResource resourceType={selectedResourceType} />
+              <UploadResource 
+                resourceType={selectedResourceType}
+                onGenerate={generateRef}
+                onGenerateStateChange={handleGenerateStateChange}
+              />
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleDialogClose} color="error">
+            <Button onClick={handleDialogClose} color="error" disabled={generateState.isGenerating}>
               Cancel
+            </Button>
+            <Button 
+              onClick={handleGenerate}
+              variant="contained"
+              disabled={!generateState.canGenerate || generateState.isGenerating}
+              startIcon={generateState.isGenerating ? <CircularProgress size={20} /> : null}
+            >
+              {generateState.isGenerating ? (
+                "Generating..."
+              ) : (
+                `Generate ${
+                  selectedResourceType === "mcq"
+                    ? "Quiz"
+                    : selectedResourceType?.charAt(0).toUpperCase() + selectedResourceType?.slice(1)
+                }`
+              )}
             </Button>
           </DialogActions>
         </Box>
