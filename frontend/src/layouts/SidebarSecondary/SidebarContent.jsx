@@ -84,7 +84,7 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
     assignSummaryToFolder,
     assignAiChatToFolder,
     getResourcesByFolder,
-    dataLoading
+    dataLoading,
   } = useContext(UserContext);
 
   // State for dropdown menu
@@ -104,9 +104,16 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedResourceType, setSelectedResourceType] = useState(null);
   const [resourceDialogOpen, setResourceDialogOpen] = useState(false);
+  const [generateState, setGenerateState] = useState({
+    canGenerate: false,
+    isGenerating: false,
+    selectedUploadId: null,
+    resourceType: null
+  });
 
   // Add ref to track if uploads are already fetched
   const uploadsFetchedRef = useRef(false);
+  const generateRef = useRef(null);
 
   // Fetch uploads when needed (when opening resource dialog)
   useEffect(() => {
@@ -115,11 +122,11 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
         .then(() => {
           uploadsFetchedRef.current = true;
         })
-        .catch(err => {
-          console.error('Failed to fetch uploads in SidebarContent:', err);
+        .catch((err) => {
+          console.error("Failed to fetch uploads in SidebarContent:", err);
         });
     }
-    
+
     // Reset the flag when dialog closes
     if (!resourceDialogOpen) {
       uploadsFetchedRef.current = false;
@@ -129,10 +136,10 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
   // Get current folder information
   const isNullFolder = folderID === "null" || folderID === undefined;
   const normalizedFolderID = isNullFolder ? "null" : folderID;
-  
+
   // Get folder resources from the already organized data in context
   const folderResources = getResourcesByFolder(normalizedFolderID);
-  
+
   // Resources for this folder
   const filteredFlashcards = folderResources.flashcards || [];
   const filteredMcqs = folderResources.quizzes || [];
@@ -162,8 +169,8 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
     // Use the resource's own folderID rather than the current folderID
     // This ensures we navigate to the correct folder context
     const contextFolderID = resourceFolderID || "null";
-    
-    switch(resourceType) {
+
+    switch (resourceType) {
       case "flashcard":
         return `/${contextFolderID}/flashcards/${resourceId}`;
       case "quiz":
@@ -200,26 +207,32 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
   // Handle opening the rename dialog
   const handleRenameClick = () => {
     handleMenuClose();
-    
+
     // Set initial name based on selected item
     let initialName = "";
     switch (selectedItemType) {
       case "flashcard":
-        initialName = flashcardSessions.find(s => s.id === selectedItem)?.studySession || "";
+        initialName =
+          flashcardSessions.find((s) => s.id === selectedItem)?.studySession ||
+          "";
         break;
       case "quiz":
-        initialName = multipleChoiceQuizzes.find(q => q.id === selectedItem)?.studySession || "";
+        initialName =
+          multipleChoiceQuizzes.find((q) => q.id === selectedItem)
+            ?.studySession || "";
         break;
       case "summary":
-        initialName = summaries.find(s => s.id === selectedItem)?.studySession || "";
+        initialName =
+          summaries.find((s) => s.id === selectedItem)?.studySession || "";
         break;
       case "chat":
-        initialName = aiChats.find(c => c.id === selectedItem)?.studySession || "";
+        initialName =
+          aiChats.find((c) => c.id === selectedItem)?.studySession || "";
         break;
       default:
         break;
     }
-    
+
     setNewSessionName(initialName);
     setConfirmDialogType("rename");
     setConfirmDialogOpen(true);
@@ -228,27 +241,33 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
   // Handle opening the move dialog
   const handleMoveClick = () => {
     handleMenuClose();
-    
+
     // Set initial folder ID based on selected item
     let initialFolderId = "";
     switch (selectedItemType) {
       case "flashcard":
-        initialFolderId = flashcardSessions.find(s => s.id === selectedItem)?.folderID || "null";
+        initialFolderId =
+          flashcardSessions.find((s) => s.id === selectedItem)?.folderID ||
+          "null";
         break;
       case "quiz":
-        initialFolderId = multipleChoiceQuizzes.find(q => q.id === selectedItem)?.folderID || "null";
+        initialFolderId =
+          multipleChoiceQuizzes.find((q) => q.id === selectedItem)?.folderID ||
+          "null";
         break;
       case "summary":
-        initialFolderId = summaries.find(s => s.id === selectedItem)?.folderID || "null";
+        initialFolderId =
+          summaries.find((s) => s.id === selectedItem)?.folderID || "null";
         break;
       case "chat":
-        initialFolderId = aiChats.find(c => c.id === selectedItem)?.folderID || "null";
+        initialFolderId =
+          aiChats.find((c) => c.id === selectedItem)?.folderID || "null";
         break;
       default:
         initialFolderId = "null";
         break;
     }
-    
+
     setSelectedFolderId(initialFolderId);
     setMoveDialogOpen(true);
   };
@@ -322,16 +341,20 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
         default:
           break;
       }
-      
+
       // If the item is being moved out of the current folder,
       // navigate to the corresponding new folder
       if (folderID !== newFolderId && folderID !== "null") {
         const folderId = newFolderId || "null";
         // Use our helper function to generate the correct path
-        const newPath = getResourcePath(selectedItemType, selectedItem, folderId);
+        const newPath = getResourcePath(
+          selectedItemType,
+          selectedItem,
+          folderId
+        );
         navigate(newPath);
       }
-      
+
       setMoveDialogOpen(false);
     } catch (error) {
       console.error("Error moving item to folder:", error);
@@ -364,58 +387,65 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
   const handleCloseUploadDialog = () => {
     setUploadDialogOpen(false);
   };
-  
+
   // Handle closing resource dialog
   const handleResourceDialogClose = () => {
     setResourceDialogOpen(false);
     setSelectedResourceType(null);
+    setGenerateState({
+      canGenerate: false,
+      isGenerating: false,
+      selectedUploadId: null,
+      resourceType: null
+    });
+  };
+
+  const handleGenerate = () => {
+    if (generateRef.current) {
+      generateRef.current();
+    }
+  };
+
+  const handleGenerateStateChange = (state) => {
+    if (typeof state === 'boolean') {
+      // Handle legacy boolean parameter for isGenerating
+      setGenerateState(prev => ({ ...prev, isGenerating: state }));
+    } else {
+      // Handle full state object
+      setGenerateState(state);
+    }
   };
 
   return (
     <Box sx={{ width: "100%", p: 2 }}>
       {/* Top Action Buttons */}
-      <Stack 
-        direction="row" 
-        spacing={1} 
-        sx={{ 
-          mb: 2, 
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          mb: 2,
         }}
       >
-        <Tooltip title="Home">
-          <IconButton 
-            size="medium"
-            onClick={() => handleNavigate("/create-resource")}
-            sx={{ 
-              borderRadius: 2,
-              "&:hover": {
-                backgroundColor: "action.hover",
-              }
-            }}
-          >
-            <HomeRoundedIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
         
+
         <Tooltip title="Create Study Resource">
-          <IconButton 
+          <IconButton
             size="medium"
             onClick={handleResourceMenuOpen}
-            sx={{ 
+            sx={{
               borderRadius: 2,
               "&:hover": {
                 backgroundColor: "action.hover",
-              }
+              },
             }}
           >
             <AddRoundedIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        
-      
       </Stack>
-      
+
       <Divider sx={{ mb: 2 }} />
-      
+
       <List component="nav">
         <Stack direction="column" spacing={0.4}>
           {/* Study Resources */}
@@ -459,8 +489,12 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
               key={s.id}
               session={s}
               resourceType="flashcard"
-              isActive={activePath === getResourcePath("flashcard", s.id, s.folderID)}
-              onClick={() => handleNavigate(getResourcePath("flashcard", s.id, s.folderID))}
+              isActive={
+                activePath === getResourcePath("flashcard", s.id, s.folderID)
+              }
+              onClick={() =>
+                handleNavigate(getResourcePath("flashcard", s.id, s.folderID))
+              }
               isExpanded={isExpanded}
               handleMenuOpen={handleMenuOpen}
             />
@@ -477,8 +511,12 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
               key={q.id}
               session={q}
               resourceType="quiz"
-              isActive={activePath === getResourcePath("quiz", q.id, q.folderID)}
-              onClick={() => handleNavigate(getResourcePath("quiz", q.id, q.folderID))}
+              isActive={
+                activePath === getResourcePath("quiz", q.id, q.folderID)
+              }
+              onClick={() =>
+                handleNavigate(getResourcePath("quiz", q.id, q.folderID))
+              }
               isExpanded={isExpanded}
               handleMenuOpen={handleMenuOpen}
             />
@@ -495,8 +533,15 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
               key={summary.id}
               session={summary}
               resourceType="summary"
-              isActive={activePath === getResourcePath("summary", summary.id, summary.folderID)}
-              onClick={() => handleNavigate(getResourcePath("summary", summary.id, summary.folderID))}
+              isActive={
+                activePath ===
+                getResourcePath("summary", summary.id, summary.folderID)
+              }
+              onClick={() =>
+                handleNavigate(
+                  getResourcePath("summary", summary.id, summary.folderID)
+                )
+              }
               isExpanded={isExpanded}
               handleMenuOpen={handleMenuOpen}
             />
@@ -508,8 +553,12 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
               key={chat.id}
               session={chat}
               resourceType="chat"
-              isActive={activePath === getResourcePath("chat", chat.id, chat.folderID)}
-              onClick={() => handleNavigate(getResourcePath("chat", chat.id, chat.folderID))}
+              isActive={
+                activePath === getResourcePath("chat", chat.id, chat.folderID)
+              }
+              onClick={() =>
+                handleNavigate(getResourcePath("chat", chat.id, chat.folderID))
+              }
               isExpanded={isExpanded}
               handleMenuOpen={handleMenuOpen}
             />
@@ -563,7 +612,6 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
         folderID={folderID}
       />
 
-
       {/* Resource Dialog */}
       <Dialog
         open={resourceDialogOpen}
@@ -577,21 +625,37 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
           },
         }}
       >
-        <Box sx={{ p: 2 }}>
-          <DialogContent>
-            {selectedResourceType && (
-              <UploadResource 
-                resourceType={selectedResourceType} 
-                folderID={folderID} 
-              />
+        <DialogContent>
+          {selectedResourceType && (
+            <UploadResource
+              resourceType={selectedResourceType}
+              folderID={folderID}
+              onGenerate={generateRef}
+              onGenerateStateChange={handleGenerateStateChange}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleResourceDialogClose} color="error" disabled={generateState.isGenerating}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleGenerate}
+            variant="contained"
+            disabled={!generateState.canGenerate || generateState.isGenerating}
+            startIcon={generateState.isGenerating ? <CircularProgress size={20} /> : null}
+          >
+            {generateState.isGenerating ? (
+              "Generating..."
+            ) : (
+              `Generate ${
+                selectedResourceType === "mcq"
+                  ? "Quiz"
+                  : selectedResourceType?.charAt(0).toUpperCase() + selectedResourceType?.slice(1)
+              }`
             )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleResourceDialogClose} color="error">
-              Cancel
-            </Button>
-          </DialogActions>
-        </Box>
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );
@@ -599,7 +663,7 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
 
 SidebarContent.propTypes = {
   isExpanded: PropTypes.bool,
-  mobileMode: PropTypes.bool
+  mobileMode: PropTypes.bool,
 };
 
 export default SidebarContent;
