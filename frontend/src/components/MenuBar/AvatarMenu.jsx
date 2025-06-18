@@ -13,7 +13,7 @@ import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 
 // Local Imports
 import { useTranslation } from "react-i18next";
-import { UserProvider } from "../../contexts/User";
+import { UserContext } from "../../contexts/User";
 import { useThemeContext } from "../../contexts/ColourTheme";
 import {
   getAvatarColor,

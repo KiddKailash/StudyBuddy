@@ -14,7 +14,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
 // Create the snackbar context
-const SnackbarContext = createContext();
+export const SnackbarContext = createContext();
 
 /**
  * SnackbarProvider component that manages snackbar state and provides context

@@ -6,7 +6,7 @@ import UploadResource from "./UploadResource";
 import PageWrapper from "../components/PageWrapper";
 
 // Contexts
-import { UserProvider } from "../contexts/User";
+import UserContext from "../contexts/User";
 
 // MUI
 import Box from "@mui/material/Box";

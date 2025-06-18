@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 // Contexts
-import { UserProvider } from "../../contexts/User";
+import { UserContext } from "../../contexts/User";
 
 // Local Imports
 import PageWrapper from "../../components/PageWrapper";

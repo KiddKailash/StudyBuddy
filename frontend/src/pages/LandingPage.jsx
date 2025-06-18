@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 // Contexts
 import { useTranslation } from "react-i18next";
-import { UserProvider } from "../contexts/User";
+import UserContext from "../contexts/User";
 
 // Components
 import ReviewCard from "../components/ReviewCard";
@@ -61,13 +61,13 @@ const logosRow2 = [
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const { resetUserContext } = useContext(UserContext);
+  const { resetAuth } = useContext(UserContext);
   const { t } = useTranslation();
 
   useEffect(() => {
     // Reset user context whenever this page loads
-    resetUserContext();
-  }, [resetUserContext]);
+    resetAuth();
+  }, [resetAuth]);
 
   // Pull array of reviews from translations
   const reviews = t("reviews", { returnObjects: true });

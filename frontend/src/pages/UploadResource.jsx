@@ -4,8 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
 // Contexts
-import { SnackbarProvider } from "../contexts/Snackbar";
-import { UserProvider } from "../contexts/User";
+import { SnackbarContext } from "../contexts/Snackbar";
+import { UserContext } from "../contexts/User";
 
 // MUI
 import Box from "@mui/material/Box";

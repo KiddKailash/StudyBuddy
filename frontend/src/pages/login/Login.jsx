@@ -3,8 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation, Trans } from "react-i18next";
 
 // Contexts
-import { UserProvider } from "../../contexts/User";
-import { SnackbarProvider } from "../../contexts/Snackbar";
+import UserContext from "../../contexts/User";
+import { SnackbarContext } from "../../contexts/Snackbar";
 
 // Local Imports
 import PageWrapper from "../../components/PageWrapper";
@@ -44,7 +44,7 @@ const LoginPage = () => {
 
   const {
     logout,
-    resetUserContext,
+    resetAuth,
     setUser,
     setIsLoggedIn,
     isLoggedIn,
@@ -153,7 +153,7 @@ const LoginPage = () => {
       const { token, user } = responseData;
 
       // Reset context for a clean state
-      resetUserContext();
+      resetAuth();
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));

@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 import { useAuthentication, useFlashcards, useResources, useUserAccount } from "../services/hooks/_HOOK_EXPORTS";
 
 // Create the user context
-const UserContext = createContext();
+export const UserContext = createContext();
 
 /**
  * UserProvider component that manages user state and provides context
@@ -93,8 +93,6 @@ export const UserProvider = ({ children }) => {
     return await flashcards.updateFlashcardSessionName(sessionId, newName);
   };
   
-  // ... (similar documentation for other wrapped functions)
-  
   // Initialize user data on component mount
   useEffect(() => {
     flashcards.loadLocalSessions();
@@ -102,7 +100,50 @@ export const UserProvider = ({ children }) => {
     //eslint-disable-next-line
   }, []);
 
-  // ... (rest of the file remains unchanged)
+  // Return the context provider with all necessary values
+  return (
+    <UserContext.Provider
+      value={{
+        // Authentication values
+        user: auth.user,
+        setUser: auth.setUser,
+        token: auth.token,
+        isLoggedIn: auth.isLoggedIn,
+        setIsLoggedIn: auth.setIsLoggedIn,
+        authLoading: auth.authLoading,
+        resetAuth: auth.resetAuth,
+        logout: auth.logout,
+        fetchCurrentUser: auth.fetchCurrentUser,
+        loginUser: auth.loginUser,
+        registerUser: auth.registerUser,
+        googleLoginUser: auth.googleLoginUser,
+        
+        // Flashcards
+        flashcardSessions: flashcards.flashcardSessions,
+        deleteFlashcardSession: wrappedDeleteFlashcardSession,
+        updateFlashcardSessionName: wrappedUpdateFlashcardSessionName,
+        
+        // Resources
+        folders: resources.folders,
+        multipleChoiceQuizzes: resources.multipleChoiceQuizzes,
+        summaries: resources.summaries,
+        aiChats: resources.aiChats,
+        
+        // Resource organization
+        resourcesByFolder,
+        organizeResourcesByFolder,
+        
+        // User account
+        updateAccountInfo: userAccount.updateAccountInfo,
+        changePassword: userAccount.changePassword,
+        
+        // Global loading state
+        dataLoading
+      }}
+    >
+      {children}
+    </UserContext.Provider>
+  );
 };
 
 UserProvider.propTypes = {
