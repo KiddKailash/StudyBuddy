@@ -404,3 +404,98 @@ exports.assignFolderToSummary = async (req, res) => {
     res.status(500).json({ error: "Server error assigning folder to summary." });
   }
 };
+
+/**
+ * Query a document without saving the conversation
+ * 
+ * Allows users to ask questions about the original document that a summary was based on.
+ * Uses the uploadId from the summary to get the original transcript and query against it.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with AI answer or error
+ */
+exports.queryDocument = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { summaryId, userMessage } = req.body;
+
+    if (!summaryId || !userMessage) {
+      return res.status(400).json({ error: "summaryId and userMessage are required." });
+    }
+
+    const db = getDB();
+    const summariesCollection = db.collection("summaries");
+    const uploadsCollection = db.collection("uploads");
+
+    // Get the summary to find the uploadId
+    const summary = await summariesCollection.findOne({
+      _id: new ObjectId(summaryId),
+      userId: new ObjectId(userId),
+    });
+
+    if (!summary) {
+      return res.status(404).json({ error: "Summary not found or not owned by user." });
+    }
+
+    // Get the original document transcript
+    const uploadDoc = await uploadsCollection.findOne({
+      _id: new ObjectId(summary.uploadId),
+      userId: new ObjectId(userId),
+    });
+
+    if (!uploadDoc) {
+      return res.status(404).json({ error: "Original document not found." });
+    }
+
+    const openaiApiKey = process.env.OPENAI_API_KEY;
+    if (!openaiApiKey) {
+      return res.status(500).json({ error: "OpenAI API key not configured." });
+    }
+
+    // Create system prompt for document querying
+    const systemPrompt = `
+      You are an AI assistant helping a user understand and explore a document. You have access to the full transcript of the document.
+      
+      Document content:
+      ${uploadDoc.transcript}
+      
+      Instructions:
+      - Answer the user's question based on the document content
+      - Be specific and reference relevant parts of the document
+      - If the question cannot be answered from the document, politely say so
+      - Provide helpful and accurate information
+      - Keep responses conversational but informative
+      - Answer in the same language as the user's question
+    `;
+
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: systemPrompt.trim() },
+          { role: "user", content: userMessage.trim() },
+        ],
+        max_tokens: 1500,
+        temperature: 0.3,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiApiKey}`,
+        },
+      }
+    );
+
+    const answer = response.data.choices[0].message.content.trim();
+
+    return res.status(200).json({
+      answer: answer,
+      documentTitle: uploadDoc.fileName,
+    });
+  } catch (error) {
+    console.error("Query Document Error:", error);
+    return res.status(500).json({ error: "Server error while querying document." });
+  }
+};

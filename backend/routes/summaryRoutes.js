@@ -9,6 +9,7 @@ const {
   renameSummary,
   getSummariesByFolderID,
   assignFolderToSummary,
+  queryDocument,
 } = require("../controllers/summaryController");
 
 router.post("/", authMiddleware, createSummary);
@@ -18,5 +19,6 @@ router.delete("/:id", authMiddleware, deleteSummary);
 router.put("/:id/rename", authMiddleware, renameSummary);
 router.get("/folder/:folderID", authMiddleware, getSummariesByFolderID);
 router.put("/:id/assign-folder", authMiddleware, assignFolderToSummary);
+router.post("/query-document", authMiddleware, queryDocument);
 
 module.exports = router;
