@@ -27,7 +27,7 @@ export const fetchAllAiChats = async () => {
     
     
     try {
-      const resp = await axios.get(`${BACKEND}/api/chats`, { headers });
+      const resp = await axios.get(`${BACKEND}/api/aichats`, { headers });
       
       const chatsData = resp.data.chats || resp.data.data || [];
       

@@ -263,6 +263,14 @@ export const UserProvider = ({ children }) => {
     auth.fetchCurrentUser();
     //eslint-disable-next-line
   }, []);
+
+  // Load all resources when user is authenticated
+  useEffect(() => {
+    if (auth.isLoggedIn && auth.user) {
+      resources.loadAllResources();
+    }
+    //eslint-disable-next-line
+  }, [auth.isLoggedIn, auth.user]);
   
   // Organize resources whenever they change
   useEffect(() => {
@@ -313,7 +321,12 @@ export const UserProvider = ({ children }) => {
         setAiChats: resources.setAiChats,
         
         // Upload operations
+        uploads: resources.uploads,
         fetchUploads: resources.fetchUploads,
+        uploadDocumentTranscript: resources.uploadDocumentTranscript,
+        createUploadFromText: resources.createUploadFromText,
+        getWebsiteTranscript: resources.getWebsiteTranscript,
+        deleteUpload: resources.deleteUpload,
         
         // Folder operations
         fetchFolders: resources.fetchFolders,
