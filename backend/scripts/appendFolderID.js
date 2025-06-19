@@ -1,11 +1,9 @@
 /**
- * @fileoverview Script to append a folderID field to all existing flashcard sessions in MongoDB.
+ * Database Migration Script - Folder ID Addition
  * 
- * This utility script updates all documents in the flashcards collection by adding
- * a folderID field set to null (or any specified value). This is useful when
- * implementing a folder organization feature and need to migrate existing data.
- * 
- * @author StudyBuddy Team
+ * Utility script for migrating existing flashcard sessions to support folder organization.
+ * Updates all documents in the flashcards collection by adding a folderID field
+ * to enable folder-based organization of study materials.
  */
 
 const { connectDB, getDB } = require('../database/db');
@@ -14,41 +12,63 @@ const { ObjectId } = require('mongodb');
 /**
  * Updates all flashcard sessions in the database to include a folderID field.
  * 
- * This function:
- * 1. Connects to the MongoDB database
- * 2. Fetches the flashcards collection
- * 3. Updates all documents by setting a default folderID
- * 4. Logs the results and exits the process
+ * Performs a bulk migration operation to add folder organization support
+ * to existing flashcard sessions. This is typically run once when implementing
+ * the folder feature to ensure all existing data is compatible.
+ * 
+ * Process Flow:
+ * 1. Establishes database connection using connectDB utility
+ * 2. Accesses flashcards collection for bulk operations
+ * 3. Defines default folder ID value (null for unorganized items)
+ * 4. Performs bulk update on all flashcard documents
+ * 5. Reports results and exits with appropriate status code
+ * 
+ * Migration Strategy:
+ * - Uses updateMany() for efficient bulk operations
+ * - Sets folderID to null by default (unorganized items)
+ * - Can be customized to assign specific folder IDs if needed
+ * - Safe operation that can be run multiple times
  * 
  * @async
+ * @function addFolderIdToSessions
  * @returns {Promise<void>}
+ * @throws {Error} If database connection or update operations fail
  */
 async function addFolderIdToSessions() {
   try {
-    // Connect to the MongoDB database
+    // Step 1: Establish database connection and get flashcards collection
     await connectDB();
     const db = getDB();
     const flashcardsCollection = db.collection('flashcards');
 
-    // Define a default folderID.
-    // You can either use a string or create a new ObjectId:
-    // const defaultFolderId = new ObjectId(); // if you need an ObjectId
+    // Step 2: Define default folder ID for migration
+    // Options: null (unorganized), string ID, or new ObjectId()
+    // Using null as default to mark existing items as unorganized
     const defaultFolderId = null;
+    
+    // Alternative options for different migration strategies:
+    // const defaultFolderId = new ObjectId(); // Create new folder for all items
+    // const defaultFolderId = "existing-folder-id"; // Assign to specific folder
 
-    // Update every flashcard session by setting the folderID field.
-    // This will add folderID to every document (or overwrite it if it already exists).
+    // Step 3: Perform bulk update on all flashcard sessions
+    // updateMany() efficiently updates all documents matching the filter
+    // Empty filter {} means update all documents in the collection
     const result = await flashcardsCollection.updateMany(
-      {}, // No filter: update all documents.
-      { $set: { folderID: defaultFolderId } }
+      {}, // No filter: update all documents in collection
+      { $set: { folderID: defaultFolderId } } // Add folderID field to all documents
     );
 
+    // Step 4: Report migration results
     console.log(`Successfully updated ${result.modifiedCount} flashcard sessions with folderID.`);
+    
+    // Exit process with success code (0) on completion
     process.exit(0);
   } catch (error) {
+    // Handle any errors during migration and exit with failure code (1)
     console.error("Error updating flashcard sessions:", error);
     process.exit(1);
   }
 }
 
-// Execute the function
+// Execute the migration function immediately when script is run
 addFolderIdToSessions();

@@ -18,7 +18,19 @@ require("dotenv").config();
  * Allows optional focus on specific topics through userMessage parameter.
  * Stores the summary in the database for future reference.
  * 
+ * Process Flow:
+ * 1. Validates user ownership of the upload
+ * 2. Constructs OpenAI prompt with transcript content
+ * 3. Calls OpenAI API to generate summary and session name
+ * 4. Parses and validates the JSON response
+ * 5. Stores the summary in the database
+ * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.uploadId - ID of the upload to summarize
+ * @param {string} [req.body.userMessage] - Optional focus topic for summary
+ * @param {string} [req.body.folderID] - Optional folder ID for organization
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with created summary or error
  */
@@ -27,6 +39,7 @@ exports.createSummary = async (req, res) => {
     const userId = req.user.id;
     const { uploadId, userMessage, folderID } = req.body;
 
+    // Validate required parameters
     if (!uploadId) {
       return res.status(400).json({ error: "uploadId is required." });
     }
@@ -34,7 +47,7 @@ exports.createSummary = async (req, res) => {
     const db = getDB();
     const uploadsCollection = db.collection("uploads");
 
-    // Verify ownership
+    // Verify user ownership of the upload document
     const uploadDoc = await uploadsCollection.findOne({
       _id: new ObjectId(uploadId),
       userId: new ObjectId(userId),
@@ -46,12 +59,14 @@ exports.createSummary = async (req, res) => {
         .json({ error: "Upload not found or not owned by user." });
     }
 
+    // Validate OpenAI API key configuration
     const openaiApiKey = process.env.OPENAI_API_KEY;
     if (!openaiApiKey) {
       return res.status(500).json({ error: "OpenAI API key not configured." });
     }
 
-    // Summarize via OpenAI
+    // Construct system prompt for summary generation
+    // The prompt instructs OpenAI to return a specific JSON format: [sessionName, summary]
     const systemPrompt = `
       Summarize the following transcript in a short and concise manner, recapping only the critical details.
       Also generate a session name. The user may request that you focus on a particular topic within the transcript.
@@ -73,6 +88,7 @@ exports.createSummary = async (req, res) => {
         - Return in the same language as the transcript.
     `;
 
+    // Make API call to OpenAI for summary generation
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
@@ -82,7 +98,7 @@ exports.createSummary = async (req, res) => {
           { role: "user", content: userMessage?.trim() || "" },
         ],
         max_tokens: 15000,
-        temperature: 0.2,
+        temperature: 0.2, // Low temperature for consistent, focused summaries
       },
       {
         headers: {
@@ -92,12 +108,14 @@ exports.createSummary = async (req, res) => {
       }
     );
 
+    // Extract and clean the response text
     let summaryText = response.data.choices[0].message.content.trim();
-    // Strip triple backticks if present
+    // Remove markdown code block formatting if present
     if (summaryText.startsWith("```") && summaryText.endsWith("```")) {
       summaryText = summaryText.slice(3, -3).trim();
     }
 
+    // Parse the JSON response from OpenAI
     let parsedResponse;
     try {
       parsedResponse = JSON.parse(summaryText);
@@ -107,7 +125,7 @@ exports.createSummary = async (req, res) => {
       return res.status(500).json({ error: "Failed to parse summary JSON." });
     }
 
-    // Validate the 2-element array format
+    // Validate the expected 2-element array format: [sessionName, summary]
     if (
       !Array.isArray(parsedResponse) ||
       parsedResponse.length !== 2 ||
@@ -122,7 +140,7 @@ exports.createSummary = async (req, res) => {
     const sessionName = parsedResponse[0];
     const summary = parsedResponse[1];
 
-    // Store in DB
+    // Store the summary in the database
     const summariesCollection = db.collection("summaries");
     const newSummary = {
       uploadId: new ObjectId(uploadId),
@@ -154,8 +172,10 @@ exports.createSummary = async (req, res) => {
  * Get all summaries for the logged-in user
  * 
  * Retrieves all summaries belonging to the authenticated user.
+ * Returns summaries in a consistent format with proper ID conversion.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with array of summary objects or error
  */
@@ -165,10 +185,12 @@ exports.getAllSummaries = async (req, res) => {
     const db = getDB();
     const summariesCollection = db.collection("summaries");
 
+    // Fetch all summaries for the user
     const results = await summariesCollection
       .find({ userId: new ObjectId(userId) })
       .toArray();
 
+    // Format the response with consistent ID field and handle null folderID
     const data = results.map((doc) => ({
       id: doc._id.toString(),
       uploadId: doc.uploadId,
@@ -192,8 +214,12 @@ exports.getAllSummaries = async (req, res) => {
  * Get a single summary by ID
  * 
  * Fetches a specific summary by its ID for the authenticated user.
+ * Validates user ownership before returning the summary data.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Summary ID to retrieve
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with summary data or error
  */
@@ -205,6 +231,7 @@ exports.getSummaryById = async (req, res) => {
     const db = getDB();
     const summariesCollection = db.collection("summaries");
 
+    // Find summary and verify user ownership
     const summary = await summariesCollection.findOne({
       _id: new ObjectId(id),
       userId: new ObjectId(userId),
@@ -214,6 +241,7 @@ exports.getSummaryById = async (req, res) => {
       return res.status(404).json({ error: "Summary not found." });
     }
 
+    // Format the response with consistent ID field
     const formatted = {
       id: summary._id.toString(),
       uploadId: summary.uploadId,
@@ -237,8 +265,12 @@ exports.getSummaryById = async (req, res) => {
  * Delete a summary by ID
  * 
  * Permanently removes a summary owned by the authenticated user.
+ * Validates user ownership before deletion to ensure security.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Summary ID to delete
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with success message or error
  */
@@ -250,6 +282,7 @@ exports.deleteSummary = async (req, res) => {
     const db = getDB();
     const summariesCollection = db.collection("summaries");
 
+    // Verify summary exists and belongs to user before deletion
     const summary = await summariesCollection.findOne({
       _id: new ObjectId(id),
       userId: new ObjectId(userId),
@@ -258,6 +291,7 @@ exports.deleteSummary = async (req, res) => {
       return res.status(404).json({ error: "Summary not found." });
     }
 
+    // Delete the summary
     await summariesCollection.deleteOne({ _id: new ObjectId(id) });
     return res.status(200).json({ message: "Summary deleted successfully." });
   } catch (error) {
@@ -272,8 +306,14 @@ exports.deleteSummary = async (req, res) => {
  * Rename a summary
  * 
  * Updates the name of an existing summary.
+ * Validates user ownership and ensures the new name is provided.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Summary ID to rename
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.newName - New name for the summary
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with success message or error
  */
@@ -283,6 +323,7 @@ exports.renameSummary = async (req, res) => {
     const { newName } = req.body;
     const userId = req.user.id;
 
+    // Validate required parameters
     if (!newName) {
       return res.status(400).json({ error: "newName is required." });
     }
@@ -290,7 +331,7 @@ exports.renameSummary = async (req, res) => {
     const db = getDB();
     const summariesCollection = db.collection("summaries");
 
-    // Verify ownership
+    // Verify summary exists and belongs to user
     const summary = await summariesCollection.findOne({
       _id: new ObjectId(id),
       userId: new ObjectId(userId),
@@ -299,6 +340,7 @@ exports.renameSummary = async (req, res) => {
       return res.status(404).json({ error: "Summary not found." });
     }
 
+    // Update the summary name
     await summariesCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { studySession: newName } }
@@ -320,6 +362,9 @@ exports.renameSummary = async (req, res) => {
  * Handles special case where folderID is "null" to find unorganized summaries.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.folderID - Folder ID to filter by (or "null" for unorganized)
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with array of summary objects or error
  */
@@ -328,11 +373,13 @@ exports.getSummariesByFolderID = async (req, res) => {
     const userId = req.user.id;
     const { folderID } = req.params;
 
+    // Handle special case where "null" string represents unorganized summaries
     const folderValue = folderID === "null" ? null : folderID;
 
     const db = getDB();
     const summariesCollection = db.collection("summaries");
 
+    // Find summaries matching user and folder criteria
     const results = await summariesCollection
       .find({
         userId: new ObjectId(userId),
@@ -340,6 +387,7 @@ exports.getSummariesByFolderID = async (req, res) => {
       })
       .toArray();
 
+    // Format response with consistent ID field
     const data = results.map((doc) => ({
       id: doc._id.toString(),
       uploadId: doc.uploadId,
@@ -363,9 +411,14 @@ exports.getSummariesByFolderID = async (req, res) => {
  * Assign a folder to a summary
  * 
  * Updates a summary to associate it with a specific folder.
- * Used for organizing summary content.
+ * Used for organizing summary content within the user's folder structure.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Summary ID to assign folder to
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.folderID - Folder ID to assign
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with success message or error
  */
@@ -374,6 +427,7 @@ exports.assignFolderToSummary = async (req, res) => {
   const { folderID } = req.body;
   const userId = req.user.id;
 
+  // Validate required parameters
   if (!id) {
     return res.status(400).json({ error: "Summary ID is required." });
   }
@@ -410,8 +464,20 @@ exports.assignFolderToSummary = async (req, res) => {
  * 
  * Allows users to ask questions about the original document that a summary was based on.
  * Uses the uploadId from the summary to get the original transcript and query against it.
+ * Provides real-time document analysis without persisting the conversation.
+ * 
+ * Process Flow:
+ * 1. Retrieves the summary to find the associated upload
+ * 2. Fetches the original document transcript
+ * 3. Constructs OpenAI prompt with full document context
+ * 4. Generates AI response based on document content
+ * 5. Returns answer without saving to database
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.summaryId - Summary ID to query against
+ * @param {string} req.body.userMessage - User's question about the document
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with AI answer or error
  */
@@ -420,6 +486,7 @@ exports.queryDocument = async (req, res) => {
     const userId = req.user.id;
     const { summaryId, userMessage } = req.body;
 
+    // Validate required parameters
     if (!summaryId || !userMessage) {
       return res.status(400).json({ error: "summaryId and userMessage are required." });
     }
@@ -448,12 +515,14 @@ exports.queryDocument = async (req, res) => {
       return res.status(404).json({ error: "Original document not found." });
     }
 
+    // Validate OpenAI API key configuration
     const openaiApiKey = process.env.OPENAI_API_KEY;
     if (!openaiApiKey) {
       return res.status(500).json({ error: "OpenAI API key not configured." });
     }
 
     // Create system prompt for document querying
+    // Instructs AI to answer based on document content and decline unrelated questions
     const systemPrompt = `
       You are an AI assistant helping a user understand and explore a document. You have access to the full transcript of the document.
       
@@ -469,6 +538,7 @@ exports.queryDocument = async (req, res) => {
       - Answer in the same language as the user's question
     `;
 
+    // Make API call to OpenAI for document querying
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
@@ -478,7 +548,7 @@ exports.queryDocument = async (req, res) => {
           { role: "user", content: userMessage.trim() },
         ],
         max_tokens: 1500,
-        temperature: 0.3,
+        temperature: 0.3, // Moderate temperature for balanced creativity and accuracy
       },
       {
         headers: {

@@ -16,17 +16,32 @@ const nodemailer = require("nodemailer");
  * via email to administrators. Creates a formatted HTML email with
  * user information and detailed feature descriptions.
  * 
+ * Process Flow:
+ * 1. Validates user authentication and feature request data
+ * 2. Builds HTML table of requested features
+ * 3. Creates nodemailer transporter with Gmail configuration
+ * 4. Sends formatted HTML email to administrators
+ * 5. Returns success/error response to user
+ * 
  * @param {Object} req - Express request object with features array in request body
+ * @param {Object} req.user - Authenticated user object (from authMiddleware)
+ * @param {string} req.user.firstName - User's first name
+ * @param {string} req.user.lastName - User's last name
+ * @param {string} req.user.email - User's email address
+ * @param {Object} req.body - Request body
+ * @param {Array<Object>} req.body.features - Array of feature request objects
+ * @param {string} req.body.features[].title - Feature request title
+ * @param {string} req.body.features[].description - Feature request description
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with success status or error
  */
 exports.requestFeature = async (req, res) => {
   try {
-    // The authMiddleware populates req.user
+    // Extract user information from authenticated request
     const { firstName, lastName, email } = req.user || {};
     const { features } = req.body;
 
-    // Validate the array
+    // Validate the features array is provided and non-empty
     if (!Array.isArray(features) || features.length === 0) {
       return res
         .status(400)
@@ -35,6 +50,8 @@ exports.requestFeature = async (req, res) => {
           message: "Features must be a non-empty array.",
         });
     }
+    
+    // Validate user authentication
     if (!req.user) {
       return res.status(401).json({
         success: false,
@@ -43,7 +60,7 @@ exports.requestFeature = async (req, res) => {
     }
 
     // Build an HTML table of all requested features
-    // Example: enumerating each feature in a row
+    // Each feature is displayed in a table row with title and description
     const featureRows = features
       .map(
         (f, i) => `
@@ -60,8 +77,8 @@ exports.requestFeature = async (req, res) => {
       )
       .join("");
 
-    // Create Nodemailer transporter
-    const transporter = nodemailer.createTransport({
+    // Create Nodemailer transporter for Gmail SMTP
+    const transporter = nodemailer.createTransporter({
       service: "gmail",
       auth: {
         user: process.env.GMAIL_ADDRESS, // e.g. 'myapp@gmail.com'
@@ -69,7 +86,7 @@ exports.requestFeature = async (req, res) => {
       },
     });
 
-    // Build the email
+    // Build the email with HTML template and styling
     const mailOptions = {
       from: process.env.GMAIL_ADDRESS,
       to: process.env.ADMIN_EMAIL,
@@ -147,6 +164,7 @@ exports.requestFeature = async (req, res) => {
       `,
     };
 
+    // Send the email to administrators
     await transporter.sendMail(mailOptions);
 
     return res.status(200).json({

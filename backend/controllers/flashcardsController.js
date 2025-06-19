@@ -559,6 +559,8 @@ async function generateFlashcardsHelper(transcript, existingQuestions) {
     throw new Error("OpenAI API key is not configured.");
   }
 
+  // Construct comprehensive prompt with specific instructions to avoid duplication
+  // and ensure new content coverage from the transcript
   const prompt = `
     Convert the following transcript into 10 more study flashcards in JSON format (return this as text, do NOT return this in markdown).
     Each flashcard should be an object with "question" and "answer" fields.
@@ -592,13 +594,15 @@ async function generateFlashcardsHelper(transcript, existingQuestions) {
       - Ignore information within the transcript pertaining to personnel or course structure. Flashcards are for educational content.
   `;
 
+  // Make API call to OpenAI with specific model and parameters
+  // Using gpt-4o for high-quality output and low temperature for consistency
   const response = await axios.post(
     "https://api.openai.com/v1/chat/completions",
     {
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt.trim() }],
       max_tokens: 15000,
-      temperature: 0.1,
+      temperature: 0.1, // Low temperature ensures consistent, focused output
     },
     {
       headers: {
@@ -608,12 +612,15 @@ async function generateFlashcardsHelper(transcript, existingQuestions) {
     }
   );
 
-  // Process the response
+  // Extract and clean the response text from OpenAI
   let flashcardsText = response.data.choices[0].message.content.trim();
+  
+  // Remove markdown code block formatting if present (common in AI responses)
   if (flashcardsText.startsWith("```") && flashcardsText.endsWith("```")) {
     flashcardsText = flashcardsText.slice(3, -3).trim();
   }
 
+  // Parse the JSON response and handle potential parsing errors
   let flashcards;
   try {
     flashcards = JSON.parse(flashcardsText);
@@ -622,7 +629,8 @@ async function generateFlashcardsHelper(transcript, existingQuestions) {
     throw new Error("Failed to parse flashcards JSON.");
   }
 
-  // Validate the flashcards format
+  // Validate the flashcards format to ensure they match expected structure
+  // Each flashcard must be an object with question and answer string properties
   if (
     !Array.isArray(flashcards) ||
     !flashcards.every(

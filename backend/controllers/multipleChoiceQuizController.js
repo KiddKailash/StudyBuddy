@@ -17,7 +17,18 @@ require("dotenv").config();
  * Generates a multiple-choice quiz based on the content of an uploaded document.
  * Uses OpenAI to analyze the transcript and create varied questions with options.
  * 
+ * Process Flow:
+ * 1. Validates user ownership of the upload
+ * 2. Constructs OpenAI prompt for quiz generation
+ * 3. Calls OpenAI API with specific format requirements
+ * 4. Parses and validates the JSON response
+ * 5. Stores quiz in database with user association
+ * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.uploadId - ID of the upload to create quiz from
+ * @param {string} [req.body.folderID] - Optional folder ID for organization
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with created quiz or error
  */
@@ -26,6 +37,7 @@ exports.createQuiz = async (req, res) => {
     const userId = req.user.id;
     const { uploadId, folderID } = req.body;
 
+    // Validate required upload ID
     if (!uploadId) {
       return res.status(400).json({ error: "uploadId is required." });
     }
@@ -33,7 +45,7 @@ exports.createQuiz = async (req, res) => {
     const db = getDB();
     const uploadsCollection = db.collection("uploads");
 
-    // Verify ownership
+    // Verify user ownership of the upload document
     const uploadDoc = await uploadsCollection.findOne({
       _id: new ObjectId(uploadId),
       userId: new ObjectId(userId),
@@ -45,13 +57,13 @@ exports.createQuiz = async (req, res) => {
         .json({ error: "Upload not found or not owned by user." });
     }
 
-    // Check for OpenAI Key
+    // Validate OpenAI API key configuration
     const openaiApiKey = process.env.OPENAI_API_KEY;
     if (!openaiApiKey) {
       return res.status(500).json({ error: "OpenAI API key not configured." });
     }
 
-    // Prepare prompt
+    // Construct detailed prompt for quiz generation with specific format requirements
     const prompt = `
       Convert the following transcript into a detailed, and varied multiple-choice quiz. Your output must strictly follow these instructions:
 
@@ -83,14 +95,14 @@ exports.createQuiz = async (req, res) => {
       """
     `;
 
-    // Call OpenAI
+    // Make API call to OpenAI for quiz generation
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
         model: "gpt-4o",
         messages: [{ role: "user", content: prompt.trim() }],
         max_tokens: 15000,
-        temperature: 0.1,
+        temperature: 0.1, // Low temperature for consistent, focused quizzes
       },
       {
         headers: {
@@ -100,11 +112,14 @@ exports.createQuiz = async (req, res) => {
       }
     );
 
+    // Extract and clean the response text
     let quizData = response.data.choices[0].message.content.trim();
+    // Remove markdown code block formatting if present
     if (quizData.startsWith("```") && quizData.endsWith("```")) {
       quizData = quizData.slice(3, -3).trim();
     }
 
+    // Parse the JSON response from OpenAI
     let parsedQuiz;
     try {
       parsedQuiz = JSON.parse(quizData);
@@ -117,7 +132,7 @@ exports.createQuiz = async (req, res) => {
     const sessionName = parsedQuiz[0];
     const quiz = parsedQuiz[1];
 
-    // Store quiz in DB
+    // Store quiz in database with user association
     const multipleChoiceQuizzesCollection = db.collection(
       "multiple_choice_quizzes"
     );
@@ -148,8 +163,10 @@ exports.createQuiz = async (req, res) => {
  * Get all quizzes for the logged in user
  * 
  * Retrieves all quizzes belonging to the authenticated user.
+ * Returns quizzes in a consistent format with proper ID conversion.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with array of quiz objects or error
  */
@@ -159,10 +176,12 @@ exports.getAllQuizzes = async (req, res) => {
     const db = getDB();
     const quizzesCollection = db.collection("multiple_choice_quizzes");
 
+    // Fetch all quizzes for the user
     const quizzes = await quizzesCollection
       .find({ userId: new ObjectId(userId) })
       .toArray();
 
+    // Format response with consistent ID field and handle null folderID
     const formatted = quizzes.map((q) => ({
       id: q._id.toString(),
       uploadId: q.uploadId,
@@ -186,8 +205,12 @@ exports.getAllQuizzes = async (req, res) => {
  * Retrieve a single quiz by ID
  * 
  * Fetches a specific quiz by its ID for the authenticated user.
+ * Validates user ownership before returning the quiz data.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Quiz ID to retrieve
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with quiz data or error
  */
@@ -199,6 +222,7 @@ exports.getQuizById = async (req, res) => {
     const db = getDB();
     const quizzesCollection = db.collection("multiple_choice_quizzes");
 
+    // Find quiz and verify user ownership
     const quiz = await quizzesCollection.findOne({
       _id: new ObjectId(id),
       userId: new ObjectId(userId),
@@ -208,6 +232,7 @@ exports.getQuizById = async (req, res) => {
       return res.status(404).json({ error: "Quiz not found." });
     }
 
+    // Format response with consistent ID field
     const formatted = {
       id: quiz._id.toString(),
       uploadId: quiz.uploadId,
@@ -231,8 +256,12 @@ exports.getQuizById = async (req, res) => {
  * Delete a quiz
  * 
  * Permanently removes a quiz owned by the authenticated user.
+ * Validates user ownership before deletion to ensure security.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Quiz ID to delete
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with success message or error
  */
@@ -244,7 +273,7 @@ exports.deleteQuiz = async (req, res) => {
     const db = getDB();
     const quizzesCollection = db.collection("multiple_choice_quizzes");
 
-    // Verify ownership
+    // Verify quiz exists and belongs to user before deletion
     const quiz = await quizzesCollection.findOne({
       _id: new ObjectId(id),
       userId: new ObjectId(userId),
@@ -253,6 +282,7 @@ exports.deleteQuiz = async (req, res) => {
       return res.status(404).json({ error: "Quiz not found." });
     }
 
+    // Delete the quiz from database
     await quizzesCollection.deleteOne({ _id: new ObjectId(id) });
     return res.status(200).json({ message: "Quiz deleted successfully." });
   } catch (error) {
@@ -265,8 +295,14 @@ exports.deleteQuiz = async (req, res) => {
  * Rename a quiz
  * 
  * Updates the name of an existing quiz.
+ * Validates user ownership and ensures the new name is provided.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Quiz ID to rename
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.newName - New name for the quiz
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with success message or error
  */
@@ -276,6 +312,7 @@ exports.renameQuiz = async (req, res) => {
     const { newName } = req.body;
     const userId = req.user.id;
 
+    // Validate required new name
     if (!newName) {
       return res.status(400).json({ error: "newName is required." });
     }
@@ -283,6 +320,7 @@ exports.renameQuiz = async (req, res) => {
     const db = getDB();
     const quizzesCollection = db.collection("multiple_choice_quizzes");
 
+    // Verify quiz exists and belongs to user
     const quiz = await quizzesCollection.findOne({
       _id: new ObjectId(id),
       userId: new ObjectId(userId),
@@ -291,6 +329,7 @@ exports.renameQuiz = async (req, res) => {
       return res.status(404).json({ error: "Quiz not found." });
     }
 
+    // Update the quiz name
     await quizzesCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { studySession: newName } }
@@ -310,6 +349,9 @@ exports.renameQuiz = async (req, res) => {
  * Handles special case where folderID is "null" to find unorganized quizzes.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.folderID - Folder ID to filter by (or "null" for unorganized)
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with array of quiz objects or error
  */
@@ -318,11 +360,13 @@ exports.getQuizzesByFolderID = async (req, res) => {
     const userId = req.user.id;
     const { folderID } = req.params;
 
+    // Handle special case where "null" string represents unorganized quizzes
     const folderValue = folderID === "null" ? null : folderID;
 
     const db = getDB();
     const quizzesCollection = db.collection("multiple_choice_quizzes");
 
+    // Find quizzes matching user and folder criteria
     const quizzes = await quizzesCollection
       .find({
         userId: new ObjectId(userId),
@@ -330,6 +374,7 @@ exports.getQuizzesByFolderID = async (req, res) => {
       })
       .toArray();
 
+    // Format response with consistent ID field
     const formatted = quizzes.map((q) => ({
       id: q._id.toString(),
       uploadId: q.uploadId,
@@ -353,9 +398,14 @@ exports.getQuizzesByFolderID = async (req, res) => {
  * Assign a folder to a quiz
  * 
  * Updates a quiz to associate it with a specific folder.
- * Used for organizing quiz content.
+ * Used for organizing quiz content within the user's folder structure.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Quiz ID to assign folder to
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.folderID - Folder ID to assign
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with success message or error
  */
@@ -364,6 +414,7 @@ exports.assignFolderToQuiz = async (req, res) => {
   const { folderID } = req.body;
   const userId = req.user.id;
 
+  // Validate required quiz ID
   if (!id) {
     return res.status(400).json({ error: "Quiz ID is required." });
   }

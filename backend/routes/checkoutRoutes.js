@@ -1,3 +1,32 @@
+/**
+ * Stripe Checkout Routes Module
+ * 
+ * Defines Express.js routes for Stripe payment processing and subscription management.
+ * Provides endpoints for creating checkout sessions, checking payment status,
+ * and managing user subscriptions. All routes require JWT authentication.
+ * 
+ * Key Features:
+ * - Stripe embedded checkout session creation
+ * - Subscription status checking
+ * - Subscription cancellation
+ * - Payment processing integration
+ * - User account type management
+ * 
+ * Dependencies:
+ * - Express.js for route handling
+ * - Stripe SDK for payment processing
+ * - authMiddleware for JWT authentication
+ * - MongoDB for user data updates
+ * 
+ * Environment Variables:
+ * - STRIPE_SECRET_KEY: Stripe secret key for API access
+ * - CLIENT_URL: Frontend URL for checkout return
+ * - STRIPE_PRICE_ID_PAID_MONTHLY: Monthly subscription price ID
+ * - STRIPE_PRICE_ID_PAID_YEARLY: Yearly subscription price ID
+ * 
+ * Route Base: /api/checkout
+ * Authentication: All routes require valid JWT token
+ */
 const express = require("express");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -5,9 +34,10 @@ const authMiddleware = require("../middleware/authMiddleware");
 const { getDB } = require("../database/db");
 const { ObjectId } = require("mongodb");
 
+// Frontend domain for checkout return URLs
 const YOUR_DOMAIN = process.env.CLIENT_URL;
 
-// Ensure YOUR_DOMAIN is defined
+// Validate required environment variable
 if (!YOUR_DOMAIN) {
   console.error("Error: CLIENT_URL is not defined in environment variables.");
   process.exit(1);
@@ -15,56 +45,57 @@ if (!YOUR_DOMAIN) {
 
 /**
  * @route   POST /api/checkout/create-checkout-session
- * @desc    Create a Stripe Checkout session for upgrading to a paid subscription (Embedded)
- * @access  Private
+ * @desc    Create a Stripe Checkout session for upgrading to a paid subscription
+ * @access  Private (JWT required)
+ * @body    {accountType} - "paid-monthly" or "paid-yearly"
+ * @returns {clientSecret} - Client secret for embedded checkout
  */
 router.post("/create-checkout-session", authMiddleware, async (req, res) => {
-  // The front end should send accountType: "paid-monthly" OR "paid-yearly"
+  // Extract account type from request body
   const { accountType } = req.body;
 
+  // Validate required account type parameter
   if (!accountType) {
     return res.status(400).json({ error: "accountType is required." });
   }
 
-  /**
-   *  Define your two Price IDs (from .env). 
-   *  If the user picks "paid-monthly" or "paid-yearly", we map them accordingly.
-   */
+  // Map account types to Stripe price IDs
+  // These price IDs are configured in Stripe dashboard and stored in environment variables
   const priceIds = {
     "paid-monthly": process.env.STRIPE_PRICE_ID_PAID_MONTHLY,
     "paid-yearly": process.env.STRIPE_PRICE_ID_PAID_YEARLY,
   };
 
-  // Ensure the passed accountType is valid
+  // Validate that the provided account type is supported
   const selectedPriceId = priceIds[accountType];
   if (!selectedPriceId) {
     return res.status(400).json({ error: "Invalid accountType." });
   }
 
   try {
-    // Create the session for Embedded Checkout
+    // Create Stripe checkout session for embedded checkout
     const session = await stripe.checkout.sessions.create({
-      mode: "subscription", 
-      payment_method_types: ["card"],
+      mode: "subscription", // Recurring subscription mode
+      payment_method_types: ["card"], // Accept card payments
       line_items: [
         {
-          price: selectedPriceId,
-          quantity: 1,
+          price: selectedPriceId, // Use the selected price ID
+          quantity: 1, // One subscription
         },
       ],
-      // Make sure you're using "embedded" if you're embedding the checkout in an iFrame
+      // Configure for embedded checkout in iframe
       ui_mode: "embedded",
-      // Return URL if user closes or completes checkout 
+      // Return URL for checkout completion or cancellation
       return_url: `${YOUR_DOMAIN}/return?session_id={CHECKOUT_SESSION_ID}`,
-      automatic_tax: { enabled: true },
-      customer_email: req.user.email, // from authMiddleware
+      automatic_tax: { enabled: true }, // Enable automatic tax calculation
+      customer_email: req.user.email, // Pre-fill customer email
       metadata: {
-        userId: req.user.id,  // your user ID 
-        accountType,          // e.g. "paid-monthly" or "paid-yearly"
+        userId: req.user.id,  // Store user ID for webhook processing
+        accountType,          // Store account type for webhook processing
       },
     });
 
-    // For embedded checkout, return the client_secret for the front-end
+    // Return client secret for embedded checkout frontend integration
     res.json({ clientSecret: session.client_secret });
   } catch (err) {
     console.error("Error creating embedded session:", err);
@@ -75,18 +106,22 @@ router.post("/create-checkout-session", authMiddleware, async (req, res) => {
 /**
  * @route   GET /api/checkout/session-status
  * @desc    Retrieve the status of a Stripe Checkout session
- * @access  Private
+ * @access  Private (JWT required)
+ * @query   {session_id} - Stripe checkout session ID
+ * @returns {status, customer_email} - Session status and customer details
  */
 router.get("/session-status", authMiddleware, async (req, res) => {
   try {
+    // Extract session ID from query parameters
     const { session_id } = req.query;
     if (!session_id) {
       return res.status(400).json({ error: "Missing session_id in query." });
     }
 
-    // Retrieve the Checkout session from Stripe
+    // Retrieve checkout session details from Stripe
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
+    // Return session status and customer information
     res.json({
       status: session.status,
       customer_email: session.customer_details?.email || null,
@@ -99,28 +134,32 @@ router.get("/session-status", authMiddleware, async (req, res) => {
 
 /**
  * @route   POST /api/checkout/cancel-subscription
- * @desc    Cancel the user's subscription immediately
- * @access  Private
+ * @desc    Cancel the user's active subscription immediately
+ * @access  Private (JWT required)
+ * @returns {message, subscription} - Cancellation confirmation and subscription details
  */
 router.post("/cancel-subscription", authMiddleware, async (req, res) => {
   try {
+    // Get subscription ID from authenticated user data
     const subscriptionId = req.user.subscriptionId;
 
+    // Validate that user has an active subscription
     if (!subscriptionId) {
       return res.status(400).json({ error: "No subscription found for this user." });
     }
 
-    // Cancel the subscription using Stripe
+    // Cancel the subscription in Stripe
     const subscription = await stripe.subscriptions.cancel(subscriptionId);
 
-    // Update the user's record to reflect the canceled subscription
+    // Update user record to reflect subscription cancellation
     const db = getDB();
     const usersCollection = db.collection("users");
     await usersCollection.updateOne(
       { _id: new ObjectId(req.user.id) },
-      { $set: { accountType: "free" } }
+      { $set: { accountType: "free" } } // Downgrade to free account
     );
 
+    // Return success response with subscription details
     res.status(200).json({
       message: "Subscription canceled successfully.",
       subscription,

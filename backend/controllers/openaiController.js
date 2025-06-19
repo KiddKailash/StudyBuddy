@@ -10,6 +10,7 @@ const axios = require("axios");
 require("dotenv").config();
 const { getDB } = require("../database/db");
 
+// OpenAI API key from environment variables
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
 /**
@@ -17,25 +18,37 @@ const openaiApiKey = process.env.OPENAI_API_KEY;
  * 
  * Creates a set of study flashcards with questions and answers from transcript content.
  * Returns a structured JSON response with session name and flashcard array.
- *
+ * 
+ * Process Flow:
+ * 1. Validates transcript input
+ * 2. Constructs OpenAI prompt for flashcard generation
+ * 3. Calls OpenAI API with specific format requirements
+ * 4. Parses and validates the JSON response
+ * 5. Returns formatted flashcard data
+ * 
  * @param {Object} req - Express request object with transcript in request body
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.transcript - Text content to generate flashcards from
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with flashcards array or error
  */
 exports.generateFlashcards = async (req, res) => {
   const { transcript } = req.body;
 
+  // Validate required input
   if (!transcript) {
     return res.status(400).json({ error: "Transcript is required." });
   }
 
   try {
+    // Validate OpenAI API key configuration
     if (!openaiApiKey) {
       return res
         .status(500)
         .json({ error: "OpenAI API key is not configured." });
     }
 
+    // Construct prompt for flashcard generation with specific format requirements
     const prompt = `
     Convert the following transcript into 15 study flashcards in JSON format (return this as text, do NOT return this in markdown).
     Also generate a short session name. The final JSON format should be:
@@ -67,13 +80,14 @@ exports.generateFlashcards = async (req, res) => {
       - Ignore information within the transcript pertaining to personnel, course structure, or course tools. Flashcards are for educational content.
   `;
 
+    // Make API call to OpenAI for flashcard generation
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
         model: "gpt-4o",
         messages: [{ role: "user", content: prompt.trim() }],
         max_tokens: 15000,
-        temperature: 0.1,
+        temperature: 0.1, // Low temperature for consistent, focused flashcards
       },
       {
         headers: {
@@ -83,12 +97,14 @@ exports.generateFlashcards = async (req, res) => {
       }
     );
 
-    // Remove triple backticks from the response if present
+    // Extract and clean the response text
     let flashcardsText = response.data.choices[0].message.content.trim();
+    // Remove markdown code block formatting if present
     if (flashcardsText.startsWith("```") && flashcardsText.endsWith("```")) {
       flashcardsText = flashcardsText.slice(3, -3).trim();
     }
 
+    // Parse the JSON response from OpenAI
     let parsedResponse;
     try {
       parsedResponse = JSON.parse(flashcardsText);
@@ -100,8 +116,7 @@ exports.generateFlashcards = async (req, res) => {
         .json({ error: "Failed to parse flashcards JSON." });
     }
 
-    // Validate the new 2-element array format
-    // Expect: [ sessionName (string), arrayOfFlashcards (array of objects) ]
+    // Validate the expected 2-element array format: [sessionName, arrayOfFlashcards]
     if (
       !Array.isArray(parsedResponse) ||
       parsedResponse.length !== 2 ||
@@ -117,7 +132,7 @@ exports.generateFlashcards = async (req, res) => {
     const sessionName = parsedResponse[0];
     const flashcards = parsedResponse[1];
 
-    // Validate the flashcards array
+    // Validate the flashcards array structure
     if (
       !flashcards.every(
         (card) =>
@@ -148,6 +163,8 @@ exports.generateFlashcards = async (req, res) => {
  * Uses OpenAI completions API with the text-davinci-003 model.
  * 
  * @param {Object} req - Express request object with prompt in request body
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.prompt - Text prompt for AI completion
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with AI-generated text or error
  */
@@ -155,20 +172,23 @@ exports.generatePublicResponse = async (req, res) => {
   try {
     const { prompt } = req.body;
     
+    // Validate required input
     if (!prompt) {
       return res.status(400).json({ error: "Prompt is required" });
     }
 
+    // Validate OpenAI API key configuration
     if (!openaiApiKey) {
       return res.status(500).json({ error: "OpenAI API key is not configured." });
     }
 
+    // Make API call to OpenAI for text completion
     const response = await axios.post(
       "https://api.openai.com/v1/completions",
       {
         model: "text-davinci-003",
         prompt: prompt,
-        max_tokens: 2000,
+        max_tokens: 2000, // Limited tokens for public endpoint
       },
       {
         headers: {
@@ -190,8 +210,19 @@ exports.generatePublicResponse = async (req, res) => {
  * 
  * Provides different token limits based on user subscription status.
  * Uses OpenAI completions API with the text-davinci-003 model.
+ * Stores conversation history for authenticated users.
+ * 
+ * Process Flow:
+ * 1. Validates user authentication and prompt input
+ * 2. Checks user subscription status for token limits
+ * 3. Makes API call to OpenAI with appropriate limits
+ * 4. Stores conversation in history database
+ * 5. Returns AI response to user
  * 
  * @param {Object} req - Express request object with prompt in request body
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.prompt - Text prompt for AI completion
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with AI-generated text or error
  */
@@ -200,21 +231,24 @@ exports.generateResponse = async (req, res) => {
     const { prompt } = req.body;
     const userId = req.user.id;
     
+    // Validate required input
     if (!prompt) {
       return res.status(400).json({ error: "Prompt is required" });
     }
 
+    // Validate OpenAI API key configuration
     if (!openaiApiKey) {
       return res.status(500).json({ error: "OpenAI API key is not configured." });
     }
 
-    // Get user's subscription status
+    // Get user's subscription status to determine token limits
     const db = getDB();
     const user = await db.collection("users").findOne({ _id: userId });
     
-    // Configure token limit based on subscription
+    // Configure token limit based on subscription status
     const maxTokens = user.isPro ? 4000 : 2000;
 
+    // Make API call to OpenAI for text completion
     const response = await axios.post(
       "https://api.openai.com/v1/completions",
       {
@@ -230,7 +264,7 @@ exports.generateResponse = async (req, res) => {
       }
     );
 
-    // Store the interaction in history if needed
+    // Store the interaction in history for authenticated users
     await db.collection("aiHistory").insertOne({
       userId,
       prompt,

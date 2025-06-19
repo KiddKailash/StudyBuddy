@@ -12,8 +12,12 @@ const { ObjectId } = require("mongodb");
  * Create a new folder for the user.
  * 
  * Creates a new organizational folder for the authenticated user.
+ * Validates required fields and ensures proper data structure.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.folderName - Name for the new folder
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with created folder or error
  */
@@ -21,6 +25,7 @@ exports.createFolder = async (req, res) => {
   const { folderName } = req.body;
   const userId = req.user.id;
 
+  // Validate required folder name
   if (!folderName) {
     return res.status(400).json({ error: "folderName is required." });
   }
@@ -29,12 +34,14 @@ exports.createFolder = async (req, res) => {
     const db = getDB();
     const foldersCollection = db.collection("folders");
 
+    // Create new folder document with user association
     const newFolder = {
       userId: new ObjectId(userId),
       folderName,
       createdAt: new Date(),
     };
 
+    // Insert folder into database
     const result = await foldersCollection.insertOne(newFolder);
 
     res.status(201).json({
@@ -51,8 +58,10 @@ exports.createFolder = async (req, res) => {
  * Retrieve all folders for the current user.
  * 
  * Gets all folders belonging to the authenticated user.
+ * Returns folders in a consistent format with proper ID conversion.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with array of folder objects or error
  */
@@ -62,11 +71,12 @@ exports.getFolders = async (req, res) => {
     const db = getDB();
     const foldersCollection = db.collection("folders");
 
+    // Fetch all folders for the user
     const folders = await foldersCollection
       .find({ userId: new ObjectId(userId) })
       .toArray();
 
-    // Convert _id to id
+    // Convert _id to id for consistent response format
     const formattedFolders = folders.map((folder) => ({
       id: folder._id.toString(),
       folderName: folder.folderName,
@@ -84,8 +94,14 @@ exports.getFolders = async (req, res) => {
  * Rename a folder
  * 
  * Updates the name of an existing folder.
+ * Validates user ownership and ensures the new name is provided.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Folder ID to rename
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.newName - New name for the folder
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with success message or error
  */
@@ -95,6 +111,7 @@ exports.renameFolder = async (req, res) => {
     const { newName } = req.body;
     const userId = req.user.id;
 
+    // Validate required new name
     if (!newName) {
       return res.status(400).json({ error: "newName is required." });
     }
@@ -102,6 +119,7 @@ exports.renameFolder = async (req, res) => {
     const db = getDB();
     const foldersCollection = db.collection("folders");
 
+    // Verify folder exists and belongs to user
     const folder = await foldersCollection.findOne({
       _id: new ObjectId(id),
       userId: new ObjectId(userId),
@@ -110,6 +128,7 @@ exports.renameFolder = async (req, res) => {
       return res.status(404).json({ error: "Folder not found." });
     }
 
+    // Update the folder name
     await foldersCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { folderName: newName } }
@@ -127,8 +146,12 @@ exports.renameFolder = async (req, res) => {
  * 
  * Removes a folder from the user's account.
  * Note: Resources in this folder won't be deleted, they'll just become "unfoldered".
+ * Validates user ownership before deletion.
  * 
  * @param {Object} req - Express request object
+ * @param {string} req.user.id - Authenticated user ID
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Folder ID to delete
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with success message or error
  */
@@ -140,6 +163,7 @@ exports.deleteFolder = async (req, res) => {
     const db = getDB();
     const foldersCollection = db.collection("folders");
 
+    // Verify folder exists and belongs to user
     const folder = await foldersCollection.findOne({
       _id: new ObjectId(id),
       userId: new ObjectId(userId),
@@ -148,7 +172,7 @@ exports.deleteFolder = async (req, res) => {
       return res.status(404).json({ error: "Folder not found." });
     }
 
-    // Delete the folder
+    // Delete the folder from database
     await foldersCollection.deleteOne({
       _id: new ObjectId(id),
       userId: new ObjectId(userId),
