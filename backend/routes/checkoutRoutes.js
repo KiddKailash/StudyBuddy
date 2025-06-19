@@ -5,25 +5,6 @@
  * Provides endpoints for creating checkout sessions, checking payment status,
  * and managing user subscriptions. All routes require JWT authentication.
  * 
- * Key Features:
- * - Stripe embedded checkout session creation
- * - Subscription status checking
- * - Subscription cancellation
- * - Payment processing integration
- * - User account type management
- * 
- * Dependencies:
- * - Express.js for route handling
- * - Stripe SDK for payment processing
- * - authMiddleware for JWT authentication
- * - MongoDB for user data updates
- * 
- * Environment Variables:
- * - STRIPE_SECRET_KEY: Stripe secret key for API access
- * - CLIENT_URL: Frontend URL for checkout return
- * - STRIPE_PRICE_ID_PAID_MONTHLY: Monthly subscription price ID
- * - STRIPE_PRICE_ID_PAID_YEARLY: Yearly subscription price ID
- * 
  * Route Base: /api/checkout
  * Authentication: All routes require valid JWT token
  */

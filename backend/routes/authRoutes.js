@@ -1,5 +1,8 @@
 /**
  * Authentication Routes Module
+ * 
+ * Provides endpoints for user registration, login, token refresh, and subscription management.
+ * Mix of public routes (registration/login) and protected routes (user data/subscription).
  */
 const express = require('express');
 const router = express.Router();

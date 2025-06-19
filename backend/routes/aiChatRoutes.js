@@ -1,24 +1,7 @@
 /**
  * AI Chat Routes Module
  * 
- * Defines Express.js routes for AI chat functionality with document context.
  * Provides endpoints for creating, managing, and organizing AI chat sessions.
- * All routes require JWT authentication for user-specific chat management.
- * 
- * Key Features:
- * - AI chat session creation and management
- * - Chat history retrieval and organization
- * - Folder-based chat organization
- * - Chat session renaming and deletion
- * - Context-aware AI responses based on documents
- * 
- * Dependencies:
- * - Express.js for route handling
- * - authMiddleware for JWT authentication
- * - aiChatController for business logic
- * 
- * Route Base: /api/aichats
- * Authentication: All routes require valid JWT token
  */
 const express = require("express");
 const router = express.Router();
