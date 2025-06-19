@@ -104,12 +104,12 @@ connectDB()
 
     // Rate limiting configuration (currently disabled)
     // Uncomment to enable rate limiting for API protection
-    // const limiter = rateLimit({
-    //   windowMs: 15 * 60 * 1000, // 15 minutes
-    //   max: 500, // Number of requests per window
-    //   message: "Too many requests from this IP, please try again later.",
-    // });
-    // app.use(limiter);
+    const limiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 500, // Number of requests per window
+      message: "Too many requests from this IP, please try again later.",
+    });
+    app.use(limiter);
 
     /**
      * Stripe webhook endpoint with raw body parsing
