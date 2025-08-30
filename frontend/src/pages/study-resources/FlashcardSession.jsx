@@ -88,7 +88,7 @@ const FlashcardSession = () => {
     setLoading(true);
     try {
       // Directly use the data from the context instead of fetching
-      const flashcardSession = flashcardSessions.find(f => f.id === id);
+      const flashcardSession = flashcardSessions.find((f) => f.id === id);
       setSession(flashcardSession);
     } catch (error) {
       console.error("Error fetching session:", error);
@@ -240,13 +240,12 @@ const FlashcardSession = () => {
         >
           <Stack
             direction="row"
-            spacing={1}
+
             divider={<Divider orientation="vertical" flexItem />}
             sx={{
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              p: 0.5,
               border: "0.5px solid grey",
               borderRadius: 2,
             }}
@@ -254,17 +253,8 @@ const FlashcardSession = () => {
             <Button
               variant="text"
               color="text.secondary"
-              onClick={handleGenerateMoreFlashcards}
-              disabled={generating}
-              startIcon={<AddRoundedIcon sx={{ color: "primary.main" }} />}
-            >
-              {generating ? t("generating") : t("more_flashcards")}
-            </Button>
-
-            <Button
-              variant="text"
-              color="text.secondary"
               onClick={handleTogglePractice}
+              sx={{ "&:hover": { backgroundColor: "action.hover" }, p:2 }}
               startIcon={
                 practiceMode ? (
                   <EditNoteRoundedIcon color="primary" />
@@ -274,6 +264,17 @@ const FlashcardSession = () => {
               }
             >
               {practiceMode ? t("edit") : t("practice")}
+            </Button>
+
+            <Button
+              variant="text"
+              color="text.secondary"
+              onClick={handleGenerateMoreFlashcards}
+              disabled={generating}
+              sx={{ "&:hover": { backgroundColor: "action.hover" }, p:2 }}
+              startIcon={<AddRoundedIcon sx={{ color: "primary.main" }} />}
+            >
+              {generating ? t("generating") : t("more_flashcards")}
             </Button>
           </Stack>
 
