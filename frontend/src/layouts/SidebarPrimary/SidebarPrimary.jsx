@@ -141,22 +141,6 @@ const SidebarPrimary = ({ mobileMode = false }) => {
           </IconButton>
         </Tooltip>
 
-        <Tooltip title="Unfoldered" placement="bottom">
-          <IconButton
-            size="large"
-            onClick={() => {
-              navigate("/null/create");
-              document.body.click();
-            }}
-            sx={{
-              borderRadius: 2,
-              ...(folderID === "null" && activeLine),
-            }}
-          >
-            <ClearAllRoundedIcon />
-          </IconButton>
-        </Tooltip>
-
         {folders?.map((folder) => (
           <Tooltip key={folder.id} title={folder.folderName} placement="bottom">
             <IconButton
@@ -217,7 +201,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
               size="large"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/null/create")}
               sx={{
                 borderRadius: 2,
                 ...(isHomePage && activeLine),
@@ -226,7 +210,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
                 },
               }}
             >
-              <HomeIcon sx={{ borderRadius: 2 }} />
+              <ClearAllRoundedIcon sx={{ borderRadius: 2 }} />
             </IconButton>
             {isMobile && (
               <Typography variant="caption" sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}>
@@ -236,31 +220,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
           </Box>
         </Tooltip>
 
-        {/* 3) Unfoldered icon */}
-        <Tooltip title="Unfoldered" placement={isMobile ? "bottom" : "right"}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton
-              size="large"
-              onClick={() => navigate("/null/create")}
-              sx={{
-                borderRadius: 2,
-                ...(folderID === "null" && activeLine),
-                "&:hover": {
-                  color: "primary.main",
-                },
-              }}
-            >
-              <ClearAllRoundedIcon />
-            </IconButton>
-            {isMobile && (
-              <Typography variant="caption" sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}>
-                Unfoldered
-              </Typography>
-            )}
-          </Box>
-        </Tooltip>
-
-        {/* 4) Folders List */}
+        {/* 3) Folders List */}
         {folders?.map((folder) => (
           <Tooltip key={folder.id} title={folder.folderName} placement={isMobile ? "bottom" : "right"}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -296,7 +256,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
           </Tooltip>
         ))}
 
-        {/* 5) Create Folder Button */}
+        {/* 4) Create Folder Button */}
         <Tooltip title="Create Folder" placement={isMobile ? "bottom" : "right"}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
@@ -319,10 +279,10 @@ const SidebarPrimary = ({ mobileMode = false }) => {
           </Box>
         </Tooltip>
 
-        {/* 6) Space Filler */}
+        {/* 5) Space Filler */}
         <div style={{ flexGrow: 1 }} />
 
-        {/* 7) Request Feature - Wrap in error boundary */}
+        {/* 6) Request Feature - Wrap in error boundary */}
         <Tooltip title="Request Feature" placement={isMobile ? "bottom" : "right"}>
           <Box>
             <Suspense fallback={<CircularProgress size={24} />}>
@@ -333,7 +293,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
           </Box>
         </Tooltip>
 
-        {/* 8) Language Switcher - Wrap in error boundary */}
+        {/* 7) Language Switcher - Wrap in error boundary */}
         <Tooltip title="Language" placement={isMobile ? "bottom" : "right"}>
           <Box>
             <Suspense fallback={<CircularProgress size={24} />}>
@@ -344,10 +304,10 @@ const SidebarPrimary = ({ mobileMode = false }) => {
           </Box>
         </Tooltip>
 
-        {/* 9) Bottom Spacing */}
+        {/* 8) Bottom Spacing */}
         <Box sx={{ pb: isMobile ? 2 : 10 }} />
 
-        {/* 10) Avatar / Account Menu - Wrap in error boundary */}
+        {/* 9) Avatar / Account Menu - Wrap in error boundary */}
         <Suspense fallback={<CircularProgress size={24} />}>
           <SafeComponent fallback={avatarMenuFallback}>
             <AvatarMenu />

@@ -49,6 +49,9 @@ const CreateStudyResource = () => {
     aiChats = [],
   } = useContext(UserContext);
 
+  // Debug logging
+  console.log('CreateStudyResource - flashcardSessions from context:', flashcardSessions);
+
   // Helper function: for each resource, use updatedDate if it exists; otherwise, fallback to createdAt.
   const getResourceTimestamp = (resource) =>
     resource.updatedDate

@@ -45,16 +45,7 @@ const MainLayout = () => {
   };
 
   const showSidebars = !isLoginPage && !isLandingPage && !isTOSorPrivacy;
-  const showSecondary = showSidebars && !noActiveFolder && !isSettings;
-
-  // Fallback UI for errors in mobile drawer
-  const drawerErrorFallback = (
-    <Box p={3} textAlign="center">
-      <Typography variant="body2" color="error">
-        Unable to load sidebar content
-      </Typography>
-    </Box>
-  );
+  const showSecondary = showSidebars && !isSettings;
 
   return (
     <Box

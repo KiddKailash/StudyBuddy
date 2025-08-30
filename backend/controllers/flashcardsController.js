@@ -74,6 +74,7 @@ exports.createFlashcardSession = async (req, res) => {
 
     const newSession = {
       userId: new ObjectId(userId),
+      uploadId: uploadId,
       studySession: sessionName,
       flashcardsJSON: studyCards,
       createdDate: new Date(),
@@ -295,10 +296,13 @@ exports.getAllFlashcards = async (req, res) => {
     // Convert _id to id
     const formattedSessions = sessions.map((session) => ({
       id: session._id.toString(),
+      userId: session.userId,
+      uploadId: session.uploadId,
       studySession: session.studySession,
       flashcardsJSON: session.flashcardsJSON,
       transcript: session.transcript,
       createdDate: session.createdDate,
+      folderID: session.folderID || null,
     }));
 
     res.status(200).json({ flashcards: formattedSessions });
