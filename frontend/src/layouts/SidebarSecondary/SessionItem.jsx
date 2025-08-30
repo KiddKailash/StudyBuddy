@@ -30,7 +30,6 @@ function getResourceIcon(resourceType, session) {
         <Avatar
           src="/assets/flashcards.png"
           alt="Study Buddy Icon"
-          size="inherit"
         />
       );
     case "create":
@@ -87,8 +86,6 @@ const SessionItem = ({
       <ListItemButton
         {...clickableProps}
         sx={(theme) => ({
-          mr: 1,
-          ml: 1,
           borderRadius: 3,
           backgroundColor: isActive
             ? theme.palette.action.selected
@@ -134,7 +131,7 @@ const SessionItem = ({
         )}
 
         {/* More options icon, only if there's a handleMenuOpen function */}
-        {handleMenuOpen && (
+        {handleMenuOpen && isExpanded && (
           <IconButton
             edge="end"
             aria-label="Options"

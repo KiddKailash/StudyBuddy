@@ -17,12 +17,12 @@ import UploadResource from "../../pages/UploadResource";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
+import ListItemButton from "@mui/material/ListItemButton";
 import Divider from "@mui/material/Divider";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import CircularProgress from "@mui/material/CircularProgress";
-import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -108,7 +108,7 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
     canGenerate: false,
     isGenerating: false,
     selectedUploadId: null,
-    resourceType: null
+    resourceType: null,
   });
 
   // Add ref to track if uploads are already fetched
@@ -378,16 +378,6 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
     setResourceDialogOpen(true);
   };
 
-  // Handle opening upload dialog
-  const handleOpenUploadDialog = () => {
-    setUploadDialogOpen(true);
-  };
-
-  // Handle closing upload dialog
-  const handleCloseUploadDialog = () => {
-    setUploadDialogOpen(false);
-  };
-
   // Handle closing resource dialog
   const handleResourceDialogClose = () => {
     setResourceDialogOpen(false);
@@ -396,7 +386,7 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
       canGenerate: false,
       isGenerating: false,
       selectedUploadId: null,
-      resourceType: null
+      resourceType: null,
     });
   };
 
@@ -407,9 +397,9 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
   };
 
   const handleGenerateStateChange = (state) => {
-    if (typeof state === 'boolean') {
+    if (typeof state === "boolean") {
       // Handle legacy boolean parameter for isGenerating
-      setGenerateState(prev => ({ ...prev, isGenerating: state }));
+      setGenerateState((prev) => ({ ...prev, isGenerating: state }));
     } else {
       // Handle full state object
       setGenerateState(state);
@@ -417,33 +407,7 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
   };
 
   return (
-    <Box sx={{ width: "100%", p: 2 }}>
-      {/* Top Action Buttons */}
-      <Stack
-        direction="row"
-        spacing={1}
-        sx={{
-          mb: 2,
-        }}
-      >
-        
-
-        <Tooltip title="Create Study Resource">
-          <IconButton
-            size="medium"
-            onClick={handleResourceMenuOpen}
-            sx={{
-              borderRadius: 2,
-              "&:hover": {
-                backgroundColor: "action.hover",
-              },
-            }}
-          >
-            <AddRoundedIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </Stack>
-
+    <Box sx={{ width: "100%", p: 1.5 }}>
       <Divider sx={{ mb: 2 }} />
 
       <List component="nav">
@@ -457,6 +421,35 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
               Study Resources
             </Typography>
           )}
+
+          {/* Create Study Resource */}
+          <ListItemButton
+            size="small"
+            onClick={handleResourceMenuOpen}
+            sx={{
+              borderRadius: 2,
+              "&:hover": {
+                backgroundColor: "action.hover",
+              },
+            }}
+          >
+            {/* Left side: icon + text if expanded, else just icon with tooltip */}
+            {isExpanded ? (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <AddRoundedIcon color="action" />
+                <ListItemText
+                  primary="Create new study resource"
+                  primaryTypographyProps={{ variant: "subtitle2" }}
+                />
+              </Box>
+            ) : (
+              <Tooltip title="Create new study resource" placement="right">
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <AddRoundedIcon color="action" divid />
+                </Box>
+              </Tooltip>
+            )}
+          </ListItemButton>
 
           {/* No resources message */}
           {filteredFlashcards.length === 0 &&
@@ -479,7 +472,7 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
             )}
 
           {/* Flashcards */}
-          {filteredFlashcards.length > 0 && (
+          {filteredFlashcards.length > 0 && isExpanded && (
             <Typography variant="overline" sx={{ color: "text.secondary" }}>
               Flashcards
             </Typography>
@@ -501,7 +494,7 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
           ))}
 
           {/* Multiple choice quizzes */}
-          {filteredMcqs.length > 0 && (
+          {filteredMcqs.length > 0 && isExpanded && (
             <Typography variant="overline" sx={{ color: "text.secondary" }}>
               Practice Quizzes
             </Typography>
@@ -523,7 +516,7 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
           ))}
 
           {/* Summaries */}
-          {filteredSummaries.length > 0 && (
+          {filteredSummaries.length > 0 && isExpanded && (
             <Typography variant="overline" sx={{ color: "text.secondary" }}>
               Summaries
             </Typography>
@@ -636,24 +629,29 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleResourceDialogClose} color="error" disabled={generateState.isGenerating}>
+          <Button
+            onClick={handleResourceDialogClose}
+            color="error"
+            disabled={generateState.isGenerating}
+          >
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleGenerate}
             variant="contained"
             disabled={!generateState.canGenerate || generateState.isGenerating}
-            startIcon={generateState.isGenerating ? <CircularProgress size={20} /> : null}
+            startIcon={
+              generateState.isGenerating ? <CircularProgress size={20} /> : null
+            }
           >
-            {generateState.isGenerating ? (
-              "Generating..."
-            ) : (
-              `Generate ${
-                selectedResourceType === "mcq"
-                  ? "Quiz"
-                  : selectedResourceType?.charAt(0).toUpperCase() + selectedResourceType?.slice(1)
-              }`
-            )}
+            {generateState.isGenerating
+              ? "Generating..."
+              : `Generate ${
+                  selectedResourceType === "mcq"
+                    ? "Quiz"
+                    : selectedResourceType?.charAt(0).toUpperCase() +
+                      selectedResourceType?.slice(1)
+                }`}
           </Button>
         </DialogActions>
       </Dialog>
