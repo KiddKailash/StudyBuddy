@@ -198,9 +198,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
 
         {/* 2) Home Icon */}
         <Tooltip title="Home" placement={isMobile ? "bottom" : "right"}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
-              size="large"
               onClick={() => navigate("/null/create")}
               sx={{
                 borderRadius: 2,
@@ -217,13 +215,11 @@ const SidebarPrimary = ({ mobileMode = false }) => {
                 Home
               </Typography>
             )}
-          </Box>
         </Tooltip>
 
         {/* 3) Folders List */}
         {folders?.map((folder) => (
           <Tooltip key={folder.id} title={folder.folderName} placement={isMobile ? "bottom" : "right"}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <IconButton
                 size="large"
                 onClick={() => navigate(`/${folder.id}/create`)}
@@ -252,13 +248,11 @@ const SidebarPrimary = ({ mobileMode = false }) => {
                   {folder.folderName}
                 </Typography>
               )}
-            </Box>
           </Tooltip>
         ))}
 
         {/* 4) Create Folder Button */}
         <Tooltip title="Create Folder" placement={isMobile ? "bottom" : "right"}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
               size="large"
               onClick={handleOpenFolderDialog}
@@ -276,7 +270,6 @@ const SidebarPrimary = ({ mobileMode = false }) => {
                 New Folder
               </Typography>
             )}
-          </Box>
         </Tooltip>
 
         {/* 5) Space Filler */}
@@ -284,24 +277,20 @@ const SidebarPrimary = ({ mobileMode = false }) => {
 
         {/* 6) Request Feature - Wrap in error boundary */}
         <Tooltip title="Request Feature" placement={isMobile ? "bottom" : "right"}>
-          <Box>
             <Suspense fallback={<CircularProgress size={24} />}>
               <SafeComponent fallback={requestFeatureFallback}>
                 <RequestFeature />
               </SafeComponent>
             </Suspense>
-          </Box>
         </Tooltip>
 
         {/* 7) Language Switcher - Wrap in error boundary */}
         <Tooltip title="Language" placement={isMobile ? "bottom" : "right"}>
-          <Box>
             <Suspense fallback={<CircularProgress size={24} />}>
               <SafeComponent fallback={languageSwitcherFallback}>
                 <LanguageSwitcherIMG size="small" />
               </SafeComponent>
             </Suspense>
-          </Box>
         </Tooltip>
 
         {/* 8) Bottom Spacing */}
