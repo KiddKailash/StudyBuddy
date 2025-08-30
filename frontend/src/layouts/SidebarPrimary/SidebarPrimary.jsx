@@ -75,7 +75,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
   const [folderName, setFolderName] = useState("");
 
   const isPaidUser = user?.accountType === "paid";
-  const isHomePage = location.pathname === "/";
+  const isHomePage = location.pathname === "/" || location.pathname.startsWith("/null/");
 
   // Folder creation handlers
   const handleOpenFolderDialog = () => setOpenFolderDialog(true);
