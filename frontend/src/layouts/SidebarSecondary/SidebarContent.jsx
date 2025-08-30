@@ -437,12 +437,12 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <AddRoundedIcon color="action" />
                 <ListItemText
-                  primary="Create new study resource"
+                  primary="Study resource"
                   primaryTypographyProps={{ variant: "subtitle2" }}
                 />
               </Box>
             ) : (
-              <Tooltip title="Create new study resource" placement="right">
+              <Tooltip title="Study resource" placement="right">
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <AddRoundedIcon color="action" divid />
                 </Box>

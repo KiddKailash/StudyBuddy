@@ -91,7 +91,7 @@ exports.createFlashcardSession = async (req, res) => {
 
     res.status(201).json({
       message: "Flashcard session created successfully.",
-      flashcard: createdSession,
+      data: createdSession,
     });
   } catch (error) {
     console.error("Create Flashcard Session Error:", error);
@@ -305,7 +305,7 @@ exports.getAllFlashcards = async (req, res) => {
       folderID: session.folderID || null,
     }));
 
-    res.status(200).json({ flashcards: formattedSessions });
+    res.status(200).json({ data: formattedSessions });
   } catch (error) {
     console.error("Get All Flashcards Error:", error);
     res
@@ -407,12 +407,15 @@ exports.deleteFlashcardSession = async (req, res) => {
  */
 exports.updateFlashcardSessionName = async (req, res) => {
   const { id } = req.params;
-  const { sessionName } = req.body;
+  const { newName, sessionName } = req.body;
   const userId = req.user.id;
 
+  // Accept both newName (consistent with other resources) and sessionName (legacy)
+  const nameToUpdate = newName || sessionName;
+  
   // Basic validation
-  if (!sessionName) {
-    return res.status(400).json({ error: "sessionName is required." });
+  if (!nameToUpdate) {
+    return res.status(400).json({ error: "newName is required." });
   }
 
   try {
@@ -432,7 +435,7 @@ exports.updateFlashcardSessionName = async (req, res) => {
     // Update the session name
     await flashcardsCollection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { studySession: sessionName, updatedDate: new Date() } }
+      { $set: { studySession: nameToUpdate, updatedDate: new Date() } }
     );
 
     res

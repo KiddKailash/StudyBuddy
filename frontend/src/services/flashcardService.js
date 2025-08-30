@@ -130,7 +130,7 @@ export const createFlashcards = async (uploadId, folderID, sessionName, studyCar
       { headers }
     );
 
-    return resp.data.flashcard;
+    return resp.data.data || resp.data.flashcard;
   } catch (err) {
     console.error("createFlashcards error:", err);
     throw err;
@@ -176,7 +176,7 @@ export const createFlashcardsFromUpload = async (uploadId, folderID) => {
     );
     
     // Return the newly created flashcard session
-    return createResp.data.flashcard;
+    return createResp.data.data || createResp.data.flashcard;
   } catch (err) {
     console.error("createFlashcardsFromUpload error:", err);
     throw err;
@@ -240,7 +240,7 @@ export const updateFlashcardSessionName = async (sessionId, newName) => {
     
     await axios.put(
       `${BACKEND}/api/flashcards/${sessionId}/name`,
-      { sessionName: newName },
+      { newName: newName },
       { headers }
     );
     

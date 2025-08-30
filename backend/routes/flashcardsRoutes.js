@@ -64,7 +64,7 @@ router.delete("/:id", deleteFlashcardSession);
  * @desc    Update the name of a flashcard session
  * @access  Private (JWT required)
  * @param   {string} id - Flashcard session ID
- * @body    {sessionName} - New name for the session
+ * @body    {newName} - New name for the session (also accepts sessionName for backward compatibility)
  */
 router.put("/:id/name", updateFlashcardSessionName);
 
