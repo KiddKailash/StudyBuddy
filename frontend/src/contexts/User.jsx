@@ -275,23 +275,14 @@ export const UserProvider = ({ children }) => {
 
   // Load all resources when user is authenticated
   useEffect(() => {
-    console.log('User context useEffect triggered:', { 
-      isLoggedIn: auth.isLoggedIn, 
-      hasUser: !!auth.user, 
-      authLoading: auth.authLoading 
-    });
-    
     if (auth.isLoggedIn && auth.user && !auth.authLoading) {
-      console.log('Loading resources and flashcards...');
       const loadResources = async () => {
         setDataLoading(true);
         try {
-          const [resourcesResult, flashcardsResult] = await Promise.all([
+          await Promise.all([
             resources.loadAllResources(),
             flashcards.loadFlashcardSessions()
           ]);
-          console.log('Resources loaded:', resourcesResult);
-          console.log('Flashcards loaded:', flashcardsResult);
         } catch (error) {
           console.error('Error loading resources:', error);
         } finally {

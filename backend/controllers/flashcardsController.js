@@ -454,7 +454,8 @@ exports.assignFolderToSession = async (req, res) => {
   const { folderID } = req.body;
   const userId = req.user.id;
 
-  if (!folderID) {
+  // folderID can be null (for unorganized folder), but must be present in the request
+  if (folderID === undefined) {
     return res.status(400).json({ error: "folderID is required." });
   }
 

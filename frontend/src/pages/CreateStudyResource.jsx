@@ -24,8 +24,6 @@ import { useTheme } from "@mui/material/styles";
 import CheckBoxRoundedIcon from "@mui/icons-material/CheckBoxRounded";
 import ViewCarouselRoundedIcon from "@mui/icons-material/ViewCarouselRounded";
 import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
-import NotesRoundedIcon from "@mui/icons-material/NotesRounded";
-import ChatIcon from "@mui/icons-material/Chat";
 import RestoreRoundedIcon from "@mui/icons-material/RestoreRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 
@@ -48,9 +46,6 @@ const CreateStudyResource = () => {
     summaries = [],
     aiChats = [],
   } = useContext(UserContext);
-
-  // Debug logging
-  console.log('CreateStudyResource - flashcardSessions from context:', flashcardSessions);
 
   // Helper function: for each resource, use updatedDate if it exists; otherwise, fallback to createdAt.
   const getResourceTimestamp = (resource) =>

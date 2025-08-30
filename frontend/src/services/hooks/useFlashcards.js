@@ -49,14 +49,11 @@ export function useFlashcards() {
    * @returns {Promise<Array>} Array of flashcard sessions
    */
   const loadFlashcardSessions = async () => {
-    console.log('useFlashcards - loadFlashcardSessions called');
     setLoadingSessions(true);
     setFlashcardError(null);
     try {
       const loadedDbSessions = await services.flashcards.fetchFlashcardSessions();
-      console.log('useFlashcards - fetchFlashcardSessions returned:', loadedDbSessions);
       setFlashcardSessions(loadedDbSessions);
-      console.log('useFlashcards - setFlashcardSessions called with:', loadedDbSessions);
       return loadedDbSessions;
     } catch (error) {
       console.error("loadFlashcardSessions error:", error);

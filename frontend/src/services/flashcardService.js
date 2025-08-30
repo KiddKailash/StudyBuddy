@@ -12,7 +12,6 @@ import axios from "axios";
 import { getAuthHeaders, getBackendUrl } from "./apiUtils";
 
 const BACKEND = getBackendUrl();
-console.log('flashcardService - BACKEND URL:', BACKEND);
 
 /**
  * Fetch all flashcard sessions for the current user
@@ -22,20 +21,11 @@ console.log('flashcardService - BACKEND URL:', BACKEND);
 export const fetchFlashcardSessions = async () => {
   try {
     const headers = getAuthHeaders();
-    console.log('fetchFlashcardSessions - Auth headers:', headers);
+    if (!headers.Authorization) return [];
     
-    if (!headers.Authorization) {
-      console.log('fetchFlashcardSessions - No authorization header, returning empty array');
-      return [];
-    }
-    
-    console.log('fetchFlashcardSessions - Making API call to:', `${BACKEND}/api/flashcards`);
     const resp = await axios.get(`${BACKEND}/api/flashcards`, { headers });
-    console.log('fetchFlashcardSessions - API response:', resp.data);
-    
     // The response returns { data: [ {id, ...}, ... ] }
     const loaded = resp.data.flashcards || resp.data.data || [];
-    console.log('fetchFlashcardSessions - Loaded sessions:', loaded);
     
     // Check for duplicate IDs before returning
     const ids = loaded.map(s => s.id);
@@ -55,7 +45,6 @@ export const fetchFlashcardSessions = async () => {
           seenIds.add(session.id);
         }
       }
-      console.log('fetchFlashcardSessions - Returning deduplicated sessions:', uniqueSessions);
       return uniqueSessions;
     }
     
@@ -64,11 +53,9 @@ export const fetchFlashcardSessions = async () => {
       ...s,
       sessionType: "db",
     }));
-    console.log('fetchFlashcardSessions - Returning sessions:', loadedDbSessions);
     return loadedDbSessions;
   } catch (error) {
     console.error("fetchFlashcardSessions error:", error);
-    console.error("fetchFlashcardSessions error details:", error.response?.data);
     return [];
   }
 };
