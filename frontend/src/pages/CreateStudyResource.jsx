@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 // Local Imports
 import UploadResource from "./UploadResource";
@@ -30,6 +30,7 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 const CreateStudyResource = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const params = useParams();
   const [open, setOpen] = useState(false);
   const [selectedResourceType, setSelectedResourceType] = useState(null);
   const [generateState, setGenerateState] = useState({
@@ -39,6 +40,11 @@ const CreateStudyResource = () => {
     resourceType: null
   });
   const generateRef = useRef(null);
+
+  // Get current folderID from URL params, default to "null" for unorganized
+  const currentFolderID = params.folderID || "null";
+  // Convert "null" string to null for comparison with resource folderIDs
+  const normalizedFolderID = currentFolderID === "null" ? null : currentFolderID;
 
   const {
     flashcardSessions = [],
@@ -53,13 +59,19 @@ const CreateStudyResource = () => {
       ? new Date(resource.updatedDate)
       : new Date(resource.createdAt);
 
-  // Fallback arrays
-  const flashcardsArr = flashcardSessions || [];
-  const mcqArr = multipleChoiceQuizzes || [];
-  const summariesArr = summaries || [];
-  const aiChatsArr = aiChats || [];
+  // Helper function to check if resource belongs to current folder
+  const isInCurrentFolder = (resource) => {
+    const resourceFolderID = resource.folderID || null;
+    return resourceFolderID === normalizedFolderID;
+  };
 
-  // Combine all the resources with their type added.
+  // Filter resources by current folder, then add resource type
+  const flashcardsArr = (flashcardSessions || []).filter(isInCurrentFolder);
+  const mcqArr = (multipleChoiceQuizzes || []).filter(isInCurrentFolder);
+  const summariesArr = (summaries || []).filter(isInCurrentFolder);
+  const aiChatsArr = (aiChats || []).filter(isInCurrentFolder);
+
+  // Combine all the filtered resources with their type added.
   const allResources = [
     ...flashcardsArr.map((item) => ({ ...item, resourceType: "flashcards" })),
     ...mcqArr.map((item) => ({ ...item, resourceType: "mcq" })),
@@ -194,7 +206,7 @@ const CreateStudyResource = () => {
           </Box>
         </Box>
 
-        {allResources.length > 0 && (
+
           <Box>
             <Typography
               variant="body2"
@@ -218,6 +230,7 @@ const CreateStudyResource = () => {
                 borderRadius: 4,
               }}
             >
+                    {allResources.length > 0 ? (
               <Stack direction="row" spacing={2}>
                 {mostRecentResources.map((resource) => (
                   <Box
@@ -225,7 +238,7 @@ const CreateStudyResource = () => {
                     sx={cardStyle}
                     onClick={() =>
                       navigate(
-                        `/${resource.folderID === undefined ? null : resource.folderID}/${resource.resourceType}/${resource.id}`
+                        `/${currentFolderID}/${resource.resourceType}/${resource.id}`
                       )
                     }
                   >
@@ -240,9 +253,13 @@ const CreateStudyResource = () => {
                   </Box>
                 ))}
               </Stack>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No recent study resources in this folder
+              </Typography>
+            )}
             </Box>
           </Box>
-        )}
       </Stack>
 
       
@@ -265,6 +282,7 @@ const CreateStudyResource = () => {
             {selectedResourceType && (
               <UploadResource 
                 resourceType={selectedResourceType}
+                folderID={currentFolderID}
                 onGenerate={generateRef}
                 onGenerateStateChange={handleGenerateStateChange}
               />
