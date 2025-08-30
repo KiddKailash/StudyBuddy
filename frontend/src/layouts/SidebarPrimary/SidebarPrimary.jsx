@@ -1,6 +1,6 @@
 import React, { useContext, useState, Suspense } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 // Local Imports
 import UserContext from "../../contexts/User";
@@ -68,7 +68,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
   const { folderID } = useParams();
   const { user, folders, createFolder, fetchFolders } = useContext(UserContext);
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const isMobile = mobileMode || isSmallScreen;
 
   const [openFolderDialog, setOpenFolderDialog] = useState(false);
@@ -104,7 +104,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
   );
 
   const avatarMenuFallback = (
-    <IconButton size="small" sx={{ position: 'absolute', bottom: 16 }}>
+    <IconButton size="small" sx={{ position: "absolute", bottom: 16 }}>
       <AccountCircleIcon fontSize="small" />
     </IconButton>
   );
@@ -116,12 +116,12 @@ const SidebarPrimary = ({ mobileMode = false }) => {
         direction="column"
         alignItems="center"
         spacing={1}
-        sx={{ 
-          height: "100%", 
-          pt: 2, 
+        sx={{
+          height: "100%",
+          pt: 2,
           overflowY: "scroll",
-          borderRight: '1px solid',
-          borderRightColor: 'divider'
+          borderRight: "1px solid",
+          borderRightColor: "divider",
         }}
       >
         <Tooltip title="Home" placement="bottom">
@@ -170,7 +170,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
         </Tooltip>
 
         <div style={{ flexGrow: 1 }} />
-        
+
         {/* Simple icons instead of complex components */}
         {requestFeatureFallback}
         {languageSwitcherFallback}
@@ -185,12 +185,12 @@ const SidebarPrimary = ({ mobileMode = false }) => {
         direction="column"
         alignItems="center"
         spacing={1}
-        sx={{ 
-          height: "100%", 
-          pt: 2, 
+        sx={{
+          height: "100%",
+          pt: 2,
           overflowY: "scroll",
-          borderRight: isMobile ? '1px solid' : 'none',
-          borderRightColor: 'divider'
+          borderRight: isMobile ? "1px solid" : "none",
+          borderRightColor: "divider",
         }}
       >
         {/* 1) "Go Pro" button (if user not paid) */}
@@ -198,99 +198,115 @@ const SidebarPrimary = ({ mobileMode = false }) => {
 
         {/* 2) Home Icon */}
         <Tooltip title="Home" placement={isMobile ? "bottom" : "right"}>
-            <IconButton
-              onClick={() => navigate("/null/create")}
-              sx={{
-                borderRadius: 2,
-                ...(isHomePage && activeLine),
-                "&:hover": {
-                  color: "primary.main",
-                },
-              }}
+          <IconButton
+            onClick={() => navigate("/")}
+            sx={{
+              borderRadius: 2,
+              ...(isHomePage && activeLine),
+              "&:hover": {
+                color: "primary.main",
+              },
+            }}
+          >
+            <ClearAllRoundedIcon sx={{ borderRadius: 2 }} />
+          </IconButton>
+          {isMobile && (
+            <Typography
+              variant="caption"
+              sx={{ ml: 1, display: { xs: "none", sm: "block" } }}
             >
-              <ClearAllRoundedIcon sx={{ borderRadius: 2 }} />
-            </IconButton>
-            {isMobile && (
-              <Typography variant="caption" sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}>
-                Home
-              </Typography>
-            )}
+              Home
+            </Typography>
+          )}
         </Tooltip>
 
         {/* 3) Folders List */}
         {folders?.map((folder) => (
-          <Tooltip key={folder.id} title={folder.folderName} placement={isMobile ? "bottom" : "right"}>
-              <IconButton
-                size="large"
-                onClick={() => navigate(`/${folder.id}/create`)}
-                sx={{
-                  borderRadius: 2,
-                  ...(folderID === folder.id && activeLine),
-                  "&:hover": {
-                    color: "primary.main",
-                  },
-                }}
-              >
-                <FolderIcon />
-              </IconButton>
-              {isMobile && (
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    ml: 1, 
-                    maxWidth: '75px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    display: { xs: 'none', sm: 'block' }
-                  }}
-                >
-                  {folder.folderName}
-                </Typography>
-              )}
-          </Tooltip>
-        ))}
-
-        {/* 4) Create Folder Button */}
-        <Tooltip title="Create Folder" placement={isMobile ? "bottom" : "right"}>
+          <Tooltip
+            key={folder.id}
+            title={folder.folderName}
+            placement={isMobile ? "bottom" : "right"}
+          >
             <IconButton
               size="large"
-              onClick={handleOpenFolderDialog}
+              onClick={() => navigate(`/${folder.id}/create`)}
               sx={{
                 borderRadius: 2,
+                ...(folderID === folder.id && activeLine),
                 "&:hover": {
                   color: "primary.main",
                 },
               }}
             >
-              <AddIcon />
+              <FolderIcon />
             </IconButton>
             {isMobile && (
-              <Typography variant="caption" sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}>
-                New Folder
+              <Typography
+                variant="caption"
+                sx={{
+                  ml: 1,
+                  maxWidth: "75px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  display: { xs: "none", sm: "block" },
+                }}
+              >
+                {folder.folderName}
               </Typography>
             )}
+          </Tooltip>
+        ))}
+
+        {/* 4) Create Folder Button */}
+        <Tooltip
+          title="Create Folder"
+          placement={isMobile ? "bottom" : "right"}
+        >
+          <IconButton
+            size="large"
+            onClick={handleOpenFolderDialog}
+            sx={{
+              borderRadius: 2,
+              "&:hover": {
+                color: "primary.main",
+              },
+            }}
+          >
+            <AddIcon />
+          </IconButton>
+          {isMobile && (
+            <Typography
+              variant="caption"
+              sx={{ ml: 1, display: { xs: "none", sm: "block" } }}
+            >
+              New Folder
+            </Typography>
+          )}
         </Tooltip>
 
         {/* 5) Space Filler */}
         <div style={{ flexGrow: 1 }} />
 
         {/* 6) Request Feature - Wrap in error boundary */}
-        <Tooltip title="Request Feature" placement={isMobile ? "bottom" : "right"}>
-            <Suspense fallback={<CircularProgress size={24} />}>
-              <SafeComponent fallback={requestFeatureFallback}>
-                <RequestFeature />
-              </SafeComponent>
-            </Suspense>
+        <Tooltip
+          title="Request Feature"
+          placement={isMobile ? "bottom" : "right"}
+        >
+          <Suspense fallback={<CircularProgress size={24} />}>
+            <SafeComponent fallback={requestFeatureFallback}>
+              <RequestFeature />
+            </SafeComponent>
+          </Suspense>
         </Tooltip>
 
         {/* 7) Language Switcher - Wrap in error boundary */}
         <Tooltip title="Language" placement={isMobile ? "bottom" : "right"}>
-            <Suspense fallback={<CircularProgress size={24} />}>
-              <SafeComponent fallback={languageSwitcherFallback}>
-                <LanguageSwitcherIMG size="small" />
-              </SafeComponent>
-            </Suspense>
+          <Suspense fallback={<CircularProgress size={24} />}>
+            <SafeComponent fallback={languageSwitcherFallback}>
+              <LanguageSwitcherIMG size="small" />
+            </SafeComponent>
+          </Suspense>
         </Tooltip>
 
         {/* 8) Bottom Spacing */}
@@ -312,7 +328,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
           sx: {
             borderRadius: "12px",
             p: 2,
-            width: isMobile ? '90%' : 'auto'
+            width: isMobile ? "90%" : "auto",
           },
         }}
       >
@@ -342,7 +358,7 @@ const SidebarPrimary = ({ mobileMode = false }) => {
 };
 
 SidebarPrimary.propTypes = {
-  mobileMode: PropTypes.bool
+  mobileMode: PropTypes.bool,
 };
 
 export default SidebarPrimary;

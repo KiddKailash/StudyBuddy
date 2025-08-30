@@ -101,7 +101,6 @@ const SidebarContent = ({ isExpanded = true, mobileMode = false }) => {
 
   // State for resource type menu
   const [resourceMenuAnchorEl, setResourceMenuAnchorEl] = useState(null);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedResourceType, setSelectedResourceType] = useState(null);
   const [resourceDialogOpen, setResourceDialogOpen] = useState(false);
   const [generateState, setGenerateState] = useState({
