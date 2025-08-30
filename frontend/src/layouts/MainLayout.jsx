@@ -35,8 +35,6 @@ const MainLayout = () => {
   const isLandingPage = location.pathname === "/landing-page";
   const isTOSorPrivacy =
     location.pathname === "/terms" || location.pathname === "/privacy";
-  const noActiveFolder =
-    location.pathname === "/" || location.pathname === "/create";
   const isSettings = location.pathname === "/settings";
   
   const handleDrawerToggle = () => {
